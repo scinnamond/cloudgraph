@@ -1,4 +1,4 @@
-package org.cloudgraph.filter;
+package org.cloudgraph.common.filter;
 
 import org.cloudgraph.CloudGraphRuntimeException;
 

@@ -15,13 +15,13 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.CloudGraphConstants;
+import org.cloudgraph.common.key.CloudGraphColumnKeyFactory;
+import org.cloudgraph.common.service.CloudGraphServiceException;
+import org.cloudgraph.common.service.CloudGraphState;
+import org.cloudgraph.common.service.DispatcherSupport;
+import org.cloudgraph.common.service.DuplicateRowException;
 import org.cloudgraph.hbase.key.HBaseCompositeRowKeyFactory;
 import org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory;
-import org.cloudgraph.key.CloudGraphColumnKeyFactory;
-import org.cloudgraph.service.CloudGraphServiceException;
-import org.cloudgraph.service.CloudGraphState;
-import org.cloudgraph.service.DispatcherSupport;
-import org.cloudgraph.service.DuplicateRowException;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaChangeSummary;
 import org.plasma.sdo.PlasmaDataGraph;
@@ -57,7 +57,7 @@ import commonj.sdo.Property;
  * is used to create a new composite HBase row key. The row key generation is
  * driven by a configured HGraph row key {@link org.cloudgraph.config.RowKeyModel
  * model} for a specific HTable {@link org.cloudgraph.config.HTable configuration}.
- * A minimal set of {@link org.cloudgraph.service.CloudGraphState state} information is 
+ * A minimal set of {@link org.cloudgraph.common.service.CloudGraphState state} information is 
  * persisted with each new data graph.     
  * </p>
  * <p>
@@ -69,9 +69,9 @@ import commonj.sdo.Property;
  * </p>
  * <p>
  * </p>
- * @see org.cloudgraph.key.CloudGraphRowKeyFactory
- * @see org.cloudgraph.key.CloudGraphColumnKeyFactory
- * @see org.cloudgraph.service.CloudGraphState
+ * @see org.cloudgraph.common.key.CloudGraphRowKeyFactory
+ * @see org.cloudgraph.common.key.CloudGraphColumnKeyFactory
+ * @see org.cloudgraph.common.service.CloudGraphState
  */
 public class HBaseGraphDispatcher extends DispatcherSupport
     implements DataGraphDispatcher 

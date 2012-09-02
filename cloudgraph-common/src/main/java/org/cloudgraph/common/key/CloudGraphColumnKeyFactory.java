@@ -1,4 +1,4 @@
-package org.cloudgraph.key;
+package org.cloudgraph.common.key;
 
  
 import org.plasma.sdo.PlasmaDataObject;

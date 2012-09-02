@@ -1,4 +1,4 @@
-package org.cloudgraph.service;
+package org.cloudgraph.common.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

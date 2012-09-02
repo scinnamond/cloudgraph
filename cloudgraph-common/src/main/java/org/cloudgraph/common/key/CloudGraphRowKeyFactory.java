@@ -1,4 +1,4 @@
-package org.cloudgraph.key;
+package org.cloudgraph.common.key;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;

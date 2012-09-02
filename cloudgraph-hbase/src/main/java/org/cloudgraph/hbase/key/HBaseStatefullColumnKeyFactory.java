@@ -3,8 +3,8 @@ package org.cloudgraph.hbase.key;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.key.CloudGraphColumnKeyFactory;
-import org.cloudgraph.service.CloudGraphState;
+import org.cloudgraph.common.key.CloudGraphColumnKeyFactory;
+import org.cloudgraph.common.service.CloudGraphState;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -33,7 +33,7 @@ import org.plasma.sdo.PlasmaType;
  * </p>
  * @see org.cloudgraph.config.ColumnKeyModel
  * @see org.cloudgraph.config.HTable
- * @see org.cloudgraph.service.CloudGraphState
+ * @see org.cloudgraph.common.service.CloudGraphState
  */
 public class HBaseStatefullColumnKeyFactory extends HBaseCompositeColumnKeyFactory 
     implements CloudGraphColumnKeyFactory 

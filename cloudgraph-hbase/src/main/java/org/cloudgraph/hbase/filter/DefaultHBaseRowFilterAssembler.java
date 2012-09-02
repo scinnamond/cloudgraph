@@ -13,10 +13,10 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.WritableByteArrayComparable;
-import org.cloudgraph.filter.CloudGraphFilterException;
+import org.cloudgraph.common.filter.CloudGraphFilterException;
+import org.cloudgraph.common.key.CloudGraphRowKeyExpressionFactory;
+import org.cloudgraph.common.key.TokenValue;
 import org.cloudgraph.hbase.key.HBaseCompositeRowKeyExpressionFactory;
-import org.cloudgraph.key.CloudGraphRowKeyExpressionFactory;
-import org.cloudgraph.key.TokenValue;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.AbstractPathElement;
@@ -48,7 +48,7 @@ import org.xml.sax.SAXException;
  * maintained which mirrors the query <a href="http://docs.plasma-sdo.org/api/org/plasma/query/model/Expression.html" target="#">expression</a> being
  * processed. 
  *  
- * @see org.cloudgraph.key.CloudGraphRowKeyFactory
+ * @see org.cloudgraph.common.key.CloudGraphRowKeyFactory
  */
 public class DefaultHBaseRowFilterAssembler extends DefaultHBaseFilterAssembler
     implements HBaseRowFilterAssembler

@@ -10,10 +10,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
+import org.cloudgraph.common.key.CloudGraphRowKeyFactory;
 import org.cloudgraph.config.CloudGraphConfigurationException;
 import org.cloudgraph.config.RowKeyToken;
 import org.cloudgraph.config.UserDefinedTokenConfig;
-import org.cloudgraph.key.CloudGraphRowKeyFactory;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaType;
 
