@@ -1,0 +1,473 @@
+30 Aug 2012 13:50:54,078 DEBUG [main] cli.SDOTool given destination dir 'java' does not exist
+30 Aug 2012 13:50:54,078 DEBUG [main] cli.SDOTool dest: java
+30 Aug 2012 13:50:54,438 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+30 Aug 2012 13:50:54,469 INFO  [main] io.ArtifactLoader reading Plasma_SDO_Profile.mdxml
+30 Aug 2012 13:50:54,516 INFO  [main] config.FumlConfiguration initializing...
+30 Aug 2012 13:50:54,516 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+30 Aug 2012 13:50:54,563 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+30 Aug 2012 13:50:54,578 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+30 Aug 2012 13:50:54,672 INFO  [main] model.InMemoryRepository initializing...
+30 Aug 2012 13:50:54,672 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+30 Aug 2012 13:50:54,797 INFO  [main] model.InfrastructureAssembler initializing...
+30 Aug 2012 13:50:54,875 INFO  [main] model.SuperstructureAssembler initializing...
+30 Aug 2012 13:50:54,937 INFO  [main] model.fUML_SyntaxAssembler initializing...
+30 Aug 2012 13:50:54,937 INFO  [main] model.InMemoryRepository performing package merge...
+30 Aug 2012 13:50:55,047 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+30 Aug 2012 13:50:55,062 INFO  [main] library.Library initializing...
+30 Aug 2012 13:50:55,469 INFO  [main] fuml.Fuml loading artifact, crackoo.mdxml
+30 Aug 2012 13:50:55,469 INFO  [main] io.ArtifactLoader reading crackoo.mdxml
+30 Aug 2012 13:50:55,890 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 13:50:55,968 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 13:50:55,968 INFO  [main] provisioning.ProvisioningModelDataBinding loading schema chain...
+30 Aug 2012 13:50:56,093 DEBUG [main] cli.SDOTool wrote merged model file to: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java\technical-model.xml
+30 Aug 2012 13:50:56,562 INFO  [main] cli.SDOTool generated 21 interfaces to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 13:50:56,562 INFO  [main] cli.SDOTool generated 21 classes to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 13:50:56,562 INFO  [main] cli.SDOTool generated 0 enumerations to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 13:50:56,593 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 13:50:56,593 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 13:50:56,656 INFO  [main] cli.DSLTool generated 21 classes to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 13:52:02,926 DEBUG [main] cli.SDOTool dest: java
+30 Aug 2012 13:52:03,285 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+30 Aug 2012 13:52:03,317 INFO  [main] io.ArtifactLoader reading Plasma_SDO_Profile.mdxml
+30 Aug 2012 13:52:03,363 INFO  [main] config.FumlConfiguration initializing...
+30 Aug 2012 13:52:03,363 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+30 Aug 2012 13:52:03,410 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+30 Aug 2012 13:52:03,426 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+30 Aug 2012 13:52:03,520 INFO  [main] model.InMemoryRepository initializing...
+30 Aug 2012 13:52:03,520 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+30 Aug 2012 13:52:03,613 INFO  [main] model.InfrastructureAssembler initializing...
+30 Aug 2012 13:52:03,691 INFO  [main] model.SuperstructureAssembler initializing...
+30 Aug 2012 13:52:03,738 INFO  [main] model.fUML_SyntaxAssembler initializing...
+30 Aug 2012 13:52:03,848 INFO  [main] model.InMemoryRepository performing package merge...
+30 Aug 2012 13:52:03,863 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+30 Aug 2012 13:52:03,879 INFO  [main] library.Library initializing...
+30 Aug 2012 13:52:04,301 INFO  [main] fuml.Fuml loading artifact, crackoo.mdxml
+30 Aug 2012 13:52:04,301 INFO  [main] io.ArtifactLoader reading crackoo.mdxml
+30 Aug 2012 13:52:04,691 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 13:52:04,707 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 13:52:04,707 INFO  [main] provisioning.ProvisioningModelDataBinding loading schema chain...
+30 Aug 2012 13:52:04,832 DEBUG [main] cli.SDOTool wrote merged model file to: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java\technical-model.xml
+30 Aug 2012 13:52:04,925 INFO  [main] cli.SDOTool generated 21 interfaces to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 13:52:04,925 INFO  [main] cli.SDOTool generated 21 classes to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 13:52:04,925 INFO  [main] cli.SDOTool generated 0 enumerations to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 13:52:04,941 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 13:52:04,941 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 13:52:04,988 INFO  [main] cli.DSLTool generated 21 classes to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 13:52:06,237 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+30 Aug 2012 13:52:06,253 INFO  [main] io.ArtifactLoader reading Plasma_SDO_Profile.mdxml
+30 Aug 2012 13:52:06,315 INFO  [main] config.FumlConfiguration initializing...
+30 Aug 2012 13:52:06,315 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+30 Aug 2012 13:52:06,362 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+30 Aug 2012 13:52:06,409 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+30 Aug 2012 13:52:06,503 INFO  [main] model.InMemoryRepository initializing...
+30 Aug 2012 13:52:06,503 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+30 Aug 2012 13:52:06,612 INFO  [main] model.InfrastructureAssembler initializing...
+30 Aug 2012 13:52:06,690 INFO  [main] model.SuperstructureAssembler initializing...
+30 Aug 2012 13:52:06,753 INFO  [main] model.fUML_SyntaxAssembler initializing...
+30 Aug 2012 13:52:06,768 INFO  [main] model.InMemoryRepository performing package merge...
+30 Aug 2012 13:52:06,784 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+30 Aug 2012 13:52:06,815 INFO  [main] library.Library initializing...
+30 Aug 2012 13:52:07,206 INFO  [main] fuml.Fuml loading artifact, crackoo.mdxml
+30 Aug 2012 13:52:07,206 INFO  [main] io.ArtifactLoader reading crackoo.mdxml
+30 Aug 2012 13:52:12,844 INFO  [main] client.HConnectionManager$HConnectionImplementation Closed zookeeper sessionid=0x138e930bdbe0068
+30 Aug 2012 13:52:15,562 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:52:28,119 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:52:28,494 WARN  [main] repository.RelationCache potential circular reference: http://crackoo.com/domain#StudyItem.parent->http://crackoo.com/domain#StudyItem
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:GOAL:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:2
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:2
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:2
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:GOAL:2
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:2
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:2
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:SEQ_ID:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:CRTN_DT:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:LST_MOD_DT:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:TAG:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:GOAL:1
+30 Aug 2012 13:52:28,510 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:PRFL_ID:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SEQ_ID:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:CRTN_DT:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:LST_MOD_DT:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:PRFL:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:SEQ_ID:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:CRTN_DT:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_MOD_DT:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:STDY_ITM:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:SEQ_ID:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:CRTN_DT:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:LST_MOD_DT:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:PRFL:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:STDY_ITM:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:1
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:SEQ_ID:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:CRTN_DT:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:LST_MOD_DT:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:STDY_ITM:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:SEQ_ID:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:CRTN_DT:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_MOD_DT:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:STDY_ITM:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:SEQ_ID:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:CRTN_DT:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_MOD_DT:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:STDY_ITM:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SEQ_ID:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:CRTN_DT:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:LST_MOD_DT:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:PRFL:2
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SEQ_ID:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:CRTN_DT:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:LST_MOD_DT:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:PRFL:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:SEQ_ID:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:CRTN_DT:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:LST_MOD_DT:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:STDY_ITM:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:3
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:SEQ_ID:4
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:CRTN_DT:4
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_MOD_DT:4
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:4
+30 Aug 2012 13:52:28,525 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:STDY_ITM:4
+30 Aug 2012 13:52:28,853 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:52:41,130 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:52:41,661 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:PRFL_ID:1
+30 Aug 2012 13:52:41,661 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:CRTN_DT:1
+30 Aug 2012 13:52:41,661 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:LST_MOD_DT:1
+30 Aug 2012 13:52:41,661 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:TAG:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:GOAL:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:3
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:1
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:2
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:2
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:2
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:2
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:4
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:2
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:2
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:2
+30 Aug 2012 13:52:41,676 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:2
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:2
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:2
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:2
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:2
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:2
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:2
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:1
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:1
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:1
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:1
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:1
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:3
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:1
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:1
+30 Aug 2012 13:52:41,692 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:3
+30 Aug 2012 13:52:41,989 INFO  [main] service.CloudGraphQuery assembled 1 results
+30 Aug 2012 13:52:41,989 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:52:42,145 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_MOD_DT:2
+30 Aug 2012 13:52:42,145 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:2
+30 Aug 2012 13:52:42,301 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:PRFL_ID:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:CRTN_DT:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:LST_MOD_DT:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:TAG:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:GOAL:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:4
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:2
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:1
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:3
+30 Aug 2012 13:52:42,645 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:1
+30 Aug 2012 13:52:42,660 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:1
+30 Aug 2012 13:52:42,660 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:3
+30 Aug 2012 13:52:42,941 INFO  [main] service.CloudGraphQuery assembled 1 results
+30 Aug 2012 13:52:42,941 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:52:55,702 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:LST_MOD_DT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:GOAL:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:LST_MOD_DT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:LST_MOD_DT:2
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:2
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:STDY_ITM:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:OWNR_ID:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:CRTN_DT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_MOD_DT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_ACCSD_DT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:SEQ_ID:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:STDY_ITM:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:OWNR_ID:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:CRTN_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_MOD_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:LST_ACCSD_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:SEQ_ID:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:PRFL:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:STDY_ITM:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:OWNR_ID:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:CRTN_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:LST_MOD_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:LST_ACCSD_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:SEQ_ID:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:GOAL:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:EXMPL:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CMNT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:USR_QSTN:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CHOIC:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:PRNT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CHLD:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:OWNR_ID:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_ACCSD_DT:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:1
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:PRFL:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:OWNR_ID:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:CRTN_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:LST_MOD_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:LST_ACCSD_DT:3
+30 Aug 2012 13:52:55,921 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SEQ_ID:3
+30 Aug 2012 13:52:56,124 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:53:08,525 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:PRFL_ID:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:CRTN_DT:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:LST_MOD_DT:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:TAG:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:PRFL:GOAL:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:1
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:SEQ_ID:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CRTN_DT:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:LST_MOD_DT:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:CTN:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:4
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:CITATN:REF:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:STDY_ITM:TAG:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:TAG:TAG:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:NAME:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:SMRY:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:DSCR:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:ISBN:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:IMG_LOC:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:AVG_CMPL_DAYS:2
+30 Aug 2012 13:53:08,900 DEBUG [main] key.StatefullColumnKeyFactory key: 286478555:GOAL:STDY_ITM:2
+30 Aug 2012 13:53:09,197 INFO  [main] service.CloudGraphQuery assembled 1 results
+30 Aug 2012 17:07:03,552 DEBUG [main] cli.SDOTool dest: java
+30 Aug 2012 17:07:04,458 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+30 Aug 2012 17:07:04,505 INFO  [main] io.ArtifactLoader reading Plasma_SDO_Profile.mdxml
+30 Aug 2012 17:07:04,645 INFO  [main] config.FumlConfiguration initializing...
+30 Aug 2012 17:07:04,661 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+30 Aug 2012 17:07:04,708 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+30 Aug 2012 17:07:04,739 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+30 Aug 2012 17:07:04,879 INFO  [main] model.InMemoryRepository initializing...
+30 Aug 2012 17:07:04,879 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+30 Aug 2012 17:07:05,051 INFO  [main] model.InfrastructureAssembler initializing...
+30 Aug 2012 17:07:05,129 INFO  [main] model.SuperstructureAssembler initializing...
+30 Aug 2012 17:07:05,192 INFO  [main] model.fUML_SyntaxAssembler initializing...
+30 Aug 2012 17:07:05,192 INFO  [main] model.InMemoryRepository performing package merge...
+30 Aug 2012 17:07:05,317 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+30 Aug 2012 17:07:05,332 INFO  [main] library.Library initializing...
+30 Aug 2012 17:07:05,754 INFO  [main] fuml.Fuml loading artifact, crackoo.mdxml
+30 Aug 2012 17:07:05,754 INFO  [main] io.ArtifactLoader reading crackoo.mdxml
+30 Aug 2012 17:07:06,223 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 17:07:06,239 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 17:07:06,239 INFO  [main] provisioning.ProvisioningModelDataBinding loading schema chain...
+30 Aug 2012 17:07:06,410 DEBUG [main] cli.SDOTool wrote merged model file to: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java\technical-model.xml
+30 Aug 2012 17:07:06,567 INFO  [main] cli.SDOTool generated 21 interfaces to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 17:07:06,567 INFO  [main] cli.SDOTool generated 21 classes to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 17:07:06,567 INFO  [main] cli.SDOTool generated 0 enumerations to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 17:07:06,567 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 17:07:06,567 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 17:07:06,613 INFO  [main] cli.DSLTool generated 21 classes to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 17:07:08,332 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+30 Aug 2012 17:07:08,332 INFO  [main] io.ArtifactLoader reading Plasma_SDO_Profile.mdxml
+30 Aug 2012 17:07:08,410 INFO  [main] config.FumlConfiguration initializing...
+30 Aug 2012 17:07:08,410 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+30 Aug 2012 17:07:08,457 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+30 Aug 2012 17:07:08,488 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+30 Aug 2012 17:07:08,691 INFO  [main] model.InMemoryRepository initializing...
+30 Aug 2012 17:07:08,691 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+30 Aug 2012 17:07:08,816 INFO  [main] model.InfrastructureAssembler initializing...
+30 Aug 2012 17:07:08,894 INFO  [main] model.SuperstructureAssembler initializing...
+30 Aug 2012 17:07:08,941 INFO  [main] model.fUML_SyntaxAssembler initializing...
+30 Aug 2012 17:07:08,957 INFO  [main] model.InMemoryRepository performing package merge...
+30 Aug 2012 17:07:08,988 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+30 Aug 2012 17:07:09,019 INFO  [main] library.Library initializing...
+30 Aug 2012 17:07:09,457 INFO  [main] fuml.Fuml loading artifact, crackoo.mdxml
+30 Aug 2012 17:07:09,457 INFO  [main] io.ArtifactLoader reading crackoo.mdxml
+30 Aug 2012 17:07:17,142 INFO  [main] client.HConnectionManager$HConnectionImplementation Closed zookeeper sessionid=0x138e930bdbe006b
+30 Aug 2012 17:07:19,860 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:07:32,748 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:07:33,060 WARN  [main] repository.RelationCache potential circular reference: http://crackoo.com/domain#StudyItem.parent->http://crackoo.com/domain#StudyItem
+30 Aug 2012 17:07:33,451 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:07:45,964 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:07:46,698 INFO  [main] service.HBaseGraphQuery assembled 1 results
+30 Aug 2012 17:07:46,698 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:07:46,995 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:07:47,666 INFO  [main] service.HBaseGraphQuery assembled 1 results
+30 Aug 2012 17:07:47,666 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:08:00,289 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:08:00,632 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:08:14,082 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 17:08:14,770 INFO  [main] service.HBaseGraphQuery assembled 1 results
+30 Aug 2012 18:03:19,876 DEBUG [main] cli.SDOTool dest: java
+30 Aug 2012 18:03:20,266 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+30 Aug 2012 18:03:20,282 INFO  [main] io.ArtifactLoader reading Plasma_SDO_Profile.mdxml
+30 Aug 2012 18:03:20,329 INFO  [main] config.FumlConfiguration initializing...
+30 Aug 2012 18:03:20,329 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+30 Aug 2012 18:03:20,391 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+30 Aug 2012 18:03:20,407 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+30 Aug 2012 18:03:20,485 INFO  [main] model.InMemoryRepository initializing...
+30 Aug 2012 18:03:20,485 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+30 Aug 2012 18:03:20,594 INFO  [main] model.InfrastructureAssembler initializing...
+30 Aug 2012 18:03:20,673 INFO  [main] model.SuperstructureAssembler initializing...
+30 Aug 2012 18:03:20,766 INFO  [main] model.fUML_SyntaxAssembler initializing...
+30 Aug 2012 18:03:20,766 INFO  [main] model.InMemoryRepository performing package merge...
+30 Aug 2012 18:03:20,876 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+30 Aug 2012 18:03:20,891 INFO  [main] library.Library initializing...
+30 Aug 2012 18:03:21,297 INFO  [main] fuml.Fuml loading artifact, crackoo.mdxml
+30 Aug 2012 18:03:21,297 INFO  [main] io.ArtifactLoader reading crackoo.mdxml
+30 Aug 2012 18:03:21,688 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 18:03:21,719 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 18:03:21,719 INFO  [main] provisioning.ProvisioningModelDataBinding loading schema chain...
+30 Aug 2012 18:03:21,860 DEBUG [main] cli.SDOTool wrote merged model file to: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java\technical-model.xml
+30 Aug 2012 18:03:21,969 INFO  [main] cli.SDOTool generated 21 interfaces to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 18:03:21,969 INFO  [main] cli.SDOTool generated 21 classes to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 18:03:21,969 INFO  [main] cli.SDOTool generated 0 enumerations to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 18:03:21,985 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 18:03:21,985 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://crackoo.com/domain#Choice.description
+30 Aug 2012 18:03:22,016 INFO  [main] cli.DSLTool generated 21 classes to output to directory: C:\dev-cloudgraph2\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Aug 2012 18:07:30,962 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+30 Aug 2012 18:07:30,978 INFO  [main] io.ArtifactLoader reading Plasma_SDO_Profile.mdxml
+30 Aug 2012 18:07:31,040 INFO  [main] config.FumlConfiguration initializing...
+30 Aug 2012 18:07:31,040 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+30 Aug 2012 18:07:31,103 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+30 Aug 2012 18:07:31,118 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+30 Aug 2012 18:07:31,212 INFO  [main] model.InMemoryRepository initializing...
+30 Aug 2012 18:07:31,212 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+30 Aug 2012 18:07:31,322 INFO  [main] model.InfrastructureAssembler initializing...
+30 Aug 2012 18:07:31,400 INFO  [main] model.SuperstructureAssembler initializing...
+30 Aug 2012 18:07:31,462 INFO  [main] model.fUML_SyntaxAssembler initializing...
+30 Aug 2012 18:07:31,478 INFO  [main] model.InMemoryRepository performing package merge...
+30 Aug 2012 18:07:31,493 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+30 Aug 2012 18:07:31,525 INFO  [main] library.Library initializing...
+30 Aug 2012 18:07:31,915 INFO  [main] fuml.Fuml loading artifact, crackoo.mdxml
+30 Aug 2012 18:07:31,915 INFO  [main] io.ArtifactLoader reading crackoo.mdxml
+30 Aug 2012 18:07:37,477 INFO  [main] client.HConnectionManager$HConnectionImplementation Closed zookeeper sessionid=0x138e930bdbe006e
+30 Aug 2012 18:07:40,242 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:07:52,724 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:07:53,052 WARN  [main] repository.RelationCache potential circular reference: http://crackoo.com/domain#StudyItem.parent->http://crackoo.com/domain#StudyItem
+30 Aug 2012 18:07:53,411 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:08:07,330 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:08:08,142 INFO  [main] service.HBaseGraphQuery assembled 1 results
+30 Aug 2012 18:08:08,142 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:08:08,439 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:08:09,095 INFO  [main] service.HBaseGraphQuery assembled 1 results
+30 Aug 2012 18:08:09,095 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:08:21,421 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:08:21,733 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:08:34,012 WARN  [main] connect.HBaseConnectionManager table data53 set to auto-flush
+30 Aug 2012 18:08:34,652 INFO  [main] service.HBaseGraphQuery assembled 1 results

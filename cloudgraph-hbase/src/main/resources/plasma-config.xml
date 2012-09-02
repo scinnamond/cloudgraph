@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfg:PlasmaConfiguration  
+    xmlns:cfg="http://www.plasma.org/config">
+  
+
+    <SDO>
+        <GlobalProvisioning 
+            packageName="org.plasma.platform.sdo">
+            
+           <Interface classNamePrefix="I" constants="true"/>          
+           <Implementation classNameSuffix="SDO"
+               childPackageName="impl"/>  
+           <QueryDSL>
+               <Implementation classNamePrefix="Q"
+                   childPackageName="query"/>  
+           </QueryDSL>
+                        
+        </GlobalProvisioning>            
+    
+        <!-- default namespace used for SDO infra itself, such as SDO datatypes -->
+        <DefaultNamespace uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"
+            artifact="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi">
+            <Provisioning packageName="org.plasma.platform.sdo"/>
+  		</DefaultNamespace>
+
+        <Namespace uri="http://crackoo.com/domain"
+            artifact="http://crackoo.com/model">
+            <Provisioning packageName="com.crackoo.domain">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
+        
+  	    <DataAccessService dataStoreType="NOSQL"> 	
+
+            <DataAccessProvider name="HBASE"
+                className="org.cloudgraph.hbase.service.HBaseGraphService">
+                <!--
+                <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
+                 <Property name="hbase.zookeeper.quorum">97.74.67.155</Property>    
+                <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
+                <Property name="hbase.zookeeper.property.clientPort">2181</Property>    
+                <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
+                <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
+                -->
+
+                <SequenceConfiguration  
+                    generatorClassName="org.hgraph.generator.HBaseSequenceGenerator"/>         
+                <Concurrency 
+                    pessimisticLockTimeoutMillis="300000"/>
+                
+                <!-- links HBASE specific DAS provisioning to SDO namespace configs -->                 
+                <NamespaceLink uri="http://crackoo.com/domain"/>
+               
+              
+            </DataAccessProvider>
+        </DataAccessService> 
+  		
+    </SDO>
+    
+    <Repository> 
+        <!-- Would like to use our own namespace here (say 'http://www.servicelabs.org/plasma/sdo/profile') but MagicDraw
+            unfortunately bakes this namespace e.g. 'http://www.magicdraw.com/schemas/*'  
+            into any and every model that references a profile. You can change
+            the namespace declaration by hand in the XMI but next time the
+            model is changed, MD will change it back !!
+        -->
+        <Artifact name="Plasma_SDO_Profile.mdxml"
+            urn="Plasma_SDO_Profile.mdxml" 
+            namespaceUri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"/>
+  
+        <Artifact name="crackoo.mdxml"
+            urn="crackoo.mdxml" 
+            namespaceUri="http://crackoo.com/model"/>  
+        
+    </Repository>
+    
+  
+</cfg:PlasmaConfiguration>   
