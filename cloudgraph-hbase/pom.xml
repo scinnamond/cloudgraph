@@ -72,24 +72,14 @@
                             <action>create</action>
                             <dialect>java</dialect>
                             <systemProperties>
-                                <property>
-							      <name>log4j.configuration</name>
-							      <value>log4j.properties</value>
-							    </property>
-                                <property>
-							      <name>fuml.configuration</name>
-							      <value>fuml-config.xml</value>
-							    </property> 
-							    <property>
-							      <name>plasma.configuration</name>
-							      <value>plasma-config.xml</value>
-							    </property>
+                                <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+							    <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
                                 <param>${basedir}/src/main/resources</param>
                             </additionalClasspathElements>
-					        <outputDirectory>${basedir}/target/generated-sources/java</outputDirectory>
-                            
+					        <outputDirectory>${basedir}/target/generated-sources/java</outputDirectory>                            
                         </configuration>
 						<goals>
 							<goal>sdo</goal>
@@ -101,24 +91,14 @@
                             <action>create</action>
                             <dialect>java</dialect>
                             <systemProperties>
-                                <property>
-							      <name>log4j.configuration</name>
-							      <value>log4j.properties</value>
-							    </property>
-                                <property>
-							      <name>fuml.configuration</name>
-							      <value>fuml-config.xml</value>
-							    </property> 
-							    <property>
-							      <name>plasma.configuration</name>
-							      <value>plasma-config.xml</value>
-							    </property>
+                                <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+							    <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
                                 <param>${basedir}/src/main/resources</param>
                             </additionalClasspathElements>
-					        <outputDirectory>${basedir}/target/generated-sources/java</outputDirectory>
-                            
+					        <outputDirectory>${basedir}/target/generated-sources/java</outputDirectory>                            
                         </configuration>
 						<goals>
 							<goal>dsl</goal>
@@ -126,7 +106,26 @@
 					</execution>
 				</executions>
 	        </plugin>
-			<plugin>
+		    <plugin>
+		        <groupId>org.codehaus.mojo</groupId>
+		        <artifactId>build-helper-maven-plugin</artifactId>
+		        <version>1.7</version>
+		        <executions>
+		          <execution>
+		            <id>add-source</id>
+		            <phase>generate-sources</phase>
+		            <goals>
+		              <goal>add-source</goal>
+		            </goals>
+		            <configuration>
+		              <sources>
+		                <source>${basedir}/target/generated-sources/java</source>
+		              </sources>
+		            </configuration>
+		          </execution>
+		        </executions>
+		    </plugin>
+      		<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.10</version>
@@ -134,8 +133,7 @@
 					<additionalClasspathElements>
 						<additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
 						<additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
-					</additionalClasspathElements>
-					
+					</additionalClasspathElements>					
 					 
 					<forkMode>pertest</forkMode>
 					<argLine>-Dlog4j.configuration=log4j.properties -Dfuml.configuration=fuml-config.xml -Dplasma.configuration=plasma-config.xml</argLine>
@@ -146,8 +144,6 @@
 					<argLine>-XX:MaxPermSize=350m</argLine>
 					<argLine>-Xloggc:cloudgraph-test-gc.log</argLine>
 					<argLine>-XX:+PrintGCDetails</argLine>
-					<argLine>-Dfuml.configuration=fuml-config.xml</argLine>
-					<argLine>-Dplasma.configuration=plasma-config.xml</argLine>
 					
 					<argLine>-Xdebug</argLine>
 					<argLine>-Xnoagent</argLine>
