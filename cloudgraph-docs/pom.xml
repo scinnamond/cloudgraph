@@ -12,6 +12,7 @@
   <packaging>jar</packaging>
 
   <name>Plasma Docs</name>  
+  <description></description>
   <licenses>
       <license>
           <name>Plasma License</name>
@@ -153,5 +154,4 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	<description>123</description>
 </project>
