@@ -56,7 +56,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * </p>
  * <p>
  * Then for each resulting HBase row, a data graph 
- * {@HGraphAssembler assembler} is used to reconstruct and return the original
+ * {@CloudgraphAssembler assembler} is used to reconstruct and return the original
  * graph structure from the resulting HBase row.
  * </p>
  * <p>
@@ -227,10 +227,10 @@ public class HBaseGraphQuery extends DispatcherSupport
         scan.setFilter(rootFilter);
         
         // add UUID map col always
-    	//scan.addColumn(Bytes.toBytes(HGraphConstants.DATA_TABLE_FAMILY_1), 
-    	//	Bytes.toBytes(HGraphState.STATE_MAP_COLUMN_NAME));
-    	//scan.addColumn(Bytes.toBytes(HGraphConstants.DATA_TABLE_FAMILY_1), 
-        //		Bytes.toBytes(HGraphConstants.ROOT_UUID_COLUMN_NAME));
+    	//scan.addColumn(Bytes.toBytes(CloudgraphConstants.DATA_TABLE_FAMILY_1), 
+    	//	Bytes.toBytes(CloudgraphState.STATE_MAP_COLUMN_NAME));
+    	//scan.addColumn(Bytes.toBytes(CloudgraphConstants.DATA_TABLE_FAMILY_1), 
+        //		Bytes.toBytes(CloudgraphConstants.ROOT_UUID_COLUMN_NAME));
         
         // get all columns for family
         scan.addFamily(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1));

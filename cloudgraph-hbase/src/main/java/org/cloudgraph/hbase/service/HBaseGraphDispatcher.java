@@ -53,9 +53,9 @@ import commonj.sdo.Property;
  * any number of creates (inserts), modifications (updates) and deletes
  * to a single HBase table row. 
  * <p>
- * For new (created) data graphs, a row key {org.hgraph.key.HBaseRowKeyFactory factory} 
+ * For new (created) data graphs, a row key {org.cloudgraph.hbase.key.HBaseRowKeyFactory factory} 
  * is used to create a new composite HBase row key. The row key generation is
- * driven by a configured HGraph row key {@link org.cloudgraph.config.RowKeyModel
+ * driven by a configured Cloudgraph row key {@link org.cloudgraph.config.RowKeyModel
  * model} for a specific HTable {@link org.cloudgraph.config.HTable configuration}.
  * A minimal set of {@link org.cloudgraph.common.service.CloudGraphState state} information is 
  * persisted with each new data graph.     

@@ -21,7 +21,7 @@ import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
 /**
- * Generates an HBase row key based on the configured HGraph {@link org.cloudgraph.config.RowKeyModel Row Key
+ * Generates an HBase row key based on the configured Cloudgraph {@link org.cloudgraph.config.RowKeyModel Row Key
  * Model} for a specific {@link org.cloudgraph.config.HTable HTable Configuration}. 
  */
 public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory

@@ -5,7 +5,7 @@ import java.util.List;
 import commonj.sdo.Type;
 
 /**
- * Generates an HBase row key based on the configured HGraph row key {@link org.cloudgraph.config.RowKeyModel
+ * Generates an HBase row key based on the configured Cloudgraph row key {@link org.cloudgraph.config.RowKeyModel
  * model} for a specific HTable {@link org.cloudgraph.config.HTable configuration}. 
  * @see org.cloudgraph.config.RowKeyModel
  * @see org.cloudgraph.config.HTable

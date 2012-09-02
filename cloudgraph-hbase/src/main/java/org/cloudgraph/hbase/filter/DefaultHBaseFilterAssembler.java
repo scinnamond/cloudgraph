@@ -37,14 +37,14 @@ public class DefaultHBaseFilterAssembler extends DefaultQueryVisitor
 	protected boolean contextOpWildcard;
 
 	/* (non-Javadoc)
-	 * @see org.hgraph.filter.HBaseFilterAssembler#getFilter()
+	 * @see org.cloudgraph.hbase.filter.HBaseFilterAssembler#getFilter()
 	 */
 	public Filter getFilter() {
 		return rootFilter;
 	}
 
 	/* (non-Javadoc)
-	 * @see org.hgraph.filter.HBaseFilterAssembler#getParams()
+	 * @see org.cloudgraph.hbase.filter.HBaseFilterAssembler#getParams()
 	 */
 	public Object[] getParams() {
 		Object[] result = new Object[params.size()];

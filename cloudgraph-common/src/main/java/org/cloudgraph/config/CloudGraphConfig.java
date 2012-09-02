@@ -33,7 +33,7 @@ public class CloudGraphConfig {
 
     private static Log log = LogFactory.getLog(CloudGraphConfig.class);
     private static CloudGraphConfig instance = null;
-    private static final String PROPERTY_NAME_HGRAPH_CONFIG = "cloudgraph.configuration";     
+    private static final String PROPERTY_NAME_CLOUDGRAPH_CONFIG = "cloudgraph.configuration";     
     private static final String defaultConfigFileName = "cloudgraph-config.xml";     
     
     private CloudGraphConfiguration config;
@@ -47,7 +47,7 @@ public class CloudGraphConfig {
         try {
             
             String fileName = EnvProperties.instance().getProperty(
-            		PROPERTY_NAME_HGRAPH_CONFIG);
+            		PROPERTY_NAME_CLOUDGRAPH_CONFIG);
             
             if (fileName == null)
                 fileName = defaultConfigFileName;

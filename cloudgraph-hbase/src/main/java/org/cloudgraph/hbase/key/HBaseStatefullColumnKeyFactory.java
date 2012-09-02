@@ -11,7 +11,7 @@ import org.plasma.sdo.PlasmaType;
 
 
 /**
- * Generates an HBase column key based on the configured HGraph column key {@link org.cloudgraph.config.ColumnKeyModel
+ * Generates an HBase column key based on the configured Cloudgraph column key {@link org.cloudgraph.config.ColumnKeyModel
  * model} for a specific HTable {@link org.cloudgraph.config.HTable configuration}. 
  * <p>
  * In order to persist any arbitrary Data Graph in a single HBase row, 

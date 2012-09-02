@@ -35,7 +35,7 @@ import commonj.sdo.Type;
  * data from HBase back to the client, and {@link HBaseGraphDispatcher} for
  * propagating changes to one or more data graphs back to HBase. 
  * <p>
- * HGraph is based on the Service Data Objects (SDO) 2.1 specification 
+ * Cloudgraph is based on the Service Data Objects (SDO) 2.1 specification 
  * and is designed as an SDO Data Access Service (DAS) under the 
  * PlasmaSDO\u2122 Service Data Objects 2.1 implementation. 
  * </p> 

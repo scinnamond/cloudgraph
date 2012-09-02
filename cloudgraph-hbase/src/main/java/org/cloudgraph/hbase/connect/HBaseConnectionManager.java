@@ -117,7 +117,7 @@ public class HBaseConnectionManager {
     		HBaseAdmin hbase = new HBaseAdmin(CloudGraphContext.instance().getConfig());
 	    	HTableDescriptor tableDesc = new HTableDescriptor(tableName);
 	    	HColumnDescriptor fam1 = new HColumnDescriptor(CloudGraphConstants.DATA_TABLE_FAMILY_1.getBytes());
-	    	//HColumnDescriptor fam2 = new HColumnDescriptor(HGraphConstants.DATA_TABLE_FAMILY_2.getBytes());
+	    	//HColumnDescriptor fam2 = new HColumnDescriptor(CloudgraphConstants.DATA_TABLE_FAMILY_2.getBytes());
 	    	//fam2.setBloomFilterType(bt);
 	    	tableDesc.addFamily(fam1);
 	    	//tableDesc.addFamily(fam2);
