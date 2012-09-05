@@ -23,8 +23,10 @@ public class DataGraphConfig {
     private Map<PreDefinedTokenName, ColumnKeyToken> preDefinedColumnKeyTokens = new HashMap<PreDefinedTokenName, ColumnKeyToken>(); 
 	private List<UserDefinedTokenConfig> userDefinedRowKeyTokens = new ArrayList<UserDefinedTokenConfig>();
 	private Map<String, UserDefinedTokenConfig> pathTouserDefinedRowKeyMap = new HashMap<String, UserDefinedTokenConfig>();
-	private byte[] rowKeyDelimiterBytes;
-	private byte[] columnKeyDelimiterBytes;
+	private byte[] rowKeyFieldDelimiterBytes;
+	private byte[] rowKeySectionDelimiterBytes;
+	private byte[] columnKeyFieldDelimiterBytes;
+	private byte[] columnKeySectionDelimiterBytes;
     
     @SuppressWarnings("unused")
 	private DataGraphConfig() {}
@@ -70,18 +72,30 @@ public class DataGraphConfig {
 		return preDefinedRowKeyTokens.get(name);
 	}
 	
-	public String getRowKeyDelimiter() {
-        return this.graph.getRowKeyModel().getDelimiter();		
+	public String getRowKeyFieldDelimiter() {
+        return this.graph.getRowKeyModel().getFieldDelimiter();		
 	}
 	
-	public byte[] getRowKeyDelimiterBytes() {
-		if (rowKeyDelimiterBytes == null) {
-			this.rowKeyDelimiterBytes = this.graph.getRowKeyModel().getDelimiter().getBytes(
+	public String getRowKeySectionDelimiter() {
+        return this.graph.getRowKeyModel().getSectionDelimiter();		
+	}
+	
+	public byte[] getRowKeyFieldDelimiterBytes() {
+		if (rowKeyFieldDelimiterBytes == null) {
+			this.rowKeyFieldDelimiterBytes = this.graph.getRowKeyModel().getFieldDelimiter().getBytes(
 	        		Charset.forName( CoreConstants.UTF8_ENCODING ));
 		}
-        return rowKeyDelimiterBytes;		
+        return rowKeyFieldDelimiterBytes;		
 	}
 	
+	public byte[] getRowKeySectionDelimiterBytes() {
+		if (rowKeySectionDelimiterBytes == null) {
+			this.rowKeySectionDelimiterBytes = this.graph.getRowKeyModel().getSectionDelimiter().getBytes(
+	        		Charset.forName( CoreConstants.UTF8_ENCODING ));
+		}
+        return rowKeySectionDelimiterBytes;		
+	}
+
 	public boolean hasUserDefinedRowKeyTokens() {
 		return this.graph.getRowKeyModel().getUserDefinedTokens().size() > 0;
 	}
@@ -98,16 +112,27 @@ public class DataGraphConfig {
 		return preDefinedColumnKeyTokens.get(name);
 	}
 	
-	public String getColumnKeyDelimiter() {
-        return this.graph.getColumnKeyModel().getDelimiter();		
+	public String getColumnKeyFieldDelimiter() {
+        return this.graph.getColumnKeyModel().getFieldDelimiter();		
 	}
 	
-	public byte[] getColumnKeyDelimiterBytes() {
-		if (columnKeyDelimiterBytes == null) {
-			this.columnKeyDelimiterBytes = this.graph.getColumnKeyModel().getDelimiter().getBytes(
+	public String getColumnKeySectionDelimiter() {
+        return this.graph.getColumnKeyModel().getSectionDelimiter();		
+	}
+	
+	public byte[] getColumnKeyFieldDelimiterBytes() {
+		if (columnKeyFieldDelimiterBytes == null) {
+			this.columnKeyFieldDelimiterBytes = this.graph.getColumnKeyModel().getFieldDelimiter().getBytes(
 	        		Charset.forName( CoreConstants.UTF8_ENCODING ));
 		}
-        return columnKeyDelimiterBytes;		
+        return columnKeyFieldDelimiterBytes;		
 	}
 
+	public byte[] getColumnKeySectionDelimiterBytes() {
+		if (columnKeySectionDelimiterBytes == null) {
+			this.columnKeySectionDelimiterBytes = this.graph.getColumnKeyModel().getSectionDelimiter().getBytes(
+	        		Charset.forName( CoreConstants.UTF8_ENCODING ));
+		}
+        return columnKeySectionDelimiterBytes;		
+	}
 }

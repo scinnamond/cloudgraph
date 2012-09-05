@@ -53,19 +53,19 @@ public class HBaseCompositeRowKeyExpressionFactory extends HBaseKeyFactory
         for (int i = 0; i < preDefinedTokens.size(); i++) {
         	RowKeyToken preDefinedToken = preDefinedTokens.get(i);
     		if (i > 0)
-        	    result.append(graph.getRowKeyDelimiter());
+        	    result.append(graph.getRowKeyFieldDelimiter());
        	    String tokenValue = this.getPredefinedTokenValue(this.rootType, 
        	    	hash, preDefinedToken);
        	    result.append(tokenValue);
         }		
         
         if (preDefinedTokens.size() > 0)
-            result.append(graph.getRowKeyDelimiter());
+            result.append(graph.getRowKeySectionDelimiter());
         
         int count = 0;
 		for (UserDefinedTokenConfig userTokenConfig : graph.getUserDefinedRowKeyTokens()) {				
 			if (count > 0)
-			    result.append(graph.getRowKeyDelimiter());
+			    result.append(graph.getRowKeyFieldDelimiter());
 			
 			TokenValue found = findTokenValue(userTokenConfig.getPropertyPath(), values);
             // user has a configuration for this path
@@ -112,19 +112,19 @@ public class HBaseCompositeRowKeyExpressionFactory extends HBaseKeyFactory
         for (int i = 0; i < preDefinedTokens.size(); i++) {
         	RowKeyToken preDefinedToken = preDefinedTokens.get(i);
     		if (i > 0)
-    			this.buf.put(graph.getRowKeyDelimiterBytes());
+    			this.buf.put(graph.getRowKeyFieldDelimiterBytes());
     		byte[] tokenValue = this.getPredefinedTokenValueBytes(this.rootType, 
        	    	hash, preDefinedToken);
        	    this.buf.put(tokenValue);
         }		
         
         if (preDefinedTokens.size() > 0)
-        	this.buf.put(graph.getRowKeyDelimiterBytes());
+        	this.buf.put(graph.getRowKeySectionDelimiterBytes());
         
         int count = 0;
 		for (UserDefinedTokenConfig userTokenConfig : graph.getUserDefinedRowKeyTokens()) {				
 			if (count > 0)
-				this.buf.put(graph.getRowKeyDelimiterBytes());
+				this.buf.put(graph.getRowKeyFieldDelimiterBytes());
 			
 			TokenValue found = findTokenValue(userTokenConfig.getPropertyPath(), values);
             // user has a configuration for this path

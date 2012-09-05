@@ -60,7 +60,7 @@ public class HBaseCompositeColumnKeyFactory extends HBaseKeyFactory
 		byte[] propToken = configureTokenBytes(propertyNameToken, graph, hash, PreDefinedTokenName.PROPERTY);
 
 		int tokensLen = uriToken.length + typeToken.length + propToken.length;
-		byte[] delim = graph.getColumnKeyDelimiterBytes();
+		byte[] delim = graph.getColumnKeyFieldDelimiterBytes();
 		 
 		byte[] result = new byte[tokensLen + (2 * delim.length)];
 		

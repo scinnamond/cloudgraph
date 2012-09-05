@@ -43,7 +43,7 @@ public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
         for (int i = 0; i < preDefinedTokens.size(); i++) {
         	RowKeyToken preDefinedToken = preDefinedTokens.get(i);
     		if (i > 0)
-        	    result.append(graph.getRowKeyDelimiter());
+        	    result.append(graph.getRowKeyFieldDelimiter());
        	    String tokenValue = this.getPredefinedTokenValue(plasmaType, 
        	    	hash, preDefinedToken);
        	    result.append(tokenValue);
@@ -76,7 +76,7 @@ public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
         for (int i = 0; i < preDefinedTokens.size(); i++) {
         	RowKeyToken preDefinedToken = preDefinedTokens.get(i);
     		if (i > 0)
-    			this.buf.put(this.graph.getRowKeyDelimiterBytes());
+    			this.buf.put(this.graph.getRowKeyFieldDelimiterBytes());
     		byte[] tokenValue = this.getPredefinedTokenValueBytes(type, 
     			this.hash, preDefinedToken);
     		this.buf.put(tokenValue);
@@ -93,7 +93,7 @@ public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
         for (int i = 0; i < preDefinedTokens.size(); i++) {
         	RowKeyToken preDefinedToken = preDefinedTokens.get(i);
     		if (i > 0)
-        	    result.append(graph.getRowKeyDelimiter());
+        	    result.append(graph.getRowKeyFieldDelimiter());
        	    String tokenValue = this.getPredefinedTokenValue(dataGraph, 
        	    		hash, preDefinedToken);
        	    result.append(tokenValue);
@@ -103,7 +103,7 @@ public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
 			return result.toString();
 		
 		if (preDefinedTokens.size() > 0)
-			result.append(graph.getRowKeyDelimiter());
+			result.append(graph.getRowKeySectionDelimiter());
 
 		int count = 0;
 		for (UserDefinedTokenConfig userTokenConfig : graph.getUserDefinedRowKeyTokens()) {				
@@ -116,7 +116,7 @@ public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
 			
 			if (tokenValue != null) {
 				if (count > 0)
-				    result.append(graph.getRowKeyDelimiter());
+				    result.append(graph.getRowKeyFieldDelimiter());
 						
 				if (userTokenConfig.isHash()) {
 					int hashValue = hash.hash(tokenValue.getBytes());
@@ -146,7 +146,7 @@ public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
         for (int i = 0; i < preDefinedTokens.size(); i++) {
         	RowKeyToken preDefinedToken = preDefinedTokens.get(i);
     		if (i > 0)
-        	    this.buf.put(graph.getRowKeyDelimiterBytes());
+        	    this.buf.put(graph.getRowKeyFieldDelimiterBytes());
     		byte[] tokenValue = this.getPredefinedTokenValueBytes(dataGraph, 
        	    		hash, preDefinedToken);
        	    this.buf.put(tokenValue);
@@ -156,7 +156,7 @@ public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
 			return this.buf.array();
 		
 		if (preDefinedTokens.size() > 0)
-			this.buf.put(graph.getRowKeyDelimiterBytes());
+		    this.buf.put(graph.getRowKeySectionDelimiterBytes());
 
 		int count = 0;
 		for (UserDefinedTokenConfig userTokenConfig : graph.getUserDefinedRowKeyTokens()) {				
@@ -169,7 +169,7 @@ public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
 			
 			if (tokenValue != null) {
 				if (count > 0)
-					this.buf.put(graph.getRowKeyDelimiterBytes());
+					this.buf.put(graph.getRowKeyFieldDelimiterBytes());
 						
 				if (userTokenConfig.isHash()) {
 					int hashValue = hash.hash(tokenValue.getBytes());

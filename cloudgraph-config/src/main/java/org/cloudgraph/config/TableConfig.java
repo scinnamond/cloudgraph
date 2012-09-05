@@ -1,9 +1,9 @@
 package org.cloudgraph.config;
 
 import org.apache.hadoop.hbase.util.Hash;
-import org.cloudgraph.CloudGraphConstants;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.config.HTable;
-import org.cloudgraph.connect.CloudGraphContext;
+import org.cloudgraph.context.CloudGraphContext;
 
 /**
  * Encapsulates logic related to access of HTable specific

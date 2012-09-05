@@ -7,13 +7,46 @@
         <version>0.5</version>
     </parent>
 	<groupId>cloudgraph</groupId>
-	<artifactId>cloudgraph-common</artifactId>
+	<artifactId>cloudgraph-config</artifactId>
 	<packaging>jar</packaging>
 	<version>0.5</version>
-	<name>CloudGraph Common</name>
+	<name>CloudGraph Config</name>
+	<dependencies>
+		<dependency>
+			<groupId>cloudgraph</groupId>
+			<artifactId>cloudgraph-common</artifactId>
+			<version>0.5</version>
+		</dependency>
+	</dependencies>
 	<build>
-		<finalName>cloudgraph-common</finalName>
+		<finalName>cloudgraph-config</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>jaxb2-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- <packagename>com.example.myschema</packagename> The name of your 
+						generated source package -->
+					<schemaDirectory>${basedir}/src/main/resources</schemaDirectory>
+					<schemaFiles>cloudgraph-config.xsd</schemaFiles>
+					<bindingDirectory>${basedir}/src/main/resources</bindingDirectory>
+					<bindingFiles>cloudgraph-jaxb-bindings.xml</bindingFiles>
+					<!-- HACK: where is 'generated-sources' defined ??-->
+					<outputDirectory>${basedir}/target/generated-sources/java</outputDirectory>
+					<clearOutputDir>false</clearOutputDir>
+					<extension>true</extension>
+					<target>2.0</target>
+					<encoding>Cp1252</encoding>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-jar-plugin</artifactId>

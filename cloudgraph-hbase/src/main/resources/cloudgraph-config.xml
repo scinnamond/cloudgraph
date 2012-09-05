@@ -12,11 +12,11 @@
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
          
-    <HTable name="data53" dataColumnFamilyName="f1">
+    <HTable name="data57" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
          
         <DataGraph uri="http://crackoo.com/domain" type="Profile">
-            <RowKeyModel delimiter=":">
+            <RowKeyModel>
                 <RowKeyToken name="uri" hash="true"/>
                 <RowKeyToken name="type"/>
                 <!--
@@ -30,7 +30,7 @@
                     path="goal[@name='Goal 2']/@ISBN"/>
             </RowKeyModel>
             
-            <ColumnKeyModel delimiter=":">
+            <ColumnKeyModel>
                 <ColumnKeyToken name="uri" hash="true"/>
                 <ColumnKeyToken name="type"/>
                 <ColumnKeyToken name="property"/>

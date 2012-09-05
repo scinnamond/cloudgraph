@@ -164,9 +164,14 @@ found creates a column scan for the property.
                 </xsd:annotation>                                 
             </xsd:element>
         </xsd:sequence>
-        <xsd:attribute name="delimiter" type="xsd:string" use="optional" default=":">
+        <xsd:attribute name="fieldDelimiter" type="xsd:string" use="optional" default=":">
             <xsd:annotation>                                  
-                <xsd:documentation></xsd:documentation>       
+                <xsd:documentation>The delimiter used to seperate fields within the row keys</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+        <xsd:attribute name="sectionDelimiter" type="xsd:string" use="optional" default="#">
+            <xsd:annotation>                                  
+                <xsd:documentation>The delimiter used to seperate the metadata and data row key sections</xsd:documentation>       
             </xsd:annotation>                                 
         </xsd:attribute> 
                 
@@ -254,9 +259,14 @@ column token may be specified.
                 </xsd:annotation>                                 
             </xsd:element>
         </xsd:sequence>
-        <xsd:attribute name="delimiter" type="xsd:string" use="optional" default=":">
+        <xsd:attribute name="fieldDelimiter" type="xsd:string" use="optional" default=":">
             <xsd:annotation>                                  
-                <xsd:documentation></xsd:documentation>       
+                <xsd:documentation>The delimiter used to seperate fields within the column keys</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+        <xsd:attribute name="sectionDelimiter" type="xsd:string" use="optional" default="#">
+            <xsd:annotation>                                  
+                <xsd:documentation>The delimiter used to seperate the metadata and data column key sections</xsd:documentation>       
             </xsd:annotation>                                 
         </xsd:attribute> 
                 

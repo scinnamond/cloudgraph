@@ -1,6 +1,6 @@
 package org.cloudgraph.common.service;
 
-import org.cloudgraph.CloudGraphRuntimeException;
+import org.cloudgraph.common.CloudGraphRuntimeException;
 
 public class CloudGraphServiceException extends CloudGraphRuntimeException
 {

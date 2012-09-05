@@ -14,9 +14,9 @@ import org.apache.hadoop.hbase.ZooKeeperConnectionException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
-import org.cloudgraph.CloudGraphConstants;
-import org.cloudgraph.connect.CloudGraphContext;
-import org.cloudgraph.connect.ConnectonException;
+import org.cloudgraph.common.CloudGraphConstants;
+import org.cloudgraph.context.CloudGraphContext;
+import org.cloudgraph.context.ContextException;
 
 
 /**
@@ -83,7 +83,7 @@ public class HBaseConnectionManager {
 			try {
 				result = getPooledTable(tableName);
 			} catch (TableNotFoundException e1) {
-				throw new ConnectonException(e1);
+				throw new ContextException(e1);
 			}
 		}
 		catch (Throwable t) {
@@ -93,11 +93,11 @@ public class HBaseConnectionManager {
 				try {
 					result = getPooledTable(tableName);
 				} catch (TableNotFoundException e1) {
-					throw new ConnectonException(e1);
+					throw new ContextException(e1);
 				}
 			}
 			else
-			    throw new ConnectonException(t);
+			    throw new ContextException(t);
 		}
 		if (result.isAutoFlush())
 			log.warn("table " + tableName + " set to auto-flush");
@@ -123,11 +123,11 @@ public class HBaseConnectionManager {
 	    	//tableDesc.addFamily(fam2);
 			hbase.createTable(tableDesc);
 		} catch (MasterNotRunningException e1) {
-			throw new ConnectonException(e1);
+			throw new ContextException(e1);
 		} catch (ZooKeeperConnectionException e1) {
-			throw new ConnectonException(e1);
+			throw new ContextException(e1);
 		} catch (IOException e) {
-			throw new ConnectonException(e);
+			throw new ContextException(e);
 		} 	
     }
 

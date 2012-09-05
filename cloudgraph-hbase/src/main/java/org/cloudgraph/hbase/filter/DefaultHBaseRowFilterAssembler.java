@@ -50,7 +50,7 @@ import org.xml.sax.SAXException;
  *  
  * @see org.cloudgraph.common.key.CloudGraphRowKeyFactory
  */
-public class DefaultHBaseRowFilterAssembler extends DefaultHBaseFilterAssembler
+public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
     implements HBaseRowFilterAssembler
 {
     private static Log log = LogFactory.getLog(DefaultHBaseRowFilterAssembler.class);

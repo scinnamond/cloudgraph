@@ -1,4 +1,4 @@
-package org.cloudgraph;
+package org.cloudgraph.common;
 
 public class CloudGraphRuntimeException extends RuntimeException {
     

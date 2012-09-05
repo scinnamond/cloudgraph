@@ -13,7 +13,7 @@ import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.CloudGraphConstants;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.key.CloudGraphColumnKeyFactory;
 import org.cloudgraph.common.service.CloudGraphServiceException;
 import org.cloudgraph.common.service.CloudGraphState;
@@ -30,6 +30,8 @@ import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
 import org.plasma.sdo.core.TraversalDirection;
 import org.plasma.sdo.helper.PlasmaDataFactory;
+
+import commonj.sdo.Type;
 
 /**
  * Constructs a data graph starting with a given root SDO type based on
@@ -61,7 +63,7 @@ public class HBaseGraphAssembler extends DispatcherSupport
     private static Log log = LogFactory.getLog(HBaseGraphAssembler.class);
 	private PlasmaType rootType;
 	private PlasmaDataObject root;
-	private Map<PlasmaType, List<String>> propertyMap;
+	private Map<Type, List<String>> propertyMap;
 	private Timestamp snapshotDate;
 	private CloudGraphState graphState;		
 	private CloudGraphColumnKeyFactory columnKeyGen;
@@ -79,7 +81,7 @@ public class HBaseGraphAssembler extends DispatcherSupport
 	 * into every data object in the result data graph. 
 	 */
 	public HBaseGraphAssembler(PlasmaType rootType,
-			Map<PlasmaType, List<String>> propertyMap, 
+			Map<Type, List<String>> propertyMap, 
 			Timestamp snapshotDate) {
 		this.rootType = rootType;
 		this.propertyMap = propertyMap;

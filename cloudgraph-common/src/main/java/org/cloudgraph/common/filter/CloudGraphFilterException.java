@@ -1,6 +1,6 @@
 package org.cloudgraph.common.filter;
 
-import org.cloudgraph.CloudGraphRuntimeException;
+import org.cloudgraph.common.CloudGraphRuntimeException;
 
 public class CloudGraphFilterException extends CloudGraphRuntimeException
 {

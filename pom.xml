@@ -8,6 +8,7 @@
 	<name>CloudGraph Data Access Services</name>
     <modules>
         <module>cloudgraph-common</module>
+        <module>cloudgraph-config</module>
         <module>cloudgraph-hbase</module>
         <module>cloudgraph-docs</module>
     </modules>

@@ -18,7 +18,7 @@ import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.CloudGraphConstants;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.service.CloudGraphServiceException;
 import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.config.DataGraph;
@@ -39,6 +39,8 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.QueryDispatcher;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
+import commonj.sdo.Type;
+
 /**
  * Assembles and returns one or more {@link DataGraph data graphs} 
  * from HBase given a PlasmaQuery\u2122 based XPath or DSL query.
@@ -47,8 +49,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * literal values and logic found in the 'where'
  * clause or predicate(s).     
  * <p>
- * Any "slice" of a graph or set of
- * sub-graphs can be selected using the
+ * Any "slice" of a graph or set of sub-graphs can be selected using the
  * PlasmaQuery\u2122 API by specifying paths through the graph. Paths may
  * include any number of predicates along the path. Based on this selection
  * criteria an {@link EagerFetchColumnFilterAssembler} is used to 
@@ -270,7 +271,7 @@ public class HBaseGraphQuery extends DispatcherSupport
         try {
             PropertyCollector collector = new PropertyCollector(
                 	query.getSelectClause(), type);
-            Map<PlasmaType, List<String>> selectMap = collector.getResult();
+            Map<Type, List<String>> selectMap = collector.getResult();
             HBaseGraphAssembler assembler = new HBaseGraphAssembler(type, 
                 	selectMap, snapshotDate);
             if (log.isDebugEnabled() ) 

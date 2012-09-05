@@ -22,10 +22,10 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 
-public class DefaultHBaseFilterAssembler extends DefaultQueryVisitor 
+public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor 
     implements QueryConstants, HBaseFilterAssembler
 {
-    private static Log log = LogFactory.getLog(DefaultHBaseFilterAssembler.class);
+    private static Log log = LogFactory.getLog(FilterHierarchyAssembler.class);
 
 	protected List<Object> params;
 	protected FilterList rootFilter;

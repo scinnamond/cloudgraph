@@ -12,6 +12,10 @@ import junit.framework.Test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.common.test.PlasmaTestSetup;
+import org.plasma.query.model.From;
+import org.plasma.query.model.Query;
+import org.plasma.query.model.Select;
+import org.plasma.query.model.Where;
 import org.plasma.sdo.helper.PlasmaDataFactory;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
@@ -53,7 +57,6 @@ public class CrackooModelTest extends HBaseTestCase {
     public void testInsertUpdateDelete() throws IOException       
     {
     	int countBefore = getProfileCount();
-    	
     	DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
         dataGraph.getChangeSummary().beginLogging(); // log changes from this point
     	Type rootType = PlasmaTypeHelper.INSTANCE.getType(Profile.class);
@@ -168,8 +171,8 @@ public class CrackooModelTest extends HBaseTestCase {
         assertTrue(fetchedProfile.getProfileId() == id);
         assertTrue(fetchedProfile.getGoalCount() == 2);
         
-   }
-      
+    }
+        
     private String serializeGraph(DataGraph graph) throws IOException
     {
         DefaultOptions options = new DefaultOptions(
@@ -192,8 +195,12 @@ public class CrackooModelTest extends HBaseTestCase {
     	profile.select(profile.wildcard());
         return service.count(profile);
     }
-
-    protected Profile fetchProfileGraph(long id) {    	
+    
+    protected Profile fetchProfileGraph(long id) {  
+    	return fetchProfileGraphByXPath(id);
+    }
+    
+    protected Profile fetchProfileGraphByDSL(long id) {    	
     	QProfile root = QProfile.newQuery();
     	root.select(root.profileId());
     	//root.select(root.seqId());
@@ -228,6 +235,42 @@ public class CrackooModelTest extends HBaseTestCase {
     	//root.where(root.creationDate().between(new Date(), new Date()));
     	
     	DataGraph[] result = service.find(root);
+    	assertTrue(result != null);
+    	assertTrue(result.length == 1);
+    	
+    	return (Profile)result[0].getRootObject();
+    }
+    
+    protected Profile fetchProfileGraphByXPath(long id) {    	
+    	 
+    	Select select = new Select(new String[] {
+    	    "profileId",		
+    	    "creationDate",		
+    	    "lastModification",		
+    	    "tag/@tag",		
+    	    "goal[@name='"+GOAL_2+"']/*",		
+    	    "goal[@name='"+GOAL_2+"']/studyItem/*",		
+    	    "goal[@name='"+GOAL_2+"']/studyItem/citation/@reference",		
+    	    "goal[@name='"+GOAL_2+"']/studyItem/tag/@tag"
+    	});
+    	
+    	Where where = new Where("[@profileId = '"+id+"']");
+    	//Where where = new Where("[@profileId = '"+id+"'] and goal[@ISBN = 'ISBN2_"+id+"']");
+        /*
+java.lang.ClassCastException: org.jaxen.expr.DefaultAndExpr cannot be cast to org.jaxen.expr.LocationPath
+	at org.plasma.query.xpath.QueryXPath.getSteps(QueryXPath.java:90)
+	at org.plasma.query.model.Where.<init>(Where.java:104)
+	at org.cloudgraph.test.hbase.CrackooModelTest.fetchProfileGraphByXPath(CrackooModelTest.java:259)
+	at org.cloudgraph.test.hbase.CrackooModelTest.fetchProfileGraph(CrackooModelTest.java:200)
+	at org.cloudgraph.test.hbase.CrackooModelTest.testInsertUpdateDelete(CrackooModelTest.java:121)
+          
+         */
+    	From from = new From(Profile.ETY_PROFILE, 
+    			Profile.NAMESPACE_URI);
+    	
+    	Query query = new Query (select, from, where);
+    	
+    	DataGraph[] result = service.find(query);
     	assertTrue(result != null);
     	assertTrue(result.length == 1);
     	

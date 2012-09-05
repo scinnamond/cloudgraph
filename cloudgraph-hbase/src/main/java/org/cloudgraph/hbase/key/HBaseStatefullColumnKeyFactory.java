@@ -58,19 +58,19 @@ public class HBaseStatefullColumnKeyFactory extends HBaseCompositeColumnKeyFacto
 		// String representation for column names so we can read
 		// the column names in third party tools. 
 		byte[] seqNumBytes = Bytes.toBytes(String.valueOf(seqNum));
-		byte[] delim = graph.getColumnKeyDelimiterBytes();	    	    
+		byte[] sectionDelim = graph.getColumnKeySectionDelimiterBytes();	    	    
 		byte[] prefix = super.createColumnKey(type, property);
 		
-		int len = prefix.length + delim.length + seqNumBytes.length;
+		int len = prefix.length + sectionDelim.length + seqNumBytes.length;
 		byte[] result = new byte[len];
 		
 		int destPos = 0;
 		System.arraycopy(prefix, 0, result, destPos, prefix.length);
 		
 		destPos += prefix.length;
-		System.arraycopy(delim, 0, result, destPos, delim.length);
+		System.arraycopy(sectionDelim, 0, result, destPos, sectionDelim.length);
 		
-		destPos += delim.length;
+		destPos += sectionDelim.length;
 		System.arraycopy(seqNumBytes, 0, result, destPos, seqNumBytes.length);
  		
 		if (log.isDebugEnabled())

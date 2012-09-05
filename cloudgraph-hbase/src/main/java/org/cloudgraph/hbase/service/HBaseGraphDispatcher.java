@@ -14,7 +14,7 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.CloudGraphConstants;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.key.CloudGraphColumnKeyFactory;
 import org.cloudgraph.common.service.CloudGraphServiceException;
 import org.cloudgraph.common.service.CloudGraphState;
@@ -127,8 +127,6 @@ public class HBaseGraphDispatcher extends DispatcherSupport
 		        HBaseCompositeRowKeyFactory rowKeyGen = new HBaseCompositeRowKeyFactory(
 		        	(PlasmaType)dataGraph.getRootObject().getType());
 		        rowKey = rowKeyGen.createRowKeyBytes(dataGraph);
-	            //rowKey = rowKeyStr.getBytes(
-	            //	Charset.forName( CoreConstants.UTF8_ENCODING ));
 	            ((PlasmaDataGraph)dataGraph).setId(rowKey); // FIXME: use snapshot map
 	        }
 	        else 
