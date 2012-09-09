@@ -10,7 +10,7 @@
 	<artifactId>cloudgraph-hbase</artifactId>
 	<packaging>jar</packaging>
 	<version>0.5</version>
-	<name>CloudGraph HBase Data Access Service</name>
+	<name>CloudGraph HBase Service</name>
 	<dependencies>
 		<dependency>
 			<groupId>cloudgraph</groupId>

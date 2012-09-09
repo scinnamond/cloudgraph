@@ -10,7 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
-import org.cloudgraph.common.key.CloudGraphRowKeyFactory;
+import org.cloudgraph.common.key.GraphRowKeyFactory;
 import org.cloudgraph.config.CloudGraphConfigurationException;
 import org.cloudgraph.config.RowKeyToken;
 import org.cloudgraph.config.UserDefinedTokenConfig;
@@ -22,10 +22,10 @@ import commonj.sdo.Type;
 
 /**
  * Generates an HBase row key based on the configured Cloudgraph {@link org.cloudgraph.config.RowKeyModel Row Key
- * Model} for a specific {@link org.cloudgraph.config.HTable HTable Configuration}. 
+ * Model} for a specific {@link org.cloudgraph.config.Table HTable Configuration}. 
  */
 public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
-    implements CloudGraphRowKeyFactory 
+    implements GraphRowKeyFactory 
 {
 	private static final Log log = LogFactory.getLog(HBaseCompositeRowKeyFactory.class);
 	

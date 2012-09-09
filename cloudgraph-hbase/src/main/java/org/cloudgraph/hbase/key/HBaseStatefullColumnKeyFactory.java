@@ -3,8 +3,9 @@ package org.cloudgraph.hbase.key;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.key.CloudGraphColumnKeyFactory;
-import org.cloudgraph.common.service.CloudGraphState;
+import org.cloudgraph.common.key.GraphColumnKeyFactory;
+import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
+import org.cloudgraph.common.service.GraphState;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -12,7 +13,7 @@ import org.plasma.sdo.PlasmaType;
 
 /**
  * Generates an HBase column key based on the configured Cloudgraph column key {@link org.cloudgraph.config.ColumnKeyModel
- * model} for a specific HTable {@link org.cloudgraph.config.HTable configuration}. 
+ * model} for a specific HTable {@link org.cloudgraph.config.Table configuration}. 
  * <p>
  * In order to persist any arbitrary Data Graph in a single HBase row, 
  * and since every column key in a row must be unique in HBase, every column 
@@ -32,17 +33,17 @@ import org.plasma.sdo.PlasmaType;
  * debugging or analysis.     
  * </p>
  * @see org.cloudgraph.config.ColumnKeyModel
- * @see org.cloudgraph.config.HTable
- * @see org.cloudgraph.common.service.CloudGraphState
+ * @see org.cloudgraph.config.Table
+ * @see org.cloudgraph.common.service.GraphState
  */
 public class HBaseStatefullColumnKeyFactory extends HBaseCompositeColumnKeyFactory 
-    implements CloudGraphColumnKeyFactory 
+    implements GraphStatefullColumnKeyFactory 
 {
 	private static final Log log = LogFactory.getLog(HBaseStatefullColumnKeyFactory.class);
-	private CloudGraphState graphState;
+	private GraphState graphState;
 		
 	public HBaseStatefullColumnKeyFactory(PlasmaType rootType,
-			CloudGraphState graphState) {
+			GraphState graphState) {
 		super(rootType);
 	    this.graphState = graphState;
 	}
@@ -54,10 +55,23 @@ public class HBaseStatefullColumnKeyFactory extends HBaseCompositeColumnKeyFacto
  	    PlasmaType type = (PlasmaType)dataObject.getType();
 
 		Long seqNum = this.graphState.createSequence(dataObject);
+		return getKey(type, seqNum, property);
+	}
+
+	@Override
+	public byte[] createColumnKey(PlasmaType type, 
+			Long dataObjectSeqNum, PlasmaProperty property)	
+	{
+		return getKey(type, dataObjectSeqNum, property);
+	}
+	
+	private byte[] getKey(PlasmaType type, 
+			Long dataObjectSeqNum, PlasmaProperty property) 
+	{
 		// Use the bytes of the sequence number 
 		// String representation for column names so we can read
 		// the column names in third party tools. 
-		byte[] seqNumBytes = Bytes.toBytes(String.valueOf(seqNum));
+		byte[] seqNumBytes = Bytes.toBytes(String.valueOf(dataObjectSeqNum));
 		byte[] sectionDelim = graph.getColumnKeySectionDelimiterBytes();	    	    
 		byte[] prefix = super.createColumnKey(type, property);
 		
@@ -77,5 +91,6 @@ public class HBaseStatefullColumnKeyFactory extends HBaseCompositeColumnKeyFacto
 			log.debug("key: " + Bytes.toString(result));
 		
 		return result;
+		
 	}
 }

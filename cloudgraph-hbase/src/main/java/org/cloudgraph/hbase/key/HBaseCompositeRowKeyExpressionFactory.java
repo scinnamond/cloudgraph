@@ -9,8 +9,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
-import org.cloudgraph.common.key.CloudGraphKeyException;
-import org.cloudgraph.common.key.CloudGraphRowKeyExpressionFactory;
+import org.cloudgraph.common.key.GraphKeyException;
+import org.cloudgraph.common.key.GraphRowKeyExpressionFactory;
 import org.cloudgraph.common.key.TokenValue;
 import org.cloudgraph.config.CloudGraphConfigurationException;
 import org.cloudgraph.config.RowKeyToken;
@@ -24,10 +24,10 @@ import commonj.sdo.Type;
 
 /**
  * Generates an HBase row key based on the configured Cloudgraph {@link org.cloudgraph.config.RowKeyModel Row Key
- * Model} for a specific {@link org.cloudgraph.config.HTable HTable Configuration}. 
+ * Model} for a specific {@link org.cloudgraph.config.Table HTable Configuration}. 
  */
 public class HBaseCompositeRowKeyExpressionFactory extends HBaseKeyFactory
-    implements CloudGraphRowKeyExpressionFactory 
+    implements GraphRowKeyExpressionFactory 
 {
 	private static final Log log = LogFactory.getLog(HBaseCompositeRowKeyExpressionFactory.class);
 	
@@ -73,7 +73,7 @@ public class HBaseCompositeRowKeyExpressionFactory extends HBaseKeyFactory
 				String tokenValue = String.valueOf(found.getValue());	
 				if (userTokenConfig.isHash()) {
 					if (found.isWildcard())
-						throw new CloudGraphKeyException("cannot create wildcard expression for user"  
+						throw new GraphKeyException("cannot create wildcard expression for user"  
 							+ " defined row-key token with XPath expression '" 
 							+ userTokenConfig.getPathExpression() + "'"
 							+ " for HTable '"
@@ -132,7 +132,7 @@ public class HBaseCompositeRowKeyExpressionFactory extends HBaseKeyFactory
 				String tokenValue = String.valueOf(found.getValue());	
 				if (userTokenConfig.isHash()) {
 					if (found.isWildcard())
-						throw new CloudGraphKeyException("cannot create wildcard expression for user"  
+						throw new GraphKeyException("cannot create wildcard expression for user"  
 							+ " defined row-key token with XPath expression '" 
 							+ userTokenConfig.getPathExpression() + "'"
 							+ " for HTable '"

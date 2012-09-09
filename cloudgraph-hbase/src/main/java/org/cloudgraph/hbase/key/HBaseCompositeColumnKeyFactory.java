@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
-import org.cloudgraph.common.key.CloudGraphColumnKeyFactory;
+import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.config.ColumnKeyToken;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.PreDefinedTokenName;
@@ -15,12 +15,12 @@ import org.plasma.sdo.PlasmaType;
 
 /**
  * Generates an HBase column key based on the configured Cloudgraph column key {@link org.cloudgraph.config.ColumnKeyModel
- * model} for a specific HTable {@link org.cloudgraph.config.HTable configuration}. 
+ * model} for a specific HTable {@link org.cloudgraph.config.Table configuration}. 
  * @see org.cloudgraph.config.ColumnKeyModel
- * @see org.cloudgraph.config.HTable
+ * @see org.cloudgraph.config.Table
  */
 public class HBaseCompositeColumnKeyFactory extends HBaseKeyFactory  
-    implements CloudGraphColumnKeyFactory 
+    implements GraphColumnKeyFactory 
 {
 	private static final Log log = LogFactory.getLog(HBaseCompositeColumnKeyFactory.class);
 		
@@ -80,14 +80,6 @@ public class HBaseCompositeColumnKeyFactory extends HBaseKeyFactory
 		System.arraycopy(propToken, 0, result, destPos, propToken.length);		
 		
 		return result;
-	}
-
-	@Override
-	public byte[] createColumnKey( 
-			PlasmaDataObject dataObject, PlasmaProperty property)	
-	{
- 	    PlasmaType type = (PlasmaType)dataObject.getType();
-        return createColumnKey(type, property);
 	}
 
 	protected byte[] configureTokenBytes(byte[] token, 

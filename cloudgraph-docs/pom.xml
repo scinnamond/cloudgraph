@@ -73,7 +73,7 @@
 			            <packageset dir="${basedir}/../cloudgraph-common/src/main/java" defaultexcludes="yes">
 			                <include name="org/cloudgraph/**"/>
 			            </packageset>			             
-			            <packageset dir="${basedir}/../cloudgraph-common/src/main/java" defaultexcludes="yes">
+			            <packageset dir="${basedir}/../cloudgraph-config/src/main/java" defaultexcludes="yes">
 			                <include name="org/cloudgraph/**"/>
 			            </packageset>			             
 			            <packageset dir="${basedir}/../cloudgraph-config/target/generated-sources/java" defaultexcludes="yes">

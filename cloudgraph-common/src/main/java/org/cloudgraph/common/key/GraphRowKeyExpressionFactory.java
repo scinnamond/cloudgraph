@@ -5,19 +5,18 @@ import java.util.List;
 import commonj.sdo.Type;
 
 /**
- * Generates an HBase row key based on the configured Cloudgraph row key {@link org.cloudgraph.config.RowKeyModel
- * model} for a specific HTable {@link org.cloudgraph.config.HTable configuration}. 
+ * Generates a row key based on the configured CloudGraph row key {@link org.cloudgraph.config.RowKeyModel
+ * model} for a specific table {@link org.cloudgraph.config.Table configuration}. 
  * @see org.cloudgraph.config.RowKeyModel
- * @see org.cloudgraph.config.HTable
+ * @see org.cloudgraph.config.Table
  */
-public interface CloudGraphRowKeyExpressionFactory {
+public interface GraphRowKeyExpressionFactory {
 	
 
 	
 	/**
 	 * Generates a regular expression matching a row key based on 
 	 * the given list of token value pairs.
-	 * @param type the root type for the target data graph
 	 * @param values the token value list
 	 * @return the row key expression
 	 */

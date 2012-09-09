@@ -1,7 +1,7 @@
 package org.cloudgraph.common.service;
 
  
-public class DuplicateRowException extends CloudGraphServiceException
+public class DuplicateRowException extends GraphServiceException
 {
     private static final long serialVersionUID = 1L;
     public DuplicateRowException(String message)

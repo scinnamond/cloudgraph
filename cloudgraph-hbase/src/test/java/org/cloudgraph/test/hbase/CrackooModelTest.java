@@ -28,7 +28,6 @@ import com.crackoo.domain.StudyItem;
 import com.crackoo.domain.Tag;
 import com.crackoo.domain.query.QProfile;
 import commonj.sdo.DataGraph;
-import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
 
@@ -118,10 +117,9 @@ public class CrackooModelTest extends HBaseTestCase {
         assertTrue(countAfter == countBefore+1); 
         
         // fetch the complete graph
-        Profile fetchedProfile = this.fetchProfileGraph(id);
-        //String xml = serializeGraph(fetchedProfile.getDataGraph());
-        //log.info("NEW GRAPH: " + xml);
-        // FIXME: need stax-utils working in maven repo
+        Profile fetchedProfile = this.fetchProfileGraphSlice(id);
+        String xml = serializeGraph(fetchedProfile.getDataGraph());
+        log.info("NEW GRAPH: " + xml);
         assertTrue(fetchedProfile.getProfileId() == id);
         String isbn2 = fetchedProfile.getString(
         		"goal[@name='"+GOAL_2+"']/@ISBN");
@@ -132,10 +130,9 @@ public class CrackooModelTest extends HBaseTestCase {
         citation3.setReference("updated ref"); // make a change        
         service.commit(dataGraph, "test-user2");
         
-        fetchedProfile = this.fetchProfileGraph(id);
-        //xml = serializeGraph(fetchedProfile.getDataGraph());
-        //log.info("UPDATED GRAPH: " + xml);        
-        // FIXME: need stax-utils working in maven repo
+        fetchedProfile = this.fetchProfileGraphFull(id);
+        xml = serializeGraph(fetchedProfile.getDataGraph());
+        log.info("UPDATED GRAPH: " + xml);        
         assertTrue(fetchedProfile.getProfileId() == id);
         
         //  check we did not create a dup etc...
@@ -164,13 +161,11 @@ public class CrackooModelTest extends HBaseTestCase {
         countAfter = getProfileCount();
         assertTrue(countAfter == countBefore+1); 
 
-        fetchedProfile = this.fetchProfileGraph(id);
-        //xml = serializeGraph(fetchedProfile.getDataGraph());
-        //log.info("GRAPH W/O Goal 1 PATH: " + xml);        
-        // FIXME: need stax-utils working in maven repo
+        fetchedProfile = this.fetchProfileGraphFull(id);
+        xml = serializeGraph(fetchedProfile.getDataGraph());
+        log.info("GRAPH W/O Goal 1 PATH: " + xml);        
         assertTrue(fetchedProfile.getProfileId() == id);
-        assertTrue(fetchedProfile.getGoalCount() == 2);
-        
+        assertTrue(fetchedProfile.getGoalCount() == 2);        
     }
         
     private String serializeGraph(DataGraph graph) throws IOException
@@ -196,11 +191,8 @@ public class CrackooModelTest extends HBaseTestCase {
         return service.count(profile);
     }
     
-    protected Profile fetchProfileGraph(long id) {  
-    	return fetchProfileGraphByXPath(id);
-    }
     
-    protected Profile fetchProfileGraphByDSL(long id) {    	
+    protected Profile fetchProfileGraphFull(long id) {    	
     	QProfile root = QProfile.newQuery();
     	root.select(root.profileId());
     	//root.select(root.seqId());
@@ -241,17 +233,17 @@ public class CrackooModelTest extends HBaseTestCase {
     	return (Profile)result[0].getRootObject();
     }
     
-    protected Profile fetchProfileGraphByXPath(long id) {    	
+    protected Profile fetchProfileGraphSlice(long id) {    	
     	 
     	Select select = new Select(new String[] {
     	    "profileId",		
     	    "creationDate",		
     	    "lastModification",		
     	    "tag/@tag",		
-    	    "goal[@name='"+GOAL_2+"']/*",		
-    	    "goal[@name='"+GOAL_2+"']/studyItem/*",		
-    	    "goal[@name='"+GOAL_2+"']/studyItem/citation/@reference",		
-    	    "goal[@name='"+GOAL_2+"']/studyItem/tag/@tag"
+    	    "goal[@name = '"+GOAL_2+"']/*",		
+    	    "goal[@name = '"+GOAL_2+"']/studyItem/*",		
+    	    "goal[@name = '"+GOAL_2+"']/studyItem/citation/@reference",		
+    	    "goal[@name = '"+GOAL_2+"']/studyItem/tag/@tag"
     	});
     	
     	Where where = new Where("[@profileId = '"+id+"']");

@@ -2,7 +2,7 @@ package org.cloudgraph.config;
 
 import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.config.HTable;
+import org.cloudgraph.config.Table;
 import org.cloudgraph.context.CloudGraphContext;
 
 /**
@@ -10,13 +10,13 @@ import org.cloudgraph.context.CloudGraphContext;
  * configuration information.  
  */
 public class TableConfig {
-    private HTable table;
+    private Table table;
     private Hash hash;
     
     @SuppressWarnings("unused")
 	private TableConfig() {}
     
-	public TableConfig(HTable table) {
+	public TableConfig(Table table) {
 		super();
 		this.table = table;
 		
@@ -26,7 +26,7 @@ public class TableConfig {
 	 * Returns the configuration for the HTable.
 	 * @return the configuration for the HTable.
 	 */
-	public HTable getTable() {
+	public Table getTable() {
 		return table;
 	}
 	

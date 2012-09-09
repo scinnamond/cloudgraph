@@ -15,9 +15,10 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.key.CloudGraphColumnKeyFactory;
-import org.cloudgraph.common.service.CloudGraphServiceException;
-import org.cloudgraph.common.service.CloudGraphState;
+import org.cloudgraph.common.key.GraphColumnKeyFactory;
+import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
+import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.common.service.DuplicateRowException;
 import org.cloudgraph.hbase.key.HBaseCompositeRowKeyFactory;
@@ -56,8 +57,8 @@ import commonj.sdo.Property;
  * For new (created) data graphs, a row key {org.cloudgraph.hbase.key.HBaseRowKeyFactory factory} 
  * is used to create a new composite HBase row key. The row key generation is
  * driven by a configured Cloudgraph row key {@link org.cloudgraph.config.RowKeyModel
- * model} for a specific HTable {@link org.cloudgraph.config.HTable configuration}.
- * A minimal set of {@link org.cloudgraph.common.service.CloudGraphState state} information is 
+ * model} for a specific HTable {@link org.cloudgraph.config.Table configuration}.
+ * A minimal set of {@link org.cloudgraph.common.service.GraphState state} information is 
  * persisted with each new data graph.     
  * </p>
  * <p>
@@ -69,9 +70,9 @@ import commonj.sdo.Property;
  * </p>
  * <p>
  * </p>
- * @see org.cloudgraph.common.key.CloudGraphRowKeyFactory
- * @see org.cloudgraph.common.key.CloudGraphColumnKeyFactory
- * @see org.cloudgraph.common.service.CloudGraphState
+ * @see org.cloudgraph.common.key.GraphRowKeyFactory
+ * @see org.cloudgraph.common.key.GraphColumnKeyFactory
+ * @see org.cloudgraph.common.service.GraphState
  */
 public class HBaseGraphDispatcher extends DispatcherSupport
     implements DataGraphDispatcher 
@@ -137,7 +138,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
             if (log.isDebugEnabled())
     			log.debug("row-id: " + Bytes.toString(rowKey));
             
-    		CloudGraphState graphState = this.initGraphState(rowKey, 
+    		GraphState graphState = this.initGraphState(rowKey, 
     				dataGraph, changeSummary);
     		
     		HBaseStatefullColumnKeyFactory colGen = new HBaseStatefullColumnKeyFactory(
@@ -171,7 +172,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     private List<Row> delete(byte[] rowKey,  
     		DataGraph dataGraph,
     		PlasmaChangeSummary changeSummary,
-    		CloudGraphState graphState, HBaseStatefullColumnKeyFactory colGen) throws IllegalAccessException 
+    		GraphState graphState, HBaseStatefullColumnKeyFactory colGen) throws IllegalAccessException 
     {
         DeletedObjectCollector deleted = new DeletedObjectCollector(dataGraph);
         if (deleted.getResult().size() == 0)
@@ -192,7 +193,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
             result.add(columnDelete);
     		Put uuidMapUpdate = new Put(rowKey);
     		uuidMapUpdate.add(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
-                    Bytes.toBytes(CloudGraphState.STATE_MAP_COLUMN_NAME),
+                    Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
                     Bytes.toBytes(graphState.formatUUIDMap())); 
     		result.add(uuidMapUpdate);
 		}
@@ -202,7 +203,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     private List<Row> modify(byte[] rowKey,  
     		DataGraph dataGraph,
     		PlasmaChangeSummary changeSummary,
-    		CloudGraphState graphState, HBaseStatefullColumnKeyFactory colGen) throws IllegalAccessException 
+    		GraphState graphState, HBaseStatefullColumnKeyFactory colGen) throws IllegalAccessException 
     {
         ModifiedObjectCollector modified = new ModifiedObjectCollector(dataGraph);
         if (modified.getResult().size() == 0)
@@ -218,7 +219,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     private List<Row> create(byte[] rowKey,   
     		DataGraph dataGraph,
     		PlasmaChangeSummary changeSummary,
-    		CloudGraphState graphState, HBaseStatefullColumnKeyFactory colGen) {
+    		GraphState graphState, HBaseStatefullColumnKeyFactory colGen) {
         CreatedObjectCollector created = new CreatedObjectCollector(dataGraph);   	
 		if (created.getResult().size() == 0) 
 			return EMPTY_ROW_LIST;		
@@ -229,7 +230,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
         if (changeSummary.isCreated(dataGraph.getRootObject()))	{
             String uuid = (String)((PlasmaDataObject)dataGraph.getRootObject()).getUUIDAsString();
             if (uuid == null)
-                throw new CloudGraphServiceException("expected UUID for data object '" 
+                throw new GraphServiceException("expected UUID for data object '" 
                 		+ dataGraph.getRootObject().getType().getName() + "'");
             for (PlasmaDataObject dataObject : created.getResult())
             	graphState.createSequence(dataObject);
@@ -242,7 +243,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
                     Bytes.toBytes(uuid));    		        		
     
     		create.add(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
-                Bytes.toBytes(CloudGraphState.STATE_MAP_COLUMN_NAME),
+                Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
                 Bytes.toBytes(graphState.formatUUIDMap()));    		        		
     	}
         else { // partially new graph
@@ -253,23 +254,23 @@ public class HBaseGraphDispatcher extends DispatcherSupport
                 create(dataGraph, dataObject, graphState, colGen, create);
             }
             create.add(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
-                    Bytes.toBytes(CloudGraphState.STATE_MAP_COLUMN_NAME),
+                    Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
                     Bytes.toBytes(graphState.formatUUIDMap())); 
         }
         result.add(create);
 		return result;
     }
     
-    private CloudGraphState initGraphState(byte[] rowKey, 
+    private GraphState initGraphState(byte[] rowKey, 
     		DataGraph dataGraph,
     		PlasmaChangeSummary changeSummary) throws IOException
     {
-    	CloudGraphState graphState;
+    	GraphState graphState;
 		// --ensure row exists unless a new row/graph
 		// --use empty get with only necessary "state" column
 		Get existing = new Get(rowKey);
 		existing.addColumn(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
-				Bytes.toBytes(CloudGraphState.STATE_MAP_COLUMN_NAME));
+				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
 		
 		Result result = this.con.get(existing);
 		
@@ -278,24 +279,24 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     		if (!result.isEmpty())
     			throw new DuplicateRowException("no row for id '"
     				+ Bytes.toString(rowKey) + "' expected"); 
-    		graphState = new CloudGraphState();
+    		graphState = new GraphState();
         }
 		else {
     		if (result.isEmpty())
-    			throw new CloudGraphServiceException("expected row for id '"
+    			throw new GraphServiceException("expected row for id '"
     					+ Bytes.toString(rowKey) + "'");            	
     		byte[] uuids = result.getValue(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
-    				Bytes.toBytes(CloudGraphState.STATE_MAP_COLUMN_NAME));
+    				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
             if (uuids != null) {
             	if (log.isDebugEnabled())
-            		log.debug(CloudGraphState.STATE_MAP_COLUMN_NAME
+            		log.debug(GraphState.STATE_MAP_COLUMN_NAME
             			+ ": " + new String(uuids));
             }
             else
-    			throw new CloudGraphServiceException("expected column '"
-    				+ CloudGraphState.STATE_MAP_COLUMN_NAME + " for row " 
+    			throw new GraphServiceException("expected column '"
+    				+ GraphState.STATE_MAP_COLUMN_NAME + " for row " 
     				+ Bytes.toString(rowKey) + "'");            	
-            graphState = new CloudGraphState(new String(uuids));
+            graphState = new GraphState(new String(uuids));
     	}   		
     	return graphState;
     }
@@ -320,7 +321,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
         }
     }
     
-    private void create(DataGraph dataGraph, PlasmaDataObject dataObject, CloudGraphState graphState, CloudGraphColumnKeyFactory colGen, Put row) {
+    private void create(DataGraph dataGraph, PlasmaDataObject dataObject, GraphState graphState, GraphStatefullColumnKeyFactory colGen, Put row) {
         PlasmaType type = (PlasmaType)dataObject.getType();
         String uuid = (String)((CoreDataObject)dataObject).getUUIDAsString();
         if (uuid == null)
@@ -412,7 +413,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
         }
     }
     
-    private void update(DataGraph dataGraph, PlasmaDataObject dataObject, CloudGraphState graphState, CloudGraphColumnKeyFactory colGen, Put row) 
+    private void update(DataGraph dataGraph, PlasmaDataObject dataObject, GraphState graphState, GraphStatefullColumnKeyFactory colGen, Put row) 
         throws IllegalAccessException
     {   
         PlasmaType type = (PlasmaType)dataObject.getType();
@@ -478,7 +479,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
         }    
     }
  
-    private void delete(DataGraph dataGraph, PlasmaDataObject dataObject, CloudGraphState graphState, CloudGraphColumnKeyFactory colGen, Delete row)
+    private void delete(DataGraph dataGraph, PlasmaDataObject dataObject, GraphState graphState, GraphStatefullColumnKeyFactory colGen, Delete row)
     {
         PlasmaType type = (PlasmaType)dataObject.getType();
         if (log.isDebugEnabled())
@@ -529,7 +530,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
         }    
     }    
         
-    private void updateCell(CloudGraphColumnKeyFactory colGen, 
+    private void updateCell(GraphStatefullColumnKeyFactory colGen, 
     		Put row, PlasmaDataObject dataObject, Property property, 
     		byte[] value)
     {
@@ -568,7 +569,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     }  
     
     private void updateOrigination(PlasmaDataObject dataObject, PlasmaType type,
-    		CloudGraphColumnKeyFactory colGen, Put row) {
+    		GraphStatefullColumnKeyFactory colGen, Put row) {
         // FIXME - could be a reference to a user
         Property originationUserProperty = type.findProperty(ConcurrencyType.origination, 
             	ConcurrentDataFlavor.user);
@@ -625,7 +626,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
 
     //FIXME: deal with optimistic concurrency in HBase later
     private void updateOptimistic(PlasmaDataObject dataObject, PlasmaType type,
-    		CloudGraphColumnKeyFactory colGen, Put row, Timestamp snapshotDate) 
+    		GraphStatefullColumnKeyFactory colGen, Put row, Timestamp snapshotDate) 
     {
         PlasmaProperty concurrencyUserProperty = (PlasmaProperty)type.findProperty(ConcurrencyType.optimistic, 
             	ConcurrentDataFlavor.user);

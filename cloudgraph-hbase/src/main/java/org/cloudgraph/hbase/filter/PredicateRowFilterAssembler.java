@@ -13,8 +13,8 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.WritableByteArrayComparable;
-import org.cloudgraph.common.filter.CloudGraphFilterException;
-import org.cloudgraph.common.key.CloudGraphRowKeyExpressionFactory;
+import org.cloudgraph.common.filter.GraphFilterException;
+import org.cloudgraph.common.key.GraphRowKeyExpressionFactory;
 import org.cloudgraph.common.key.TokenValue;
 import org.cloudgraph.hbase.key.HBaseCompositeRowKeyExpressionFactory;
 import org.plasma.common.bind.DefaultValidationEventHandler;
@@ -48,21 +48,20 @@ import org.xml.sax.SAXException;
  * maintained which mirrors the query <a href="http://docs.plasma-sdo.org/api/org/plasma/query/model/Expression.html" target="#">expression</a> being
  * processed. 
  *  
- * @see org.cloudgraph.common.key.CloudGraphRowKeyFactory
+ * @see org.cloudgraph.common.key.GraphRowKeyFactory
  */
-public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
-    implements HBaseRowFilterAssembler
+public class PredicateRowFilterAssembler extends FilterHierarchyAssembler
 {
-    private static Log log = LogFactory.getLog(DefaultHBaseRowFilterAssembler.class);
+    private static Log log = LogFactory.getLog(PredicateRowFilterAssembler.class);
     private String contextPropertyPath;
-	private CloudGraphRowKeyExpressionFactory rowKeyFac;
+	private GraphRowKeyExpressionFactory rowKeyFac;
 
 	@SuppressWarnings("unused")
-	private DefaultHBaseRowFilterAssembler() {}
+	private PredicateRowFilterAssembler() {}
 	
 	/**
 	 * Constructor which takes a {@link org.plasma.query.model.Query query} where
-	 * clause containing any number or predicates and traverses
+	 * clause containing any number of predicates and traverses
 	 * these as a {org.plasma.query.visitor.QueryVisitor visitor} only
 	 * processing various traversal events as needed against the given
 	 * root type. 
@@ -71,7 +70,7 @@ public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
 	 * @see org.plasma.query.visitor.QueryVisitor
 	 * @see org.plasma.query.model.Query
 	 */
-	public DefaultHBaseRowFilterAssembler(Where where,
+	public PredicateRowFilterAssembler(Where where,
 			PlasmaType rootType) 
 	{
 		this.rootType = rootType;
@@ -100,10 +99,10 @@ public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
 	
 	/**
 	 * Process the traversal start event for a query {@link org.plasma.query.model.Expression expression}
-	 * creating a new HBase {@link org.apache.hadoop.hbase.filter.FilterList filter list} with a
-	 * default {@link Operator#MUST_PASS_ALL AND} operator and pushes it onto the
+	 * creating a new HBase <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.html">filter list</a> with a
+	 * default <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.Operator.html#MUST_PASS_ALL">MUST_PASS_ALL</a> operator and pushes it onto the
 	 * stack. Any subsequent {@link org.plasma.query.model.Literal literals} encountered then cause
-	 * a new {@link org.apache.hadoop.hbase.filter.RowFilter row filter} to be created
+	 * a new <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/RowFilter.html">row filter</a> to be created
 	 * and added to this new filter list which is on the top of the stack.
 	 * @param expression the expression
 	 */
@@ -118,7 +117,7 @@ public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
 
         for (Term term : expression.getTerms())
         	if (term.getSubqueryOperator() != null)
-                throw new CloudGraphFilterException("subqueries for row filters not yet supported");
+                throw new GraphFilterException("subqueries for row filters not yet supported");
     }                               
  
 	
@@ -150,7 +149,7 @@ public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
     {                
         org.plasma.query.model.FunctionValues function = property.getFunction();
         if (function != null)
-            throw new CloudGraphFilterException("aggregate functions only supported in subqueries not primary queries");
+            throw new GraphFilterException("aggregate functions only supported in subqueries not primary queries");
           
         Path path = property.getPath();
         PlasmaType targetType = (PlasmaType)this.rootType;                
@@ -181,7 +180,7 @@ public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
 			this.contextOpWildcard = true;
 			break;
 		default:
-			throw new CloudGraphFilterException("unknown operator '"
+			throw new GraphFilterException("unknown operator '"
 					+ operator.getValue().toString() + "'");
 		}
 		super.start(operator);
@@ -196,7 +195,7 @@ public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
      * row key token configuration is found, creates a regular expression
      * based HBase row filter.
      * @param literal the expression literal
-     * @throws CloudGraphFilterException if no user defined row-key token
+     * @throws GraphFilterException if no user defined row-key token
      * is configured for the current literal context.
      */
 	@Override
@@ -242,7 +241,7 @@ public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
 					+ rowKeyExpr + " operator: " + this.contextOp);
 		}
 		else
-	        throw new CloudGraphFilterException("no user defined row-key token for query path '"
+	        throw new GraphFilterException("no user defined row-key token for query path '"
 			    	+ this.contextPropertyPath + "'");
 		
 		super.start(literal);
@@ -254,7 +253,7 @@ public class DefaultHBaseRowFilterAssembler extends FilterHierarchyAssembler
 	 */
 	@Override
 	public void start(NullLiteral nullLiteral) {
-        throw new CloudGraphFilterException("null literals for row filters not yet supported");
+        throw new GraphFilterException("null literals for row filters not yet supported");
 	}
 	
 	/**

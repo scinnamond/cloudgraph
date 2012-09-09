@@ -2,14 +2,14 @@ package org.cloudgraph.common.key;
 
 import org.cloudgraph.common.CloudGraphRuntimeException;
 
-public class CloudGraphKeyException extends CloudGraphRuntimeException
+public class GraphKeyException extends CloudGraphRuntimeException
 {
     private static final long serialVersionUID = 1L;
-    public CloudGraphKeyException(String message)
+    public GraphKeyException(String message)
     {
         super(message);
     }
-    public CloudGraphKeyException(Throwable t)
+    public GraphKeyException(Throwable t)
     {
         super(t);
     }

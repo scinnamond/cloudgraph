@@ -5,8 +5,8 @@ import java.nio.ByteBuffer;
 import javax.xml.namespace.QName;
 
 import org.apache.hadoop.hbase.util.Hash;
-import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.CloudGraphConfig;
+import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.plasma.sdo.PlasmaType;
 

@@ -18,7 +18,7 @@ import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 
 /**
- * Manages the a minimal set of "state" information
+ * Manages a minimal set of "state" information
  * persisted with each data graph. In short, integral sequence 
  * numbers (which are used in column keys) are mapped to unique 
  * UUID values for each SDO Type.  
@@ -29,9 +29,9 @@ import commonj.sdo.Type;
  * already mapped for a particular SDO Type (plus 1).  
  * </p>
  */
-public class CloudGraphState {
+public class GraphState {
 
-    private static Log log = LogFactory.getLog(CloudGraphState.class);
+    private static Log log = LogFactory.getLog(GraphState.class);
 
     public static final String STATE_MAP_COLUMN_NAME = "state";
     
@@ -50,28 +50,28 @@ public class CloudGraphState {
     
     private StringBuilder buf = new StringBuilder();
     
-    public CloudGraphState() {
+    public GraphState() {
 		this.seqMap = new HashMap<Type, Map<String, Long>>();
 		this.uuidMap = new HashMap<Type, Map<Long, String>>();
     }
     
-    public CloudGraphState(String state) {
+    public GraphState(String state) {
 		this.seqMap = new HashMap<Type, Map<String, Long>>();
 		this.uuidMap = new HashMap<Type, Map<Long, String>>();
 		
-		String[] typeArray = state.split(CloudGraphState.MAP_DELIM_TYPES);
+		String[] typeArray = state.split(GraphState.MAP_DELIM_TYPES);
 		for (String typeToken : typeArray) {
-			String[] typePairArray = typeToken.split(CloudGraphState.MAP_DELIM_URI);
+			String[] typePairArray = typeToken.split(GraphState.MAP_DELIM_URI);
 			String qualifiedType = typePairArray[0];
 			String[] typeTokens = qualifiedType.split("#");
-			String[] pairs = typePairArray[1].split(CloudGraphState.MAP_DELIM_UUID); 	
+			String[] pairs = typePairArray[1].split(GraphState.MAP_DELIM_UUID); 	
 			Type type = PlasmaTypeHelper.INSTANCE.getType(typeTokens[0], typeTokens[1]);
 			Map<String, Long> seqSubMap = new HashMap<String, Long>();
 			this.seqMap.put(type, seqSubMap);
 			Map<Long, String> uuidSubMap = new HashMap<Long, String>();
 			this.uuidMap.put(type, uuidSubMap);
 			for (String token : pairs) {
-				String[] pair =  token.split(CloudGraphState.MAP_DELIM_ID);
+				String[] pair =  token.split(GraphState.MAP_DELIM_ID);
 				Long id = new Long(pair[1]);
 				seqSubMap.put(pair[0], id);
 				uuidSubMap.put(id, pair[0]);
@@ -250,22 +250,22 @@ public class CloudGraphState {
     	int i = 0;
     	while (mapiter.hasNext()) {
     		if (i > 0)
-    			buf.append(CloudGraphState.MAP_DELIM_TYPES);
+    			buf.append(GraphState.MAP_DELIM_TYPES);
     		Type type = mapiter.next();
     		buf.append(type.getURI());
     		buf.append("#");
     		buf.append(type.getName());
-    		buf.append(CloudGraphState.MAP_DELIM_URI);
+    		buf.append(GraphState.MAP_DELIM_URI);
     		Map<String, Long> submap = seqMap.get(type);
     		Iterator<String> submapiter = submap.keySet().iterator();
         	int j = 0;
         	while (submapiter.hasNext()) {
         		if (j > 0)
-        			buf.append(CloudGraphState.MAP_DELIM_UUID);   
+        			buf.append(GraphState.MAP_DELIM_UUID);   
         		String uuid = submapiter.next();
 	    		Number value = submap.get(uuid);
 	    		buf.append(uuid);
-	    		buf.append(CloudGraphState.MAP_DELIM_ID);
+	    		buf.append(GraphState.MAP_DELIM_ID);
 	    		buf.append(value);
 	    		j++;
         	}

@@ -6,14 +6,14 @@
     <xsd:complexType name="CloudGraphConfiguration">
         <xsd:annotation>
             <xsd:documentation>
-Configuration settings for HBase Graph Database (cloudgraph)
+Top level configuration settings 
             </xsd:documentation>
         </xsd:annotation>
 
         <xsd:complexContent>
             <xsd:extension base="cloudgraph:Configuration">
 		        <xsd:sequence>
-		            <xsd:element name="HTable" type="cloudgraph:HTable"  minOccurs="1" maxOccurs="unbounded">
+		            <xsd:element name="Table" type="cloudgraph:Table"  minOccurs="1" maxOccurs="unbounded">
 		                <xsd:annotation>                                  
 		                    <xsd:documentation></xsd:documentation>       
 		                </xsd:annotation>                                 
@@ -30,10 +30,10 @@ Configuration settings for HBase Graph Database (cloudgraph)
         </xsd:annotation>
     </xsd:element>
     
-    <xsd:complexType name="HTable">
+    <xsd:complexType name="Table">
         <xsd:annotation>
             <xsd:documentation>
-Configuration settings for an HBase table.
+Configuration settings for a table.
             </xsd:documentation>
         </xsd:annotation>
 
@@ -53,12 +53,12 @@ Configuration settings for an HBase table.
 		        </xsd:sequence>
  		        <xsd:attribute name="name" type="xsd:string" use="required">
 		            <xsd:annotation>                                  
-		                <xsd:documentation>The HBase table name</xsd:documentation>       
+		                <xsd:documentation>The table name</xsd:documentation>       
 		            </xsd:annotation>                                 
 		        </xsd:attribute>            
  		        <xsd:attribute name="dataColumnFamilyName" type="xsd:string" use="required">
 		            <xsd:annotation>                                  
-		                <xsd:documentation>The name of the HBase column family used for data</xsd:documentation>       
+		                <xsd:documentation>The name of the  column family used for data</xsd:documentation>       
 		            </xsd:annotation>                                 
 		        </xsd:attribute>		    
 		    </xsd:extension>
@@ -66,7 +66,7 @@ Configuration settings for an HBase table.
          
     </xsd:complexType>
 
-    <xsd:element name="HTable" type="cloudgraph:HTable">
+    <xsd:element name="Table" type="cloudgraph:Table">
         <xsd:annotation>
             <xsd:documentation></xsd:documentation>
         </xsd:annotation>
@@ -93,15 +93,15 @@ Configuration settings for an HBase table.
 		        </xsd:sequence>
  		        <xsd:attribute name="uri" type="xsd:string" use="required">
 		            <xsd:annotation>                                  
-		                <xsd:documentation>The SDO namespace URI for a specific Data Graph stored within this HBase table.</xsd:documentation>       
+		                <xsd:documentation>The SDO namespace URI for a specific Data Graph stored within this table.</xsd:documentation>       
 		            </xsd:annotation>                                 
 		        </xsd:attribute>             
  		        <xsd:attribute name="type" type="xsd:string" use="required">
 		            <xsd:annotation>                                  
 		                <xsd:documentation>
-The (root) SDO Type for a specific Data Graph stored within this HBase 
+The (root) SDO Type for a specific Data Graph stored within this  
 table. Multiple cloudgraph configurations with the same root type
-may be used within the same HTable configuration, but the URI must
+may be used within the same table configuration, but the URI must
 differ. The SDO specification requires the URI/Type-Name combination
 to be unique.  
                         </xsd:documentation>       
@@ -145,7 +145,7 @@ token may be specified and any number of user-defined tokens
 may also be added to the row key. Each user defined token maps
 a property within the cloudgraph (data graph) to a position
 within the composite row key, adding another "dimension" to the
-key. This user defined composite row-key approach enables the HBase partial key-scan functionality
+key. For HBase, this user defined composite row-key approach enables the partial key-scan functionality
 which greatly improves query performance. For query properties within a "Where"
 clause restriction not found in the composite row-key, a column scan is required. 
 cloudgraph first looks for a composite row-key token matching the query property, but if not
@@ -185,7 +185,7 @@ found creates a column scan for the property.
 
     <xsd:complexType name="RowKeyToken">
         <xsd:annotation>
-            <xsd:documentation>The settings for one pre-defined token within an HBase composite row-key.</xsd:documentation>       
+            <xsd:documentation>The settings for one pre-defined token within a composite row-key.</xsd:documentation>       
         </xsd:annotation>
         <xsd:attribute name="name" type="cloudgraph:PreDefinedTokenName" use="required">
             <xsd:annotation>                                  
@@ -208,11 +208,11 @@ found creates a column scan for the property.
     <xsd:complexType name="UserDefinedToken">
         <xsd:annotation>
             <xsd:documentation>
-The settings for one user-defined token within an HBase 
+The settings for one user-defined token within a  
 composite row-key. Each user defined token maps
 a property within the cloudgraph (data graph) to a position
 within the composite row key, adding another "dimension" to the
-key. This user defined composite row-key approach enables the HBase partial key-scan functionality
+key. In HBase for example, this user defined composite row-key approach enables the HBase partial key-scan functionality
 which greatly improves query performance. For query properties within a "Where"
 clause restriction not found in the composite row-key, a column scan is required. 
 cloudgraph first looks for a composite row-key token matching the query property. If found
@@ -280,7 +280,7 @@ column token may be specified.
 
     <xsd:complexType name="ColumnKeyToken">
         <xsd:annotation>
-            <xsd:documentation>The settings for one pre-defined token within an HBase composite column-key.</xsd:documentation>       
+            <xsd:documentation>The settings for one pre-defined token within a composite column-key.</xsd:documentation>       
         </xsd:annotation>
         <xsd:attribute name="name" type="cloudgraph:PreDefinedTokenName" use="required">
             <xsd:annotation>                                  

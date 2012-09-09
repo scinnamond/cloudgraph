@@ -14,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.DataGraph;
 import org.cloudgraph.config.CloudGraphConfiguration;
-import org.cloudgraph.config.HTable;
+import org.cloudgraph.config.Table;
 import org.cloudgraph.config.Property;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.common.env.EnvProperties;
@@ -57,7 +57,7 @@ public class CloudGraphConfig {
 	        
             config = unmarshalConfig(fileName, configBinding);
             
-            for (HTable table : config.hTables) {
+            for (Table table : config.tables) {
             	for (DataGraph graph : table.getDataGraphs()) {
             		QName qname = new QName(graph.getUri(), graph.getType());
             		if (graphURIToTableMap.get(qname) != null)

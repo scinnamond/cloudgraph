@@ -16,12 +16,12 @@ import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.key.CloudGraphColumnKeyFactory;
-import org.cloudgraph.common.service.CloudGraphState;
+import org.cloudgraph.common.key.GraphColumnKeyFactory;
+import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.hbase.key.HBaseCompositeColumnKeyFactory;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
-import org.plasma.query.collector.PropertyCollector;
+import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.Select;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -29,32 +29,25 @@ import org.xml.sax.SAXException;
 
 import commonj.sdo.Type;
 
-/**
- * Creates an column filter set based on the given criteria
- * which leverages the <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/MultipleColumnPrefixFilter.html">HBase MultipleColumnPrefixFilter</a>
- * to return all selected columns. 
- *  
- * @see CloudGraphColumnKeyFactory
- */
-public class EagerFetchColumnFilterAssembler extends FilterHierarchyAssembler 
-    implements HBaseColumnFilterAssembler
-{
-    private static Log log = LogFactory.getLog(EagerFetchColumnFilterAssembler.class);
 
-	private CloudGraphColumnKeyFactory columnKeyFac;
+public class RootFetchColumnFilterAssembler extends FilterListAssembler 
+    implements HBaseFilterAssembler
+{
+    private static Log log = LogFactory.getLog(RootFetchColumnFilterAssembler.class);
+
+	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
 
 	@SuppressWarnings("unused")
-	private EagerFetchColumnFilterAssembler() {}
+	private RootFetchColumnFilterAssembler() {}
 	
-	public EagerFetchColumnFilterAssembler(Select select,
+	public RootFetchColumnFilterAssembler(Select select,
 			PlasmaType rootType) {
 		this.rootType = rootType;
         this.columnKeyFac = new HBaseCompositeColumnKeyFactory(rootType);
 		
     	this.rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ONE);
-    	this.filterStack.push(this.rootFilter);
 
     	// add default filters for graph state info needed for all queries
         QualifierFilter rootUUIDFilter = new QualifierFilter(
@@ -63,7 +56,7 @@ public class EagerFetchColumnFilterAssembler extends FilterHierarchyAssembler
         this.rootFilter.addFilter(rootUUIDFilter);
         QualifierFilter stateFilter = new QualifierFilter(
         	CompareFilter.CompareOp.EQUAL,
-        	new SubstringComparator(CloudGraphState.STATE_MAP_COLUMN_NAME));   
+        	new SubstringComparator(GraphState.STATE_MAP_COLUMN_NAME));   
         this.rootFilter.addFilter(stateFilter);
     	
     	if (log.isDebugEnabled())
@@ -71,9 +64,9 @@ public class EagerFetchColumnFilterAssembler extends FilterHierarchyAssembler
     	
     	collect(select);
     	
-    	byte[][] prefixes = new byte[this.prefixMap.size()][];
+    	byte[][] prefixes = new byte[prefixMap.size()][];
     	int i = 0;
-    	for (byte[] prefix : this.prefixMap.values()) {
+    	for (byte[] prefix : prefixMap.values()) {
     		prefixes[i] = prefix; 
     		i++;
     	}
@@ -81,7 +74,7 @@ public class EagerFetchColumnFilterAssembler extends FilterHierarchyAssembler
         MultipleColumnPrefixFilter multiPrefixfilter = 
         	new MultipleColumnPrefixFilter(prefixes);
         
-        this.filterStack.peek().addFilter(multiPrefixfilter);    	
+        this.rootFilter.addFilter(multiPrefixfilter);    	
 	}
 	
 	/**
@@ -92,8 +85,9 @@ public class EagerFetchColumnFilterAssembler extends FilterHierarchyAssembler
 	private void collect(Select select) {
     	if (log.isDebugEnabled())
     		log.debug("begin traverse");
-        PropertyCollector collector = new PropertyCollector(
+        PropertySelectionCollector collector = new PropertySelectionCollector(
         		select, this.rootType, false); // singular props only
+         
         Map<Type, List<String>> selectMap = collector.getResult();
        	if (log.isDebugEnabled())
     		log.debug("end traverse");        
@@ -101,9 +95,15 @@ public class EagerFetchColumnFilterAssembler extends FilterHierarchyAssembler
         Iterator<Type> typeIter = selectMap.keySet().iterator();
         while (typeIter.hasNext()) {
         	PlasmaType type = (PlasmaType)typeIter.next();
+        	if (!(rootType.getURI().equals(type.getURI()) &&
+        		rootType.getName().equals(type.getName())))
+        		continue;
         	List<String> names = selectMap.get(type);
             for (String name : names) {
     			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
+    	       	if (log.isDebugEnabled())
+    	    		log.debug("collected " + type.getURI() + "#"
+    	    				+ type.getName() + "." + prop.getName());        
                 byte[] colKey = this.columnKeyFac.createColumnKey(
                     type, prop);
                 String colKeyStr = Bytes.toString(colKey);
@@ -111,7 +111,7 @@ public class EagerFetchColumnFilterAssembler extends FilterHierarchyAssembler
     		}        
         }
 	}
-		
+	
     protected void log(Select root)
     {
     	String xml = "";

@@ -5,11 +5,12 @@
 	<artifactId>cloudgraph</artifactId>
 	<packaging>pom</packaging>
 	<version>0.5</version>
-	<name>CloudGraph Data Access Services</name>
+	<name>CloudGraph</name>
     <modules>
         <module>cloudgraph-common</module>
         <module>cloudgraph-config</module>
         <module>cloudgraph-hbase</module>
+        <module>cloudgraph-rdb</module>
         <module>cloudgraph-docs</module>
     </modules>
 	<properties>
