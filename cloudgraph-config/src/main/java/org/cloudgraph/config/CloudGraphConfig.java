@@ -40,6 +40,7 @@ public class CloudGraphConfig {
     
     private Map<QName, TableConfig> graphURIToTableMap = new HashMap<QName, TableConfig>();
     private Map<QName, DataGraphConfig> graphURIToGraphMap = new HashMap<QName, DataGraphConfig>();
+    private Map<String, TableConfig> tableNameToTableMap = new HashMap<String, TableConfig>();
         
     private CloudGraphConfig()
     {
@@ -58,13 +59,15 @@ public class CloudGraphConfig {
             config = unmarshalConfig(fileName, configBinding);
             
             for (Table table : config.tables) {
+            	TableConfig tableConfig = new TableConfig(table);
+            	this.tableNameToTableMap.put(table.getName(), tableConfig);
             	for (DataGraph graph : table.getDataGraphs()) {
             		QName qname = new QName(graph.getUri(), graph.getType());
             		if (graphURIToTableMap.get(qname) != null)
             			throw new CloudGraphConfigurationException("a data graph definition already exists within HTable '"
             					+ table.getName() + "' for type (uri/name), " 
             					+ graph.getUri() + "#" + graph.getType());
-            		graphURIToTableMap.put(qname, new TableConfig(table));
+            		graphURIToTableMap.put(qname, tableConfig);
             		graphURIToGraphMap.put(qname, new DataGraphConfig(graph));
             	}
             }
@@ -134,23 +137,48 @@ public class CloudGraphConfig {
         return config.properties;
     } 
     
-    public TableConfig getHTable(QName qname) {
-    	TableConfig result = this.graphURIToTableMap.get(qname);
+    /**
+     * Returns a table configuration for the given qualified SDO 
+     * Type name.
+     * @param typeName the qualified name of an SDO Type 
+     * @return the table configuration
+     */
+    public TableConfig getTable(QName typeName) {
+    	TableConfig result = this.graphURIToTableMap.get(typeName);
     	if (result == null)
-    		throw new CloudGraphConfigurationException("no HTable configured for" +
-    				" CloudGraph '" + qname.toString() + "'");
+    		throw new CloudGraphConfigurationException("no HTable configured for " +
+    				" graph URI '" + typeName.toString() + "'");
+    	return result;
+    }
+
+    /**
+     * Returns a table configuration based on the given table name.
+     * @param tableName the table name
+     * @return the table configuration
+     */
+    public TableConfig getTable(String tableName) {
+    	TableConfig result = this.tableNameToTableMap.get(tableName);
+    	if (result == null)
+    		throw new CloudGraphConfigurationException("no table configured for" +
+    				" name '" + tableName.toString() + "'");
     	return result;
     }
     
-    public String getHTableName(QName qname) {
-    	TableConfig result = this.graphURIToTableMap.get(qname);
+    /**
+     * Returns a table name for the given qualified SDO 
+     * Type name.
+     * @param typeName the qualified name of an SDO Type 
+     * @return the table name
+     */
+    public String getTableName(QName typeName) {
+    	TableConfig result = this.graphURIToTableMap.get(typeName);
     	if (result == null)
     		throw new CloudGraphConfigurationException("no HTable configured for" +
-    				" CloudGraph '" + qname.toString() + "'");
+    				" CloudGraph '" + typeName.toString() + "'");
     	return result.getTable().getName();
     }
     
-    public DataGraphConfig getCloudGraph(QName qname) {
+    public DataGraphConfig getDataGraph(QName qname) {
     	DataGraphConfig result = this.graphURIToGraphMap.get(qname);
     	if (result == null)
     		throw new CloudGraphConfigurationException("no CloudGraph configured for" +

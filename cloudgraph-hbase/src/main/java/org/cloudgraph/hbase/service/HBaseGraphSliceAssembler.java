@@ -32,6 +32,7 @@ import org.cloudgraph.common.service.ColumnMap;
 import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
+import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.filter.FilterUtil;
 import org.cloudgraph.hbase.filter.MultiColumnPrefixFilterAssembler;
 import org.cloudgraph.hbase.filter.MultiColumnStatefullPrefixFilterAssembler;
@@ -88,6 +89,7 @@ public class HBaseGraphSliceAssembler
 	private GraphState graphState;		
 	private GraphStatefullColumnKeyFactory columnKeyFac;
 	private Map<UUID, PlasmaDataObject> dataObjects = new HashMap<UUID, PlasmaDataObject>();
+	private TableConfig tableConfig;
 	private HTableInterface con;
 	private byte[] rowKey;
 	private ColumnMap columnMap;
@@ -108,10 +110,12 @@ public class HBaseGraphSliceAssembler
 	public HBaseGraphSliceAssembler(PlasmaType rootType,
 			PropertySelectionCollector collector, 
 			Timestamp snapshotDate,
+			TableConfig tableConfig,
 			HTableInterface con) {
 		this.rootType = rootType;
 		this.collector = collector;
 		this.snapshotDate = snapshotDate;
+		this.tableConfig =tableConfig;
 		this.con = con;
 	}
 	
@@ -131,7 +135,7 @@ public class HBaseGraphSliceAssembler
 		this.predicateMap = this.collector.getPredicateMap();
 		
 		byte[] state = resultRow.getValue(
-				Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+				this.tableConfig.getDataColumnFamilyNameBytes(), 
 				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
         if (state != null) {
         	if (log.isDebugEnabled())
@@ -163,11 +167,11 @@ public class HBaseGraphSliceAssembler
         	rootNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
 
         // need to reconstruct the original graph, so need original UUID
-		byte[] rootUuid = resultRow.getValue(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+		byte[] rootUuid = resultRow.getValue(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
                 Bytes.toBytes(CloudGraphConstants.ROOT_UUID_COLUMN_NAME));
 		if (rootUuid == null)
 			throw new GraphServiceException("expected column: "
-				+ CloudGraphConstants.DATA_TABLE_FAMILY_1 + ":"
+				+ this.tableConfig.getDataColumnFamilyName() + ":"
 				+ CloudGraphConstants.ROOT_UUID_COLUMN_NAME);
 		String uuidStr = null;
 		try {
@@ -216,7 +220,7 @@ public class HBaseGraphSliceAssembler
 					target, prop);
 			 			
 			if (!this.columnMap.containsColumn(
-				CloudGraphConstants.DATA_TABLE_FAMILY_1_BYTES, 
+				this.tableConfig.getDataColumnFamilyNameBytes(), 
 				qualifier)) {
 				if (log.isDebugEnabled()) {
 					String qualifierStr = Bytes.toString(qualifier);
@@ -227,7 +231,7 @@ public class HBaseGraphSliceAssembler
 			}
 			
 			byte[] valueBytes = this.columnMap.getColumnValue(
-				CloudGraphConstants.DATA_TABLE_FAMILY_1_BYTES, 
+				Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
 				qualifier);
 			
 			Object value = HBaseDataConverter.INSTANCE.fromBytes(prop, 
@@ -283,7 +287,7 @@ public class HBaseGraphSliceAssembler
 			}			
 			
 			if (!this.columnMap.containsColumn(
-				CloudGraphConstants.DATA_TABLE_FAMILY_1_BYTES, 
+				Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
 				qualifier)) {
 				if (log.isDebugEnabled()) {
 					String qualifierStr = Bytes.toString(qualifier);
@@ -294,7 +298,7 @@ public class HBaseGraphSliceAssembler
 			}
 			
 			byte[] valueBytes = this.columnMap.getColumnValue(
-					CloudGraphConstants.DATA_TABLE_FAMILY_1_BYTES, 
+					Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
 					qualifier);
 			String stringArray = Bytes.toString(valueBytes);
 			Edge[] edges = graphState.parseEdges(prop.getType(), stringArray);
@@ -443,7 +447,7 @@ public class HBaseGraphSliceAssembler
 			throw new GraphServiceException(e);
 		}
 				 
-		DataGraphConfig graphConf = CloudGraphConfig.getInstance().getCloudGraph(
+		DataGraphConfig graphConf = CloudGraphConfig.getInstance().getDataGraph(
 				this.rootType.getQualifiedName());
 		String delim = graphConf.getColumnKeySectionDelimiter();
 				

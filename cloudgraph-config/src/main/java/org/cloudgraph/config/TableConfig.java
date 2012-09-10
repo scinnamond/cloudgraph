@@ -1,5 +1,6 @@
 package org.cloudgraph.config;
 
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.config.Table;
@@ -31,17 +32,26 @@ public class TableConfig {
 	}
 	
 	/**
-	 * Returns the HTable name for this table configuration.
-	 * @return the HTable name for this table configuration.
+	 * Returns the table name for this table configuration.
+	 * @return the table name for this table configuration.
 	 */
 	public String getName() {
 		return this.table.getName();
 	}
 	
+	public String getDataColumnFamilyName() {
+		return this.table.getDataColumnFamilyName();
+	}
+	
+	public byte[] getDataColumnFamilyNameBytes() {
+		return Bytes.toBytes(
+			this.table.getDataColumnFamilyName());
+	}	
+	
 	/**
-	 * Returns true if the HTable has a specific hash algorithm 
+	 * Returns true if the table has a specific hash algorithm 
 	 * configured.
-	 * @return true if the HTable has a specific hash algorithm 
+	 * @return true if the table has a specific hash algorithm 
 	 * configured.
 	 */
 	public boolean hasHashAlgorithm() {

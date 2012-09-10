@@ -20,6 +20,7 @@ import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraph;
+import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.connect.HBaseConnectionManager;
 import org.cloudgraph.hbase.filter.BulkFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.FilterUtil;
@@ -100,13 +101,14 @@ public class HBaseGraphQuery extends DispatcherSupport
         From from = query.getFromClause();
         PlasmaType type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(from.getEntity().getNamespaceURI(), 
         		from.getEntity().getName());
-        String htable = CloudGraphConfig.getInstance().getHTableName(
+        TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(
         		type.getQualifiedName());
-    	HTableInterface con = HBaseConnectionManager.instance().getConnection(htable);
-        
+    	HTableInterface con = HBaseConnectionManager.instance().getConnection(
+    			tableConfig.getName());
+    	 
         PlasmaDataGraph[] results = new PlasmaDataGraph[0];
         try {
-            List<PlasmaDataGraph> queryResults = findResults(con, query, type, snapshotDate);
+            List<PlasmaDataGraph> queryResults = findResults(query, type, snapshotDate, tableConfig, con);
             
             if (log.isDebugEnabled() ){
                 log.debug("assembling results");
@@ -135,12 +137,13 @@ public class HBaseGraphQuery extends DispatcherSupport
         From from = query.getFromClause();
         PlasmaType type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(from.getEntity().getNamespaceURI(), 
         		from.getEntity().getName());
-        String htable = CloudGraphConfig.getInstance().getHTableName(
+        TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(
         		type.getQualifiedName());
-    	HTableInterface con = HBaseConnectionManager.instance().getConnection(htable);
+    	HTableInterface con = HBaseConnectionManager.instance().getConnection(
+    			tableConfig.getName());
         int size = 0;
 		try {
-			size = this.countResults(con, query, type);
+			size = this.countResults(query, type, tableConfig, con);
 		}
 		finally {
     		try {
@@ -153,14 +156,14 @@ public class HBaseGraphQuery extends DispatcherSupport
         return size;
     }  
     
-    private int countResults(HTableInterface con, Query query, PlasmaType type)
+    private int countResults(Query query, PlasmaType type, TableConfig tableConfig, HTableInterface con)
     {
         int count = 0;
         Object[] params = new Object[0];
 
         Scan scan = new Scan();
         
-    	scan.addColumn(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+    	scan.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
     		Bytes.toBytes(CloudGraphConstants.ROOT_UUID_COLUMN_NAME));
         
         try {
@@ -215,7 +218,7 @@ public class HBaseGraphQuery extends DispatcherSupport
         return count;
     }
     
-    private List<PlasmaDataGraph> findResults(HTableInterface con, Query query, PlasmaType type, Timestamp snapshotDate)
+    private List<PlasmaDataGraph> findResults(Query query, PlasmaType type, Timestamp snapshotDate, TableConfig tableConfig, HTableInterface con)
     {
         Object[] params = new Object[0];
         List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();
@@ -276,10 +279,10 @@ public class HBaseGraphQuery extends DispatcherSupport
         HBaseGraphAssembler assembler = null;
         if (collector.getPredicateMap().size() > 0) 
         	assembler = new HBaseGraphSliceAssembler(type, 
-                collector, snapshotDate, con);
+                collector, snapshotDate, tableConfig, con);
         else
         	assembler = new HBaseMemoryGraphAssembler(type, 
-                collector.getResult(), snapshotDate);
+                collector.getResult(), snapshotDate, tableConfig);
         
         // Create a scan. For each result row, 
         // assemble a graph and return it

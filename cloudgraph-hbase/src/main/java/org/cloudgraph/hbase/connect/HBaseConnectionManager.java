@@ -15,6 +15,9 @@ import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.cloudgraph.common.CloudGraphConstants;
+import org.cloudgraph.config.CloudGraphConfig;
+import org.cloudgraph.config.CloudGraphConfiguration;
+import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.context.CloudGraphContext;
 import org.cloudgraph.context.ContextException;
 
@@ -115,9 +118,11 @@ public class HBaseConnectionManager {
 
     	try {
     		HBaseAdmin hbase = new HBaseAdmin(CloudGraphContext.instance().getConfig());
-	    	HTableDescriptor tableDesc = new HTableDescriptor(tableName);
-	    	HColumnDescriptor fam1 = new HColumnDescriptor(CloudGraphConstants.DATA_TABLE_FAMILY_1.getBytes());
-	    	//HColumnDescriptor fam2 = new HColumnDescriptor(CloudgraphConstants.DATA_TABLE_FAMILY_2.getBytes());
+	    	
+    		TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(tableName);
+    		HTableDescriptor tableDesc = new HTableDescriptor(tableConfig.getName());
+	    	HColumnDescriptor fam1 = new HColumnDescriptor(tableConfig.getDataColumnFamilyName().getBytes());
+	    	//HColumnDescriptor fam2 = new HColumnDescriptor(CloudGraphConstants.DATA_TABLE_FAMILY_2.getBytes());
 	    	//fam2.setBloomFilterType(bt);
 	    	tableDesc.addFamily(fam1);
 	    	//tableDesc.addFamily(fam2);

@@ -4,7 +4,7 @@ import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
 /**
- * Generates an HBase row key based on the configured Cloudgraph row key {@link org.cloudgraph.config.RowKeyModel
+ * Generates an HBase row key based on the configured CloudGraph row key {@link org.cloudgraph.config.RowKeyModel
  * model} for a specific HTable {@link org.cloudgraph.config.Table configuration}. 
  * @see org.cloudgraph.config.RowKeyModel
  * @see org.cloudgraph.config.Table
@@ -14,7 +14,7 @@ public interface GraphRowKeyFactory {
 	/**
 	 * Creates and returns a composite row key capable
 	 * of locating the given Data Graph. Implementations are
-	 * typically driven by the Cloudgraph configuration section 
+	 * typically driven by the CloudGraph configuration section 
 	 * specified for the given Data Graph URI and Type name.  
 	 * @param dataGraph the Data Graph
 	 * @return a composite row key capable

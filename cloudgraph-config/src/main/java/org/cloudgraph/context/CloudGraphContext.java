@@ -14,7 +14,7 @@ import org.plasma.config.Property;
  * already initialized HBase <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/HBaseConfiguration" target="#">configuration</a> instance
  * as well as other elements. The HBase configuration is setup
  * with values taken first from the PlasmaSDO NoSQL DAS <a href="http://docs.plasma-sdo.org/api/org/plasma/config/PlasmaConfig.html" target="#">configuration</a> for
- * HBase then overridden where key matches exist from the Cloudgraph {@link org.cloudgraph.config.CloudGraphConfig configuration}.  
+ * HBase then overridden where key matches exist from the CloudGraph {@link org.cloudgraph.config.CloudGraphConfig configuration}.  
  * Used by {@link org.cloudgraph.hbase.connect.HBaseConnectionManager} when creating pooled HTable client
  * instances.
  * @see org.cloudgraph.hbase.connect.HBaseConnectionManager

@@ -21,6 +21,7 @@ import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.common.service.DuplicateRowException;
+import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.key.HBaseCompositeRowKeyFactory;
 import org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory;
 import org.plasma.sdo.DataFlavor;
@@ -56,7 +57,7 @@ import commonj.sdo.Property;
  * <p>
  * For new (created) data graphs, a row key {org.cloudgraph.hbase.key.HBaseRowKeyFactory factory} 
  * is used to create a new composite HBase row key. The row key generation is
- * driven by a configured Cloudgraph row key {@link org.cloudgraph.config.RowKeyModel
+ * driven by a configured CloudGraph row key {@link org.cloudgraph.config.RowKeyModel
  * model} for a specific HTable {@link org.cloudgraph.config.Table configuration}.
  * A minimal set of {@link org.cloudgraph.common.service.GraphState state} information is 
  * persisted with each new data graph.     
@@ -80,6 +81,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     private static Log log = LogFactory.getLog(HBaseGraphDispatcher.class);
     private static List<Row> EMPTY_ROW_LIST = new ArrayList<Row>();
     private HTableInterface con;
+    private TableConfig tableConfig;
     private SnapshotMap snapshotMap;
     private String username;
     
@@ -87,9 +89,11 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     private HBaseGraphDispatcher() {}
     
     public HBaseGraphDispatcher(SnapshotMap snapshotMap, 
-            String username, HTableInterface con) {
+            String username, TableConfig tableConfig, 
+            HTableInterface con) {
         this.snapshotMap = snapshotMap;
         this.username = username;
+        this.tableConfig = tableConfig;
         this.con = con;        
     }
     
@@ -192,7 +196,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
             }
             result.add(columnDelete);
     		Put uuidMapUpdate = new Put(rowKey);
-    		uuidMapUpdate.add(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+    		uuidMapUpdate.add(this.tableConfig.getDataColumnFamilyNameBytes(), 
                     Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
                     Bytes.toBytes(graphState.formatUUIDMap())); 
     		result.add(uuidMapUpdate);
@@ -238,11 +242,11 @@ public class HBaseGraphDispatcher extends DispatcherSupport
             for (PlasmaDataObject dataObject : created.getResult())
                 create(dataGraph, dataObject, graphState, colGen, create);
              
-    		create.add(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+    		create.add(this.tableConfig.getDataColumnFamilyNameBytes(), 
                     Bytes.toBytes(CloudGraphConstants.ROOT_UUID_COLUMN_NAME),
                     Bytes.toBytes(uuid));    		        		
     
-    		create.add(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+    		create.add(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
                 Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
                 Bytes.toBytes(graphState.formatUUIDMap()));    		        		
     	}
@@ -253,7 +257,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
             for (PlasmaDataObject dataObject : created.getResult()) {
                 create(dataGraph, dataObject, graphState, colGen, create);
             }
-            create.add(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+            create.add(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
                     Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
                     Bytes.toBytes(graphState.formatUUIDMap())); 
         }
@@ -269,7 +273,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
 		// --ensure row exists unless a new row/graph
 		// --use empty get with only necessary "state" column
 		Get existing = new Get(rowKey);
-		existing.addColumn(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+		existing.addColumn(this.tableConfig.getDataColumnFamilyNameBytes(), 
 				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
 		
 		Result result = this.con.get(existing);
@@ -285,7 +289,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     		if (result.isEmpty())
     			throw new GraphServiceException("expected row for id '"
     					+ Bytes.toString(rowKey) + "'");            	
-    		byte[] uuids = result.getValue(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+    		byte[] uuids = result.getValue(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
     				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
             if (uuids != null) {
             	if (log.isDebugEnabled())
@@ -525,7 +529,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
             if (log.isDebugEnabled())
                 log.debug("deleting column: " 
                 		+ Bytes.toString(qualifier));  
-        	row.deleteColumns(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+        	row.deleteColumns(this.tableConfig.getDataColumnFamilyNameBytes(), 
         			qualifier);    	
         }    
     }    
@@ -539,7 +543,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     		dataObject, prop);
     	    	
      	// FIXME: adding NULL string as null on update to preserve history..is this correct?
-    	row.add(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+    	row.add(this.tableConfig.getDataColumnFamilyNameBytes(), 
     		qualifier,
             value);     	
     }    

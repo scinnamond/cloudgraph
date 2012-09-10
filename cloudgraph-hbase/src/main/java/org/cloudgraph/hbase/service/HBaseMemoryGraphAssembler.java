@@ -20,6 +20,7 @@ import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.common.service.GraphState.Edge;
 import org.cloudgraph.common.service.DispatcherSupport;
+import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
@@ -68,6 +69,7 @@ public class HBaseMemoryGraphAssembler
 	private GraphState graphState;		
 	private GraphStatefullColumnKeyFactory columnKeyGen;
 	private Map<UUID, PlasmaDataObject> dataObjects = new HashMap<UUID, PlasmaDataObject>();
+	private TableConfig tableConfig;
 	
 	@SuppressWarnings("unused")
 	private HBaseMemoryGraphAssembler() {}
@@ -82,10 +84,12 @@ public class HBaseMemoryGraphAssembler
 	 */
 	public HBaseMemoryGraphAssembler(PlasmaType rootType,
 			Map<Type, List<String>> propertyMap, 
-			Timestamp snapshotDate) {
+			Timestamp snapshotDate,
+			TableConfig tableConfig) {
 		this.rootType = rootType;
 		this.propertyMap = propertyMap;
 		this.snapshotDate = snapshotDate;
+		this.tableConfig = tableConfig;
 	}
 	
 	/**
@@ -98,7 +102,7 @@ public class HBaseMemoryGraphAssembler
 	 */
 	public void assemble(Result resultRow) {
 		byte[] state = resultRow.getValue(
-				Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+				this.tableConfig.getDataColumnFamilyNameBytes(), 
 				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
         if (state != null) {
         	if (log.isDebugEnabled())
@@ -130,11 +134,12 @@ public class HBaseMemoryGraphAssembler
         	rootNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
 
         // need to reconstruct the original graph, so need original UUID
-		byte[] rootUuid = resultRow.getValue(Bytes.toBytes(CloudGraphConstants.DATA_TABLE_FAMILY_1), 
+		byte[] rootUuid = resultRow.getValue(Bytes.toBytes(
+				this.tableConfig.getDataColumnFamilyName()), 
                 Bytes.toBytes(CloudGraphConstants.ROOT_UUID_COLUMN_NAME));
 		if (rootUuid == null)
 			throw new GraphServiceException("expected column: "
-				+ CloudGraphConstants.DATA_TABLE_FAMILY_1 + ":"
+				+ this.tableConfig.getDataColumnFamilyName() + ":"
 				+ CloudGraphConstants.ROOT_UUID_COLUMN_NAME);
 		String uuidStr = null;
 		try {
@@ -188,7 +193,7 @@ public class HBaseMemoryGraphAssembler
 			 
 			
 			if (!resultRow.containsColumn(
-				CloudGraphConstants.DATA_TABLE_FAMILY_1_BYTES, 
+				this.tableConfig.getDataColumnFamilyNameBytes(), 
 				qualifier)) {
 				if (log.isDebugEnabled()) {
 					String qualifierStr = Bytes.toString(qualifier);
@@ -199,7 +204,7 @@ public class HBaseMemoryGraphAssembler
 			}
 			
 			KeyValue keyValue = resultRow.getColumnLatest(
-				CloudGraphConstants.DATA_TABLE_FAMILY_1_BYTES, 
+				this.tableConfig.getDataColumnFamilyNameBytes(), 
 				qualifier);
 			
 			byte[] valueBytes = keyValue.getValue();
@@ -231,12 +236,12 @@ public class HBaseMemoryGraphAssembler
 					target, prop);
 			
 			if (!resultRow.containsColumn(
-				CloudGraphConstants.DATA_TABLE_FAMILY_1_BYTES, 
+				this.tableConfig.getDataColumnFamilyNameBytes(), 
 				qualifier))
 				continue;
 			
 			KeyValue keyValue = resultRow.getColumnLatest(
-				CloudGraphConstants.DATA_TABLE_FAMILY_1_BYTES, 
+				this.tableConfig.getDataColumnFamilyNameBytes(), 
 				qualifier);
 			
 			byte[] valueBytes = keyValue.getValue();

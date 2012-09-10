@@ -25,8 +25,8 @@ public abstract class HBaseKeyFactory {
 	protected HBaseKeyFactory(PlasmaType rootType) {
 		this.rootType = rootType;
 		QName rootTypeQname = this.rootType.getQualifiedName();
-		this.table = CloudGraphConfig.getInstance().getHTable(rootTypeQname);
-		this.graph = CloudGraphConfig.getInstance().getCloudGraph(
+		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);
+		this.graph = CloudGraphConfig.getInstance().getDataGraph(
 				rootTypeQname);
 		this.hash = table.getHashAlgorithm();
 	}

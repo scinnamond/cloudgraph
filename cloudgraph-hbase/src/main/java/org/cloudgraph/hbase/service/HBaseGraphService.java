@@ -11,6 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.cloudgraph.config.CloudGraphConfig;
+import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.connect.HBaseConnectionManager;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
@@ -35,7 +36,7 @@ import commonj.sdo.Type;
  * data from HBase back to the client, and {@link HBaseGraphDispatcher} for
  * propagating changes to one or more data graphs back to HBase. 
  * <p>
- * Cloudgraph is based on the Service Data Objects (SDO) 2.1 specification 
+ * CloudGraph is based on the Service Data Objects (SDO) 2.1 specification 
  * and is designed as an SDO Data Access Service (DAS) under the 
  * PlasmaSDO\u2122 Service Data Objects 2.1 implementation. 
  * </p> 
@@ -131,13 +132,13 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
         
         PlasmaType type = (PlasmaType)dataGraph.getRootObject().getType();
-        String htable = CloudGraphConfig.getInstance().getHTableName(
+        TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(
         		type.getQualifiedName());
-        HTableInterface con = null;
-        con = HBaseConnectionManager.instance().getConnection(htable);
+    	HTableInterface con = HBaseConnectionManager.instance().getConnection(
+    			tableConfig.getName());
         //con.setAutoCommit(false);
         DataGraphDispatcher dispatcher = new HBaseGraphDispatcher(snapshotMap, 
-                username, con);
+                username, tableConfig, con);
         try {
             dispatcher.commit(dataGraph);
             //con.commit();
@@ -175,15 +176,14 @@ public class HBaseGraphService implements PlasmaDataAccessService {
                 if (log.isDebugEnabled())
                     log.debug("commiting: " + dataGraphs[i].getChangeSummary().toString());
                 PlasmaType type = (PlasmaType)dataGraphs[i].getRootObject().getType();
-
-                String htable = CloudGraphConfig.getInstance().getHTableName(
+                TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(
                 		type.getQualifiedName());
-                HTableInterface con = null;
-        		con = HBaseConnectionManager.instance().getConnection(htable);
+            	HTableInterface con = HBaseConnectionManager.instance().getConnection(
+            			tableConfig.getName());
                 //con.setAutoCommit(false);
                 
                 DataGraphDispatcher dispatcher = new HBaseGraphDispatcher(snapshotMap,
-                        username, con);
+                        username, tableConfig, con);
                 try {
                     dispatcher.commit(dataGraphs[i]);        
                 }
