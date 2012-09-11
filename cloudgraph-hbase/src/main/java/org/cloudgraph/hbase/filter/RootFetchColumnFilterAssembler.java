@@ -18,7 +18,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.common.service.GraphState;
-import org.cloudgraph.hbase.key.HBaseCompositeColumnKeyFactory;
+import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelectionCollector;
@@ -37,14 +37,17 @@ public class RootFetchColumnFilterAssembler extends FilterListAssembler
 
 	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
+    private PropertySelectionCollector collector;
 
 	@SuppressWarnings("unused")
 	private RootFetchColumnFilterAssembler() {}
 	
 	public RootFetchColumnFilterAssembler(Select select,
+			PropertySelectionCollector collector,
 			PlasmaType rootType) {
+		this.collector = collector;
 		this.rootType = rootType;
-        this.columnKeyFac = new HBaseCompositeColumnKeyFactory(rootType);
+        this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
 		
     	this.rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ONE);
@@ -83,15 +86,7 @@ public class RootFetchColumnFilterAssembler extends FilterListAssembler
 	 * @param select the select clause
 	 */
 	private void collect(Select select) {
-    	if (log.isDebugEnabled())
-    		log.debug("begin traverse");
-        PropertySelectionCollector collector = new PropertySelectionCollector(
-        		select, this.rootType, false); // singular props only
-         
-        Map<Type, List<String>> selectMap = collector.getResult();
-       	if (log.isDebugEnabled())
-    		log.debug("end traverse");        
-        
+        Map<Type, List<String>> selectMap = this.collector.getResult();
         Iterator<Type> typeIter = selectMap.keySet().iterator();
         while (typeIter.hasNext()) {
         	PlasmaType type = (PlasmaType)typeIter.next();

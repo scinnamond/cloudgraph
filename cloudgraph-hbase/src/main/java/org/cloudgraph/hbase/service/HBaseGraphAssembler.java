@@ -17,7 +17,7 @@ import org.plasma.sdo.access.DataGraphAssembler;
  * UUID values. The nodes of the resulting data graph are re-created with
  * the original UUID values.       
  * </p>
- * @see org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory
+ * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  * @see org.plasma.sdo.PlasmaDataGraph
  * @see org.apache.hadoop.hbase.client.Result
  */

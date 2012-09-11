@@ -16,7 +16,7 @@ import org.apache.hadoop.hbase.filter.WritableByteArrayComparable;
 import org.cloudgraph.common.filter.GraphFilterException;
 import org.cloudgraph.common.key.GraphRowKeyExpressionFactory;
 import org.cloudgraph.common.key.TokenValue;
-import org.cloudgraph.hbase.key.HBaseCompositeRowKeyExpressionFactory;
+import org.cloudgraph.hbase.key.CompositeRowKeyExpressionFactory;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.AbstractPathElement;
@@ -80,7 +80,7 @@ public class PredicateRowFilterAssembler extends FilterHierarchyAssembler
     	 
     	this.filterStack.push(this.rootFilter);  
     	
-        this.rowKeyFac = new HBaseCompositeRowKeyExpressionFactory(rootType);
+        this.rowKeyFac = new CompositeRowKeyExpressionFactory(rootType);
         
     	for (int i = 0; i < where.getParameters().size(); i++)
     		params.add(where.getParameters().get(i).getValue());

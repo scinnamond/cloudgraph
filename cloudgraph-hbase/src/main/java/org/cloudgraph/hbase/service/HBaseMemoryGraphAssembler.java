@@ -14,14 +14,12 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.common.service.GraphState.Edge;
-import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory;
+import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -56,7 +54,7 @@ import commonj.sdo.Type;
  * the original UUID values.       
  * </p>
  * 
- * @see org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory
+ * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  */
 public class HBaseMemoryGraphAssembler
     implements HBaseGraphAssembler {
@@ -120,7 +118,7 @@ public class HBaseMemoryGraphAssembler
         	log.debug("STATE: " + stateStr);
         }
         
-        this.columnKeyGen = new HBaseStatefullColumnKeyFactory(this.rootType,
+        this.columnKeyGen = new StatefullColumnKeyFactory(this.rootType,
         		graphState);
 		
         // build the graph

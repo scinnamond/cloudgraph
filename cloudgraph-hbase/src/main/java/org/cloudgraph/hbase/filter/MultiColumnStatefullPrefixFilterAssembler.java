@@ -9,10 +9,9 @@ import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
-import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
 import org.cloudgraph.common.service.GraphState;
-import org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory;
+import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
@@ -41,7 +40,7 @@ public class MultiColumnStatefullPrefixFilterAssembler extends FilterListAssembl
     	this.rootFilter = new FilterList(
     		FilterList.Operator.MUST_PASS_ONE);
     	 
-        this.columnKeyFac = new HBaseStatefullColumnKeyFactory(rootType, this.graphState);
+        this.columnKeyFac = new StatefullColumnKeyFactory(rootType, this.graphState);
         
     	// Note: using many binary prefix qualifier filters
     	// rather than a single MultipleColumnPrefixFilter under the

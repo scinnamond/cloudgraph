@@ -23,13 +23,11 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
+import org.cloudgraph.common.service.ColumnMap;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.common.service.GraphState.Edge;
-import org.cloudgraph.common.service.ColumnMap;
-import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
@@ -37,7 +35,7 @@ import org.cloudgraph.hbase.filter.FilterUtil;
 import org.cloudgraph.hbase.filter.MultiColumnPrefixFilterAssembler;
 import org.cloudgraph.hbase.filter.MultiColumnStatefullPrefixFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateColumnFilterAssembler;
-import org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory;
+import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaDataGraph;
@@ -74,7 +72,7 @@ import commonj.sdo.Type;
  * the original UUID values.       
  * </p>
  * 
- * @see org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory
+ * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  */
 public class HBaseGraphSliceAssembler
     implements HBaseGraphAssembler {
@@ -153,7 +151,7 @@ public class HBaseGraphSliceAssembler
         	log.debug("STATE: " + stateStr);
         }
         
-        this.columnKeyFac = new HBaseStatefullColumnKeyFactory(this.rootType,
+        this.columnKeyFac = new StatefullColumnKeyFactory(this.rootType,
         		graphState);
 		
         // build the graph

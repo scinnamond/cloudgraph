@@ -3,7 +3,6 @@ package org.cloudgraph.hbase.key;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
 import org.cloudgraph.common.service.GraphState;
 import org.plasma.sdo.PlasmaDataObject;
@@ -36,13 +35,13 @@ import org.plasma.sdo.PlasmaType;
  * @see org.cloudgraph.config.Table
  * @see org.cloudgraph.common.service.GraphState
  */
-public class HBaseStatefullColumnKeyFactory extends HBaseCompositeColumnKeyFactory 
+public class StatefullColumnKeyFactory extends CompositeColumnKeyFactory 
     implements GraphStatefullColumnKeyFactory 
 {
-	private static final Log log = LogFactory.getLog(HBaseStatefullColumnKeyFactory.class);
+	private static final Log log = LogFactory.getLog(StatefullColumnKeyFactory.class);
 	private GraphState graphState;
 		
-	public HBaseStatefullColumnKeyFactory(PlasmaType rootType,
+	public StatefullColumnKeyFactory(PlasmaType rootType,
 			GraphState graphState) {
 		super(rootType);
 	    this.graphState = graphState;

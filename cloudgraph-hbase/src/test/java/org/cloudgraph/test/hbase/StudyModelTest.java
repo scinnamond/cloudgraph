@@ -12,6 +12,7 @@ import junit.framework.Test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.common.test.PlasmaTestSetup;
+import org.plasma.query.Expression;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.Select;
@@ -26,6 +27,7 @@ import com.crackoo.domain.Goal;
 import com.crackoo.domain.Profile;
 import com.crackoo.domain.StudyItem;
 import com.crackoo.domain.Tag;
+import com.crackoo.domain.query.QGoal;
 import com.crackoo.domain.query.QProfile;
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
@@ -34,28 +36,129 @@ import commonj.sdo.helper.XMLDocument;
 /**
  * Performs and tests various SDO CRUD operations.
  */
-public class CrackooModelTest extends HBaseTestCase {
-    private static Log log = LogFactory.getLog(CrackooModelTest.class);
+public class StudyModelTest extends HBaseTestCase {
+    private static Log log = LogFactory.getLog(StudyModelTest.class);
 
     private String GOAL_1 = "Goal 1";
     private String GOAL_2 = "Goal 2";
     private String GOAL_3 = "Goal 3";
-    private long id = System.currentTimeMillis();
-    private String ISBN1 = "ISBN1_" + String.valueOf(id);
-    private String ISBN2 = "ISBN2_" + String.valueOf(id);
-    private String ISBN3 = "ISBN3_" + String.valueOf(id);
+    private String ISBN1;
+    private String ISBN2;
+    private String ISBN3;
 
     public static Test suite() {
-        return PlasmaTestSetup.newTestSetup(CrackooModelTest.class);
+        return PlasmaTestSetup.newTestSetup(StudyModelTest.class);
     }
     
     public void setUp() throws Exception {
         super.setUp();
     } 
     
-    public void testInsertUpdateDelete() throws IOException       
+    public void testProfileCRUD() throws IOException       
     {
+        long id = System.currentTimeMillis();
+        ISBN1 = "ISBN1_" + String.valueOf(id);
+        ISBN2 = "ISBN2_" + String.valueOf(id);
+        ISBN3 = "ISBN3_" + String.valueOf(id);
+
+        int countBefore = getProfileCount();
+    	
+    	Profile profile = this.createProfileGraph(id);
+    	
+    	//save the graph
+        service.commit(profile.getDataGraph(), "test-user");
+    	
+        int countAfter = getProfileCount();
+        assertTrue(countAfter == countBefore+1); 
+                
+        // fetch the full graph
+        Profile fetchedProfile = this.fetchProfileGraphFull(id);
+        
+        // update a property
+        // make a change
+        String newRef = "updated ref";
+        //fetchedProfile.set("goal[@name='"+GOAL_2+"']/studyItem/citation[position()=1]/@reference", newRef);
+        fetchedProfile.getGoal(1).getStudyItem(0).getCitation(0).setReference(newRef);
+        service.commit(fetchedProfile.getDataGraph(), "test-user2");
+        
+        fetchedProfile = this.fetchProfileGraphFull(id);
+        String xml = serializeGraph(fetchedProfile.getDataGraph());
+        log.info("UPDATED GRAPH: " + xml);        
+        assertTrue(fetchedProfile.getProfileId() == id);
+        String updated = fetchedProfile.getGoal(1).getStudyItem(0).getCitation(0).getReference();
+        assertTrue(newRef.equals(updated));
+        
+        
+        //  check we did not create a dup etc...
+        countAfter = getProfileCount();
+        assertTrue(countAfter == countBefore+1); 
+        
+        // delete a section of graph
+        Goal goal = (Goal)profile.get("goal[@name='"+GOAL_1+"']");
+        Goal goal3 = (Goal)profile.get("goal[@name='"+GOAL_3+"']");
+        StudyItem studyItem = goal.getStudyItem(0);
+        Tag commonTag = studyItem.getTag(0);
+        Citation citation = studyItem.getCitation(0);
+        Citation citation1 = studyItem.getCitation(1);
+        // FIXME: this check for a study item with 2 parent goals
+        // is super important but fails currently for a fetched profile
+        assertTrue(studyItem.getGoalCount() == 2);
+        goal.delete();
+        // now check the state of the client graph before commit
+        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(goal));
+        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(studyItem));
+        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(citation));
+        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(citation1));
+        // expect these non-containment references to trigger a modification
+        // as link object is deleted.
+        assertTrue(profile.getDataGraph().getChangeSummary().isModified(profile));
+        assertTrue(profile.getGoalCount() == 2);
+        assertTrue(profile.getDataGraph().getChangeSummary().isModified(commonTag));
+        assertTrue(goal3.getStudyItemCount() == 0);
+        assertTrue(profile.getDataGraph().getChangeSummary().isModified(goal3));
+               
+        service.commit(profile.getDataGraph(), "test-user2");        
+               
+        //  check we did not create a dup etc...
+        countAfter = getProfileCount();
+        assertTrue(countAfter == countBefore+1); 
+
+        fetchedProfile = this.fetchProfileGraphFull(id);
+        xml = serializeGraph(fetchedProfile.getDataGraph());
+        log.info("GRAPH W/O Goal 1 PATH: " + xml);        
+        assertTrue(fetchedProfile.getProfileId() == id);
+        assertTrue(fetchedProfile.getGoalCount() == 2);        
+    }
+
+    public void testProfileSlice() throws IOException       
+    {
+        long id = System.currentTimeMillis();
+        ISBN1 = "ISBN1_" + String.valueOf(id);
+        ISBN2 = "ISBN2_" + String.valueOf(id);
+        ISBN3 = "ISBN3_" + String.valueOf(id);
     	int countBefore = getProfileCount();
+    	
+    	Profile profile = this.createProfileGraph(id);
+    	
+    	//save the graph
+        service.commit(profile.getDataGraph(), "test-user");
+    	
+        int countAfter = getProfileCount();
+        assertTrue(countAfter == countBefore+1); 
+        
+        // fetch a slice
+        Profile fetchedProfile = this.fetchProfileDSLGraphSlice(id);
+        String xml = serializeGraph(fetchedProfile.getDataGraph());
+        log.info("SLICED GRAPH: " + xml);
+        assertTrue(fetchedProfile.getProfileId() == id);
+        assertTrue(fetchedProfile.getGoalCount() == 1); // expect single slice
+        String isbn2 = fetchedProfile.getString(
+        		"goal[@name='"+GOAL_2+"']/@ISBN");
+        assertTrue(ISBN2.equals(isbn2)); 
+        
+    }    
+    
+    private Profile createProfileGraph(long id) {
     	DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
         dataGraph.getChangeSummary().beginLogging(); // log changes from this point
     	Type rootType = PlasmaTypeHelper.INSTANCE.getType(Profile.class);
@@ -72,14 +175,14 @@ public class CrackooModelTest extends HBaseTestCase {
     	goal.setDescription("A description of a goal");
     	goal.setISBN(ISBN1);
 
-    	StudyItem studyItem = goal.createStudyItem();
-    	studyItem.addTag(commonTag); // link existing tag (non containment reference)
-    	Tag tagFF = studyItem.createTag();
+    	StudyItem commonStudyItem = goal.createStudyItem();
+    	commonStudyItem.addTag(commonTag); // link existing tag (non containment reference)
+    	Tag tagFF = commonStudyItem.createTag();
     	tagFF.setTag("tag 1");
     	    	
-    	Citation citation = studyItem.createCitation();
+    	Citation citation = commonStudyItem.createCitation();
     	citation.setReference("ref1");
-    	Citation citation1 = studyItem.createCitation();
+    	Citation citation1 = commonStudyItem.createCitation();
     	citation1.setReference("ref2");
     	
     	//goal path 2
@@ -107,67 +210,12 @@ public class CrackooModelTest extends HBaseTestCase {
 
     	// link existing study item to this goal giving the 
     	// study item 2 "parents"
-    	goal3.addStudyItem(studyItem);
-        assertTrue(studyItem.getGoalCount() == 2);
+    	goal3.addStudyItem(commonStudyItem);
+        assertTrue(commonStudyItem.getGoalCount() == 2);
     	
-    	//save the graph
-        service.commit(dataGraph, "test-user");
-    	
-        int countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
-        
-        // fetch the complete graph
-        Profile fetchedProfile = this.fetchProfileGraphSlice(id);
-        String xml = serializeGraph(fetchedProfile.getDataGraph());
-        log.info("NEW GRAPH: " + xml);
-        assertTrue(fetchedProfile.getProfileId() == id);
-        String isbn2 = fetchedProfile.getString(
-        		"goal[@name='"+GOAL_2+"']/@ISBN");
-        assertTrue(ISBN2.equals(isbn2)); 
-        
-        
-        // update a property
-        citation3.setReference("updated ref"); // make a change        
-        service.commit(dataGraph, "test-user2");
-        
-        fetchedProfile = this.fetchProfileGraphFull(id);
-        xml = serializeGraph(fetchedProfile.getDataGraph());
-        log.info("UPDATED GRAPH: " + xml);        
-        assertTrue(fetchedProfile.getProfileId() == id);
-        
-        //  check we did not create a dup etc...
-        countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
-        
-        // delete a section of graph
-        assertTrue(studyItem.getGoalCount() == 2);
-        goal.delete();
-        assertTrue(dataGraph.getChangeSummary().isDeleted(goal));
-        assertTrue(dataGraph.getChangeSummary().isDeleted(studyItem));
-        assertTrue(dataGraph.getChangeSummary().isDeleted(citation));
-        assertTrue(dataGraph.getChangeSummary().isDeleted(citation1));
-        
-        // expect these non-containment references to trigger a modification
-        // as link object is deleted.
-        assertTrue(dataGraph.getChangeSummary().isModified(profile));
-        assertTrue(profile.getGoalCount() == 2);
-        assertTrue(dataGraph.getChangeSummary().isModified(commonTag));
-        assertTrue(goal3.getStudyItemCount() == 0);
-        assertTrue(dataGraph.getChangeSummary().isModified(goal3));
-               
-        service.commit(dataGraph, "test-user2");        
-               
-        //  check we did not create a dup etc...
-        countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
-
-        fetchedProfile = this.fetchProfileGraphFull(id);
-        xml = serializeGraph(fetchedProfile.getDataGraph());
-        log.info("GRAPH W/O Goal 1 PATH: " + xml);        
-        assertTrue(fetchedProfile.getProfileId() == id);
-        assertTrue(fetchedProfile.getGoalCount() == 2);        
+        return profile;
     }
-        
+    
     private String serializeGraph(DataGraph graph) throws IOException
     {
         DefaultOptions options = new DefaultOptions(
@@ -233,7 +281,31 @@ public class CrackooModelTest extends HBaseTestCase {
     	return (Profile)result[0].getRootObject();
     }
     
-    protected Profile fetchProfileGraphSlice(long id) {    	
+    protected Profile fetchProfileDSLGraphSlice(long id) {    	
+    	QProfile profile = QProfile.newQuery();
+    	QGoal goal = QGoal.newQuery();
+    	Expression predicate = goal.name().eq(GOAL_2);
+    	profile.select(profile.profileId());
+    	profile.select(profile.creationDate());
+    	profile.select(profile.lastModification());
+    	profile.select(profile.tag().tag());
+   	    profile.select(profile.goal(predicate).wildcard());
+    	profile.select(profile.goal(predicate).studyItem().seqId());
+    	profile.select(profile.goal(predicate).studyItem().creationDate());
+    	profile.select(profile.goal(predicate).studyItem().lastModification());
+    	profile.select(profile.goal(predicate).studyItem().citation().reference());
+    	profile.select(profile.goal(predicate).studyItem().tag().tag());
+    	
+    	profile.where(profile.profileId().eq(id));
+    	
+    	DataGraph[] result = service.find(profile);
+    	assertTrue(result != null);
+    	assertTrue(result.length == 1);
+    	
+    	return (Profile)result[0].getRootObject();
+   }
+    
+    protected Profile fetchProfileXPathGraphSlice(long id) {    	
     	 
     	Select select = new Select(new String[] {
     	    "profileId",		

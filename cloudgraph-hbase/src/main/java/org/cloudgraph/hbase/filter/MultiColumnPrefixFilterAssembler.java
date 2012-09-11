@@ -10,7 +10,7 @@ import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.cloudgraph.common.key.GraphColumnKeyFactory;
-import org.cloudgraph.hbase.key.HBaseCompositeColumnKeyFactory;
+import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
@@ -31,7 +31,7 @@ public class MultiColumnPrefixFilterAssembler extends FilterListAssembler
 	{
 		this.rootType = rootType;
 		this.contextType = contextType;
-    	this.columnKeyFac = new HBaseCompositeColumnKeyFactory(rootType);
+    	this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
 		
     	this.rootFilter = new FilterList(
     		FilterList.Operator.MUST_PASS_ONE);

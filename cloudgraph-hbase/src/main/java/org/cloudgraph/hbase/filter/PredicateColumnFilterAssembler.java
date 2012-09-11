@@ -16,7 +16,7 @@ import org.apache.hadoop.hbase.filter.ValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.filter.GraphFilterException;
 import org.cloudgraph.common.service.GraphState;
-import org.cloudgraph.hbase.key.HBaseCompositeColumnKeyFactory;
+import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.AbstractPathElement;
@@ -41,7 +41,7 @@ import org.xml.sax.SAXException;
 public class PredicateColumnFilterAssembler extends FilterHierarchyAssembler
 {
     private static Log log = LogFactory.getLog(PredicateColumnFilterAssembler.class);
-	private HBaseCompositeColumnKeyFactory columnKeyFac;
+	private CompositeColumnKeyFactory columnKeyFac;
 	private String contextPropertyPath;
 
 	@SuppressWarnings("unused")
@@ -62,7 +62,7 @@ public class PredicateColumnFilterAssembler extends FilterHierarchyAssembler
     	 
     	this.filterStack.push(this.rootFilter);  
     	
-        this.columnKeyFac = new HBaseCompositeColumnKeyFactory(rootType);
+        this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
         
     	for (int i = 0; i < where.getParameters().size(); i++)
     		params.add(where.getParameters().get(i).getValue());

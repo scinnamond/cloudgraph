@@ -16,8 +16,8 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.common.service.DispatcherSupport;
+import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraph;
 import org.cloudgraph.config.TableConfig;
@@ -27,7 +27,7 @@ import org.cloudgraph.hbase.filter.FilterUtil;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
 import org.cloudgraph.hbase.filter.RootFetchColumnFilterAssembler;
-import org.cloudgraph.hbase.key.HBaseCompositeRowKeyFactory;
+import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
@@ -176,7 +176,7 @@ public class HBaseGraphQuery extends DispatcherSupport
                 scan.setFilter(rowFilterAssembler.getFilter());
             }
             else {
-                HBaseCompositeRowKeyFactory rowKeyGen = new HBaseCompositeRowKeyFactory(type);
+                CompositeRowKeyFactory rowKeyGen = new CompositeRowKeyFactory(type);
                 
                 String rowKey = rowKeyGen.createRowKey(type);
         		if (log.isDebugEnabled())
@@ -224,6 +224,7 @@ public class HBaseGraphQuery extends DispatcherSupport
         List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();
         PropertySelectionCollector collector = new PropertySelectionCollector(
             query.getSelectClause(), type);
+        collector.getResult(); // trigger the traversal
 
         Scan scan = new Scan();
         FilterList rootFilter = new FilterList(
@@ -237,13 +238,16 @@ public class HBaseGraphQuery extends DispatcherSupport
         // column set based on existence of path predicates
         // in the Select. 
         HBaseFilterAssembler columnFilterAssembler = null;
-        if (collector.getPredicateMap().size() > 0) 
+        if (collector.getPredicateMap().size() > 0) {
             columnFilterAssembler = 
-            	new RootFetchColumnFilterAssembler(query.getSelectClause(), type);
-        else
+            	new RootFetchColumnFilterAssembler(query.getSelectClause(), 
+            			collector, type);
+        }
+        else {
             columnFilterAssembler = 
         		new BulkFetchColumnFilterAssembler(query.getSelectClause(), 
-        				type);
+        				collector, type);
+        }
         rootFilter.addFilter(columnFilterAssembler.getFilter());
 
         // Create and add a row filter 
@@ -256,7 +260,7 @@ public class HBaseGraphQuery extends DispatcherSupport
             rootFilter.addFilter(rowFilterAssembler.getFilter());
         } 
         else {
-            HBaseCompositeRowKeyFactory rowKeyGen = new HBaseCompositeRowKeyFactory(type);
+            CompositeRowKeyFactory rowKeyGen = new CompositeRowKeyFactory(type);
             
             byte[] rowKey = rowKeyGen.createRowKeyBytes(type);
     		if (log.isDebugEnabled())
@@ -276,13 +280,15 @@ public class HBaseGraphQuery extends DispatcherSupport
         
         // Create a graph assembler based on existence
         // path predicates
-        HBaseGraphAssembler assembler = null;
-        if (collector.getPredicateMap().size() > 0) 
-        	assembler = new HBaseGraphSliceAssembler(type, 
+        HBaseGraphAssembler graphAssembler = null;
+        if (collector.getPredicateMap().size() > 0) { 
+        	graphAssembler = new HBaseGraphSliceAssembler(type, 
                 collector, snapshotDate, tableConfig, con);
-        else
-        	assembler = new HBaseMemoryGraphAssembler(type, 
+        }
+        else {
+        	graphAssembler = new HBaseMemoryGraphAssembler(type, 
                 collector.getResult(), snapshotDate, tableConfig);
+        }	
         
         // Create a scan. For each result row, 
         // assemble a graph and return it
@@ -303,9 +309,9 @@ public class HBaseGraphQuery extends DispatcherSupport
               	    	    + "\tvalue: " + new String(keyValue.getValue()));
               	    }
             	}
-          	    assembler.assemble(resultRow);
-                result.add(assembler.getDataGraph());
-                assembler.clear();
+          	    graphAssembler.assemble(resultRow);
+                result.add(graphAssembler.getDataGraph());
+                graphAssembler.clear();
                 count++;
             }       
             log.info("assembled " + String.valueOf(count) + " results");

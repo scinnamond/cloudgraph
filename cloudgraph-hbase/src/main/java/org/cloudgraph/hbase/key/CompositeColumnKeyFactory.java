@@ -8,7 +8,6 @@ import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.config.ColumnKeyToken;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.PreDefinedTokenName;
-import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
@@ -19,12 +18,12 @@ import org.plasma.sdo.PlasmaType;
  * @see org.cloudgraph.config.ColumnKeyModel
  * @see org.cloudgraph.config.Table
  */
-public class HBaseCompositeColumnKeyFactory extends HBaseKeyFactory  
+public class CompositeColumnKeyFactory extends ByteBufferKeyFactory  
     implements GraphColumnKeyFactory 
 {
-	private static final Log log = LogFactory.getLog(HBaseCompositeColumnKeyFactory.class);
+	private static final Log log = LogFactory.getLog(CompositeColumnKeyFactory.class);
 		
-	public HBaseCompositeColumnKeyFactory(PlasmaType rootType) {
+	public CompositeColumnKeyFactory(PlasmaType rootType) {
 		super(rootType);
 	}
 

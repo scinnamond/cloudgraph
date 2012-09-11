@@ -24,12 +24,12 @@ import commonj.sdo.Type;
  * Generates an HBase row key based on the configured CloudGraph {@link org.cloudgraph.config.RowKeyModel Row Key
  * Model} for a specific {@link org.cloudgraph.config.Table HTable Configuration}. 
  */
-public class HBaseCompositeRowKeyFactory extends HBaseKeyFactory
+public class CompositeRowKeyFactory extends ByteBufferKeyFactory
     implements GraphRowKeyFactory 
 {
-	private static final Log log = LogFactory.getLog(HBaseCompositeRowKeyFactory.class);
+	private static final Log log = LogFactory.getLog(CompositeRowKeyFactory.class);
 	
-	public HBaseCompositeRowKeyFactory(PlasmaType rootType) {	
+	public CompositeRowKeyFactory(PlasmaType rootType) {	
 		super(rootType);
 	}
 	

@@ -18,7 +18,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.common.service.GraphState;
-import org.cloudgraph.hbase.key.HBaseCompositeColumnKeyFactory;
+import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelectionCollector;
@@ -30,7 +30,7 @@ import org.xml.sax.SAXException;
 import commonj.sdo.Type;
 
 /**
- * Creates an HBase column filter hierarchy based on the given criteria
+ * Creates an HBase column filter set based on the given criteria
  * which leverages the <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/MultipleColumnPrefixFilter.html">HBase MultipleColumnPrefixFilter</a>
  * to return only selected columns. The advantage of this strategy is that
  * a complete graph of any complexity may be returned in a single round trip. The
@@ -48,14 +48,17 @@ public class BulkFetchColumnFilterAssembler extends FilterListAssembler
 
 	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
-
+    private PropertySelectionCollector collector;
+	
 	@SuppressWarnings("unused")
 	private BulkFetchColumnFilterAssembler() {}
 	
 	public BulkFetchColumnFilterAssembler(Select select,
+			PropertySelectionCollector collector,
 			PlasmaType rootType) {
+		this.collector = collector;
 		this.rootType = rootType;
-        this.columnKeyFac = new HBaseCompositeColumnKeyFactory(rootType);
+        this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
 		
     	this.rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ONE);
@@ -96,9 +99,7 @@ public class BulkFetchColumnFilterAssembler extends FilterListAssembler
 	private void collect(Select select) {
     	if (log.isDebugEnabled())
     		log.debug("begin traverse");
-        PropertySelectionCollector collector = new PropertySelectionCollector(
-        		select, this.rootType, false); // singular props only
-        Map<Type, List<String>> selectMap = collector.getResult();
+        Map<Type, List<String>> selectMap = this.collector.getResult();
        	if (log.isDebugEnabled())
     		log.debug("end traverse");        
         

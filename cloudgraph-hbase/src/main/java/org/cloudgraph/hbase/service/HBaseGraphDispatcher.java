@@ -15,15 +15,14 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
-import org.cloudgraph.common.service.GraphServiceException;
-import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.common.service.DuplicateRowException;
+import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.key.HBaseCompositeRowKeyFactory;
-import org.cloudgraph.hbase.key.HBaseStatefullColumnKeyFactory;
+import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
+import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaChangeSummary;
 import org.plasma.sdo.PlasmaDataGraph;
@@ -129,7 +128,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
             
 	        byte[] rowKey = null;
 	        if (changeSummary.isCreated(dataGraph.getRootObject())) {
-		        HBaseCompositeRowKeyFactory rowKeyGen = new HBaseCompositeRowKeyFactory(
+		        CompositeRowKeyFactory rowKeyGen = new CompositeRowKeyFactory(
 		        	(PlasmaType)dataGraph.getRootObject().getType());
 		        rowKey = rowKeyGen.createRowKeyBytes(dataGraph);
 	            ((PlasmaDataGraph)dataGraph).setId(rowKey); // FIXME: use snapshot map
@@ -145,7 +144,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     		GraphState graphState = this.initGraphState(rowKey, 
     				dataGraph, changeSummary);
     		
-    		HBaseStatefullColumnKeyFactory colGen = new HBaseStatefullColumnKeyFactory(
+    		StatefullColumnKeyFactory colGen = new StatefullColumnKeyFactory(
     			(PlasmaType)dataGraph.getRootObject().getType(), graphState);
     		List<Row> created = this.create(rowKey, dataGraph, changeSummary, graphState, colGen);
     		List<Row> modified = this.modify(rowKey, dataGraph, changeSummary, graphState, colGen);
@@ -176,7 +175,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     private List<Row> delete(byte[] rowKey,  
     		DataGraph dataGraph,
     		PlasmaChangeSummary changeSummary,
-    		GraphState graphState, HBaseStatefullColumnKeyFactory colGen) throws IllegalAccessException 
+    		GraphState graphState, StatefullColumnKeyFactory colGen) throws IllegalAccessException 
     {
         DeletedObjectCollector deleted = new DeletedObjectCollector(dataGraph);
         if (deleted.getResult().size() == 0)
@@ -207,7 +206,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     private List<Row> modify(byte[] rowKey,  
     		DataGraph dataGraph,
     		PlasmaChangeSummary changeSummary,
-    		GraphState graphState, HBaseStatefullColumnKeyFactory colGen) throws IllegalAccessException 
+    		GraphState graphState, StatefullColumnKeyFactory colGen) throws IllegalAccessException 
     {
         ModifiedObjectCollector modified = new ModifiedObjectCollector(dataGraph);
         if (modified.getResult().size() == 0)
@@ -223,7 +222,7 @@ public class HBaseGraphDispatcher extends DispatcherSupport
     private List<Row> create(byte[] rowKey,   
     		DataGraph dataGraph,
     		PlasmaChangeSummary changeSummary,
-    		GraphState graphState, HBaseStatefullColumnKeyFactory colGen) {
+    		GraphState graphState, StatefullColumnKeyFactory colGen) {
         CreatedObjectCollector created = new CreatedObjectCollector(dataGraph);   	
 		if (created.getResult().size() == 0) 
 			return EMPTY_ROW_LIST;		
