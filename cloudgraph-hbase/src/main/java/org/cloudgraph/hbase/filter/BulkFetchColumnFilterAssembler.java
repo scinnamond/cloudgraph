@@ -31,7 +31,7 @@ import commonj.sdo.Type;
 
 /**
  * Creates an HBase column filter set based on the given criteria
- * which leverages the <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/MultipleColumnPrefixFilter.html">HBase MultipleColumnPrefixFilter</a>
+ * which leverages the HBase <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/MultipleColumnPrefixFilter.html">MultipleColumnPrefixFilter</a>
  * to return only selected columns. The advantage of this strategy is that
  * a complete graph of any complexity may be returned in a single round trip. The
  * disadvantage is that selection path predicates are ignored during the fetch
@@ -50,14 +50,12 @@ public class BulkFetchColumnFilterAssembler extends FilterListAssembler
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
     private PropertySelectionCollector collector;
 	
-	@SuppressWarnings("unused")
-	private BulkFetchColumnFilterAssembler() {}
-	
-	public BulkFetchColumnFilterAssembler(Select select,
+	public BulkFetchColumnFilterAssembler( 
 			PropertySelectionCollector collector,
 			PlasmaType rootType) {
+		
+		super(rootType);
 		this.collector = collector;
-		this.rootType = rootType;
         this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
 		
     	this.rootFilter = new FilterList(
@@ -73,10 +71,7 @@ public class BulkFetchColumnFilterAssembler extends FilterListAssembler
         	new SubstringComparator(GraphState.STATE_MAP_COLUMN_NAME));   
         this.rootFilter.addFilter(stateFilter);
     	
-    	if (log.isDebugEnabled())
-    		this.log(select);
-    	
-    	collect(select);
+    	collect();
     	
     	byte[][] prefixes = new byte[this.prefixMap.size()][];
     	int i = 0;
@@ -96,7 +91,7 @@ public class BulkFetchColumnFilterAssembler extends FilterListAssembler
 	 * for column selection. 
 	 * @param select the select clause
 	 */
-	private void collect(Select select) {
+	private void collect() {
     	if (log.isDebugEnabled())
     		log.debug("begin traverse");
         Map<Type, List<String>> selectMap = this.collector.getResult();

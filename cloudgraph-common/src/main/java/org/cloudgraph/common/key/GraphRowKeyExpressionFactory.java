@@ -7,6 +7,16 @@ import commonj.sdo.Type;
 /**
  * Generates a row key based on the configured CloudGraph row key {@link org.cloudgraph.config.RowKeyModel
  * model} for a specific table {@link org.cloudgraph.config.Table configuration}. 
+ * <p>
+ * The initial creation and subsequent reconstitution for query retrieval
+ * purposes of both row and column keys in CloudGraph&#8482; is efficient, 
+ * as it leverages byte array level API in both Java and the current 
+ * underlying SDO 2.1 implementation, <a target="#" href="http://plasma-sdo.org">PlasmaSDO&#8482;</a>. Both composite row and 
+ * column keys are composed in part of structural metadata, and the 
+ * lightweight metadata API within <a target="#" href="http://plasma-sdo.org">PlasmaSDO&#8482;</a> contains byte-array level, 
+ * cached lookup of all basic metadata elements including logical and 
+ * physical type and property names.  
+ * </p>
  * @see org.cloudgraph.config.RowKeyModel
  * @see org.cloudgraph.config.Table
  */

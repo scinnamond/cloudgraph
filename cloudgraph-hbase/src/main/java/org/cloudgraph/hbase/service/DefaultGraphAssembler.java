@@ -38,7 +38,7 @@ import commonj.sdo.Type;
  * selected types required in the result graph.
  * <p>
  * The assembly is triggered by calling the 
- * {@link HBaseMemoryGraphAssembler#assemble(Result resultRow)} method which
+ * {@link DefaultGraphAssembler#assemble(Result resultRow)} method which
  * recursively reads HBase keys and values re-constituting the
  * data graph. The assembly traversal is driven by HBase column 
  * values representing the original edges or containment structure 
@@ -56,10 +56,10 @@ import commonj.sdo.Type;
  * 
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  */
-public class HBaseMemoryGraphAssembler
+public class DefaultGraphAssembler
     implements HBaseGraphAssembler {
 
-    private static Log log = LogFactory.getLog(HBaseMemoryGraphAssembler.class);
+    private static Log log = LogFactory.getLog(DefaultGraphAssembler.class);
 	private PlasmaType rootType;
 	private PlasmaDataObject root;
 	private Map<Type, List<String>> propertyMap;
@@ -70,7 +70,7 @@ public class HBaseMemoryGraphAssembler
 	private TableConfig tableConfig;
 	
 	@SuppressWarnings("unused")
-	private HBaseMemoryGraphAssembler() {}
+	private DefaultGraphAssembler() {}
 	
 	/**
 	 * Constructor.
@@ -80,7 +80,7 @@ public class HBaseMemoryGraphAssembler
 	 * @param snapshotDate the query snapshot date which is populated
 	 * into every data object in the result data graph. 
 	 */
-	public HBaseMemoryGraphAssembler(PlasmaType rootType,
+	public DefaultGraphAssembler(PlasmaType rootType,
 			Map<Type, List<String>> propertyMap, 
 			Timestamp snapshotDate,
 			TableConfig tableConfig) {
@@ -92,7 +92,7 @@ public class HBaseMemoryGraphAssembler
 	
 	/**
      * Re-constitutes a data graph from the given HBase client
-     * result (row). To retrieve the graph use {@link HBaseMemoryGraphAssembler#getDataGraph()}.
+     * result (row). To retrieve the graph use {@link DefaultGraphAssembler#getDataGraph()}.
      * a map of selected SDO properties. Properties are mapped by 
      * selected types required in the result graph.
 	 * @param resultRow the HBase client

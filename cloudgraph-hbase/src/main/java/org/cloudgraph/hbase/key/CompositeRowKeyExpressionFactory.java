@@ -25,6 +25,16 @@ import commonj.sdo.Type;
 /**
  * Generates an HBase row key based on the configured CloudGraph {@link org.cloudgraph.config.RowKeyModel Row Key
  * Model} for a specific {@link org.cloudgraph.config.Table HTable Configuration}. 
+ * <p>
+ * The initial creation and subsequent reconstitution for query retrieval
+ * purposes of both row and column keys in CloudGraph&#8482; is efficient, 
+ * as it leverages byte array level API in both Java and the current 
+ * underlying SDO 2.1 implementation, <a target="#" href="http://plasma-sdo.org">PlasmaSDO&#8482;</a>. Both composite row and 
+ * column keys are composed in part of structural metadata, and the 
+ * lightweight metadata API within <a target="#" href="http://plasma-sdo.org">PlasmaSDO&#8482;</a> contains byte-array level, 
+ * cached lookup of all basic metadata elements including logical and 
+ * physical type and property names.  
+ * </p>
  */
 public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
     implements GraphRowKeyExpressionFactory 

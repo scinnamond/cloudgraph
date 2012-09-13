@@ -1,4 +1,4 @@
-package org.cloudgraph.common;
+package org.cloudgraph.hbase;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.hadoop.hbase.util.Bytes;

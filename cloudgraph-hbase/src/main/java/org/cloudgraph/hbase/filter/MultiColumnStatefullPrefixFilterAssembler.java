@@ -16,6 +16,20 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
 /**
+ * Creates a column filter list using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
+ * and <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/BinaryPrefixComparator.html">BinaryPrefixComparator</a> and
+ * recreating composite column qualifier prefixes for comparison using {@link StatefullColumnKeyFactory}. 
+ * <p>
+ * HBase filters may be collected into 
+ * lists using <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.html" target="#">FilterList</a>
+ * each with a 
+ * <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.Operator.html#MUST_PASS_ALL" target="#">MUST_PASS_ALL</a> or <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.Operator.html#MUST_PASS_ONE" target="#">MUST_PASS_ONE</a>
+ *  (logical) operator. Lists may then be assembled into hierarchies 
+ * used to represent complex expression trees filtering either rows
+ * or columns in HBase.
+ * </p> 
+ * @see org.cloudgraph.common.key.GraphStatefullColumnKeyFactory
+ * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  */
 public class MultiColumnStatefullPrefixFilterAssembler extends FilterListAssembler
 {
@@ -23,9 +37,6 @@ public class MultiColumnStatefullPrefixFilterAssembler extends FilterListAssembl
 	private GraphStatefullColumnKeyFactory columnKeyFac;
 	private GraphState graphState;
 
-	@SuppressWarnings("unused")
-	private MultiColumnStatefullPrefixFilterAssembler() {}
-	
 	public MultiColumnStatefullPrefixFilterAssembler( 
 			GraphState graphState,
 			List<String> propertyNames,
@@ -33,8 +44,8 @@ public class MultiColumnStatefullPrefixFilterAssembler extends FilterListAssembl
 			PlasmaType contextType,
 			PlasmaType rootType) 
 	{
+		super(rootType);
 		this.contextType = contextType;
-		this.rootType = rootType;
 		this.graphState = graphState;
 		
     	this.rootFilter = new FilterList(

@@ -7,6 +7,9 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.MultipleColumnPrefixFilter;
 
+/**
+ * HBase filter debugging utilities
+ */
 public class FilterUtil {
 	
 	public static String printFilterTree(Filter filter) throws IOException {

@@ -2,40 +2,7 @@
 <head></head>
 <body>
 <p>
-The goal of HGraph is to persist and retrieve any arbitrary 
-Data Graph using the Hadoop NoSQL Database, HBase. The term 'HGraph' 
-therefore stands for "Hadoop Graph".   
+Root package for HBase service, composite key and filter packages.
 </p>
-<p>
-HGraph is based on the Service Data Objects (SDO) 2.1 specification 
-and is designed as an SDO Data Access Service (DAS) under the 
-PlasmaSDO™ Service Data Objects 2.1 implementation. 
-</p>
-<p>
-Numerous best practices have evolved out of the 
-HBase and Hadoop open-source software ecosystem. Several are
-quite restrictive such as the support for ACID transactions
-only across a single HBase row. Other critical best practices
-involve the use of column families and in particular the format
-and length of composite row and column keys, as these all can effect the 
-general performance and especially the even distribution of 
-data across regions in an HBase cluster. 
-</p>
-<p>
-The HGraph implementation encapsulates many HBase best practices
-in each of these areas and provides the user with an intuitive
-convenient and standards-based API generated from a user-provided, 
-domain-specific business model. Complexities of terse and efficient
-physical row and column key generation are completely hidden 
-and the client user is provided with a meaningful view of his/her
-business entities and attributes. 
-</p>
-<p>
-Typical CRUD operations are provided across any full or partial 
-data graph, and any "slice" of a graph or set of
-sub-graph slices can be returned using 
-common SDO query mechanisms including XPath and others.     
-</p>
-
 </body>
 </html>

@@ -21,6 +21,9 @@ import org.cloudgraph.context.ContextException;
 
 
 /**
+ * Manages HBase table pool and table interface access.
+ * @see CloudGraphContext
+ * @see TableConfig
  */
 public class HBaseConnectionManager {
 

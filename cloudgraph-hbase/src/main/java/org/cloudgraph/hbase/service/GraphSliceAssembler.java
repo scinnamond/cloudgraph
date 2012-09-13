@@ -34,7 +34,7 @@ import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.filter.FilterUtil;
 import org.cloudgraph.hbase.filter.MultiColumnPrefixFilterAssembler;
 import org.cloudgraph.hbase.filter.MultiColumnStatefullPrefixFilterAssembler;
-import org.cloudgraph.hbase.filter.PredicateColumnFilterAssembler;
+import org.cloudgraph.hbase.filter.GraphSliceColumnFilterAssembler;
 import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.Where;
@@ -74,10 +74,10 @@ import commonj.sdo.Type;
  * 
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  */
-public class HBaseGraphSliceAssembler
+public class GraphSliceAssembler
     implements HBaseGraphAssembler {
 
-    private static Log log = LogFactory.getLog(HBaseGraphSliceAssembler.class);
+    private static Log log = LogFactory.getLog(GraphSliceAssembler.class);
 	private PlasmaType rootType;
 	private PlasmaDataObject root;
 	private PropertySelectionCollector collector;
@@ -94,7 +94,7 @@ public class HBaseGraphSliceAssembler
 	private int scanCount = 1; 
 	
 	@SuppressWarnings("unused")
-	private HBaseGraphSliceAssembler() {}
+	private GraphSliceAssembler() {}
 	
 	/**
 	 * Constructor.
@@ -105,7 +105,7 @@ public class HBaseGraphSliceAssembler
 	 * into every data object in the result data graph. 
 	 * @param con the HBase table client interface
 	 */
-	public HBaseGraphSliceAssembler(PlasmaType rootType,
+	public GraphSliceAssembler(PlasmaType rootType,
 			PropertySelectionCollector collector, 
 			Timestamp snapshotDate,
 			TableConfig tableConfig,
@@ -419,8 +419,8 @@ public class HBaseGraphSliceAssembler
         Scan scan = new Scan();
         scan.setStartRow(rowKey);
         scan.setStopRow(rowKey);
-        PredicateColumnFilterAssembler filterAssembler = 
-        	new PredicateColumnFilterAssembler(where,
+        GraphSliceColumnFilterAssembler filterAssembler = 
+        	new GraphSliceColumnFilterAssembler(where,
         		this.graphState, contextType,
     			this.rootType);
         Filter filter = filterAssembler.getFilter();

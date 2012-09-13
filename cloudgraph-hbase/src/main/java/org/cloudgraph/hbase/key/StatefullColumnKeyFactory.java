@@ -14,22 +14,14 @@ import org.plasma.sdo.PlasmaType;
  * Generates an HBase column key based on the configured CloudGraph column key {@link org.cloudgraph.config.ColumnKeyModel
  * model} for a specific HTable {@link org.cloudgraph.config.Table configuration}. 
  * <p>
- * In order to persist any arbitrary Data Graph in a single HBase row, 
- * and since every column key in a row must be unique in HBase, every column 
- * name must be "overridden" to uniquely identify
- * each field. Not only must the column keys for fields within a single entity, 
- * be unique, but every column key for every field where any 
- * number of the same entity type are persisted within the 
- * same data graph. E.g. Profile->Person->Contact->Address where a
- * person has multiple contacts (home, business, etc...)
- * </p>
- * <p>
- * Though each Data Object has a <a href="http://docs.oracle.com/javase/6/docs/api/java/util/UUID.html" target="#">UUID</a>, a unique numeric sequence ID 
- * is used as being far more efficient in terms of length, and also
- * allowing multiple rows to "line-up" in a columnar fashion within an 
- * HBase table. This organization is helpful when viewing an HBase table
- * columns in a relational mapping of spreadsheet based tool for
- * debugging or analysis.     
+ * The initial creation and subsequent reconstitution for query retrieval
+ * purposes of both row and column keys in CloudGraph&#8482; is efficient, 
+ * as it leverages byte array level API in both Java and the current 
+ * underlying SDO 2.1 implementation, <a target="#" href="http://plasma-sdo.org">PlasmaSDO&#8482;</a>. Both composite row and 
+ * column keys are composed in part of structural metadata, and the 
+ * lightweight metadata API within <a target="#" href="http://plasma-sdo.org">PlasmaSDO&#8482;</a> contains byte-array level, 
+ * cached lookup of all basic metadata elements including logical and 
+ * physical type and property names.  
  * </p>
  * @see org.cloudgraph.config.ColumnKeyModel
  * @see org.cloudgraph.config.Table

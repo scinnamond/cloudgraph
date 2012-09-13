@@ -74,7 +74,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * 
  * @see org.plasma.query.Query
  * @see PredicateRowFilterAssembler
- * @see HBaseMemoryGraphAssembler
+ * @see DefaultGraphAssembler
  * @see BulkFetchColumnFilterAssembler
  * 
  */
@@ -240,12 +240,12 @@ public class HBaseGraphQuery extends DispatcherSupport
         HBaseFilterAssembler columnFilterAssembler = null;
         if (collector.getPredicateMap().size() > 0) {
             columnFilterAssembler = 
-            	new RootFetchColumnFilterAssembler(query.getSelectClause(), 
+            	new RootFetchColumnFilterAssembler(  
             			collector, type);
         }
         else {
             columnFilterAssembler = 
-        		new BulkFetchColumnFilterAssembler(query.getSelectClause(), 
+        		new BulkFetchColumnFilterAssembler(
         				collector, type);
         }
         rootFilter.addFilter(columnFilterAssembler.getFilter());
@@ -282,11 +282,11 @@ public class HBaseGraphQuery extends DispatcherSupport
         // path predicates
         HBaseGraphAssembler graphAssembler = null;
         if (collector.getPredicateMap().size() > 0) { 
-        	graphAssembler = new HBaseGraphSliceAssembler(type, 
+        	graphAssembler = new GraphSliceAssembler(type, 
                 collector, snapshotDate, tableConfig, con);
         }
         else {
-        	graphAssembler = new HBaseMemoryGraphAssembler(type, 
+        	graphAssembler = new DefaultGraphAssembler(type, 
                 collector.getResult(), snapshotDate, tableConfig);
         }	
         
