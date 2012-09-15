@@ -31,11 +31,11 @@ import org.cloudgraph.common.service.GraphState.Edge;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.filter.FilterUtil;
-import org.cloudgraph.hbase.filter.MultiColumnPrefixFilterAssembler;
-import org.cloudgraph.hbase.filter.MultiColumnStatefullPrefixFilterAssembler;
-import org.cloudgraph.hbase.filter.GraphSliceColumnFilterAssembler;
+import org.cloudgraph.hbase.filter.BinaryPrefixColumnFilterAssembler;
+import org.cloudgraph.hbase.filter.PredicateColumnFilterAssembler;
+import org.cloudgraph.hbase.filter.StatefullBinaryPrefixColumnFilterAssembler;
 import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
+import org.cloudgraph.hbase.util.FilterUtil;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaDataGraph;
@@ -92,6 +92,9 @@ public class GraphSliceAssembler
 	private byte[] rowKey;
 	private ColumnMap columnMap;
 	private int scanCount = 1; 
+	private PredicateColumnFilterAssembler graphSliceColumnFilterAssembler;
+	private BinaryPrefixColumnFilterAssembler multiColumnPrefixFilterAssembler;
+	private StatefullBinaryPrefixColumnFilterAssembler multiColumnStatefullPrefixFilterAssembler;
 	
 	@SuppressWarnings("unused")
 	private GraphSliceAssembler() {}
@@ -115,6 +118,8 @@ public class GraphSliceAssembler
 		this.snapshotDate = snapshotDate;
 		this.tableConfig =tableConfig;
 		this.con = con;
+		
+
 	}
 	
 	/**
@@ -153,6 +158,15 @@ public class GraphSliceAssembler
         
         this.columnKeyFac = new StatefullColumnKeyFactory(this.rootType,
         		graphState);
+		this.graphSliceColumnFilterAssembler = 
+            	new PredicateColumnFilterAssembler( 
+            		this.graphState,  
+        			this.rootType);
+		this.multiColumnPrefixFilterAssembler = 
+				new BinaryPrefixColumnFilterAssembler(this.rootType);
+		this.multiColumnStatefullPrefixFilterAssembler = 
+				new StatefullBinaryPrefixColumnFilterAssembler( 
+				this.graphState, this.rootType);
 		
         // build the graph
     	PlasmaDataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
@@ -335,10 +349,10 @@ public class GraphSliceAssembler
         Scan scan = new Scan();
         scan.setStartRow(rowKey);
         scan.setStopRow(rowKey);
-		MultiColumnPrefixFilterAssembler filterAssembler = new MultiColumnPrefixFilterAssembler( 
-			propertyNames,
-			contextType, this.rootType);
-        Filter filter = filterAssembler.getFilter();
+        this.multiColumnPrefixFilterAssembler.clear();
+        this.multiColumnPrefixFilterAssembler.assemble(propertyNames,
+        		contextType);
+        Filter filter = this.multiColumnPrefixFilterAssembler.getFilter();
         scan.setFilter(filter);
         load(scan);
 	}
@@ -349,10 +363,9 @@ public class GraphSliceAssembler
         Scan scan = new Scan();
         scan.setStartRow(rowKey);
         scan.setStopRow(rowKey);
-		MultiColumnStatefullPrefixFilterAssembler filterAssembler = new MultiColumnStatefullPrefixFilterAssembler( 
-			this.graphState, propertyNames,
-			sequences, contextType, this.rootType);
-        Filter filter = filterAssembler.getFilter();
+        this.multiColumnStatefullPrefixFilterAssembler.clear();
+        this.multiColumnStatefullPrefixFilterAssembler.assemble(propertyNames, sequences, contextType);
+        Filter filter = this.multiColumnStatefullPrefixFilterAssembler.getFilter();
         scan.setFilter(filter);
         load(scan);
 	}
@@ -419,11 +432,9 @@ public class GraphSliceAssembler
         Scan scan = new Scan();
         scan.setStartRow(rowKey);
         scan.setStopRow(rowKey);
-        GraphSliceColumnFilterAssembler filterAssembler = 
-        	new GraphSliceColumnFilterAssembler(where,
-        		this.graphState, contextType,
-    			this.rootType);
-        Filter filter = filterAssembler.getFilter();
+        this.graphSliceColumnFilterAssembler.clear();
+        this.graphSliceColumnFilterAssembler.assemble(where, contextType);
+        Filter filter = this.graphSliceColumnFilterAssembler.getFilter();
         scan.setFilter(filter);
         return fetch(scan);
 	}

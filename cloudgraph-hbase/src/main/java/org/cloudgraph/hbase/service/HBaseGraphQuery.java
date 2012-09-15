@@ -23,11 +23,11 @@ import org.cloudgraph.config.DataGraph;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.connect.HBaseConnectionManager;
 import org.cloudgraph.hbase.filter.BulkFetchColumnFilterAssembler;
-import org.cloudgraph.hbase.filter.FilterUtil;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
+import org.cloudgraph.hbase.filter.InitialFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
-import org.cloudgraph.hbase.filter.RootFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
+import org.cloudgraph.hbase.util.FilterUtil;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
@@ -49,7 +49,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * clause or predicate(s).     
  * <p>
  * Any "slice" of a graph or set of sub-graphs can be selected using the
- * PlasmaQuery\u2122 API by specifying paths through the graph. Paths may
+ * PlasmaQuery&#8482; API by specifying paths through the graph. Paths may
  * include any number of predicates along the path. Based on this selection
  * criteria an {@link BulkFetchColumnFilterAssembler} is used to 
  * precisely restrict the HBase columns returned for each result row.      
@@ -60,7 +60,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * graph structure from the resulting HBase row.
  * </p>
  * <p>
- * The PlasmaQuery\u2122 API provides a flexible mechanism to fully describe 
+ * The PlasmaQuery&#8482; API provides a flexible mechanism to fully describe 
  * any arbitrary SDO results Data Graph, independent of any persistence 
  * framework or type of data store.  PlasmaQuery\u2122 supports XPath 
  * expressions as a free-text "surface language", parsed by the API 
@@ -171,8 +171,8 @@ public class HBaseGraphQuery extends DispatcherSupport
             if (where != null)
             {
                 PredicateRowFilterAssembler rowFilterAssembler = 
-                	new PredicateRowFilterAssembler(where, type);
-
+                	new PredicateRowFilterAssembler(type);
+                rowFilterAssembler.assemble(where, type);
                 scan.setFilter(rowFilterAssembler.getFilter());
             }
             else {
@@ -240,7 +240,7 @@ public class HBaseGraphQuery extends DispatcherSupport
         HBaseFilterAssembler columnFilterAssembler = null;
         if (collector.getPredicateMap().size() > 0) {
             columnFilterAssembler = 
-            	new RootFetchColumnFilterAssembler(  
+            	new InitialFetchColumnFilterAssembler(  
             			collector, type);
         }
         else {
@@ -255,8 +255,8 @@ public class HBaseGraphQuery extends DispatcherSupport
         if (where != null)
         {
             PredicateRowFilterAssembler rowFilterAssembler = 
-            	new PredicateRowFilterAssembler(where, type);
-     
+            	new PredicateRowFilterAssembler(type);
+            rowFilterAssembler.assemble(where, type);
             rootFilter.addFilter(rowFilterAssembler.getFilter());
         } 
         else {

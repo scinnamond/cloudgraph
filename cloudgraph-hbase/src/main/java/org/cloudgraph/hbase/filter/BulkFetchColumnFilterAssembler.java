@@ -33,13 +33,10 @@ import commonj.sdo.Type;
  * Creates an HBase column filter set based on the given criteria
  * which leverages the HBase <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/MultipleColumnPrefixFilter.html">MultipleColumnPrefixFilter</a>
  * to return only selected columns. The advantage of this strategy is that
- * a complete graph of any complexity may be returned in a single round trip. The
- * disadvantage is that selection path predicates are ignored during the fetch
- * stage, and so for collection properties within a results graph, the entire collection
- * is returned. And depending on the data model, this may or may not be the most efficient strategy. 
+ * a complete graph of any complexity may be returned in a single round trip. 
  *  
  * @see GraphColumnKeyFactory
- * @see RootFetchColumnFilterAssembler
+ * @see InitialFetchColumnFilterAssembler
  */
 public class BulkFetchColumnFilterAssembler extends FilterListAssembler 
     implements HBaseFilterAssembler
@@ -86,18 +83,18 @@ public class BulkFetchColumnFilterAssembler extends FilterListAssembler
         this.rootFilter.addFilter(multiPrefixfilter);    	
 	}
 	
+	public void clear() {
+		super.clear();
+		this.prefixMap.clear();
+	}
+	
 	/**
 	 * Collects and maps column prefixes used to create HBase filter(s)
 	 * for column selection. 
 	 * @param select the select clause
 	 */
 	private void collect() {
-    	if (log.isDebugEnabled())
-    		log.debug("begin traverse");
         Map<Type, List<String>> selectMap = this.collector.getResult();
-       	if (log.isDebugEnabled())
-    		log.debug("end traverse");        
-        
         Iterator<Type> typeIter = selectMap.keySet().iterator();
         while (typeIter.hasNext()) {
         	PlasmaType type = (PlasmaType)typeIter.next();

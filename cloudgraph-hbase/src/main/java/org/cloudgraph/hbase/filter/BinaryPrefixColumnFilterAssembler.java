@@ -15,7 +15,7 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
 /**
- * Creates a column filter list using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
+ * Creates an HBase column filter list using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
  * and <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/BinaryPrefixComparator.html">BinaryPrefixComparator</a> and
  * recreating composite column qualifier prefixes for comparison using {@link CompositeColumnKeyFactory}. 
  * <p>
@@ -30,36 +30,34 @@ import org.plasma.sdo.PlasmaType;
  * @see org.cloudgraph.common.key.GraphColumnKeyFactory
  * @see org.cloudgraph.hbase.key.CompositeColumnKeyFactory
  */
-public class MultiColumnPrefixFilterAssembler extends FilterListAssembler
+public class BinaryPrefixColumnFilterAssembler extends FilterListAssembler
 {
-    private static Log log = LogFactory.getLog(MultiColumnPrefixFilterAssembler.class);
+    private static Log log = LogFactory.getLog(BinaryPrefixColumnFilterAssembler.class);
 	private GraphColumnKeyFactory columnKeyFac;
-
-	public MultiColumnPrefixFilterAssembler( 
-			List<String> propertyNames,
-			PlasmaType contextType,
+	
+	public BinaryPrefixColumnFilterAssembler( 
 			PlasmaType rootType) 
 	{
 		super(rootType);
-		this.contextType = contextType;
     	this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
 		
     	this.rootFilter = new FilterList(
-    		FilterList.Operator.MUST_PASS_ONE);
-        
+    		FilterList.Operator.MUST_PASS_ONE);        
+	}
+	
+	public void assemble(List<String> propertyNames, PlasmaType contextType) {
     	// Note: using many binary prefix qualifier filters
     	// rather than a single MultipleColumnPrefixFilter under the
     	// assumption that the binary compare is more
     	// efficient than the string conversion
     	// required by the MultipleColumnPrefixFilter (?)
     	for (String name : propertyNames) {
-    		PlasmaProperty prop = (PlasmaProperty)this.contextType.getProperty(name);
-    	    this.contextProperty = prop;
-    		byte[] key = this.columnKeyFac.createColumnKey(this.contextType, prop);
+    		PlasmaProperty prop = (PlasmaProperty)contextType.getProperty(name);
+    		byte[] key = this.columnKeyFac.createColumnKey(contextType, prop);
             QualifierFilter qualFilter = new QualifierFilter(
                 CompareFilter.CompareOp.EQUAL,
                 new BinaryPrefixComparator(key)); 
             this.rootFilter.addFilter(qualFilter);
     	}
-	}	
+	}
 }

@@ -41,6 +41,15 @@ import org.plasma.sdo.access.DataAccessException;
  * filters, such as properties, wildcards, literals, logical operators, relational 
  * operators, within the context of HBase filter hierarchy assembly.
  * Maintains various context information useful to subclasses. 
+ * <p>
+ * HBase filters may be collected into 
+ * lists using <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.html" target="#">FilterList</a>
+ * each with a 
+ * <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.Operator.html#MUST_PASS_ALL" target="#">MUST_PASS_ALL</a> or <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.Operator.html#MUST_PASS_ONE" target="#">MUST_PASS_ONE</a>
+ *  (logical) operator. Lists may then be assembled into hierarchies 
+ * used to represent complex expression trees filtering either rows
+ * or columns in HBase.
+ * </p> 
  *  
  * @see org.cloudgraph.common.key.GraphRowKeyExpressionFactory
  */

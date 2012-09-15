@@ -18,35 +18,48 @@ import org.xml.sax.SAXException;
  * <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.html" target="#">filter lists</a>. The
  * resulting <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.html" target="#">filter list</a> resembles
  * the given expression tree with AND/OR <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.Operator.html#MUST_PASS_ALL" target="#">MUST_PASS_ALL</a>/<a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.Operator.html#MUST_PASS_ONE" target="#">MUST_PASS_ONE</a> semantics 
- * closely resembling the input.
+ * representing the input.
  * A <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.html" target="#">filter list</a> stack is
  * maintained which mirrors the query <a href="http://docs.plasma-sdo.org/api/org/plasma/query/model/Expression.html" target="#">expression</a> being
  * processed. 
  *  
+ * @see CompositeRowKeyExpressionFactory 
  * @see org.cloudgraph.common.key.GraphRowKeyFactory
+ * @see org.plasma.query.visitor.QueryVisitor
+ * @see org.plasma.query.model.Query
  */
 public class PredicateRowFilterAssembler extends RowPredicateVisitor
+    implements PredicateFilterAssembler
 {
     private static Log log = LogFactory.getLog(PredicateRowFilterAssembler.class);
 
 	/**
-	 * Constructor which takes a {@link org.plasma.query.model.Query query} where
-	 * clause containing any number of predicates and traverses
-	 * these as a {org.plasma.query.visitor.QueryVisitor visitor} only
-	 * processing various traversal events as needed against the given
-	 * root type. 
-	 * @param where the where clause
+	 * Constructor sets up a {@link CompositeRowKeyExpressionFactory} for
+	 * the given root type. 
 	 * @param rootType the root type
-	 * @see org.plasma.query.visitor.QueryVisitor
-	 * @see org.plasma.query.model.Query
+     * @see CompositeRowKeyExpressionFactory 
 	 */
-	public PredicateRowFilterAssembler(Where where,
+	public PredicateRowFilterAssembler( 
 			PlasmaType rootType) 
 	{
 		super(rootType);
     	
-        this.rowKeyFac = new CompositeRowKeyExpressionFactory(rootType);
-        
+        this.rowKeyFac = new CompositeRowKeyExpressionFactory(rootType);        
+	}	
+	
+	/**
+	 * Takes a {@link org.plasma.query.model.Query query} where
+	 * clause containing any number of predicates and traverses
+	 * these as a {org.plasma.query.visitor.QueryVisitor visitor} only
+	 * processing various traversal events as needed against the 
+	 * root type. 
+	 * @param where the where clause
+	 * @param contextType the context type
+	 * @see org.plasma.query.visitor.QueryVisitor
+	 * @see org.plasma.query.model.Query
+	 */
+	@Override
+	public void assemble(Where where, PlasmaType contextType) {
     	for (int i = 0; i < where.getParameters().size(); i++)
     		params.add(where.getParameters().get(i).getValue());
     	
@@ -60,7 +73,11 @@ public class PredicateRowFilterAssembler extends RowPredicateVisitor
     	
     	if (log.isDebugEnabled())
     		log.debug("end traverse");    	
-	}	
+	}
+	
+	public void clear() {
+		super.clear();		 
+	}
 
     protected void log(Where root)
     {
@@ -76,6 +93,7 @@ public class PredicateRowFilterAssembler extends RowPredicateVisitor
 			log.debug(e);
 		}
         log.debug("query: " + xml);
-    }	
+    }
+
 
 }

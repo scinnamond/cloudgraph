@@ -16,7 +16,7 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
 /**
- * Creates a column filter list using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
+ * Creates an HBase column filter list using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
  * and <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/BinaryPrefixComparator.html">BinaryPrefixComparator</a> and
  * recreating composite column qualifier prefixes for comparison using {@link StatefullColumnKeyFactory}. 
  * <p>
@@ -31,28 +31,28 @@ import org.plasma.sdo.PlasmaType;
  * @see org.cloudgraph.common.key.GraphStatefullColumnKeyFactory
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  */
-public class MultiColumnStatefullPrefixFilterAssembler extends FilterListAssembler
+public class StatefullBinaryPrefixColumnFilterAssembler extends FilterListAssembler
 {
-    private static Log log = LogFactory.getLog(MultiColumnStatefullPrefixFilterAssembler.class);
+    private static Log log = LogFactory.getLog(StatefullBinaryPrefixColumnFilterAssembler.class);
 	private GraphStatefullColumnKeyFactory columnKeyFac;
 	private GraphState graphState;
 
-	public MultiColumnStatefullPrefixFilterAssembler( 
+	public StatefullBinaryPrefixColumnFilterAssembler( 
 			GraphState graphState,
-			List<String> propertyNames,
-			List<Long> sequences,
-			PlasmaType contextType,
 			PlasmaType rootType) 
 	{
 		super(rootType);
-		this.contextType = contextType;
 		this.graphState = graphState;
 		
     	this.rootFilter = new FilterList(
     		FilterList.Operator.MUST_PASS_ONE);
     	 
-        this.columnKeyFac = new StatefullColumnKeyFactory(rootType, this.graphState);
-        
+        this.columnKeyFac = new StatefullColumnKeyFactory(rootType, this.graphState);  
+	} 
+	
+	public void assemble(List<String> propertyNames, List<Long> sequences,
+		PlasmaType contextType) 
+	{
     	// Note: using many binary prefix qualifier filters
     	// rather than a single MultipleColumnPrefixFilter under the
     	// assumption that the binary compare is more
@@ -60,8 +60,8 @@ public class MultiColumnStatefullPrefixFilterAssembler extends FilterListAssembl
     	// required by the MultipleColumnPrefixFilter (?)
         for (Long seq : sequences) {
         	for (String name : propertyNames) {
-        		PlasmaProperty prop = (PlasmaProperty)this.contextType.getProperty(name);
-        	    byte[] key = this.columnKeyFac.createColumnKey(this.contextType, 
+        		PlasmaProperty prop = (PlasmaProperty)contextType.getProperty(name);
+        	    byte[] key = this.columnKeyFac.createColumnKey(contextType, 
         		    seq, prop);
                 QualifierFilter qualFilter = new QualifierFilter(
                     CompareFilter.CompareOp.EQUAL,
@@ -70,5 +70,5 @@ public class MultiColumnStatefullPrefixFilterAssembler extends FilterListAssembl
         	}
         }        
 	}
-	
-}
+}	
+

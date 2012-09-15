@@ -39,6 +39,14 @@ public abstract class PredicateVisitor extends FilterHierarchyAssembler {
 	protected PredicateVisitor(PlasmaType rootType) {
 		super(rootType);
 	}
+
+	public void clear() {
+		super.clear();
+		this.contextType = null;
+		this.contextProperty = null;
+		this.contextOp = null;
+		this.contextOpWildcard = false;
+	}
 	
     protected boolean hasChildExpressions(Expression expression) {
 		for (Term term : expression.getTerms())

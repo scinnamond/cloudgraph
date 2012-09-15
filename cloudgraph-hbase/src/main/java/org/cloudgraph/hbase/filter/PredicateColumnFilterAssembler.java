@@ -14,7 +14,7 @@ import org.plasma.sdo.PlasmaType;
 import org.xml.sax.SAXException;
 
 /**
- * Creates a column filter hierarchy to return HBase scan results 
+ * Creates an HBase column filter hierarchy to return HBase scan results 
  * representing part of a graph "slice" from the set of columns
  * making up a collection or collection property within the graph. 
  * Uses <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
@@ -35,9 +35,10 @@ import org.xml.sax.SAXException;
  * </p> 
  * @see org.cloudgraph.common.key.CompositeColumnKeyFactory
  */
-public class GraphSliceColumnFilterAssembler extends ColumnPredicateVisitor
+public class PredicateColumnFilterAssembler extends ColumnPredicateVisitor
+    implements PredicateFilterAssembler
 {
-    private static Log log = LogFactory.getLog(GraphSliceColumnFilterAssembler.class);
+    private static Log log = LogFactory.getLog(PredicateColumnFilterAssembler.class);
 
     /**
 	 * Constructor which takes a {@link org.plasma.query.model.Query query} where
@@ -52,22 +53,24 @@ public class GraphSliceColumnFilterAssembler extends ColumnPredicateVisitor
 	 * @see org.plasma.query.visitor.QueryVisitor
 	 * @see org.plasma.query.model.Query
      */
-	public GraphSliceColumnFilterAssembler(Where where,
+	public PredicateColumnFilterAssembler( 
 			GraphState graphState,
-			PlasmaType contextType,
 			PlasmaType rootType) 
 	{
 		super(rootType);
-		this.contextType = contextType;
     	
         this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
-        
+	}
+	
+	@Override
+	public void assemble(Where where, PlasmaType contextType) {
+		this.contextType = contextType;
     	for (int i = 0; i < where.getParameters().size(); i++)
     		params.add(where.getParameters().get(i).getValue());
     	
     	if (log.isDebugEnabled())
     		this.log(where);
-    	
+
     	if (log.isDebugEnabled())
     		log.debug("begin traverse");
     	
@@ -76,6 +79,10 @@ public class GraphSliceColumnFilterAssembler extends ColumnPredicateVisitor
     	if (log.isDebugEnabled())
     		log.debug("end traverse");    	
 	}	
+	
+    public void clear() {
+    	super.clear();
+    }
 	
     protected void log(Where root)
     {
@@ -91,6 +98,7 @@ public class GraphSliceColumnFilterAssembler extends ColumnPredicateVisitor
 			log.debug(e);
 		}
         log.debug("query: " + xml);
-    }	
+    }
+
 
 }

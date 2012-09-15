@@ -1,10 +1,11 @@
 package org.cloudgraph.hbase.filter;
 
-import org.apache.hadoop.hbase.filter.Filter;
-import org.cloudgraph.common.filter.FilterAssembler;
+import org.plasma.query.model.Where;
+import org.plasma.sdo.PlasmaType;
 
 /**
- * Common interface for HBase row and column filter assemblers.
+ * Assembles an HBase predicate filter hierarchy based on one or more
+ * query predicates. 
  * <p>
  * HBase filters may be collected into 
  * lists using <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/FilterList.html" target="#">FilterList</a>
@@ -15,12 +16,13 @@ import org.cloudgraph.common.filter.FilterAssembler;
  * or columns in HBase.
  * </p> 
  */
-public interface HBaseFilterAssembler extends FilterAssembler {
-
+public interface PredicateFilterAssembler extends HBaseFilterAssembler {
     /**
-     * Returns the assembled filter, filter list or filter hierarchy root.
-     * @return the assembled filter, filter list or  or filter hierarchy root.
+     * Assembles a predicate filter hierarchy based on one of more
+     * given query predicates.
+     * @param where the where clause
+     * @param contextType the context type which may be the root type or another
+     * type linked by one of more relations to the root
      */
-	public Filter getFilter();
-	
+	public void assemble(Where where, PlasmaType contextType);
 }

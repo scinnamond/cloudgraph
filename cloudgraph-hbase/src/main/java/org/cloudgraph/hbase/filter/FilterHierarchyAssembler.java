@@ -47,6 +47,14 @@ public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor
     	 
     	this.filterStack.push(this.rootFilter);  
 	}
+	
+	public void clear() {
+    	if (this.params != null)
+    		params.clear();
+    	this.rootFilter.getFilters().clear();
+		this.filterStack.clear();
+		this.filterStack.push(this.rootFilter);  
+	}
 
     /**
      * Returns the assembled filter, filter list or filter hierarchy root.

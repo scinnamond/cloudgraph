@@ -1,4 +1,4 @@
-package org.cloudgraph.hbase.filter;
+package org.cloudgraph.hbase.util;
 
 import java.io.IOException;
 

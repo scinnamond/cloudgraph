@@ -29,7 +29,7 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 
 /**
- * Creates a column filter hierarchy using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
+ * Creates an HBase column filter hierarchy using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
  *  /<a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/ValueFilter.html">ValueFilter</a> pairs
  * recreating composite column qualifier prefixes using {@link CompositeColumnKeyFactory}. 
  * Processes visitor events for query model elements specific to assembly of HBase column

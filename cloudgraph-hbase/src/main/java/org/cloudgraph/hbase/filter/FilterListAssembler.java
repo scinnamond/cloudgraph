@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.plasma.query.model.NullLiteral;
-import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
 /**
@@ -31,8 +30,6 @@ public abstract class FilterListAssembler
 	protected List<Object> params;
 	protected FilterList rootFilter;
 	protected PlasmaType rootType;
-	protected PlasmaType contextType;
-	protected PlasmaProperty contextProperty;
 
 	@SuppressWarnings("unused")
 	private FilterListAssembler() {}
@@ -49,6 +46,12 @@ public abstract class FilterListAssembler
      */
 	public Filter getFilter() {
 		return rootFilter;
+	}
+	
+	public void clear() {
+		if (params != null)
+			params.clear();
+		this.rootFilter.getFilters().clear();
 	}
 
 	/* (non-Javadoc)

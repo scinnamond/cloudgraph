@@ -33,20 +33,21 @@ import commonj.sdo.Type;
 /**
  * Creates an HBase column filter set based on the given criteria
  * which leverages the HBase <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/MultipleColumnPrefixFilter.html">MultipleColumnPrefixFilter</a>
- * to return only column for the graph root.  
+ * to return only columns for the graph root as well as any columns associated
+ * with type nodes linked through one of more singular relations.  
  *  
  * @see GraphColumnKeyFactory
  * @see CompositeColumnKeyFactory
  * @see BulkFetchColumnFilterAssembler
  */
-public class RootFetchColumnFilterAssembler extends FilterListAssembler {
-    private static Log log = LogFactory.getLog(RootFetchColumnFilterAssembler.class);
+public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
+    private static Log log = LogFactory.getLog(InitialFetchColumnFilterAssembler.class);
 
 	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
     private PropertySelectionCollector collector;
 
-	public RootFetchColumnFilterAssembler( 
+	public InitialFetchColumnFilterAssembler( 
 			PropertySelectionCollector collector,
 			PlasmaType rootType) {
 		super(rootType);
