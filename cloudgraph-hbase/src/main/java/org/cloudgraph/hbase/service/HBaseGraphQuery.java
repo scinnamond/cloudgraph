@@ -42,7 +42,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
 
 /**
  * Assembles and returns one or more {@link DataGraph data graphs} 
- * from HBase given a PlasmaQuery\u2122 based XPath or DSL query.
+ * from HBase given a PlasmaQuery&#8482; based XPath or DSL query.
  * First an HBase row filter is assembled using 
  * {@link PredicateRowFilterAssembler} which uses query 
  * literal values and logic found in the 'where'

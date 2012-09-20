@@ -20,7 +20,10 @@
                 <RowKeyToken name="uri" hash="true"/>
                 <RowKeyToken name="type"/>
                 <!--
-                <RowKeyToken name="uuid"/>
+                <RowKeyToken name="uuid">
+                    <KeyFormat>
+                    </KeyFormat>
+                </RowKeyToken>
                 -->
                 <UserDefinedToken 
                     path="profileId"/>
