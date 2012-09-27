@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -18,6 +20,7 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.DataGraphAssembler;
 import org.plasma.sdo.access.provider.common.PropertyPair;
+import org.plasma.sdo.access.provider.jdbc.AliasMap;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
 import org.plasma.sdo.core.TraversalDirection;
@@ -36,6 +39,7 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 	private PlasmaType rootType;
 	private PlasmaDataObject root;
 	private Map<Type, List<String>> propertyMap;
+    private Map<commonj.sdo.Property, Where> predicateMap; 
 	private Timestamp snapshotDate;
 	private Connection con;
 	private JDBCDataConverter converter;
@@ -46,10 +50,11 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 	private JDBCDataGraphAssembler() {}
 	
 	public JDBCDataGraphAssembler(PlasmaType rootType,
-			Map<Type,List<String>> propertyMap, Timestamp snapshotDate,
+			PropertySelectionCollector collector, Timestamp snapshotDate,
 			Connection con) {
 		this.rootType = rootType;
-		this.propertyMap = propertyMap;
+		this.propertyMap = collector.getResult();
+		this.predicateMap = collector.getPredicateMap();
 		this.snapshotDate = snapshotDate;
 		this.con = con;
 		this.converter = JDBCDataConverter.INSTANCE;
@@ -92,7 +97,7 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 		
 		// singular reference props
 		for (PropertyPair pair : results) {
-			if (pair.getProp().getType().isDataType())
+			if (pair.getProp().isMany() || pair.getProp().getType().isDataType())
 			    continue;
 			List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
 			List<Property> childPkProps = ((PlasmaType)pair.getProp().getType()).findProperties(KeyType.primary);
@@ -152,9 +157,22 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 					+ "." + sourceProperty.getName() + ": "
 					+ names);
 		
-		StringBuilder query = createSelect(targetType, names, 
-				childKeyPairs);
-		List<List<PropertyPair>> result = fetch(targetType, query, this.con);
+		List<List<PropertyPair>> result = null;
+		Where where = this.predicateMap.get(sourceProperty);
+		if (where == null) {        
+			StringBuilder query = createSelect(targetType, names, childKeyPairs);
+			result = fetch(targetType, query, this.con);
+		}
+		else {
+	        AliasMap aliasMap = new AliasMap(targetType);
+			JDBCFilterAssembler filterAssembler = new JDBCFilterAssembler(where, 
+					targetType, aliasMap);			
+			StringBuilder query = createSelect(targetType,
+		    	names, childKeyPairs, filterAssembler, aliasMap);
+			result = fetch(targetType, query, filterAssembler.getParams(),
+				this.con);
+		}		
+		
 		if (log.isDebugEnabled())
 			log.debug("results: " + result.size());
 	    

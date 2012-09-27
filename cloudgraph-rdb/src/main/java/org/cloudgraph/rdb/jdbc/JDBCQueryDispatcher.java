@@ -82,7 +82,7 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
         
         JDBCDataGraphAssembler assembler =
             new JDBCDataGraphAssembler(type, 
-            		collector.getResult(), 
+            		collector, 
             		snapshotDate, con);
 
         if (log.isDebugEnabled() ){

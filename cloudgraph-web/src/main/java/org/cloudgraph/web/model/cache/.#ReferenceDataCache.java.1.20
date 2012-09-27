@@ -1,0 +1,511 @@
+package us.fed.fs.bao.appinv.web.model.cache;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import javax.faces.model.SelectItem;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.servicelabs.plasma.query.AbstractProperty;
+import org.servicelabs.plasma.query.From;
+import org.servicelabs.plasma.query.OrderBy;
+import org.servicelabs.plasma.query.Path;
+import org.servicelabs.plasma.query.Property;
+import org.servicelabs.plasma.query.Query;
+import org.servicelabs.plasma.query.Select;
+import org.servicelabs.plasma.query.WildcardProperty;
+import org.servicelabs.plasma.sdo.PlasmaDataGraph;
+import org.servicelabs.plasma.sdo.PlasmaDataGraphVisitor;
+import org.servicelabs.plasma.sdo.PlasmaDataObject;
+import org.servicelabs.plasma.sdo.access.client.SDODataAccessClient;
+
+import us.fed.fs.bao.appinv.sdo.core.Organization;
+import us.fed.fs.bao.appinv.sdo.invest.Application;
+import us.fed.fs.bao.appinv.sdo.invest.Investment;
+import us.fed.fs.bao.appinv.sdo.invest.InvestmentName;
+import us.fed.fs.bao.appinv.sdo.invest.ProgramCode;
+import us.fed.fs.bao.appinv.sdo.invest.SegmentName;
+import us.fed.fs.bao.appinv.sdo.ref.Category;
+import us.fed.fs.bao.appinv.sdo.ref.FiscalQuarter;
+import us.fed.fs.bao.appinv.sdo.ref.FiscalYear;
+import us.fed.fs.bao.appinv.sdo.ref.Taxonomy;
+import us.fed.fs.bao.appinv.sdo.ref.TaxonomyMap;
+import us.fed.fs.bao.appinv.web.WebConstants;
+import us.fed.fs.bao.appinv.web.query.ApplicationQuery;
+import us.fed.fs.bao.appinv.web.query.InvestmentQuery;
+import us.fed.fs.bao.appinv.web.query.SegmentNameQuery;
+import us.fed.fs.bao.appinv.web.sdo.visitor.OrganizationCollector;
+
+import commonj.sdo.DataGraph;
+import commonj.sdo.DataObject;
+
+public class ReferenceDataCache 
+    implements Serializable 
+{
+    private static Log log = LogFactory.getLog(ReferenceDataCache.class);
+	private static final long serialVersionUID = 1L;
+    private List<SegmentName> segmentNames = new ArrayList<SegmentName>();
+    private Map<String, SegmentName> segmentNameMap; // maps FY and name to reference object
+    private List<InvestmentName> investmentNames;
+    private Map<String, Taxonomy> taxonomyMap = new HashMap<String, Taxonomy>();
+    /**
+     * Maps categories for all taxonomies by sequence id for quick lookup
+     */
+    private Map<Long, Category> categorySeqIdMap = new HashMap<Long, Category>();
+    
+    private String[] TAX_NAMES = {
+    	"USFS Business Reference Model",
+    	"FEA Service Reference Model (SRM)",
+    	"Cost Reference Model",
+    	"Risk Reference Model",
+    	"FEA Technical Reference Model (TRM)",
+    	"Segment Architecture Model",
+    	"IR Strategic Framework (IRSF)"
+    };
+    private static int TAXONOMY_NAME_BRM = 0;
+    private static int TAXONOMY_NAME_SRM = 1;
+    private static int TAXONOMY_NAME_CRM = 2;
+    private static int TAXONOMY_NAME_RRM = 3;
+    private static int TAXONOMY_NAME_TRM = 4;
+    private static int TAXONOMY_NAME_SAM = 5;
+    private static int TAXONOMY_NAME_IRSF = 6;
+    
+    private List<Investment> investmentList = null;
+    private List<Application> applicationList;
+    private List<Taxonomy> taxonomyList;
+    private List<TaxonomyMap> taxonomyMapList;
+    private List<FiscalYear> fiscalYearList;
+    private Map<Integer, FiscalYear> fiscalYearMap;
+    private Map<Long, FiscalQuarter> fiscalQuarterMap;
+    private List<ProgramCode> programCodeList;
+    private Map<Long, ProgramCode> programCodeMap;
+    private List<Organization> organizationList;
+    private List<Organization> deputyAreaList;
+    private List<Organization> businessUnitList;
+    
+    
+    
+
+    /**
+     * Only to support managed bean facility and test harnesses. NOT
+     * for client code in general. 
+     */
+	public ReferenceDataCache() {
+	}
+	
+	/**
+	 * Returns a mapped category based on the given sequence id pri-key.
+	 * @param seqId
+	 * @return the Category
+	 */
+	public synchronized Category getCategory(Long seqId) {
+		return this.categorySeqIdMap.get(seqId);
+	}	
+	
+    public synchronized Taxonomy getBusinessReferenceModel() {
+    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_NAME_BRM]);
+    }
+
+    public synchronized Taxonomy getServiceReferenceModel() {
+    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_NAME_SRM]);
+    }
+    
+    public synchronized Taxonomy getCostReferenceModel() {
+    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_NAME_CRM]); 
+    }
+    
+    public synchronized Taxonomy getRiskReferenceModel() {
+    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_NAME_RRM]);
+    }
+    
+    public synchronized Taxonomy getTechnicalReferenceModel() {
+    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_NAME_TRM]);
+    }
+    
+    public synchronized Taxonomy getSegmentArchitectureModel() {
+    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_NAME_SAM]);
+    }  
+    
+    public synchronized Taxonomy getStrategicFrameworkModel() {
+    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_NAME_IRSF]);
+    }  
+    
+    
+
+    public synchronized Taxonomy getTaxonomy(String name)
+    {
+    	Taxonomy tax = this.taxonomyMap.get(name);
+    	if (tax == null)
+    	{
+		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(TaxonomyQuery.createQuery(
+		    		name));
+		    DataGraph graph = results[0]; 
+		    tax = (Taxonomy)graph.getRootObject();
+		    this.taxonomyMap.put(name, tax);
+		    
+		    // Map categories and remove the data-graph header from the graph nodes as this is
+		    // reference data and will will want to reference it from other graphs. 
+		    PlasmaDataGraphVisitor visitor = new PlasmaDataGraphVisitor() {
+				public void visit(DataObject target, DataObject source,
+						String sourceKey, int level) {
+					
+					if (target instanceof Category) {
+						Category cat = (Category)target;
+					    categorySeqIdMap.put(Long.valueOf(cat.getSeqId()),
+					    		cat);
+					}
+					((PlasmaDataObject)target).setDataGraph(null);					
+				}
+		    };
+		    ((PlasmaDataObject)tax).accept(visitor);
+		    
+		    ((PlasmaDataGraph)graph).removeRootObject();
+		    
+    	}
+    	return tax; 	
+    }
+
+    public void clearSegmentNames() {
+    	synchronized (segmentNames) {
+    		segmentNames.clear();
+    	}
+    }
+    	
+    public List<SegmentName> getSegmentNames() {
+    	synchronized (segmentNames) {			
+			if (this.segmentNames == null || segmentNames.size() == 0) {
+				this.segmentNames = new ArrayList<SegmentName>();
+				this.segmentNameMap = new TreeMap<String,SegmentName>();
+			    
+			    SDODataAccessClient service = new SDODataAccessClient();
+			    DataGraph[] results = service.find(SegmentNameQuery.createWildcardQuery());
+			    for (int i = 0; i < results.length; i++) {
+			    	SegmentName name = (SegmentName)results[i].getRootObject();
+			    	segmentNames.add(name);
+			    	((PlasmaDataObject)name).setDataGraph(null);
+			    	((PlasmaDataGraph)results[i]).removeRootObject();
+			    	this.segmentNameMap.put(getHashKey(name.getName(), 
+			    			name.getFiscalYear().getYear()), name);
+			    }
+			}
+			return segmentNames;
+    	}
+    }
+    
+    public SegmentName getSegmentName(String name, int year) {
+    	if (this.segmentNameMap == null)
+    		getSegmentNames();
+    	
+    	return this.segmentNameMap.get(getHashKey(name, year));
+    }
+    
+    private String getHashKey(String name, int year) {
+    	return name + ":" 
+    	    + String.valueOf(year);
+    }
+
+    private Map<String, InvestmentName> uniqueInvestmentNames;
+    public synchronized Collection<InvestmentName> getUniqueInvestmentNames() {
+    	if (uniqueInvestmentNames == null) {
+    		uniqueInvestmentNames = new TreeMap<String, InvestmentName>();
+    		for (InvestmentName name : getInvestmentNames())
+    			uniqueInvestmentNames.put(name.getName(), name);    		
+    	}
+    	return uniqueInvestmentNames.values();
+    }
+    
+    private List<SelectItem> uniqueInvestmentNameItems;
+    public synchronized List<SelectItem> getUniqueInvestmentNameItems() {
+    	if (uniqueInvestmentNameItems == null) {
+    		uniqueInvestmentNameItems = new ArrayList<SelectItem>();
+    		uniqueInvestmentNameItems.add(new SelectItem(
+    				WebConstants.DEFAULT_SELECTION, "--any--"));
+    		for (InvestmentName invName : getUniqueInvestmentNames()) {
+    			String name = invName.getName();
+    			if (name.length() > 40)
+    				name = name.substring(0, 39) + "...";
+    			uniqueInvestmentNameItems.add(new SelectItem(
+    					invName.getName(), name));
+    		}
+    	}
+    	return uniqueInvestmentNameItems;
+    }
+    
+    
+    public synchronized List<InvestmentName> getInvestmentNames() {
+    	if (investmentNames == null) {
+    		investmentNames = new ArrayList<InvestmentName>();
+			Select select = new Select(
+					new WildcardProperty(),
+					new WildcardProperty(new Path(
+							InvestmentName.PTY_FISCAL_YEAR)));
+    	    Query query = new Query(select, 
+    	        new From(InvestmentName.ETY_INVESTMENT_NAME,
+    	        		InvestmentName.NAMESPACE_URI));
+ 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(query);
+		    for (int i = 0; i < results.length; i++) {
+		    	InvestmentName investmentName = (InvestmentName)results[i].getRootObject();
+		    	investmentNames.add(investmentName);
+		    }
+    	}
+    	return investmentNames;
+    }
+    
+	public synchronized List<Investment> getInvestments() {
+		if (investmentList == null) {
+			investmentList = new ArrayList<Investment>();
+		
+        	Query query = InvestmentQuery.createWildcardQuery();
+    
+		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(query);
+		    for (int i = 0; i < results.length; i++) {
+		    	Investment investment = (Investment)results[i].getRootObject();
+		    	investmentList.add(investment);
+		    	((PlasmaDataObject)investment).setDataGraph(null);
+		    	((PlasmaDataObject)investment.getInvestmentName()).setDataGraph(null);
+		    	((PlasmaDataGraph)results[i]).removeRootObject();
+		    }
+		}
+		
+		return investmentList;
+	}
+    
+    public synchronized List<Taxonomy> getTaxonomies() {
+    	if (taxonomyList == null) {
+    		taxonomyList = new ArrayList<Taxonomy>();    		
+ 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(TaxonomyQuery.createQuery());
+		    for (int i = 0; i < results.length; i++) {
+		    	Taxonomy tax = (Taxonomy)results[i].getRootObject();
+		    	taxonomyList.add(tax);
+		    	((PlasmaDataGraph)results[i]).removeRootObject();
+		    }
+    	}
+    	return taxonomyList;
+    }
+
+    public synchronized List<TaxonomyMap> getTaxonomyMaps() {
+    	if (taxonomyMapList == null) {
+    		taxonomyMapList = new ArrayList<TaxonomyMap>();    		
+ 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(TaxonomyMapQuery.createQuery());
+		    for (int i = 0; i < results.length; i++) {
+		    	TaxonomyMap map = (TaxonomyMap)results[i].getRootObject();
+		    	taxonomyMapList.add(map);
+		    	((PlasmaDataGraph)results[i]).removeRootObject();
+		    }
+    	}
+    	return taxonomyMapList;
+    }
+    
+    public synchronized List<Application> getApplications() {
+    	if (applicationList == null) {
+    		applicationList = new ArrayList<Application>();    		
+
+ 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(ApplicationQuery.createWildcardQuery());
+		    for (int i = 0; i < results.length; i++) {
+		    	Application application = (Application)results[i].getRootObject();
+		    	applicationList.add(application);
+		    	((PlasmaDataObject)application).setDataGraph(null);
+		    	((PlasmaDataGraph)results[i]).removeRootObject();
+		    }
+    	}
+    	return applicationList;
+    }
+    
+
+    public synchronized List<FiscalYear> getFiscalYears() {
+    	if (fiscalYearList == null) {
+    		fiscalYearList = new ArrayList<FiscalYear>();    		
+        	Select select = new Select(new AbstractProperty[] { 
+        			new WildcardProperty(),
+                    new WildcardProperty(
+                    		new Path(FiscalYear.PTY_FISCAL_QUARTER))
+        	});
+    		From from = new From(FiscalYear.ETY_FISCAL_YEAR,
+    				FiscalYear.NAMESPACE_URI);
+    		OrderBy orderBy = new OrderBy();
+    		orderBy.addProperty(Property.forName(FiscalYear.PTY_YEAR));
+    	    Query query = new Query(select, 
+    	    	from,
+    	        orderBy);
+ 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(query);
+		    for (int i = 0; i < results.length; i++) {
+		    	FiscalYear year = (FiscalYear)results[i].getRootObject();
+		    	fiscalYearList.add(year);
+		    	((PlasmaDataObject)year).setDataGraph(null);
+		    	((PlasmaDataGraph)results[i]).removeRootObject();
+    			for (FiscalQuarter fq : year.getFiscalQuarter())
+    				((PlasmaDataObject)fq).setDataGraph(null);    				
+		    }
+    	}
+    	return fiscalYearList;
+    }
+    
+    public synchronized FiscalYear findFiscalYear(Integer year) {
+    	if (fiscalYearMap == null) {
+    		fiscalYearMap = new HashMap<Integer, FiscalYear>();
+    		for (FiscalYear fy : getFiscalYears())
+    			fiscalYearMap.put(fy.getYear(), fy);
+    	}
+    	return fiscalYearMap.get(year);
+    }
+
+    public synchronized FiscalQuarter findFiscalQuarter(Long seqId) {
+    	if (fiscalQuarterMap == null) {
+    		fiscalQuarterMap = new HashMap<Long, FiscalQuarter>();
+    		for (FiscalYear fy : getFiscalYears()) {
+    			for (FiscalQuarter fq : fy.getFiscalQuarter())
+    				fiscalQuarterMap.put(fq.getSeqId(), fq);
+    		}	
+    	}
+    	return fiscalQuarterMap.get(seqId);
+    } 
+    
+    public synchronized List<ProgramCode> getProgramCodes() {
+    	if (programCodeList == null) {
+    		programCodeList = new ArrayList<ProgramCode>();    		
+        	Select select = new Select(new AbstractProperty[] { 
+        			new WildcardProperty(),
+                    new WildcardProperty(
+                    	new Path(ProgramCode.PTY_FISCAL_YEAR))
+            	});
+    		From from = new From(ProgramCode.ETY_PROGRAM_CODE,
+    				ProgramCode.NAMESPACE_URI);
+    		OrderBy orderBy = new OrderBy();
+    		orderBy.addProperty(Property.forName(ProgramCode.PTY_CODE));
+    	    Query query = new Query(select, 
+    	    	from,
+    	        orderBy);
+ 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(query);
+		    for (int i = 0; i < results.length; i++) {
+		    	ProgramCode code = (ProgramCode)results[i].getRootObject();
+		    	programCodeList.add(code);
+		    }
+    	}
+    	return programCodeList;
+    }
+    
+    public synchronized ProgramCode findProgramCode(Long seqId) {
+    	if (programCodeMap == null) {
+    		programCodeMap = new HashMap<Long, ProgramCode>();
+    		for (ProgramCode code : getProgramCodes()) {
+    			programCodeMap.put(code.getSeqId(), code);
+    		}	
+    	}
+    	return programCodeMap.get(seqId);
+    } 
+    
+    private List<SelectItem> deputyAreaOrgItems;
+    private List<SelectItem> businessUnitOrgItems;
+    
+    public synchronized List<SelectItem> getDeputyAreaItems() {
+    	if (deputyAreaOrgItems == null) {
+    		initOrgItems();    	}
+    	return deputyAreaOrgItems;
+    }
+    
+    public synchronized List<SelectItem> getBusinessUnitItems() {
+    	if (businessUnitOrgItems == null) {
+    		initOrgItems();    	}
+    	return businessUnitOrgItems;
+    }
+    
+    private Map<Long, Organization> organizationMap;
+    
+    public synchronized Organization getOrganization(long id) {
+    	if (organizationMap == null) {
+    		initOrgItems();    	
+    	}
+    	return organizationMap.get(id);
+    }  
+    
+    public synchronized List<Organization> getDeputyAreas() {
+    	if (deputyAreaList == null) {
+    		initOrgItems();    	
+    	}
+    	return deputyAreaList;
+    }
+
+    public synchronized List<Organization> getBusinessUnits() {
+    	if (businessUnitList == null) {
+    		initOrgItems();    	
+    	}
+    	return businessUnitList;
+    }
+    
+    private void initOrgItems() {
+    	organizationMap = new HashMap<Long, Organization>();
+		deputyAreaOrgItems =new ArrayList<SelectItem>();
+		deputyAreaOrgItems.add(new SelectItem(new Long(-1), 
+				WebConstants.ANY_SELECTION));
+		businessUnitOrgItems =new ArrayList<SelectItem>();
+		businessUnitOrgItems.add(new SelectItem(new Long(-1), 
+				WebConstants.ANY_SELECTION));
+		deputyAreaList = new ArrayList<Organization>();
+		businessUnitList = new ArrayList<Organization>();
+		
+		SDODataAccessClient service = new SDODataAccessClient();
+	    DataGraph[] results = service.find(OrganizationQuery.createHierarchyQuery("USDA"));
+	    Organization root = (Organization)results[0].getRootObject();
+	    
+	    Map<String, Organization> sorted = new TreeMap<String, Organization>();
+	    // collect level 4 orgs
+	    OrganizationCollector collector = new OrganizationCollector(3);
+	    ((PlasmaDataObject)root).accept(collector);
+	    for (Organization org : collector.getResult()) {	    	
+	    	sorted.put(org.getCode(), org);
+	    	organizationMap.put(org.getSeqId(), org);
+	    }
+	    for (Organization org : sorted.values()) {
+	    	deputyAreaList.add(org);
+            deputyAreaOrgItems.add(new SelectItem(org.getSeqId(), 
+					"(" + org.getCode() + ") " + org.getName()));
+	    }      	
+	    
+	    // collect level 5 orgs
+	    sorted.clear();
+	    collector = new OrganizationCollector(4);
+	    ((PlasmaDataObject)root).accept(collector);
+	    for (Organization org : collector.getResult()) {
+	    	sorted.put(org.getCode(), org);
+	    	organizationMap.put(org.getSeqId(), org);
+	    }		    
+	    for (Organization org : sorted.values()) {
+	    	businessUnitList.add(org);
+	    	businessUnitOrgItems.add(new SelectItem(org.getSeqId(), 
+					"(" + org.getCode() + ") " + org.getName()));
+	    }      	
+   	
+    }
+    
+    private List<SelectItem> budgetYearItems;
+    public synchronized List<SelectItem> getBudgetYearItems() {
+    	if (budgetYearItems == null) {
+    		budgetYearItems = new ArrayList<SelectItem>();    		
+	    	SelectItem item = new SelectItem(new Integer(-1), WebConstants.DEFAULT_SELECTION);
+	    	budgetYearItems.add(item);
+    		for (FiscalYear year : getFiscalYears()) {
+    			
+    			if (year.getYear() >= 2012) {
+    			    budgetYearItems.add(new SelectItem(new Integer(year.getYear()),
+    					String.valueOf(year.getYear())));
+    			}
+    		}    		
+   	    }    	
+    	return budgetYearItems;
+    }
+    
+}

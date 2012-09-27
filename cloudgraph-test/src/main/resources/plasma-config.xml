@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfg:PlasmaConfiguration  
+    xmlns:cfg="http://www.plasma.org/config">
+  
+    <SDO>
+        <GlobalProvisioning>            
+           <Interface constants="true"/>          
+           <Implementation classNameSuffix="Impl"
+               childPackageName="impl"/>  
+           <QueryDSL>
+               <Implementation classNamePrefix="Q"
+                   childPackageName="query"/>  
+           </QueryDSL>                        
+        </GlobalProvisioning>            
+            
+        <!-- default namespace used for SDO infra itself, such as SDO datatypes -->
+        <DefaultNamespace uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"
+            artifact="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi">
+            <Provisioning packageName="org.cloudgraph.web.sdo"/>
+  		</DefaultNamespace>
+  		
+        <Namespace uri="http://org.cloudgraph/web/common"
+            artifact="http://org.cloudgraph/web/common">
+            <Provisioning packageName="org.cloudgraph.web.sdo.common"/>
+  		</Namespace>
+        <Namespace uri="http://org.cloudgraph/web/categorization"
+            artifact="http://org.cloudgraph/web/categorization">
+            <Provisioning packageName="org.cloudgraph.web.sdo.categorization"/>
+  		</Namespace>
+        <Namespace uri="http://org.cloudgraph/web/personalization"
+            artifact="http://org.cloudgraph/web/personalization">
+            <Provisioning packageName="org.cloudgraph.web.sdo.personalization"/>
+  		</Namespace>
+        <Namespace uri="http://org.cloudgraph/web/campaign"
+            artifact="http://org.cloudgraph/web">
+            <Provisioning packageName="org.cloudgraph.web.sdo.campaign"/>
+  		</Namespace>
+        <Namespace uri="http://org.cloudgraph/web/meta"
+            artifact="http://org.cloudgraph/web">
+            <Provisioning packageName="org.cloudgraph.web.sdo.meta"/>
+  		</Namespace>
+        <Namespace uri="http://org.cloudgraph/web/core"
+            artifact="http://org.cloudgraph/web">
+            <Provisioning packageName="org.cloudgraph.web.sdo.core"/>
+  		</Namespace>
+  		
+         <DataAccessService dataStoreType="RDBMS">   
+            <DataAccessProvider name="JDBC"                
+                className="org.cloudgraph.rdb.jdbc.JDBCDataAccessProvider">
+
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionURL">jdbc:oracle:thin:@localhost:1521:XE</Property>    
+                
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPassword">APLS</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionUserName">APLS</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionDriverName">oracle.jdbc.driver.OracleDriver</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMinSize">1</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMaxSize">80</Property>    
+
+                <SequenceConfiguration suffix="_SEQ"
+                    generatorClassName="org.cloudgraph.rdb.jdbc.StoredProcSequenceGenerator"/>         
+                <Concurrency 
+                    pessimisticLockTimeoutMillis="300000"/>
+                              
+                <!-- links specific DAS provisioning to SDO namespace configs -->                 
+                <NamespaceLink uri="http://org.cloudgraph/web/common"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/categorization"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/personalization"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/campaign"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/meta"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/core"/>
+            </DataAccessProvider>
+
+  		    	  
+  	    </DataAccessService>	
+    </SDO>
+    
+    <Repository> 
+        <Artifact name="Plasma_SDO_Profile.mdxml"
+            urn="Plasma_SDO_Profile.mdxml" 
+            namespaceUri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"/>        
+        <Artifact name="cloudgraph-web-common.mdxml"
+            urn="cloudgraph-web-common.mdxml" 
+            namespaceUri="http://org.cloudgraph/web/common"/>  
+        <Artifact name="cloudgraph-web-categorization.mdxml"
+            urn="cloudgraph-web-categorization.mdxml" 
+            namespaceUri="http://org.cloudgraph/web/categorization"/>  
+        <Artifact name="cloudgraph-web-personalization.mdxml"
+            urn="cloudgraph-web-personalization.mdxml" 
+            namespaceUri="http://org.cloudgraph/web/personalization"/>  
+        <Artifact name="cloudgraph-web.mdxml"
+            urn="cloudgraph-web.mdxml" 
+            namespaceUri="http://org.cloudgraph/web"/>  
+            
+    </Repository>
+    
+</cfg:PlasmaConfiguration>   

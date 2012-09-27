@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfg:ApplicationConfiguration  
+    xmlns:cfg="urn:org.cloudgraph.web/config"
+    minimumFiscalYear="2000"
+    maximumFiscalYear="2012">
+
+    <Property name="enabled" datatype="boolean"/>
+    <Property name="visible" datatype="boolean"/>
+    <Property name="expanded" datatype="boolean"/>
+    <Property name="components" datatype="string"/>
+    
+    <Property name="chart_type" datatype="string"/>
+    <Property name="table_sort" datatype="string"/>
+
+
+    
+    <!-- Cost model categories -->
+	<ColorDef status="slry_cst" color="#DAA520"/>
+	<ColorDef status="fll_tm_emply_cst" color="#EF9B0F"/>
+	<ColorDef status="othr_prsnnl_cst" color="#FFCC00"/>
+	<ColorDef status="othr_non_prsnnl_cst" color="#EEDC82"/>
+	<ColorDef status="plnnd_cst" color="#D1E231"/>
+	<ColorDef status="aprvd_cst" color="#808000"/>
+	<ColorDef status="unapprvd_cst" color="#BDB76B"/>	
+		
+	<ColorDef status="Equipment" color="#B87333"/>
+	<ColorDef status="Software" color="#D98719"/>
+	<ColorDef status="Services" color="#856363"/>
+	<ColorDef status="Supplies" color="#B5A642"/>
+	<ColorDef status="Labor" color="#8C7853"/>
+	<ColorDef status="Planning" color="#A67D3D"/>
+	<ColorDef status="Support Services" color="#D9D919"/>
+	<ColorDef status="Staff Personnel" color="#CFB53B"/>
+	<ColorDef status="Non Staff Personnel" color="#CC9900"/>
+	<ColorDef status="Other" color="#CD7F32"/>
+	<ColorDef status="Intra Government Payments" color="#DAA520"/>
+	<ColorDef status="Intra Government Collections" color="#8B6914"/>
+	
+	<ColorDef status="Computing" color="#D98719"/>
+	<ColorDef status="Storage Devices" color="#D9D919"/>
+	<ColorDef status="Network Devices" color="#A67D3D"/>
+	<ColorDef status="Communication Devices" color="#CD950C"/>
+	<ColorDef status="Mobile Devices" color="#8B6508"/>
+	<ColorDef status="Other Devices" color="#CDBA96"/>
+	
+	<ColorDef status="Operating Systems" color="#856363"/>
+	<ColorDef status="Utility Programs" color="#D9D919"/>
+	<ColorDef status="Diagnostic Programs" color="#CFB53B"/>
+	<ColorDef status="Application Programs" color="#B5A642"/>
+	<ColorDef status="COTS Software" color="#8B6914"/>
+	
+	<ColorDef status="Hosting Services" color="#B5A642"/>
+	<ColorDef status="Financial Services" color="#D9D919"/>
+	<ColorDef status="Outsourced Services" color="#8C7853"/>
+	
+	<ColorDef status="Office Supplies" color="#CC9900"/>
+	<ColorDef status="Subscriptions" color="#8C7853"/>
+	<ColorDef status="Technical Parts and Supplies" color="#D98719"/>
+
+    <!-- Risk model categories -->
+	<ColorDef status="Project Management" color="#856363"/>
+	<ColorDef status="Schedule" color="#CC9900"/>
+	<ColorDef status="Lifecycle Costs" color="#8C7853"/>
+	<ColorDef status="Project Resources" color="#D98719"/>
+
+	<ColorDef status="Technical" color="#D9D919"/>
+	<ColorDef status="Technical Obsolescence" color="#CFB53B"/>
+	<ColorDef status="Reliability of Systems" color="#B5A642"/>
+	<ColorDef status="Technology" color="#8B6914"/>
+
+	<ColorDef status="Organizational" color="#CFB53B"/>
+	<ColorDef status="Capability" color="#856363"/>
+	<ColorDef status="Change Management" color="#D9D919"/>
+	<ColorDef status="Strategic" color="#8B6508"/>
+
+	<ColorDef status="Data and Security" color="#B5A642"/>
+	<ColorDef status="Data/Info" color="#CFB53B"/>
+	<ColorDef status="Security" color="#B5A642"/>
+	<ColorDef status="Privacy" color="#8B6914"/>
+
+    <!-- Lifecycle Categories -->
+	<ColorDef status="Life Cycle" color="#006400"/>
+	<ColorDef status="Three Year" color="#8fbc8f"/>
+	<ColorDef status="Five Year" color="#6b8e23"/>
+	<ColorDef status="FY 2012" color="#2e8b57"/>
+	
+	
+
+    <!-- common categories -->
+	<ColorDef status="Uncategorized" color="#CFB53B"/>
+	<ColorDef status="All" color="#CFB53B"/>
+	<!--
+    <CategoryChartDef name="chart_app_funding_by_fiscal_year" 
+        typeName="AppFundingByFiscalYear"
+        typeUri="http://org.cloudgraph/web/sdo/contract">
+		<StatusDef name="slry_cst" valuePropertyName="salaryCost"/>
+		<StatusDef name="fll_tm_emply_cst" valuePropertyName="fullTimeEmployeeCost"/>
+		<StatusDef name="othr_prsnnl_cst" valuePropertyName="otherPersonnelCost"/>
+		<StatusDef name="othr_non_prsnnl_cst" valuePropertyName="otherNonPersonnelCost"/>
+		<StatusDef name="plnnd_cst" valuePropertyName="totalPlannedCost"/>
+		<StatusDef name="aprvd_cst" valuePropertyName="totalApprovedCost"/>
+		<StatusDef name="unapprvd_cst" valuePropertyName="totalUnapprovedCost"/>
+        <CategoryDef name="year" valuePropertyName="fiscalYear"/>
+    </CategoryChartDef>
+    -->
+    <!--
+    <CategoryChartDef name="chart_job_code_funding_by_fiscal_year" 
+        typeName="JobCodeFundingByFiscalYear"
+        typeUri="http://org.cloudgraph/web/sdo/contract">
+		<StatusDef name="slry_cst" valuePropertyName="salaryCost"/>
+		<StatusDef name="fll_tm_emply_cst" valuePropertyName="fullTimeEmployeeCost"/>
+		<StatusDef name="othr_prsnnl_cst" valuePropertyName="otherPersonnelCost"/>
+		<StatusDef name="othr_non_prsnnl_cst" valuePropertyName="otherNonPersonnelCost"/>
+		<StatusDef name="plnnd_cst" valuePropertyName="totalPlannedCost"/>
+		<StatusDef name="aprvd_cst" valuePropertyName="totalApprovedCost"/>
+		<StatusDef name="unapprvd_cst" valuePropertyName="totalUnapprovedCost"/>
+        <CategoryDef name="cat" valuePropertyName="category">
+        </CategoryDef>
+    </CategoryChartDef> 
+    <CategoryChartDef name="chart_investment_lifecycle" 
+        typeName="InvestmentLifecycleView"
+        typeUri="http://org.cloudgraph/web/sdo/investment">
+		<StatusDef name="FY 2012" valuePropertyName="currentYear"/>
+		<StatusDef name="Three Year" valuePropertyName="threeYear"/>
+		<StatusDef name="Five Year" valuePropertyName="fiveYear"/>
+		<StatusDef name="Life Cycle" valuePropertyName="lifecycle"/>
+
+        <CategoryDef name="type" valuePropertyName="groupType">
+        </CategoryDef>
+    </CategoryChartDef>  
+    --> 
+    
+   
+    <!--
+    <PieChartDef name="chart_job_code_funding_by_fiscal_year" 
+        typeName="JobCodeFundingByFiscalYear"
+        typeUri="http://org.cloudgraph/web/sdo/contract">
+		<StatusDef name="slry_cst" valuePropertyName="salaryCost"/>
+		<StatusDef name="fll_tm_emply_cst" valuePropertyName="fullTimeEmployeeCost"/>
+		<StatusDef name="othr_prsnnl_cst" valuePropertyName="otherPersonnelCost"/>
+		<StatusDef name="othr_non_prsnnl_cst" valuePropertyName="otherNonPersonnelCost"/>
+		<StatusDef name="plnnd_cst" valuePropertyName="totalPlannedCost"/>
+		<StatusDef name="aprvd_cst" valuePropertyName="totalApprovedCost"/>
+		<StatusDef name="unapprvd_cst" valuePropertyName="totalUnapprovedCost"/>
+    </PieChartDef> 
+    --> 
+    <!--
+    <PieChartDef name="chart_investment_lifecycle" 
+        typeName="InvestmentLifecycleView"
+        typeUri="http://org.cloudgraph/web/sdo/investment">
+		<StatusDef name="Life Cycle" valuePropertyName="lifecycle"/>
+		<StatusDef name="Three Year" valuePropertyName="threeYear"/>
+		<StatusDef name="Five Year" valuePropertyName="fiveYear"/>
+    </PieChartDef> 
+    -->
+    <!-- 
+    <PieChartDef name="chart_app_funding_by_fiscal_year" 
+        typeName="AppFundingByFiscalYear"
+        typeUri="http://org.cloudgraph/web/sdo/contract">
+		<StatusDef name="slry_cst" valuePropertyName="salaryCost"/>
+		<StatusDef name="fll_tm_emply_cst" valuePropertyName="fullTimeEmployeeCost"/>
+		<StatusDef name="othr_prsnnl_cst" valuePropertyName="otherPersonnelCost"/>
+		<StatusDef name="othr_non_prsnnl_cst" valuePropertyName="otherNonPersonnelCost"/>
+		<StatusDef name="plnnd_cst" valuePropertyName="totalPlannedCost"/>
+		<StatusDef name="aprvd_cst" valuePropertyName="totalApprovedCost"/>
+		<StatusDef name="unapprvd_cst" valuePropertyName="totalUnapprovedCost"/>
+    </PieChartDef>
+    -->
+    
+    
+    
+</cfg:ApplicationConfiguration>    

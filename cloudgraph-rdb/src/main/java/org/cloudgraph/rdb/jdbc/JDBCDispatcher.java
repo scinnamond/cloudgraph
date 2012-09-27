@@ -7,6 +7,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.provider.common.PropertyPair;
+import org.plasma.sdo.access.provider.jdbc.AliasMap;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.profile.ConcurrencyType;
 import org.plasma.sdo.profile.ConcurrentDataFlavor;
@@ -130,6 +132,52 @@ public abstract class JDBCDispatcher {
         for (int k = 0; k < keyValues.size(); k++) {
         	if (k > 0)
         		sql.append(" AND ");
+        	PropertyPair propValue = keyValues.get(k);
+        	sql.append("t0.");  
+        	sql.append(propValue.getProp().getPhysicalName());
+        	sql.append(" = "); 
+        	// FIXME: escape , etc...
+        	// FIXME: non integral keys etc...
+        	sql.append(propValue.getValue()); // FIXME; use converter
+        }
+		
+		return sql;
+	}
+
+	protected StringBuilder createSelect(PlasmaType type, List<String> names, 
+			List<PropertyPair> keyValues,
+			JDBCFilterAssembler filterAssembler,
+			AliasMap aliasMap) {
+		StringBuilder sql = new StringBuilder();
+		sql.append("SELECT ");		
+		int i = 0;
+		for (String name : names) {
+			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
+			if (prop.isMany() && !prop.getType().isDataType())
+				continue;
+			if (i > 0)
+				sql.append(", ");
+			sql.append("t0.");
+			sql.append(prop.getPhysicalName());
+			i++;
+		}
+		sql.append(" FROM ");
+    	Iterator<PlasmaType> it = aliasMap.getTypes();
+    	int count = 0;
+    	while (it.hasNext()) {
+    		PlasmaType aliasType = it.next();
+    		String alias = aliasMap.getAlias(aliasType); 
+    		if (count > 0)
+    			sql.append(", ");
+    		sql.append(aliasType.getPhysicalName());
+    		sql.append(" ");
+    		sql.append(alias);
+    		count++;
+    	}
+    	sql.append(" ");
+    	sql.append(filterAssembler.getFilter());
+        for (int k = 0; k < keyValues.size(); k++) {
+            sql.append(" AND ");
         	PropertyPair propValue = keyValues.get(k);
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
@@ -257,6 +305,11 @@ public abstract class JDBCDispatcher {
 	
 	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Connection con)
 	{
+		return fetch(type, sql, new Object[0], con);
+	}
+	
+	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Object[] params, Connection con)
+	{
 		List<List<PropertyPair>> result = new ArrayList<List<PropertyPair>>();
         PreparedStatement statement = null;
         ResultSet rs = null; 
@@ -265,10 +318,29 @@ public abstract class JDBCDispatcher {
                		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
                     ResultSet.CONCUR_READ_ONLY);
 		
-            if (log.isDebugEnabled() ){
-                log.debug("fetch: " + sql.toString());
-            } 
+            for (int i = 0; i < params.length; i++)
+            	statement.setString(i+1, 
+            			String.valueOf(params[i]));
             
+            if (log.isDebugEnabled() ){
+                if (params == null || params.length == 0) {
+                    log.debug("fetch: "+ sql.toString());                	
+                }
+                else
+                {
+                    StringBuilder paramBuf = new StringBuilder();
+                	paramBuf.append(" [");
+                    for (int p = 0; p < params.length; p++)
+                    {
+                        if (p > 0)
+                        	paramBuf.append(", ");
+                        paramBuf.append(String.valueOf(params[p]));
+                    }
+                    paramBuf.append("]");
+                    log.debug("fetch: "+ sql.toString() 
+                    		+ " " + paramBuf.toString());
+                }
+            } 
             statement.execute();
             rs = statement.getResultSet();
             ResultSetMetaData rsMeta = rs.getMetaData();

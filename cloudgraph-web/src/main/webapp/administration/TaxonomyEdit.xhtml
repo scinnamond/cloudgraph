@@ -1,0 +1,175 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+      
+<div style="position:relative;height:140px">
+<p>HERE1</p>     
+     <f:subview id="top_button_subview">
+        <a4j:commandButton 
+            value="#{bundle.appinvTaxonomyEdit_save_label}"
+            title="#{bundle.appinvTaxonomyEdit_save_tooltip}" 
+            action="#{TaxonomyEditBean.save}"
+            reRender="taxonomy_content_panel"/>
+        <a4j:commandButton 
+            value="#{bundle.appinvTaxonomyEdit_export_label}"
+            title="#{bundle.appinvTaxonomyEdit_export_tooltip}" 
+            action="#{TaxonomyEditBean.save}"
+            reRender="taxonomy_content_panel"/>
+        <a4j:commandButton 
+            value="#{bundle.appinvTaxonomyEdit_exit_label}"
+            title="#{bundle.appinvTaxonomyEdit_exit_tooltip}" 
+            action="#{TaxonomyEditBean.exit}"
+            reRender="taxonomy_content_panel"/>
+     </f:subview>    
+<p>HERE2</p>     
+     
+     
+     
+     <h:panelGrid id="taxonomy_content_panel" width="100%" columns="1" border="0"
+          rowClasses="AlignTop" columnClasses="AlignTop"> 
+
+        <h:panelGrid id="taxonomy_body_panel" columns="3" width="100%" border="0">
+            
+            <h:panelGrid columns="1" width="100%" border="0">
+                <h:outputText styleClass="labelBold" 
+                    value="Taxonomy: #{TaxonomyEditBean.selectedTaxonomy.category.name} Version: #{TaxonomyEditBean.selectedTaxonomy.version}"/>
+                <f:subview id="taxonomy_tree"
+                    rendered="#{not empty TaxonomyEditBean.selectedTaxonomyTree}">
+                    <f:verbatim><div class="EditableTaxonomyTreePanel"></f:verbatim>
+						<rich:tree id="taxonomyTree" 
+						    componentState="#{TaxonomyEditBean.selectedTaxonomyTree.treeState}"
+						    switchType="ajax"
+							value="#{TaxonomyEditBean.selectedTaxonomyTree.model}" 
+							var="item" nodeFace="#{item.type}"
+							nodeSelectListener="#{TaxonomyEditBean.categorySelectListener}">
+							
+							<rich:treeNode id="taxonomyNode"
+							    type="taxonomy"
+								iconLeaf="/images/orangedotleaf.gif" 
+								icon="/images/yellow-folder-open.png"
+								changeExpandListener="#{TaxonomyEditBean.selectedTaxonomyTree.processExpansion}">
+							    <a4j:commandLink value="#{item.label}"
+						            styleClass="LeftNavActive" 
+						            reRender="taxonomy_edit_panel"
+						            action="#{item.onAction}" 
+						            title="#{item.tooltip}"/>
+							</rich:treeNode>
+							<rich:treeNode id="categoryNode"
+							    type="category"
+								iconLeaf="/images/orangedotleaf.gif" icon="/images/yellow-folder-open.png"
+								changeExpandListener="#{TaxonomyEditBean.selectedTaxonomyTree.processExpansion}">
+							    <a4j:commandLink id="tree_node_link" value="#{item.label}"
+						            styleClass="LeftNavActive" 
+						            reRender="taxonomy_edit_panel"
+						            action="#{item.onAction}" 
+						            title="#{item.tooltip}"/>
+				                <rich:contextMenu event="oncontextmenu" attachTo="tree_node_link" submitMode="ajax">
+                                    <rich:menuItem value="Add Child" id="add_child"
+                                        action="#{TaxonomyEditBean.addChild}"
+                                        reRender="taxonomy_body_panel">
+                                        <a4j:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
+                                    </rich:menuItem>
+                                    <rich:menuItem value="Add Sibling" id="add_sib"
+                                        action="#{TaxonomyEditBean.addSibling}"
+                                        reRender="taxonomy_body_panel">
+                                        <a4j:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
+                                    </rich:menuItem>
+                                    <rich:menuItem value="Delete" id="delete"
+                                        action="#{TaxonomyEditBean.delete}"
+                                        reRender="taxonomy_body_panel">
+                                        <a4j:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
+                                    </rich:menuItem>
+                                </rich:contextMenu>		            
+						            
+							</rich:treeNode>
+						
+						</rich:tree>
+							
+							
+                    <f:verbatim></div></f:verbatim> 
+                </f:subview>
+            </h:panelGrid>
+            <f:verbatim>&nbsp</f:verbatim>
+            <h:panelGrid id="taxonomy_edit_panel" 
+                columns="1" width="100%" border="0">                            
+                <h:outputText styleClass="labelBold" 
+                    value="Selected Category Detail:"
+                    rendered="#{not empty TaxonomyEditBean.selectedCategory}"/>
+                <f:subview id="tax_edit_subview"
+                    rendered="#{not empty TaxonomyEditBean.selectedCategory}">
+                    <f:verbatim><div class="TaxonomyTreeSelectonDiv"></f:verbatim>
+
+		            <h:panelGrid rowClasses="FormPanelRow" 
+		                columnClasses="FormLabelColumn,FormControlColumn,FormMessageColumn" 
+		                columns="3" width="95%" border="0">  
+		                <h:outputText styleClass="labelBold" 
+		                    value="#{bundle.appinvTaxonomyEdit_name_label}:" 
+		                    title="#{TaxonomyEditBean.selectedCategory.nameTooltip}"/>
+		                <h:inputText id="appinvTaxonomyEdit_name"
+		                    required="true"
+		                    value="#{TaxonomyEditBean.selectedCategory.name}"
+		                    disabled="false"
+		                    title="#{TaxonomyEditBean.selectedCategory.nameTooltip}">
+		                </h:inputText> 
+		                <h:message for="appinvTaxonomyEdit_name" showDetail="false" showSummary="true"/>             
+		                <h:outputText styleClass="labelBold" 
+		                    value="#{bundle.appinvTaxonomyEdit_id_label}:" 
+		                    title="#{TaxonomyEditBean.selectedCategory.idTooltip}"/>
+		                <h:inputText id="appinvTaxonomyEdit_id"
+		                    size="6"
+		                    required="true"
+		                    value="#{TaxonomyEditBean.selectedCategory.id}"
+		                    disabled="false"
+		                    title="#{TaxonomyEditBean.selectedCategory.idTooltip}">
+		                    <f:validateLongRange minimum="0" maximum="9999"/>
+		                </h:inputText>
+		                <h:message for="appinvTaxonomyEdit_id" showDetail="false" showSummary="true"/>              
+		            </h:panelGrid>
+		            <h:panelGrid  columns="2" width="95%" border="0"
+		                columnClasses="AlignLeft,FormMessageColumn">
+			            <h:panelGrid  
+			                columns="1" width="100%" border="0">  
+			                <h:outputText styleClass="labelBold" 
+			                    value="#{bundle.appinvTaxonomyEdit_definition_label}:" 
+			                    title="#{TaxonomyEditBean.selectedCategory.definitionTooltip}"/>
+			                <h:inputTextarea id="appinvTaxonomyEdit_definition"
+			                    cols="26" rows="6"
+			                    required="true"
+			                    value="#{TaxonomyEditBean.selectedCategory.definition}"
+			                    disabled="false"
+			                    title="#{TaxonomyEditBean.selectedCategory.definitionTooltip}">
+			                </h:inputTextarea>              
+			            </h:panelGrid>
+			            <h:message for="appinvTaxonomyEdit_definition" showDetail="false" showSummary="true"/>
+		            </h:panelGrid>
+                    <f:verbatim></div></f:verbatim> 
+                </f:subview>
+            </h:panelGrid>
+        </h:panelGrid>
+
+     <f:subview id="bottom_button_subview">
+        <a4j:commandButton 
+            value="#{bundle.appinvTaxonomyEdit_save_label}"
+            title="#{bundle.appinvTaxonomyEdit_save_tooltip}" 
+            action="#{TaxonomyEditBean.save}"
+            reRender="taxonomy_content_panel"/>
+        <a4j:commandButton 
+            value="#{bundle.appinvTaxonomyEdit_export_label}"
+            title="#{bundle.appinvTaxonomyEdit_export_tooltip}" 
+            action="#{TaxonomyEditBean.save}"
+            reRender="taxonomy_content_panel"/>
+        <a4j:commandButton 
+            value="#{bundle.appinvTaxonomyEdit_exit_label}"
+            title="#{bundle.appinvTaxonomyEdit_exit_tooltip}" 
+            action="#{TaxonomyEditBean.exit}"
+            reRender="taxonomy_content_panel"/>
+     </f:subview>    
+
+
+     </h:panelGrid>
+      
+</div>       
+</ui:composition>      

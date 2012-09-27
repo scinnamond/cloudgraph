@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="urn:org.cloudgraph.web/config" 
+  xmlns:cfg="urn:org.cloudgraph.web/config"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+    <xsd:complexType name="ApplicationConfiguration">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="Property" type="cfg:Property"  minOccurs="1" maxOccurs="unbounded"/>
+ 		    <xsd:element name="ColorDef" type="cfg:ColorDef" minOccurs="0" maxOccurs="unbounded"/>
+		    <xsd:element name="CategoryChartDef" type="cfg:CategoryChartDef" minOccurs="0" maxOccurs="unbounded"/>
+		    <xsd:element name="PieChartDef" type="cfg:PieChartDef" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>         
+        <xsd:attribute name="minimumFiscalYear" type="xsd:int" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The lowest fiscal year supported for searches and creation of new data.</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>            
+        <xsd:attribute name="maximumFiscalYear" type="xsd:int" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The lowest fiscal year supported for searches and creation of new data.</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>            
+    </xsd:complexType>
+
+    <xsd:element name="ApplicationConfiguration" type="cfg:ApplicationConfiguration">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+
+ 
+    <xsd:complexType name="Property">
+        <xsd:annotation>
+            <xsd:documentation>Application defined properties used for personalization etc...</xsd:documentation>
+        </xsd:annotation>
+        <xsd:attribute name="name" type="cfg:PropertyName" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation></xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="datatype" type="cfg:PropertyDatatype" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation></xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+    </xsd:complexType>
+
+    <xsd:element name="Property" type="cfg:Property">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+ 	<xsd:simpleType name="PropertyDatatype">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="string"/>
+			<xsd:enumeration value="integer"/>
+			<xsd:enumeration value="boolean"/>
+			<xsd:enumeration value="date"/>
+			<xsd:enumeration value="reference"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+ 
+ 	<xsd:simpleType name="PropertyName">
+		<xsd:restriction base="xsd:string">
+		    <!-- boolean -->
+			<xsd:enumeration value="enabled"/>
+			<xsd:enumeration value="visible"/>
+			<xsd:enumeration value="expanded"/>
+			<xsd:enumeration value="selected"/>
+			
+			<xsd:enumeration value="three_dimensional"/>
+			<xsd:enumeration value="logarithmic"/>
+
+		    <!-- string -->
+			<xsd:enumeration value="name"/>
+			<xsd:enumeration value="components"/>
+			<xsd:enumeration value="chart_type"/>
+			<xsd:enumeration value="table_sort"/>
+			<xsd:enumeration value="layout_name"/>
+
+		    <!-- anonymous datatype-->
+			<xsd:enumeration value="value"/>
+			
+		</xsd:restriction>
+	</xsd:simpleType> 
+ 
+	<xsd:simpleType name="ComponentName">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="app"/>
+		    
+			<xsd:enumeration value="page_dashboard"/>
+			<xsd:enumeration value="page_data"/>
+			<xsd:enumeration value="page_campaign"/>
+			<xsd:enumeration value="page_config"/>
+			<xsd:enumeration value="page_admin"/>
+
+			<xsd:enumeration value="layout_two_column_table"/>
+			<xsd:enumeration value="layout_three_column_table"/>
+		    
+			<xsd:enumeration value="container_left"/>
+			<xsd:enumeration value="container_middle"/>
+			<xsd:enumeration value="container_right"/>
+			<xsd:enumeration value="container_header"/>
+			<xsd:enumeration value="container_footer"/>
+			<xsd:enumeration value="container_expanded"/>
+			<xsd:enumeration value="container_search"/>
+			<xsd:enumeration value="container_available_charts"/>
+			<xsd:enumeration value="container_available_alerts"/>
+			<xsd:enumeration value="container_available_events"/>
+			<xsd:enumeration value="container_available_feeds"/>
+			<xsd:enumeration value="container_available_tables"/>
+			<xsd:enumeration value="container_available_layouts"/>
+			<xsd:enumeration value="container_selected_properties"/>
+			<xsd:enumeration value="container_class"/>
+		    
+			<xsd:enumeration value="chart_app_funding_by_fiscal_year"/>
+			<xsd:enumeration value="chart_app_funding_totals"/>
+			<xsd:enumeration value="chart_job_code_funding_by_fiscal_year"/>
+			<xsd:enumeration value="chart_investment_cost"/>
+			<xsd:enumeration value="chart_investment_risk"/>
+			<xsd:enumeration value="chart_investment_lifecycle"/>
+			
+			<xsd:enumeration value="table_alerts"/>
+			<xsd:enumeration value="table_events"/>
+
+			<xsd:enumeration value="table_instance"/>
+			
+			<xsd:enumeration value="parameter_application_name"/>
+			<xsd:enumeration value="parameter_budget_year"/>
+			<xsd:enumeration value="parameter_deputy_area"/>
+			<xsd:enumeration value="parameter_business_unit"/>    
+			<xsd:enumeration value="parameter_class"/>    
+			<xsd:enumeration value="parameter_package"/>    
+			
+			
+		</xsd:restriction>
+	</xsd:simpleType>
+
+	<xsd:simpleType name="ComponentShape">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="square"/>
+			<xsd:enumeration value="wide"/>
+			<xsd:enumeration value="tall"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+    
+	<xsd:complexType name="ChartDef">
+			<xsd:sequence>
+		      <xsd:element name="StatusDef" type="cfg:StatusDef" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+            <xsd:attribute name="name" type="cfg:ComponentName" use="required"/>
+            <xsd:attribute name="access" type="cfg:AppAccess" use="optional" default="all"/>
+            <xsd:attribute name="typeName" type="xsd:string" use="required"/>        
+            <xsd:attribute name="typeUri" type="xsd:string" use="required"/>        
+            <xsd:attribute name="statusKeyPropertyName" type="xsd:string" use="optional">
+                <xsd:annotation>
+                    <xsd:documentation>The name of the status key property within the SDO type associated with the chart. If null the status key properties associated with each individual status are used.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>        
+            <xsd:attribute name="statusValuePropertyName" type="xsd:string" use="optional">        
+                <xsd:annotation>
+                    <xsd:documentation>The name of the status value property within the SDO type associated with the chart. If null the status value properties associated with each individual status are used.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>        
+            <xsd:attribute name="ignoreZeroValues" type="xsd:boolean" use="optional" default="false">        
+                <xsd:annotation>
+                    <xsd:documentation>Where to load or not-load (ignore) zero values in the data. When zero values are loaded in association with a status, the status still appears. For instance within a category chart the status bar will appear but with no height but will still occupy horizontal space within the chart.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>        
+	</xsd:complexType>
+	
+	<xsd:element name="ChartDef" type="cfg:ChartDef">
+	</xsd:element>	
+
+	<xsd:complexType name="CategoryChartDef">
+		<xsd:annotation>
+			<xsd:documentation>definition for a category chart</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+		  <xsd:extension base="cfg:ChartDef">
+			<xsd:sequence>
+		      <xsd:element name="CategoryDef" type="cfg:CategoryDef" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+		  </xsd:extension>	
+		</xsd:complexContent>
+	</xsd:complexType>	
+
+	<xsd:element name="CategoryChartDef" type="cfg:CategoryChartDef">
+	</xsd:element>	
+
+	<xsd:complexType name="CategoryDef">
+		<xsd:annotation>
+			<xsd:documentation>a category definition for a chart</xsd:documentation>
+		</xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="Format" type="xsd:string" minOccurs="0" maxOccurs="1" />
+        </xsd:sequence>    
+        <xsd:attribute name="name" type="cfg:CategoryName" use="required"/>
+        <xsd:attribute name="valuePropertyName" type="xsd:string" use="required"/>                
+	</xsd:complexType>
+		
+	<xsd:element name="CategoryDef" type="cfg:CategoryDef">
+	</xsd:element>	
+
+	<xsd:complexType name="PieChartDef">
+		<xsd:annotation>
+			<xsd:documentation>definition for a pie chart</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+		  <xsd:extension base="cfg:ChartDef">
+		  </xsd:extension>	
+		</xsd:complexContent>
+	</xsd:complexType>	
+
+	<xsd:element name="PieChartDef" type="cfg:PieChartDef">
+	</xsd:element>
+		
+	<xsd:complexType name="StatusDef">
+		<xsd:annotation>
+			<xsd:documentation>a status definition for a chart</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+		</xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required"/>
+        <xsd:attribute name="access" type="cfg:AppAccess" use="optional" default="all"/>
+        <xsd:attribute name="valuePropertyName" type="xsd:string" use="optional">                
+            <xsd:annotation>
+                <xsd:documentation>The name of the status value property within the SDO type associated with the chart. If null the status value property associated with the chart is used.</xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>        
+        <xsd:attribute name="color" type="xsd:string" use="optional"/>        
+	</xsd:complexType>	
+	
+	<xsd:element name="StatusDef" type="cfg:StatusDef">
+	</xsd:element>	
+
+	<xsd:complexType name="ColorDef">
+		<xsd:annotation>
+			<xsd:documentation>a status definition for a chart</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+		</xsd:sequence>
+        <xsd:attribute name="status" type="xsd:string" use="required"/>
+        <xsd:attribute name="color" type="xsd:string" use="optional"/>        
+	</xsd:complexType>	
+
+	<xsd:element name="ColorDef" type="cfg:ColorDef">
+	</xsd:element>	
+
+	
+	<xsd:simpleType name="CategoryName">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="date"/>
+			<xsd:enumeration value="year"/>
+			<xsd:enumeration value="cat"/>
+			<xsd:enumeration value="type"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	
+	<xsd:simpleType name="AppAccess">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="all"/>
+			<xsd:enumeration value="admin"/>
+			<xsd:enumeration value="tsp"/>
+			<xsd:enumeration value="tspagent"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+    <!-- Actions which map to views in faces-config.xml  -->
+	<xsd:simpleType name="AppActions">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="success"/>
+			<xsd:enumeration value="errorhandler"/>
+			<xsd:enumeration value="under_construction"/>
+			<xsd:enumeration value="edit"/>
+			<xsd:enumeration value="view"/>
+			<xsd:enumeration value="save"/>
+			<xsd:enumeration value="create"/>
+			<xsd:enumeration value="results"/>
+			<xsd:enumeration value="exit"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+    
+	<xsd:simpleType name="AppParamName">
+		<xsd:restriction base="xsd:string">
+			<xsd:enumeration value="name"/>
+			<xsd:enumeration value="cat"/>
+			<xsd:enumeration value="subcat"/>
+			<xsd:enumeration value="id"/>
+			<xsd:enumeration value="type"/>
+			<xsd:enumeration value="year"/>
+			<xsd:enumeration value="date"/>
+			<xsd:enumeration value="app"/>
+			<xsd:enumeration value="status"/>
+			<xsd:enumeration value="drilldown"/>
+			<xsd:enumeration value="drillup"/>
+			<xsd:enumeration value="download"/>
+			<xsd:enumeration value="code"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+
+</xsd:schema>

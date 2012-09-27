@@ -270,7 +270,7 @@ public class GraphSliceAssembler
 			byte[] qualifier = columnKeyFac.createColumnKey(
 					target, prop);
 			
-			// can we have predicates on singular props 
+			// NOTE: can we have predicates on singular props? 
 			Where where = this.predicateMap.get(prop);
 			List<Long> sequences = null;
 			if (prop.isMany() && where != null) {

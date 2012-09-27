@@ -1,0 +1,217 @@
+<web-app version="2.5" 
+         xmlns="http://java.sun.com/xml/ns/javaee" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+  <display-name>CloudGraph Web</display-name>
+  <description>
+        NOTE:  This web-app, deployed within the dps.ear, uses the dps-core.war as a shared library
+        and inherits its web.xml for common deployment settings (e.g. login-config). 
+  </description>    
+  <context-param>
+    <param-name>saveStateInClient</param-name>
+    <param-value>false</param-value>
+  </context-param>
+  <context-param>
+    <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+    <param-value>server</param-value>
+  </context-param>
+  <context-param>
+     <param-name>com.sun.faces.numberOfViewsInSession</param-name>
+     <param-value>2</param-value>
+  </context-param>
+  <context-param>
+	<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
+	<param-value>.jsp</param-value>
+  </context-param>
+  <context-param>
+    <param-name>tree.control.images</param-name>
+    <param-value>/images</param-value>
+  </context-param>
+
+  
+  <!--
+  <context-param>
+    <param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
+    <param-value>true</param-value>    
+  </context-param>
+  <context-param>
+    <param-name>org.apache.myfaces.DETECT_JAVASCRIPT</param-name>
+    <param-value>false</param-value>
+  </context-param>
+  <context-param>
+    <param-name>org.apache.myfaces.PRETTY_HTML</param-name>
+    <param-value>true</param-value>   
+  </context-param>
+  <context-param>
+    <param-name>org.apache.myfaces.AUTO_SCROLL</param-name>
+    <param-value>false</param-value>   
+  </context-param>
+  -->
+
+  <context-param>
+    <param-name>org.richfaces.SKIN</param-name>
+    <param-value>DEFAULT</param-value>
+  </context-param>
+  <!--
+  <context-param>
+	<param-name>org.richfaces.CONTROL_SKINNING</param-name>
+	<param-value>enable</param-value>
+  </context-param>  
+  --> 
+  
+  <filter> 
+    <display-name>RichFaces Filter</display-name> 
+    <filter-name>richfaces</filter-name> 
+    <filter-class>org.ajax4jsf.Filter</filter-class> 
+    <init-param>
+    	<param-name>forceparser</param-name>
+    	<param-value>false</param-value>
+    </init-param> 
+  </filter>
+
+  <!--
+  <filter>
+    <filter-name>MyFacesExtensionsFilter</filter-name>
+    <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
+    <init-param>
+      <param-name>maxFileSize</param-name>
+      <param-value>20m</param-value>      
+    </init-param>
+  </filter>
+  -->
+  
+  <filter-mapping> 
+    <filter-name>richfaces</filter-name> 
+    <servlet-name>Faces Servlet</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+    <dispatcher>FORWARD</dispatcher>
+    <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping> 
+  
+  <!--
+  <filter-mapping>
+    <filter-name>MyFacesExtensionsFilter</filter-name>
+    <url-pattern>/faces/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>MyFacesExtensionsFilter</filter-name>
+    <url-pattern>*.faces</url-pattern>
+  </filter-mapping>
+  <listener>
+      <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
+  </listener>
+  -->
+  <listener>
+    <listener-class>com.sun.faces.config.ConfigureListener</listener-class>
+  </listener>
+  
+	
+  
+  <servlet>
+    <servlet-name>Faces Servlet</servlet-name>
+    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet> 
+  <servlet>
+    <servlet-name>ErrorServlet</servlet-name>    
+    <jsp-file>/Error.jsp</jsp-file>
+  </servlet>
+	<servlet>
+		<description>Used for the back door login for development purposes only.</description>
+		<servlet-name>LoginServlet</servlet-name>
+		<jsp-file>/BackdoorLogin.jsp</jsp-file>
+	</servlet>    
+  <!--   
+	<servlet>
+		<description>Used for authentication. Either redirects to
+			j_security for JAAS, or redirects to the back door login page.</description>
+		<servlet-name>AuthServlet</servlet-name>
+		<servlet-class>org.cloudgraph.web.security.servlet.AuthServlet</servlet-class>
+	</servlet>
+ -->
+  <servlet>
+    <servlet-name>Flex Servlet</servlet-name>
+    <servlet-class>org.cloudgraph.web.security.servlet.FlexServlet</servlet-class>
+    <load-on-startup>100</load-on-startup>
+  </servlet> 
+
+  <!-- extension mapping -->
+  <servlet-mapping>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>*.faces</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>/faces/*</url-pattern>
+  </servlet-mapping>  
+  <servlet-mapping>
+      <servlet-name>Faces Servlet</servlet-name>
+      <url-pattern>*.xhtml</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>Faces Servlet</servlet-name>
+    <url-pattern>/xhtml/*</url-pattern>
+  </servlet-mapping>  
+  <servlet-mapping>
+    <servlet-name>ErrorServlet</servlet-name>
+    <url-pattern>/error</url-pattern>
+  </servlet-mapping>
+<!--  
+	<servlet-mapping>
+		<servlet-name>AuthServlet</servlet-name>
+		<url-pattern>/app-login</url-pattern>
+	</servlet-mapping>
+--> 
+	<servlet-mapping>
+		<servlet-name>LoginServlet</servlet-name>
+		<url-pattern>/backdoor-login</url-pattern>
+	</servlet-mapping>
+
+  <servlet-mapping>
+      <servlet-name>Flex Servlet</servlet-name>
+      <url-pattern>/FlexServlet</url-pattern>
+  </servlet-mapping>
+
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+	<welcome-file-list>
+		<welcome-file>/projects/Projects.faces</welcome-file>
+	</welcome-file-list>
+	<!-- 
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>All pages</web-resource-name>
+			<description> Makes all web resources within protected to ensure
+				authentication. This also ensures that user is forwarded to the
+				session expired page when appropriate by invoking the LoginServlet
+				which checks for expired sessions. </description>
+			<url-pattern>*.jsp</url-pattern>
+			<url-pattern>*.jsf</url-pattern>
+			<url-pattern>*.faces</url-pattern>
+			<url-pattern>*.html</url-pattern>
+			<http-method>DELETE</http-method>
+			<http-method>GET</http-method>
+			<http-method>POST</http-method>
+			<http-method>PUT</http-method>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>*</role-name>
+		</auth-constraint>
+	</security-constraint>
+	-->
+	<login-config>
+		<auth-method>FORM</auth-method>
+		<realm-name>myrealm</realm-name>
+		<form-login-config>
+			<form-login-page>/login</form-login-page>
+			<form-error-page>/fail-login.html</form-error-page>
+		</form-login-config>
+	</login-config>
+  <security-role><role-name>weblogic</role-name></security-role>
+  <security-role><role-name>user</role-name></security-role>
+  <security-role><role-name>superuser</role-name></security-role>
+  <security-role><role-name>manager</role-name></security-role>
+
+ 
+</web-app>

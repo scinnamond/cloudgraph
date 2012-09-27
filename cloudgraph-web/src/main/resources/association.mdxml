@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xmi:XMI xmlns:xmi="http://schema.omg.org/spec/XMI/2.1" xmlns:uml="http://schema.omg.org/spec/UML/2.1.2" xmlns:Plasma_SDO_Profile="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" xmi:version="2.1">
+  <uml:Model xmi:id="4f5a9266-6103-48a6-99c3-bf8c54c2d2bf" name="apls" visibility="public">
+    <packagedElement xmi:type="uml:Package" xmi:id="bed36149-fe83-477b-a5be-912c936d4aa8" name="export" visibility="public">
+      <packagedElement xmi:type="uml:Package" xmi:id="4904230b-f4b6-4fdf-aff8-ff37e36fdb2d" name="association" visibility="public">
+        <packagedElement xmi:type="uml:Class" xmi:id="e8aec751-dbe3-45dd-86fb-bbf13f32af59" name="Element" isAbstract="true">
+          <ownedAttribute xmi:type="uml:Property" xmi:id="64620a0f-e29f-462f-b69d-399dbe9a7382" name="definition" visibility="public">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="18a6c098-5c6b-4314-b704-df717747adc9" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="625dd489-dc74-4b84-9e9d-abdad962f6de" visibility="public" value="0" />
+            <type xmi:type="uml:DataType" href="Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String" />
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="db75a82a-96ce-4975-b09c-9c5d71bc814b" name="visibility" visibility="public">
+            <ownedComment xmi:type="uml:Comment" xmi:id="589af450-b373-43d4-88b1-ff429380264e">
+              <body><![CDATA[Determines where the NamedElement appears within different Namespaces within the overall model, and its accessibility.]]></body>
+              <annotatedElement xmi:idref="db75a82a-96ce-4975-b09c-9c5d71bc814b" />
+            </ownedComment>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="72e2cd19-13a8-47fa-801e-cee31bd8e717" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="aeaf1333-a1b9-44e5-aa72-9892cb012691" visibility="public" value="0" />
+            <type xmi:type="uml:DataType" href="Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String" />
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Enumeration" xmi:id="c6f9a8cb-4d75-42b9-aa45-9d102bda42e2" name="VisibilityKind" visibility="public">
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="2e84283b-5ed0-46c0-806f-94abacfd4a6a" name="public" visibility="public" />
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="eaaf59e3-a063-4370-b5c8-5a46b4dec619" name="private" visibility="public" />
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="b82dfb67-21be-4514-a272-d1bb7772abb8" name="protected" visibility="public" />
+          <ownedLiteral xmi:type="uml:EnumerationLiteral" xmi:id="511b39a2-cca0-48a4-b7ec-7f80e60b370d" name="package" visibility="public" />
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="4a0d2fa9-a443-44dc-aa48-d85a5fd48694" name="NamedElement" isAbstract="true">
+          <ownedComment xmi:type="uml:Comment" xmi:id="5a90c706-4c51-481f-b4af-54650c7e9537">
+            <body><![CDATA[An element is a constituent of a model. As such, it has the capability of owning other elements.]]></body>
+            <annotatedElement xmi:idref="4a0d2fa9-a443-44dc-aa48-d85a5fd48694" />
+          </ownedComment>
+          <generalization xmi:type="uml:Generalization" xmi:id="ed83a50a-b569-4853-9ac9-ee344a0bfee1" general="e8aec751-dbe3-45dd-86fb-bbf13f32af59" />
+          <ownedAttribute xmi:type="uml:Property" xmi:id="7d579acd-7260-498d-907f-0799d73c1d26" name="qualifiedName" visibility="public">
+            <ownedComment xmi:type="uml:Comment" xmi:id="cd6becc0-207a-4182-8ee7-a369da2f251a">
+              <body><![CDATA[A name which allows the NamedElement to be identified within a hierarchy of nested Namespaces. It is constructed from the names of the containing namespaces starting at the root of the hierarchy and ending with the name of the NamedElement itself]]></body>
+              <annotatedElement xmi:idref="7d579acd-7260-498d-907f-0799d73c1d26" />
+            </ownedComment>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="a83e1c74-2726-4461-8b03-5c85bb42914b" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="7cafeaaa-3117-4c4a-b042-29880f40ce70" visibility="public" value="0" />
+            <type xmi:type="uml:DataType" href="Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String" />
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="2db927fa-4aa9-4908-aee7-7c3f248fabe5" name="name" visibility="public">
+            <ownedComment xmi:type="uml:Comment" xmi:id="da986ae2-76b8-4854-9fc9-be4c1df46ca1">
+              <body><![CDATA[The name of the element]]></body>
+              <annotatedElement xmi:idref="2db927fa-4aa9-4908-aee7-7c3f248fabe5" />
+            </ownedComment>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="9ebf65ef-7c91-44ac-9ece-b6b6f3adc4f1" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="5b175bd1-cfa9-4f27-8dbc-8fa0c197a476" visibility="public" value="1" />
+            <type xmi:type="uml:DataType" href="Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String" />
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="709a3014-d5e1-43b4-b92f-076f96cca3db" name="Relationship" isAbstract="true">
+          <ownedComment xmi:type="uml:Comment" xmi:id="497e912e-c152-4290-8dd0-b24f92d792e8">
+            <body><![CDATA[Relationship is an abstract concept that specifies some kind of relationship between elements.]]></body>
+            <annotatedElement xmi:idref="709a3014-d5e1-43b4-b92f-076f96cca3db" />
+          </ownedComment>
+          <generalization xmi:type="uml:Generalization" xmi:id="c3f35a36-6f03-42a4-9282-bc9f86392546" general="4a0d2fa9-a443-44dc-aa48-d85a5fd48694" />
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="3b5a556b-f5d4-4ebc-bba1-dae51f9477a1" name="Externalizable" isAbstract="true">
+          <ownedComment xmi:type="uml:Comment" xmi:id="a8317a51-57ac-4a46-bfac-5d02555a09da">
+            <body><![CDATA[An entity which can be uniquely identified based on a single ID or set of ID's from an externalized format such as XML]]></body>
+            <annotatedElement xmi:idref="3b5a556b-f5d4-4ebc-bba1-dae51f9477a1" />
+          </ownedComment>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="da46483d-b207-4099-a5fc-85f7344653e8" name="externalId" visibility="public">
+            <ownedComment xmi:type="uml:Comment" xmi:id="1c431a9c-5937-4973-bc77-c00593b68629">
+              <body><![CDATA[A universally unique identifier]]></body>
+              <annotatedElement xmi:idref="da46483d-b207-4099-a5fc-85f7344653e8" />
+            </ownedComment>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="b0cc9d69-2330-425b-b61d-4314eb5dda62" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="d27c2f03-5a3b-4a48-93c4-2660ee1893e8" visibility="public" value="1" />
+            <type xmi:type="uml:DataType" href="Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String" />
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="f0498286-f004-4f04-9a62-0948460051c3" name="Classifier">
+          <ownedComment xmi:type="uml:Comment" xmi:id="86803b5b-c337-4e2e-8842-d7d5b683d7fd">
+            <body><![CDATA[A classifier is a classification of instances - it describes a set of instances that have features in common. A classifier can specify a generalization hierarchy by referencing its general classifiers.A classifier has the capability to own use cases. Although the owning classifier typically represents the subject to which the owned use cases apply, this is not necessarily the case. In principle, the same use case can be applied to multiple subjects, as identified by the subject association role of a use case.Classifier is defined to be a kind of templateable element so that a classifier can be parameterized. It is also defined to be a kind of parameterable element so that a classifier can be a formal template parameter.A classifier has the capability to own collaboration uses. These collaboration uses link a collaboration with the classifier to give a description of the workings of the classifier.]]></body>
+            <annotatedElement xmi:idref="f0498286-f004-4f04-9a62-0948460051c3" />
+          </ownedComment>
+          <generalization xmi:type="uml:Generalization" xmi:id="e5ffdb0d-52f5-4af0-81ab-f25cb37c9bdf" general="4a0d2fa9-a443-44dc-aa48-d85a5fd48694" />
+          <generalization xmi:type="uml:Generalization" xmi:id="98ad3946-0824-418e-8fd5-c11eee1fa8ac" general="3b5a556b-f5d4-4ebc-bba1-dae51f9477a1" />
+          <ownedAttribute xmi:type="uml:Property" xmi:id="160643b2-9c0c-48aa-af07-f8783ddbb1ac" name="seqId" visibility="public">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="ffc31c7d-7916-48a3-b88c-f2c8eef50b12" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="eae70bb3-26b9-4c18-b35c-c9ea98544fd6" visibility="public" value="1" />
+            <type xmi:type="uml:DataType" href="Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Long" />
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="b3b0bdef-72fd-468f-aa85-d4fc94aff451" name="Association">
+          <ownedComment xmi:type="uml:Comment" xmi:id="5ce3b9ed-a32d-46d2-ad17-f70198d7c2d7">
+            <body><![CDATA[An association describes a set of tuples whose values refer to typed instances. An instance of an association is called a link. A link is a tuple with one value for each end of the association, where each value is an instance of the type of the end.]]></body>
+            <annotatedElement xmi:idref="b3b0bdef-72fd-468f-aa85-d4fc94aff451" />
+          </ownedComment>
+          <generalization xmi:type="uml:Generalization" xmi:id="7c683e53-ad62-4252-92c9-a56b735c6436" general="709a3014-d5e1-43b4-b92f-076f96cca3db" />
+          <generalization xmi:type="uml:Generalization" xmi:id="84c6cd39-bc5e-4b5a-935d-fc012ac94d25" general="3b5a556b-f5d4-4ebc-bba1-dae51f9477a1" />
+          <ownedAttribute xmi:type="uml:Property" xmi:id="5205a5d9-c316-4049-b066-50c085eff82d" name="seqId" visibility="public">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="1df8bc3d-55e3-497c-a7ac-e8075f61fb3d" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="98cb20a2-ec5f-41b9-9c4a-b266af6a14c5" visibility="public" value="1" />
+            <type xmi:type="uml:DataType" href="Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Long" />
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="8d2aa21a-1367-488f-aee8-f0addb61895b" name="classifier" visibility="public" type="f0498286-f004-4f04-9a62-0948460051c3" association="20aa43d9-ed19-4803-9c60-870c78bc206c">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="7e790f73-301d-46ee-abc1-dd4ba4e43a4a" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="65889b0b-47f7-413c-bf69-85affc6aeac1" visibility="public" value="1" />
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="38d5445f-b1c9-4a33-86ca-63739d80bca7" name="memberEnd" visibility="public" type="d79ece7a-f1d0-4ccc-bc0a-3e3cdecbf1a2" association="87972c5e-5f3e-4f05-bf4c-92d19b85d752">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="755e9abd-50ab-4936-ad44-a7bd76f0aa22" visibility="public" value="*" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="07640eeb-7334-4a78-815a-5fe64c329dc3" visibility="public" value="0" />
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="d79ece7a-f1d0-4ccc-bc0a-3e3cdecbf1a2" name="Property">
+          <ownedComment xmi:type="uml:Comment" xmi:id="953a1dd8-5353-4643-925e-1bdec794bf0c">
+            <body><![CDATA[Property represents a declared state of one or more instances in terms of a named relationship to a value or values. When a property is an attribute of a classifier, the value or values are related to the instance of the classifier by being held in slots of the instance. When a property is an association end, the value or values are related to the instance or instances at the other end(s) of the association. The range of valid values represented by the property can be controlled by setting the property's type.A property is a structural feature of a classifier that characterizes instances of the classifier. A property related by ownedAttribute to a classifier (other than an association) represents an attribute and might also represent an association end. It relates an instance of the class to a value or set of values of the type of the attribute. A property related by memberEnd or its specializations to an association represents an end of the association. The type of the property is the type of the end of the association.A property has the capability of being a deployment target in a deployment relationship. This enables modeling the deployment to hierarchical nodes that have properties functioning as internal parts.Property specializes ParameterableElement to specify that a property can be exposed as a formal template parameter, and provided as an actual parameter in a binding of a template.A property represents a set of instances that are owned by a containing classifier instance.]]></body>
+            <annotatedElement xmi:idref="d79ece7a-f1d0-4ccc-bc0a-3e3cdecbf1a2" />
+          </ownedComment>
+          <generalization xmi:type="uml:Generalization" xmi:id="8ba9f056-fdf4-4540-bc46-afcaefee7824" general="e3e9b682-523b-4192-918d-83ed286577c8" />
+          <generalization xmi:type="uml:Generalization" xmi:id="cfcdb13b-890c-4f08-8e42-e57652ae1018" general="3b5a556b-f5d4-4ebc-bba1-dae51f9477a1" />
+          <ownedAttribute xmi:type="uml:Property" xmi:id="c01c3c58-a0f3-4806-bc3f-8edc384c34cb" name="seqId" visibility="private">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="5ae6cfd5-7569-4581-96c8-7527cf3b0788" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="c4ae0d64-1efe-45f5-8395-f3f6f816c6cd" visibility="public" value="0" />
+            <type xmi:type="uml:DataType" href="Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Long" />
+          </ownedAttribute>
+          <ownedAttribute xmi:type="uml:Property" xmi:id="cbb25e94-75d1-4006-8163-1f979ab63ab3" name="association" visibility="private" type="b3b0bdef-72fd-468f-aa85-d4fc94aff451" association="87972c5e-5f3e-4f05-bf4c-92d19b85d752">
+            <ownedComment xmi:type="uml:Comment" xmi:id="b380c274-cef7-4c25-bb28-7a15ce4f7ade">
+              <body><![CDATA[References the association of which this property is a member, if any.]]></body>
+              <annotatedElement xmi:idref="cbb25e94-75d1-4006-8163-1f979ab63ab3" />
+            </ownedComment>
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="9449f0b3-3c93-42b2-882a-97f1d16d0c02" visibility="public" value="1" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="fb29a590-c340-4d78-944e-0279473646c5" visibility="public" value="0" />
+          </ownedAttribute>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="e3e9b682-523b-4192-918d-83ed286577c8" name="StructuralFeature" isAbstract="true">
+          <ownedComment xmi:type="uml:Comment" xmi:id="542ed8bc-bd30-43b7-a2f2-e4ff4cfc9050">
+            <body><![CDATA[A structural feature is a typed feature of a classifier that specifies the structure of instances of the classifier.By specializing multiplicity element, it supports a multiplicity that specifies valid cardinalities for the collection of values associated with an instantiation of the structural feature.]]></body>
+            <annotatedElement xmi:idref="e3e9b682-523b-4192-918d-83ed286577c8" />
+          </ownedComment>
+          <generalization xmi:type="uml:Generalization" xmi:id="4256f25a-3368-448a-84c6-23345dd81d0f" general="2fe3e2d1-2bc7-42db-a62f-04b50439f0c9" />
+        </packagedElement>
+        <packagedElement xmi:type="uml:Class" xmi:id="2fe3e2d1-2bc7-42db-a62f-04b50439f0c9" name="Feature" isAbstract="true">
+          <ownedComment xmi:type="uml:Comment" xmi:id="d7dc4b0c-9ba5-4a2f-98d0-2fd62d297ded">
+            <body><![CDATA[A feature declares a behavioral or structural characteristic of instances of classifiers.]]></body>
+            <annotatedElement xmi:idref="2fe3e2d1-2bc7-42db-a62f-04b50439f0c9" />
+          </ownedComment>
+          <generalization xmi:type="uml:Generalization" xmi:id="74bb8a0c-c31f-409c-a182-f73493865a88" general="4a0d2fa9-a443-44dc-aa48-d85a5fd48694" />
+        </packagedElement>
+        <packagedElement xmi:type="uml:Association" xmi:id="20aa43d9-ed19-4803-9c60-870c78bc206c" visibility="public">
+          <memberEnd xmi:idref="8d2aa21a-1367-488f-aee8-f0addb61895b" />
+          <memberEnd xmi:idref="767381d2-68ff-4c20-b2e8-d3eaab07f5d3" />
+          <navigableOwnedEnd xmi:idref="767381d2-68ff-4c20-b2e8-d3eaab07f5d3" />
+          <ownedEnd xmi:type="uml:Property" xmi:id="767381d2-68ff-4c20-b2e8-d3eaab07f5d3" visibility="private" type="f0498286-f004-4f04-9a62-0948460051c3">
+            <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="aaa25381-b7f0-4b7e-901c-9a594c149d2f" visibility="public" value="*" />
+            <lowerValue xmi:type="uml:LiteralInteger" xmi:id="609ac928-dd62-468e-b4fc-c3db19edcd58" visibility="public" />
+          </ownedEnd>
+        </packagedElement>
+        <packagedElement xmi:type="uml:Association" xmi:id="87972c5e-5f3e-4f05-bf4c-92d19b85d752" visibility="public">
+          <memberEnd xmi:idref="38d5445f-b1c9-4a33-86ca-63739d80bca7" />
+          <memberEnd xmi:idref="cbb25e94-75d1-4006-8163-1f979ab63ab3" />
+        </packagedElement>
+      </packagedElement>
+    </packagedElement>
+  </uml:Model>
+  <Plasma_SDO_Profile:SDONamespace xmi:id="fb44293c-6e67-494c-b664-9adbbfd3b5af" base_Package="4904230b-f4b6-4fdf-aff8-ff37e36fdb2d" uri="http://apls/export/association" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="397a6adc-2cba-4ab2-86a1-3d47d89cba79" base_NamedElement="64620a0f-e29f-462f-b69d-399dbe9a7382" physicalName="DFNTN" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="8a739772-07e2-45ca-ae81-1fd974f23cd4" base_Property="64620a0f-e29f-462f-b69d-399dbe9a7382" key="0" />
+  <Plasma_SDO_Profile:SDOValueConstraint xmi:id="d447973c-d371-4408-b2c7-e665916e5c59" base_Property="64620a0f-e29f-462f-b69d-399dbe9a7382" maxLength="2000" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="c3ccd9ee-b7f8-4e5d-8bfe-fbc880f2dbff" base_NamedElement="db75a82a-96ce-4975-b09c-9c5d71bc814b" physicalName="VISIBILITY" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="12fafa43-be68-4928-97c2-58279b1c2fe2" base_Property="db75a82a-96ce-4975-b09c-9c5d71bc814b" key="1" />
+  <Plasma_SDO_Profile:SDOValueConstraint xmi:id="aa495821-74da-4a89-8f0f-0786cf298d79" base_Property="db75a82a-96ce-4975-b09c-9c5d71bc814b" maxLength="12" />
+  <Plasma_SDO_Profile:SDOEnumerationConstraint xmi:id="78ad12ae-9537-4a38-94b8-ec1d4bc0f6f1" base_Property="db75a82a-96ce-4975-b09c-9c5d71bc814b" value="c6f9a8cb-4d75-42b9-aa45-9d102bda42e2" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="034f00fa-1425-4330-a2bf-502b59d81aa7" base_NamedElement="2e84283b-5ed0-46c0-806f-94abacfd4a6a" physicalName="PUBLIC" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="5b5970be-8e8e-4770-adac-d25a159d5721" base_NamedElement="eaaf59e3-a063-4370-b5c8-5a46b4dec619" physicalName="PRIVATE" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="27ac4a76-72dd-420b-abbe-c410f819dd1b" base_NamedElement="b82dfb67-21be-4514-a272-d1bb7772abb8" physicalName="PROTECTED" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="273c31fe-2449-44fd-8189-93986eee0a7e" base_NamedElement="511b39a2-cca0-48a4-b7ec-7f80e60b370d" physicalName="PACKAGE" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="37c10af4-c9a8-47d6-beb4-e0a91625c6ec" base_NamedElement="7d579acd-7260-498d-907f-0799d73c1d26" physicalName="QNAME" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="c37c0aed-ad97-4732-a82f-c4f927796b79" base_Property="7d579acd-7260-498d-907f-0799d73c1d26" key="0" />
+  <Plasma_SDO_Profile:SDOValueConstraint xmi:id="96ba52e4-b149-4d6e-b46d-337a9dea6063" base_Property="7d579acd-7260-498d-907f-0799d73c1d26" maxLength="80" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="328e5f98-3d71-4d6a-8aab-c0df793b1f43" base_NamedElement="2db927fa-4aa9-4908-aee7-7c3f248fabe5" physicalName="NAME" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="af92141b-e750-4917-8936-8e0e1e9969c3" base_Property="2db927fa-4aa9-4908-aee7-7c3f248fabe5" key="1" />
+  <Plasma_SDO_Profile:SDOValueConstraint xmi:id="a7fd8e4c-2a87-4a18-8052-805f52d1f3cf" base_Property="2db927fa-4aa9-4908-aee7-7c3f248fabe5" maxLength="60" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="4e3e9750-9c58-45d5-84e5-c6a196c5abcd" base_NamedElement="3b5a556b-f5d4-4ebc-bba1-dae51f9477a1" businessName="ID" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="20268d66-04cd-4a1b-a002-c69b933de65f" base_NamedElement="da46483d-b207-4099-a5fc-85f7344653e8" physicalName="UUID" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="730846e8-01fd-4f72-bd6f-55a78e15d703" base_Property="da46483d-b207-4099-a5fc-85f7344653e8" key="0" />
+  <Plasma_SDO_Profile:SDOKey xmi:id="f0a2b07a-a081-4a69-a59e-559b925453ca" base_Property="da46483d-b207-4099-a5fc-85f7344653e8" type="external" />
+  <Plasma_SDO_Profile:SDOValueConstraint xmi:id="92ca01a6-1f85-4aa1-ab1d-315577b53bfa" base_Property="da46483d-b207-4099-a5fc-85f7344653e8" maxLength="36" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="40d7d4a8-fdba-40f7-a2ad-ba41457d301a" base_NamedElement="f0498286-f004-4f04-9a62-0948460051c3" physicalName="META_CLSSFR" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="a9c55dbc-f888-40ba-ad80-757ef92190eb" base_NamedElement="160643b2-9c0c-48aa-af07-f8783ddbb1ac" physicalName="SEQ_ID" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="06199d7f-2a4f-4092-9cb2-0c97268a835e" base_Property="160643b2-9c0c-48aa-af07-f8783ddbb1ac" key="0" />
+  <Plasma_SDO_Profile:SDOKey xmi:id="16eb37f4-f95a-4394-80d7-7be648a146d3" base_Property="160643b2-9c0c-48aa-af07-f8783ddbb1ac" type="primary" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="535ce581-793a-4688-aea8-7aa88764e7f8" base_NamedElement="b3b0bdef-72fd-468f-aa85-d4fc94aff451" physicalName="META_ASSCTN" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="397db86e-0159-4026-a83b-c576dd9378cd" base_NamedElement="5205a5d9-c316-4049-b066-50c085eff82d" physicalName="SEQ_ID" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="8c870b95-b7d0-4994-84f0-05ea8571fb29" base_Property="5205a5d9-c316-4049-b066-50c085eff82d" key="0" />
+  <Plasma_SDO_Profile:SDOKey xmi:id="4ea19bfd-87c1-4b28-99d9-f17a38ce9c5e" base_Property="5205a5d9-c316-4049-b066-50c085eff82d" type="primary" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="6837650c-abd5-4b7a-9f1e-9ca344d8fe4d" base_NamedElement="8d2aa21a-1367-488f-aee8-f0addb61895b" physicalName="CLSSFR_SEQ_ID" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="f3dcf6a1-12e3-4317-8a4e-3e42bdde2a07" base_Property="8d2aa21a-1367-488f-aee8-f0addb61895b" key="1" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="4eb3ab85-0b44-45fe-adb8-6ab7447a8fb0" base_Property="38d5445f-b1c9-4a33-86ca-63739d80bca7" key="2" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="04a13d6e-5e44-49f6-859f-c4b80d211bf3" base_NamedElement="d79ece7a-f1d0-4ccc-bc0a-3e3cdecbf1a2" physicalName="META_PRPTY" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="b9370672-dedf-411b-97a4-bec49923acbe" base_NamedElement="c01c3c58-a0f3-4806-bc3f-8edc384c34cb" physicalName="SEQ_ID" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="ab91ecdc-06d7-4b25-a077-504857c2c349" base_Property="c01c3c58-a0f3-4806-bc3f-8edc384c34cb" key="0" />
+  <Plasma_SDO_Profile:SDOKey xmi:id="049686d8-4921-44e1-9122-0f147e4facdb" base_Property="c01c3c58-a0f3-4806-bc3f-8edc384c34cb" type="primary" />
+  <Plasma_SDO_Profile:SDOAlias xmi:id="711245cd-8c3a-4a5c-99c5-ccb939a95e8e" base_NamedElement="cbb25e94-75d1-4006-8163-1f979ab63ab3" physicalName="ASSCTN_SEQ_ID" />
+  <Plasma_SDO_Profile:SDOSort xmi:id="a9099ea5-aa2c-4c5b-9b21-2c974bf543ea" base_Property="cbb25e94-75d1-4006-8163-1f979ab63ab3" key="1" />
+</xmi:XMI>
+

@@ -1,0 +1,17 @@
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:a4j="http://richfaces.org/a4j"
+      xmlns:rich="http://richfaces.org/rich">
+  <P>    
+  SDFSD FSD FSD F SDF SDF
+  sdf f D FS df fs d
+  sdf sdf sdf sf
+  </P>
+<h:form id="foon">  
+<h:commandButton 
+            value="123"
+            action="#{TaxonomyEditBean.save}"/> 
+</h:form>                 
+</ui:composition>      

@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="urn:org.cloudgraph.web/config" 
+  xmlns:cfg="urn:org.cloudgraph.web/config"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  
+    <xsd:complexType name="ImportExportConfiguration">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="DataImport" type="cfg:DataImport"  minOccurs="1" maxOccurs="unbounded"/>
+            <xsd:element name="DataExport" type="cfg:DataExport"  minOccurs="1" maxOccurs="unbounded"/>
+        </xsd:sequence>         
+    </xsd:complexType>
+
+    <xsd:element name="ImportExportConfiguration" type="cfg:ImportExportConfiguration">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="DataImport">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="Transformation" type="cfg:Transformation"  minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation></xsd:documentation>       
+                </xsd:annotation>                                 
+            </xsd:element>
+            <xsd:element name="ImportLoader" type="cfg:ImportLoader"  minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation></xsd:documentation>       
+                </xsd:annotation>                                 
+            </xsd:element>
+        </xsd:sequence>         
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation></xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+    </xsd:complexType>
+
+    <xsd:element name="DataImport" type="cfg:DataImport">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+ 
+    <xsd:complexType name="DataExport">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="DataEntity" type="cfg:DataEntity"  minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation></xsd:documentation>       
+                </xsd:annotation>                                 
+            </xsd:element>
+        </xsd:sequence>         
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation></xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="targetDir" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation></xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+    </xsd:complexType>
+
+    <xsd:element name="DataExport" type="cfg:DataExport">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    
+    <xsd:complexType name="Transformation">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="DataEntity" type="cfg:DataEntity"  minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation></xsd:documentation>       
+                </xsd:annotation>                                 
+            </xsd:element>
+        </xsd:sequence>         
+        <xsd:attribute name="template" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation></xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+    </xsd:complexType>
+
+    <xsd:element name="Transformation" type="cfg:Transformation">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    
+    <xsd:complexType name="ImportLoader">
+        <xsd:annotation>
+            <xsd:documentation>custom loader definition</xsd:documentation>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="DataEntity" type="cfg:DataEntity"  minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation></xsd:documentation>       
+                </xsd:annotation>                                 
+            </xsd:element>
+        </xsd:sequence>         
+        <xsd:attribute name="className" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>the Java class name for the loader</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="queryFileName" type="xsd:string" use="optional">
+            <xsd:annotation>                                  
+                <xsd:documentation>the query XML file name used to define dynamic types used in the import</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+    </xsd:complexType>
+
+    <xsd:element name="ImportLoader" type="cfg:ImportLoader">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="DataEntity">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+        <xsd:attribute name="name" type="xsd:string" use="optional" default="none">
+            <xsd:annotation>                                  
+                <xsd:documentation></xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="source" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>the source file</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="sourceDir" type="xsd:string" use="optional">
+            <xsd:annotation>                                  
+                <xsd:documentation>the source dir for where multiple source files are located</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="target" type="xsd:string" use="optional">
+            <xsd:annotation>                                  
+                <xsd:documentation>the target file where a single target is applicable</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="targetDir" type="xsd:string" use="optional">
+            <xsd:annotation>                                  
+                <xsd:documentation>the target dir for where multiple target files are created</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="targetNamespaceUri" type="xsd:string" use="optional">
+            <xsd:annotation>                                  
+                <xsd:documentation>the target namespace URI used to isolate a projected model into a new namespace</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+        <xsd:attribute name="dataBindingClassName" type="xsd:string" use="optional" default="none">
+            <xsd:annotation>                                  
+                <xsd:documentation>JAXB data binding class used for marshaling</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>       
+    </xsd:complexType>
+
+    <xsd:element name="DataEntity" type="cfg:DataEntity">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+ 
+
+</xsd:schema>

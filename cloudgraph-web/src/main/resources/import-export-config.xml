@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfg:ImportExportConfiguration  
+    xmlns:cfg="urn:org.cloudgraph.web/config">
+   
+ 
+    <DataImport name="core-reference-data">
+        <Transformation template="OrganizationDataToSQL.xsl">
+            <DataEntity source="org/cloudgraph/web/legacydata/Organization.xml" target="Organization.sql"/>
+        </Transformation>
+     
+        <Transformation template="RoleDataToSQL.xsl">
+            <DataEntity source="org/cloudgraph/web/legacydata/Role.xml" target="Role.sql"/>
+        </Transformation>
+       
+        
+        <Transformation template="PersonDataToSQL.xsl">
+            <DataEntity source="org/cloudgraph/web/legacydata/Person.xml" target="Person.sql"/>
+        </Transformation>
+         
+        <Transformation template="ProfileElementDataToSQL.xsl">
+            <DataEntity source="org/cloudgraph/web/legacydata/ProfileElement.xml" target="ProfileElement.sql"/>
+        </Transformation> 
+         <Transformation template="TaxonomyModelToSQL.xsl">
+            <DataEntity source="org/cloudgraph/web/legacydata/BusinessReferenceModel.xml" target="BusinessReferenceModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/ServiceReferenceModel.xml" target="ServiceReferenceModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/PerformanceReferenceModel.xml" target="PerformanceReferenceModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/TechnicalReferenceModel.xml" target="TechnicalReferenceModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/StandardSoftwareModel.xml" target="StandardSoftwareModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/SegmentArchitectureModel.xml" target="SegmentArchitectureModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/BusinessReferenceModelUSFS.xml" target="BusinessReferenceModelUSFS.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/StrategicFrameworkModel.xml" target="StrategicFrameworkModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/InventoryPerspectiveModel.xml" target="InventoryPerspectiveModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/GemsPerspectiveModel.xml" target="GemsPerspectiveModel.sql"/>
+            <DataEntity source="org/cloudgraph/web/legacydata/ICAMPerspectiveModel.xml" target="ICAMPerspectiveModel.sql"/>
+        </Transformation>
+      
+    </DataImport>
+     
+    <DataImport name="core-metadata">  
+        <ImportLoader className="org.cloudgraph.web.data.loader.PackageLoader">
+            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+                source="package*.xml"/>
+        </ImportLoader>
+        <ImportLoader className="org.cloudgraph.web.data.loader.DataTypeLoader">
+            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+                source="datatype*.xml"/>
+        </ImportLoader>
+        <ImportLoader className="org.cloudgraph.web.data.loader.ClazzLoader">
+            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+                source="clazz*.xml"/>
+        </ImportLoader>
+        <ImportLoader className="org.cloudgraph.web.data.loader.EnumerationLoader">
+            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+                source="enumeration*.xml"/>
+        </ImportLoader>
+        <ImportLoader className="org.cloudgraph.web.data.loader.PropertyLoader">
+            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+                source="property*.xml"/>
+        </ImportLoader>
+        <ImportLoader className="org.cloudgraph.web.data.loader.InstanceLoader">
+            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+                source="instance*.xml"/>
+        </ImportLoader>
+        <ImportLoader className="org.cloudgraph.web.data.loader.SlotLoader">
+            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+                source="slot*.xml"/>
+        </ImportLoader>
+         
+         
+    </DataImport>
+
+    <DataExport targetDir="./target/apls/data">
+    </DataExport>
+    
+     
+</cfg:ImportExportConfiguration>    

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="cloudgraph-web">
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
+        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/target/generated-sources/java"/>
+        <dependent-module archiveName="cloudgraph-rdb-0.5.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-rdb/cloudgraph-rdb">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="cloudgraph-common-0.5.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-common/cloudgraph-common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="cloudgraph-config-0.5.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-config/cloudgraph-config">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="plasma-common-1.1.3.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/plasma-common/plasma-common">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="plasma-sdo-1.1.3.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/plasma-sdo/plasma-sdo">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="plasma-sdo-jdbc-1.1.3.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/plasma-sdo-jdbc/plasma-sdo-jdbc">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="cloudgraph-web"/>
+        <property name="java-output-path" value="/cloudgraph-web/target/classes"/>
+    </wb-module>
+</project-modules>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+ * Copyright 2004 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+--><!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN" "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+
+    <tlib-version>1.0.10</tlib-version>
+    <jsp-version>1.2</jsp-version>
+    <short-name>t2</short-name>
+    <uri>http://myfaces.apache.org/tomahawk/tree3</uri>
+    <description>
+        Custom extension to tree2 supporting expandall on init tag
+    </description>
+
+   <!-- tree3 -->
+    <tag>
+        <name>tree3</name>
+        <tag-class>mil.army.sddc.dps.tracking.component.tree3.TreeTag</tag-class>
+        <body-content>JSP</body-content>
+        <attribute>
+            <name>value</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>varNodeToggler</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>showNav</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Show the "plus" and "minus" navigation icons (default is true.) Value is ignored if
+                clientSideToggle is true.
+            </description>
+        </attribute>
+        <attribute>
+            <name>showLines</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>Show the connecting lines (default is true.)</description>
+        </attribute>
+        <attribute>
+            <name>clientSideToggle</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>Perform client-side toggling of expand/collapse state via javascript (default is true.)</description>
+        </attribute>
+        <attribute>
+            <name>showRootNode</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>Include the root node when rendering the tree (default is true.)</description>
+        </attribute>
+        <attribute>
+            <name>preserveToggle</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>Preserve changes in client-side toggle information between requests (default is true.)</description>
+        </attribute>
+        <attribute>
+            <name>javascriptLocation</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>
+                An alternate location to find javascript resources.  If no values is specified, javascript will
+                be loaded from the resources directory using AddResource and ExtensionsFilter.
+            </description>
+        </attribute>
+
+        <attribute>
+            <name>imageLocation</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>
+                An alternate location to find image resources.  If no values is specified, images will
+                be loaded from the resources directory using AddResource and ExtensionsFilter.
+            </description>
+        </attribute>
+
+        <attribute>
+            <name>styleLocation</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>
+                An alternate location to find stylesheet resources.  If no values is specified, stylesheets will
+                be loaded from the resources directory using AddResource and ExtensionsFilter.
+            </description>
+        </attribute>
+
+        <!-- UIComponent attributes -->
+        <attribute>
+            <name>id</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>Every component may have an unique id. Automatically created if omitted.</description>
+        </attribute>
+        <attribute>
+            <name>rendered</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>If false, this component will not be rendered.</description>
+        </attribute>
+        <attribute>
+            <name>binding</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>Component binding.</description>
+        </attribute>
+	<attribute>
+            <name>expandAllInit</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+	    <type>java.lang.String</type>
+	    <description>Expand all nodes the initial time this control is rendered.</description>
+        </attribute>
+    </tag>
+</taglib>
