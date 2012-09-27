@@ -1,4 +1,4 @@
-package org.cloudgraph.common.service;
+package org.cloudgraph.hbase.service;
 
 import java.util.HashMap;
 import java.util.Iterator;

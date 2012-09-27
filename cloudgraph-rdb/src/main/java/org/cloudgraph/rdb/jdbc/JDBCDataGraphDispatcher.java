@@ -398,11 +398,14 @@ public class JDBCDataGraphDispatcher extends JDBCDispatcher
             			+ type.getURI() + "#" + type.getName() + "." + property.getName());
             }
         }    
-        StringBuilder update = createUpdate(type, entity);
-        if (log.isDebugEnabled()) {
-            log.debug("updating " + dataObject.getType().getName()); 
+        
+        if (hasUpdatableProperties(entity)) {
+	        StringBuilder update = createUpdate(type, entity);
+	        if (log.isDebugEnabled()) {
+	            log.debug("updating " + dataObject.getType().getName()); 
+	        }
+	        execute(type, update, entity, con);
         }
-        execute(type, update, entity, con);
     }
  
     private void delete(DataGraph dataGraph, DataObject dataObject)
@@ -787,7 +790,7 @@ public class JDBCDataGraphDispatcher extends JDBCDispatcher
     
     private SequenceGenerator newSequenceGenerator() {
          try {
-             String qualifiedName = PlasmaConfig.getInstance().getDataAccessProvider(DataAccessProviderName.JDO).getSequenceConfiguration().getGeneratorClassName();
+             String qualifiedName = PlasmaConfig.getInstance().getDataAccessProvider(DataAccessProviderName.JDBC).getSequenceConfiguration().getGeneratorClassName();
 
              Class<?> entityClass = Class.forName(qualifiedName); 
              Class<?>[] argClasses = {};

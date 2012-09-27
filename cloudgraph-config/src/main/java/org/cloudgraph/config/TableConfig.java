@@ -1,10 +1,9 @@
 package org.cloudgraph.config;
 
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.Hash;
-import org.cloudgraph.common.CloudGraphConstants;
+import java.nio.charset.Charset;
+
 import org.cloudgraph.config.Table;
-import org.cloudgraph.context.CloudGraphContext;
+import org.plasma.sdo.core.CoreConstants;
 
 /**
  * Encapsulates logic related to access of HTable specific
@@ -12,7 +11,6 @@ import org.cloudgraph.context.CloudGraphContext;
  */
 public class TableConfig {
     private Table table;
-    private Hash hash;
     
     @SuppressWarnings("unused")
 	private TableConfig() {}
@@ -44,8 +42,8 @@ public class TableConfig {
 	}
 	
 	public byte[] getDataColumnFamilyNameBytes() {
-		return Bytes.toBytes(
-			this.table.getDataColumnFamilyName());
+		return this.table.getDataColumnFamilyName().getBytes(
+			Charset.forName( CoreConstants.UTF8_ENCODING ));
 	}	
 	
 	/**
@@ -58,28 +56,5 @@ public class TableConfig {
 		return this.getTable().getHashAlgorithm() != null;
 	}
 	
-	/**
-	 * Returns the specific configured hash algorithm 
-	 * configured for an HTable, or if not configured
-	 * returns the configured HBase hash algorithm as
-	 * configured within HBase using the 'hbase.hash.type'
-	 * property.
-	 * @return the specific configured hash algorithm 
-	 * configured for an HTable.
-	 */
-	public Hash getHashAlgorithm() {
-		if (this.hash== null) {
-			if (hasHashAlgorithm()) {
-				String hashName = this.getTable().getHashAlgorithm().getName().value();
-				this.hash = Hash.getInstance(Hash.parseHashType(hashName));
-			}
-			else {
-			    String algorithm = CloudGraphContext.instance().getConfig().get(
-			    		CloudGraphConstants.PROPERTY_HBASE_CONFIG_HASH_TYPE);
-			    this.hash = Hash.getInstance(Hash.parseHashType(algorithm));			
-			}
-		}
-		return this.hash;
-	}
 
 }

@@ -129,12 +129,13 @@ public abstract class JDBCDispatcher {
 		sql.append(" WHERE ");
         for (int k = 0; k < keyValues.size(); k++) {
         	if (k > 0)
-        		sql.append(", ");
+        		sql.append(" AND ");
         	PropertyPair propValue = keyValues.get(k);
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
         	sql.append(" = "); 
         	// FIXME: escape , etc...
+        	// FIXME: non integral keys etc...
         	sql.append(propValue.getValue()); // FIXME; use converter
         }
 		
@@ -172,6 +173,19 @@ public abstract class JDBCDispatcher {
 		}
 		sql.append(")");
 		return sql;
+	}
+	
+	protected boolean hasUpdatableProperties(Map<String, PropertyPair> values) {
+		
+		for (PropertyPair pair : values.values()) {
+			PlasmaProperty prop = pair.getProp();
+			if (prop.isMany() && !prop.getType().isDataType())
+				continue;
+			if (prop.isKey(KeyType.primary))
+				continue; // ignore keys here
+			return true;
+		}
+		return false;
 	}
 
 	protected StringBuilder createUpdate(PlasmaType type,  

@@ -14,9 +14,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.config.PlasmaConfig;
+import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.From;
 import org.plasma.query.model.GroupBy;
@@ -39,6 +43,7 @@ import org.plasma.sdo.access.provider.common.DataObjectHashKeyAssembler;
 import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.access.provider.jdbc.AliasMap;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
+import org.xml.sax.SAXException;
 
 import commonj.sdo.Type;
 
@@ -69,10 +74,12 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
         PlasmaType type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(from.getEntity().getNamespaceURI(), 
         		from.getEntity().getName());
         
-        List<List<PropertyPair>> queryResults = findResults(con, query, type);
-        
         PropertySelectionCollector collector = new PropertySelectionCollector(
-            	query.getSelectClause(), type); // singular props only
+            	query.getSelectClause(), type); 
+        collector.setOnlySingularProperties(false);
+        collector.setOnlyDeclaredProperties(false); // collect from superclasses
+        List<List<PropertyPair>> queryResults = findResults(query, collector, type, con);
+        
         JDBCDataGraphAssembler assembler =
             new JDBCDataGraphAssembler(type, 
             		collector.getResult(), 
@@ -247,10 +254,6 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
         Object[] params = new Object[0];
         JDBCFilterAssembler filterAssembler = null;
 
-        Class candidate = getCandidateClass(type);
-        if (log.isDebugEnabled() ){
-            log.debug("candidate: " + candidate.getName().substring(candidate.getName().lastIndexOf(".")+1));
-        }
         StringBuilder sqlQuery = new StringBuilder();
         AliasMap aliasMap = new AliasMap(type);        
         
@@ -263,7 +266,7 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
             Where where = query.findWhereClause();
             if (where != null)
             {
-                filterAssembler = new JDBCFilterAssembler(candidate, where, type, aliasMap);
+                filterAssembler = new JDBCFilterAssembler(where, type, aliasMap);
                 sqlQuery.append(" ");
                 sqlQuery.append(filterAssembler.getFilter());
                 params = filterAssembler.getParams();
@@ -297,7 +300,7 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
             result = rs.getInt(1);
         }
         catch (Throwable t) {
-            StringBuffer buf = this.generateErrorDetail(t, candidate, sqlQuery.toString(), 
+            StringBuffer buf = this.generateErrorDetail(t, sqlQuery.toString(), 
                     filterAssembler);
             log.error(buf.toString());
             throw new DataAccessException(t);
@@ -315,30 +318,40 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
         return result;
     }
     
-    private List<List<PropertyPair>> findResults(Connection con, Query query, PlasmaType type)
+    private List<List<PropertyPair>> findResults(Query query, PropertySelectionCollector collector,
+    		PlasmaType type, Connection con)
     {
         Object[] params = new Object[0];
-        JDBCFilterAssembler filterAssembler = null;
         JDBCDataConverter converter = JDBCDataConverter.INSTANCE;
 
-        Class candidate = getCandidateClass(type);
         if (log.isDebugEnabled() ){
-            log.debug("candidate1: " + candidate.getName().substring(candidate.getName().lastIndexOf(".")+1));
+            log(query);
         }
 
         AliasMap aliasMap = new AliasMap(type);
-        PropertySelectionCollector collector = new PropertySelectionCollector(
-        	query.getSelectClause(), type, true); // singular props only
+        
         Map<Type, List<String>> selectMap = collector.getResult();
         
         // construct a filter adding to alias map
+        JDBCFilterAssembler filterAssembler = null;
         Where where = query.findWhereClause();
         if (where != null)
         {
-            filterAssembler = new JDBCFilterAssembler(candidate, where, type, aliasMap);
+            filterAssembler = new JDBCFilterAssembler(where, type, aliasMap);
             params = filterAssembler.getParams();               
         }  
         
+        JDBCOrderingDeclarationAssembler orderingDeclAssembler = null;
+        OrderBy orderby = query.findOrderByClause();
+        if (orderby != null)
+            orderingDeclAssembler = new JDBCOrderingDeclarationAssembler(orderby, type, 
+            		aliasMap);
+        JDBCGroupingDeclarationAssembler groupingDeclAssembler = null;
+        GroupBy groupby = query.findGroupByClause();
+        if (groupby != null)
+        	groupingDeclAssembler = new JDBCGroupingDeclarationAssembler(groupby, type, 
+        			aliasMap);
+                
         String rootAlias = aliasMap.getAlias(type);
         StringBuilder sqlQuery = new StringBuilder();
         sqlQuery.append("SELECT ");
@@ -391,10 +404,15 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
         	sqlQuery.append(String.valueOf(query.getEndRange()));
         }  
         
-        addOrdering(query, sqlQuery,  
-                type, aliasMap);
-        addGrouping(query, sqlQuery,  
-                type, aliasMap);       
+        if (orderingDeclAssembler != null) {
+            sqlQuery.append(" ");
+            sqlQuery.append(orderingDeclAssembler.getOrderingDeclaration());
+        }
+        
+        if (groupingDeclAssembler != null) {
+        	sqlQuery.append(" ");
+        	sqlQuery.append(groupingDeclAssembler.getGroupingDeclaration());
+        }
        
         List<List<PropertyPair>> rows = new ArrayList<List<PropertyPair>>();
         PreparedStatement statement = null;
@@ -417,7 +435,23 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
             }
             
             if (log.isDebugEnabled() ){
-                log.debug("executing: "+ sqlQuery.toString());
+                if (params == null || params.length == 0) {
+                    log.debug("executing: "+ sqlQuery.toString());                	
+                }
+                else
+                {
+                    StringBuilder paramBuf = new StringBuilder();
+                	paramBuf.append(" [");
+                    for (int p = 0; p < params.length; p++)
+                    {
+                        if (p > 0)
+                        	paramBuf.append(", ");
+                        paramBuf.append(String.valueOf(params[p]));
+                    }
+                    paramBuf.append("]");
+                    log.debug("executing: "+ sqlQuery.toString() 
+                    		+ " " + paramBuf.toString());
+                }
             } 
             
             statement.execute();
@@ -442,7 +476,7 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
             }
         }
         catch (Throwable t) {
-            StringBuffer buf = this.generateErrorDetail(t, candidate, 
+            StringBuffer buf = this.generateErrorDetail(t,   
             		sqlQuery.toString(), 
                     filterAssembler);
             log.error(buf.toString());
@@ -461,48 +495,13 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
         return rows;
     }
     
-    private void addOrdering(Query query, StringBuilder sqlQuery,  
-            PlasmaType type, AliasMap aliasMap)
-    {
-        JDBCOrderingDeclarationAssembler orderingDeclAssembler = null;
-
-        OrderBy orderby = query.findOrderByClause();
-        if (orderby != null)
-        {
-            orderingDeclAssembler = new JDBCOrderingDeclarationAssembler(orderby, type, 
-            		aliasMap);
-            sqlQuery.append(" ");
-            sqlQuery.append(orderingDeclAssembler.getOrderingDeclaration());
-        }
-    }
-
-    private void addGrouping(Query query, StringBuilder sqlQUery,  
-    		PlasmaType type, AliasMap aliasMap)
-    {
-        JDBCGroupingDeclarationAssembler groupingDeclAssembler = null;
-
-        GroupBy groupby = query.findGroupByClause();
-        if (groupby != null)
-        {
-        	groupingDeclAssembler = new JDBCGroupingDeclarationAssembler(groupby, type, 
-        			aliasMap);
-            sqlQUery.append(" ");
-            sqlQUery.append(groupingDeclAssembler.getGroupingDeclaration());
-        }
-    }
-    
-    private StringBuffer generateErrorDetail(Throwable t, Class candidate, String queryString, 
+    private StringBuffer generateErrorDetail(Throwable t, String queryString, 
             JDBCFilterAssembler filterAssembler)
     {
         StringBuffer buf = new StringBuffer(2048);
         buf.append("QUERY FAILED: ");
         buf.append(t.getMessage());
         buf.append(" \n");
-        if (candidate != null) {
-            buf.append("candidate2: ");
-            buf.append(candidate.getName().substring(candidate.getName().lastIndexOf(".")+1));
-            buf.append(" \n");
-        }
         if (queryString != null) {
             buf.append("queryString: ");
             buf.append(queryString);
@@ -542,25 +541,9 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
             }
         }
         return buf;
-    }
+    }    
     
-    private Class getCandidateClass(Type type)
-    {
-        String className = PlasmaConfig.getInstance().getSDOImplementationClassName(
-        		type.getURI(), type.getName());
-       String pkgName = PlasmaConfig.getInstance().getSDOImplementationPackageName(
-        		type.getURI());
-        Class c = null;
-        try {
-            c = Class.forName(pkgName + "." + className);
-        }
-        catch (ClassNotFoundException e) {
-            throw new DataAccessException(e);
-        }
-        return c;
-    }
-
-    public List getVariables(Where where)
+    public List<Variable> getVariables(Where where)
     {
         final List<Variable> list = new ArrayList<Variable>(1);
         QueryVisitor visitor = new DefaultQueryVisitor() {
@@ -577,6 +560,21 @@ public class JDBCQueryDispatcher extends JDBCDispatcher
 		
 	}
 
+    protected void log(Query root)
+    {
+    	String xml = "";
+        PlasmaQueryDataBinding binding;
+		try {
+			binding = new PlasmaQueryDataBinding(
+			        new DefaultValidationEventHandler());
+	        xml = binding.marshal(root);
+		} catch (JAXBException e) {
+			log.debug(e);
+		} catch (SAXException e) {
+			log.debug(e);
+		}
+        log.debug("where: " + xml);
+    }
 
 }
 

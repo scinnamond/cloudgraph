@@ -24,7 +24,7 @@ import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
-import org.cloudgraph.common.service.ColumnMap;
+import org.cloudgraph.hbase.service.ColumnMap;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.common.service.GraphState.Edge;

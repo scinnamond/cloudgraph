@@ -63,6 +63,8 @@ public class JDBCGroupingDeclarationAssembler extends DefaultQueryVisitor
         contextProp = endpoint;
         
         String alias = this.aliasMap.getAlias(targetType);
+        if (alias == null)
+        	alias = this.aliasMap.addAlias(targetType);
         groupingDeclaration.append(alias);
         groupingDeclaration.append(".");
         groupingDeclaration.append(endpoint.getPhysicalName());

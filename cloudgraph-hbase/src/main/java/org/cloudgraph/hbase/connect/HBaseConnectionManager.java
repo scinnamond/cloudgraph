@@ -16,8 +16,8 @@ import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.context.CloudGraphContext;
 import org.cloudgraph.context.ContextException;
+import org.cloudgraph.hbase.service.CloudGraphContext;
 
 
 /**

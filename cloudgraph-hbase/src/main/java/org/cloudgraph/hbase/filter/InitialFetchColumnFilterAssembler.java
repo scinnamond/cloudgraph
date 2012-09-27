@@ -123,4 +123,6 @@ public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
 			log.debug(e);
 		}
         log.debug("query: " + xml);
-    }}
+    }
+    
+}

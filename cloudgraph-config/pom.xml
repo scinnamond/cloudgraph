@@ -17,6 +17,11 @@
 			<artifactId>cloudgraph-common</artifactId>
 			<version>0.5</version>
 		</dependency>
+        <dependency>
+            <groupId>cloudgraph</groupId>
+            <artifactId>cloudgraph-rdb</artifactId>
+            <version>0.5</version>
+        </dependency>
 	</dependencies>
 	<build>
 		<finalName>cloudgraph-config</finalName>

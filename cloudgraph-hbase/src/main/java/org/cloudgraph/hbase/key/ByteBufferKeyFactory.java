@@ -5,9 +5,11 @@ import java.nio.ByteBuffer;
 import javax.xml.namespace.QName;
 
 import org.apache.hadoop.hbase.util.Hash;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
+import org.cloudgraph.hbase.service.CloudGraphContext;
 import org.plasma.sdo.PlasmaType;
 
 /**
@@ -57,7 +59,31 @@ public abstract class ByteBufferKeyFactory
 		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);
 		this.graph = CloudGraphConfig.getInstance().getDataGraph(
 				rootTypeQname);
-		this.hash = table.getHashAlgorithm();
+		this.hash = getHashAlgorithm(this.table);
+	}
+	
+	/**
+	 * Returns the specific configured hash algorithm 
+	 * configured for an HTable, or if not configured
+	 * returns the configured HBase hash algorithm as
+	 * configured within HBase using the 'hbase.hash.type'
+	 * property.
+	 * @return the specific configured hash algorithm 
+	 * configured for an HTable.
+	 */
+	private Hash getHashAlgorithm(TableConfig table) {
+		if (this.hash== null) {
+			if (table.hasHashAlgorithm()) {
+				String hashName = table.getTable().getHashAlgorithm().getName().value();
+				this.hash = Hash.getInstance(Hash.parseHashType(hashName));
+			}
+			else {
+			    String algorithm = CloudGraphContext.instance().getConfig().get(
+			    		CloudGraphConstants.PROPERTY_HBASE_CONFIG_HASH_TYPE);
+			    this.hash = Hash.getInstance(Hash.parseHashType(algorithm));			
+			}
+		}
+		return this.hash;
 	}
 
 	public TableConfig getTable() {

@@ -1,4 +1,4 @@
-package org.cloudgraph.context;
+package org.cloudgraph.hbase.service;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -61,6 +61,9 @@ public class JDBCOrderingDeclarationAssembler extends DefaultQueryVisitor
         }
         PlasmaProperty endpoint = (PlasmaProperty)targetType.getProperty(property.getName());        
         contextProp = endpoint;
+        String targetAlias = this.aliasMap.getAlias(targetType);
+        if (targetAlias == null)
+        	targetAlias = this.aliasMap.addAlias(targetType);
         
         String alias = this.aliasMap.getAlias(targetType);
         orderingDeclaration.append(alias);

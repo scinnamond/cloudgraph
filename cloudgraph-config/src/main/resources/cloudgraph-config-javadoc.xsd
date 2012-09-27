@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://www.cloudgraph.org/config" 
+    xmlns:cloudgraph="http://www.cloudgraph.org/config"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.0">
+ 
+    <xsd:complexType name="CloudGraphConfiguration">
+        <xsd:annotation>
+            <xsd:documentation>
+Top level configuration settings 
+            </xsd:documentation>
+            <xsd:appinfo><jxb:class><jxb:javadoc>Top level configuration settings</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+
+        <xsd:complexContent>
+            <xsd:extension base="cloudgraph:Configuration">
+		        <xsd:sequence>
+		            <xsd:element name="Table" type="cloudgraph:Table"  minOccurs="1" maxOccurs="unbounded">
+		                <xsd:annotation>                                  
+		                    <xsd:documentation>Collection of tables associated with this configuration.</xsd:documentation>       
+                            <xsd:appinfo><jxb:property><jxb:javadoc>Collection of tables associated with this configuration.</jxb:javadoc></jxb:property></xsd:appinfo>
+		                </xsd:annotation>                                 
+		            </xsd:element>
+		        </xsd:sequence>
+            </xsd:extension>
+        </xsd:complexContent>
+         
+    </xsd:complexType>
+
+    <xsd:element name="CloudGraphConfiguration" type="cloudgraph:CloudGraphConfiguration">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    
+    <xsd:complexType name="Table">
+        <xsd:annotation>
+            <xsd:documentation>
+Configuration settings for a table.
+            </xsd:documentation>
+            <xsd:appinfo><jxb:class><jxb:javadoc>Configuration settings for a table.</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+
+        <xsd:complexContent>
+            <xsd:extension base="cloudgraph:Configuration">
+		        <xsd:sequence>
+		            <xsd:element name="HashAlgorithm" type="cloudgraph:HashAlgorithm"  minOccurs="0" maxOccurs="1">
+		                <xsd:annotation>                                  
+		                    <xsd:documentation>The non-cryptographic hash algorithm settings used within the context of this table.</xsd:documentation>       
+                            <xsd:appinfo><jxb:property><jxb:javadoc>The non-cryptographic hash algorithm settings used within the context of this table.</jxb:javadoc></jxb:property></xsd:appinfo>
+		                </xsd:annotation>                                 
+		            </xsd:element>
+		            <xsd:element name="DataGraph" type="cloudgraph:DataGraph"  minOccurs="1" maxOccurs="unbounded">
+		                <xsd:annotation>                                  
+		                    <xsd:documentation>The collection of data graphs associated with this table.</xsd:documentation>       
+                            <xsd:appinfo><jxb:property><jxb:javadoc>The collection of data graphs associated with this table.</jxb:javadoc></jxb:property></xsd:appinfo>
+		                </xsd:annotation>                                 
+		            </xsd:element>
+		        </xsd:sequence>
+ 		        <xsd:attribute name="name" type="xsd:string" use="required">
+		            <xsd:annotation>                                  
+		                <xsd:documentation>The table name</xsd:documentation>       
+                        <xsd:appinfo><jxb:property><jxb:javadoc>The table name</jxb:javadoc></jxb:property></xsd:appinfo>
+		            </xsd:annotation>                                 
+		        </xsd:attribute>            
+ 		        <xsd:attribute name="dataColumnFamilyName" type="xsd:string" use="required">
+		            <xsd:annotation>                                  
+		                <xsd:documentation>The name of the column family used for data.</xsd:documentation>       
+                        <xsd:appinfo><jxb:property><jxb:javadoc>The name of the column family used for data.</jxb:javadoc></jxb:property></xsd:appinfo>
+		            </xsd:annotation>                                 
+		        </xsd:attribute>		    
+		    </xsd:extension>
+        </xsd:complexContent>
+         
+    </xsd:complexType>
+
+    <xsd:element name="Table" type="cloudgraph:Table">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>    
+ 
+    <xsd:complexType name="DataGraph">
+        <xsd:annotation>
+            <xsd:documentation>Configuration settings for a data graph.</xsd:documentation>
+            <xsd:appinfo><jxb:class><jxb:javadoc>Configuration settings for a data graph.</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+
+        <xsd:complexContent>
+            <xsd:extension base="cloudgraph:Configuration">
+		        <xsd:sequence>
+		            <xsd:element name="RowKeyModel" type="cloudgraph:RowKeyModel"  minOccurs="1" maxOccurs="1">
+		                <xsd:annotation>                                  
+		                    <xsd:documentation>The composite row-key model settings.</xsd:documentation>       
+                            <xsd:appinfo><jxb:property><jxb:javadoc>The composite row-key model settings.</jxb:javadoc></jxb:property></xsd:appinfo>
+		                </xsd:annotation>                                 
+		            </xsd:element>		        
+		            <xsd:element name="ColumnKeyModel" type="cloudgraph:ColumnKeyModel"  minOccurs="1" maxOccurs="1">
+		                <xsd:annotation>                                  
+		                    <xsd:documentation>The composite column-key model settings.</xsd:documentation>       
+                            <xsd:appinfo><jxb:property><jxb:javadoc>The composite column-key model settings.</jxb:javadoc></jxb:property></xsd:appinfo>
+		                </xsd:annotation>                                 
+		            </xsd:element>		        
+		        </xsd:sequence>
+ 		        <xsd:attribute name="uri" type="xsd:string" use="required">
+		            <xsd:annotation>                                  
+		                <xsd:documentation>
+		                The SDO namespace URI for a specific data graph stored within a table.
+		                </xsd:documentation>       
+                        <xsd:appinfo><jxb:property><jxb:javadoc>The SDO namespace URI for a specific data graph stored within a table.</jxb:javadoc></jxb:property></xsd:appinfo>
+		            </xsd:annotation>                                 
+		        </xsd:attribute>             
+ 		        <xsd:attribute name="type" type="xsd:string" use="required">
+		            <xsd:annotation>                                  
+		                <xsd:documentation>The (root) SDO Type for a specific Data Graph stored within this  
+table. Multiple CloudGraph configurations with the same root type
+may be used within the same table configuration, but the URI must
+differ. The SDO specification requires the URI/Type-Name combination
+to be unique.  
+                        </xsd:documentation>       
+                        <xsd:appinfo><jxb:property><jxb:javadoc>The (root) SDO Type for a specific Data Graph stored within this  
+table. Multiple CloudGraph configurations with the same root type
+may be used within the same table configuration, but the URI must
+differ. The SDO specification requires the URI/Type-Name combination to be unique.  </jxb:javadoc></jxb:property></xsd:appinfo>
+		            </xsd:annotation>                                 
+		        </xsd:attribute>             
+		    </xsd:extension>
+        </xsd:complexContent>
+         
+    </xsd:complexType>
+
+    <xsd:element name="DataGraph" type="cloudgraph:DataGraph">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element> 
+
+    <xsd:complexType name="HashAlgorithm">
+        <xsd:annotation>
+            <xsd:documentation>Configuration settings for the non-cryptographic hash algorithm used within the given context</xsd:documentation>
+            <xsd:appinfo><jxb:class><jxb:javadoc>Configuration settings for the non-cryptographic hash algorithm used within the given context.</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+
+        <xsd:attribute name="name" type="cloudgraph:HashAlgorithmName" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The name of the non-cryptographic hash algorithm.</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>The name of the non-cryptographic hash algorithm.</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute>         
+    </xsd:complexType>
+
+    <xsd:element name="HashAlgorithm" type="cloudgraph:HashAlgorithm">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element> 
+
+    <xsd:complexType name="RowKeyModel">
+        <xsd:annotation>
+            <xsd:documentation>
+Specifies the composite row-key generation characteristics for a 
+specific data graph. The characteristics for each pre-defined 
+token may be specified and any number of user-defined tokens
+may also be added to the row key. Each user defined token maps
+a property within the data graph to a position
+within the composite row key, adding another "dimension" to the
+key. For HBase, this user defined composite row-key approach enables the partial key-scan functionality
+which greatly improves query performance. For query properties within a "Where"
+clause restriction not found in the composite row-key, a column scan is required. 
+CloudGraph first looks for a composite row-key token matching the query property, but if not
+found creates a column scan for the property.             
+            </xsd:documentation>
+            <xsd:appinfo><jxb:class><jxb:javadoc>Specifies the composite row-key generation characteristics for a 
+specific data graph. The characteristics for each pre-defined 
+token may be specified and any number of user-defined tokens
+may also be added to the row key. Each user defined token maps
+a property within the data graph to a position
+within the composite row key, adding another "dimension" to the
+key. For HBase, this user defined composite row-key approach enables the partial key-scan functionality
+which greatly improves query performance. For query properties within a "Where"
+clause restriction not found in the composite row-key, a column scan is required. 
+CloudGraph first looks for a composite row-key token matching the query property, but if not
+found creates a column scan for the property.             
+</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="RowKeyToken" type="cloudgraph:RowKeyToken"  minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation>The settings for a pre-defined token within this row-key model.</xsd:documentation>       
+                    <xsd:appinfo><jxb:property><jxb:javadoc>The settings for a pre-defined token within this row-key model.</jxb:javadoc></jxb:property></xsd:appinfo>
+                </xsd:annotation>                                 
+            </xsd:element>
+            <xsd:element name="UserDefinedToken" type="cloudgraph:UserDefinedToken"  minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation>The settings for a user-defined token within this composite row-key model.</xsd:documentation>       
+                    <xsd:appinfo><jxb:property><jxb:javadoc>The settings for a user-defined token within this composite row-key model.</jxb:javadoc></jxb:property></xsd:appinfo>
+                </xsd:annotation>                                 
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="fieldDelimiter" type="xsd:string" use="optional" default=":">
+            <xsd:annotation>                                  
+                <xsd:documentation>The delimiter used to separate fields within the row keys.</xsd:documentation>       
+                    <xsd:appinfo><jxb:property><jxb:javadoc>The delimiter used to separate fields within the row keys</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+        <xsd:attribute name="sectionDelimiter" type="xsd:string" use="optional" default="#">
+            <xsd:annotation>                                  
+                <xsd:documentation>The delimiter used to separate the metadata and data row key sections.</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>The delimiter used to separate the metadata and data row key sections</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+                
+    </xsd:complexType>
+
+    <xsd:element name="RowKeyModel" type="cloudgraph:RowKeyModel">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="RowKeyToken">
+        <xsd:annotation>
+            <xsd:documentation>The settings for one pre-defined token within a composite row-key.</xsd:documentation>       
+            <xsd:appinfo><jxb:class><jxb:javadoc>The settings for one pre-defined token within a composite row-key.</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:attribute name="name" type="cloudgraph:PreDefinedTokenName" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The name of the element or token.</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>The name of the element or token.</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+        <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
+            <xsd:annotation>                                  
+                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this element or token.</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>Whether to apply the specified non-cryptographic hash algorithm to this element or token.</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute>                 
+    </xsd:complexType>
+
+    <xsd:element name="RowKeyToken" type="cloudgraph:RowKeyToken">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    
+    <xsd:complexType name="UserDefinedToken">
+        <xsd:annotation>
+            <xsd:documentation>The settings for one user-defined token within a  
+composite row-key. Each user defined token maps
+a property within the cloudgraph (data graph) to a position
+within the composite row key, adding another "dimension" to the
+key. In HBase for example, this user defined composite row-key approach enables the HBase partial key-scan functionality
+which greatly improves query performance. For query properties within a "Where"
+clause restriction not found in the composite row-key, a column scan is required. 
+cloudgraph first looks for a composite row-key token matching the query property. If found
+within the cloudgraph configuration a partial row-scan is invoked, but if not
+found cloudgraph invokes a column scan for the query property.   
+            </xsd:documentation>       
+            <xsd:appinfo><jxb:class><jxb:javadoc>The settings for one user-defined token within a  
+composite row-key. Each user defined token maps
+a property within the cloudgraph (data graph) to a position
+within the composite row key, adding another "dimension" to the
+key. In HBase for example, this user defined composite row-key approach enables the HBase partial key-scan functionality
+which greatly improves query performance. For query properties within a "Where"
+clause restriction not found in the composite row-key, a column scan is required. 
+cloudgraph first looks for a composite row-key token matching the query property. If found
+within the cloudgraph configuration a partial row-scan is invoked, but if not
+found cloudgraph invokes a column scan for the query property.</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:attribute name="path" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>
+An SDO XPath expression which identifies an 
+SDO property, the value of which to be used as a composite 
+row-key element or token. The XPath expression may traverse any 
+number of nodes within the data graph and may contain any number of
+predicates.  
+                </xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>An SDO XPath expression which identifies an 
+SDO property, the value of which to be used as a composite 
+row-key element or token. The XPath expression may traverse any 
+number of nodes within the data graph and may contain any number of predicates.</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+        <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
+            <xsd:annotation>                                  
+                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this element or token.</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>Whether to apply the specified non-cryptographic hash algorithm to this element or token.</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute>                 
+    </xsd:complexType>
+
+    <xsd:element name="UserDefinedToken" type="cloudgraph:UserDefinedToken">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>    
+
+    <xsd:complexType name="ColumnKeyModel">
+        <xsd:annotation>
+            <xsd:documentation>Specifies the composite column-key generation characteristics for a 
+specific data graph (cloudgraph). The characteristics for each pre-defined 
+column token may be specified.           
+            </xsd:documentation>
+            <xsd:appinfo><jxb:class><jxb:javadoc>Specifies the composite column-key generation characteristics for a 
+specific data graph (cloudgraph). The characteristics for each pre-defined 
+column token may be specified.</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="ColumnKeyToken" type="cloudgraph:ColumnKeyToken"  minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation>The settings for a pre-defined element or token within this column-key model.</xsd:documentation>       
+                    <xsd:appinfo><jxb:property><jxb:javadoc>The settings for a pre-defined element or token within this column-key model.</jxb:javadoc></jxb:property></xsd:appinfo>
+                </xsd:annotation>                                 
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="fieldDelimiter" type="xsd:string" use="optional" default=":">
+            <xsd:annotation>                                  
+                <xsd:documentation>The delimiter used to separate fields within the column keys</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>The delimiter used to separate fields within the column keys</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+        <xsd:attribute name="sectionDelimiter" type="xsd:string" use="optional" default="#">
+            <xsd:annotation>                                  
+                <xsd:documentation>The delimiter used to separate the metadata and data column key sections</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>The delimiter used to separate the metadata and data column key sections</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+                
+    </xsd:complexType>
+
+    <xsd:element name="ColumnKeyModel" type="cloudgraph:ColumnKeyModel">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="ColumnKeyToken">
+        <xsd:annotation>
+            <xsd:documentation>The settings for one pre-defined token within a composite column-key.</xsd:documentation>       
+            <xsd:appinfo><jxb:class><jxb:javadoc>The settings for one pre-defined token within a composite column-key.</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:attribute name="name" type="cloudgraph:PreDefinedTokenName" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The element or token name</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>The element or token name</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute> 
+        <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
+            <xsd:annotation>                                  
+                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this token</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>Whether to apply the specified non-cryptographic hash algorithm to this token</jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute>                 
+    </xsd:complexType>
+
+    <xsd:element name="ColumnKeyToken" type="cloudgraph:ColumnKeyToken">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+        
+    <!-- complex types used in extensions -->
+    <xsd:complexType name="Configuration">
+        <xsd:annotation>
+            <xsd:documentation>A base configuration used an an extension for most configuration elements.</xsd:documentation>
+            <xsd:appinfo><jxb:class><jxb:javadoc>A base configuration used an an extension for most configuration elements</jxb:javadoc></jxb:class></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="Property" type="cloudgraph:Property"  minOccurs="0" maxOccurs="unbounded">
+                <xsd:annotation>                                  
+                    <xsd:documentation>The collection of configuration properties associated with this configuration element.</xsd:documentation>       
+                    <xsd:appinfo><jxb:property><jxb:javadoc>The collection of configuration properties associated with this configuration element.</jxb:javadoc></jxb:property></xsd:appinfo>
+                </xsd:annotation>                                 
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>   
+     
+    <xsd:element name="Configuration" type="cloudgraph:Configuration">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+	<xsd:complexType name="Property">
+	    <xsd:annotation>
+	        <xsd:documentation>Defines a configuration property element with a name attribute 
+and the property value as text content.</xsd:documentation>
+            <xsd:appinfo><jxb:class><jxb:javadoc>Defines a configuration property element with a name attribute 
+and the property value as text content.</jxb:javadoc></jxb:class></xsd:appinfo>
+	    </xsd:annotation>
+		<xsd:simpleContent>
+		    <xsd:extension base="xsd:string">
+		        <xsd:attribute name="name" type="xsd:string" use="required">
+                <xsd:annotation>                                  
+                    <xsd:documentation>The property name.</xsd:documentation>       
+                    <xsd:appinfo><jxb:property><jxb:javadoc>The property name.</jxb:javadoc></jxb:property></xsd:appinfo>
+                </xsd:annotation>  
+                </xsd:attribute>                               
+		    </xsd:extension>			    
+		</xsd:simpleContent>
+	</xsd:complexType>
+
+    <xsd:element name="Property" type="cloudgraph:Property">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:simpleType name="HashAlgorithmName">
+        <xsd:annotation>
+            <xsd:documentation>Supported non-cryptographic hash algorithms</xsd:documentation>
+            <xsd:appinfo><jxb:typesafeEnumClass><jxb:javadoc>Supported non-cryptographic hash algorithms</jxb:javadoc></jxb:typesafeEnumClass></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="murmur">
+		        <xsd:annotation>
+		            <xsd:documentation>The Murmur hash is a very fast, non-cryptographic hash suitable for general hash-based lookup. See http://murmurhash.googlepages.com/ for more details.
+The C version of MurmurHash 2.0 found at that site was ported to Java by Andrzej Bialecki (ab at getopt org).</xsd:documentation>
+		            <xsd:appinfo><jxb:typesafeEnumMember name="MURMUR"><jxb:javadoc>The Murmur hash is a very fast, non-cryptographic hash suitable for general hash-based lookup. See http://murmurhash.googlepages.com/ for more details.
+The C version of MurmurHash 2.0 found at that site was ported to Java by Andrzej Bialecki (ab at getopt org).</jxb:javadoc></jxb:typesafeEnumMember></xsd:appinfo>
+		        </xsd:annotation>
+	        </xsd:enumeration>
+            
+            <xsd:enumeration value="jenkins">                
+                <xsd:annotation>
+                    <xsd:documentation>The Jenkins hash produces 32-bit hash for hash table lookup.
+See lookup3.c, by Bob Jenkins, May 2006, Public Domain.
+                    </xsd:documentation>
+                    <xsd:appinfo><jxb:typesafeEnumMember name="JENKINS"><jxb:javadoc>The Jenkins hash produces 32-bit hash for hash table lookup.
+See lookup3.c, by Bob Jenkins, May 2006, Public Domain.</jxb:javadoc></jxb:typesafeEnumMember></xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>
+
+        </xsd:restriction>
+    </xsd:simpleType>  
+      
+    <xsd:simpleType name="PreDefinedTokenName">
+        <xsd:annotation>
+            <xsd:documentation>Composite pre-defined row key token names</xsd:documentation>
+            <xsd:appinfo><jxb:typesafeEnumClass><jxb:javadoc>Composite pre-defined row key token names</jxb:javadoc></jxb:typesafeEnumClass></xsd:appinfo>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="uri">
+                <xsd:annotation>
+                    <xsd:documentation>The universal resource identifier pre-defined token name.</xsd:documentation>
+                    <xsd:appinfo><jxb:typesafeEnumMember name="URI"><jxb:javadoc>The universal resource identifier pre-defined token name</jxb:javadoc></jxb:typesafeEnumMember></xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="type">
+                <xsd:annotation>
+                    <xsd:documentation>The SDO Type name pre-defined token name</xsd:documentation>
+                    <xsd:appinfo><jxb:typesafeEnumMember name="TYPE"><jxb:javadoc>The SDO Type name pre-defined token name</jxb:javadoc></jxb:typesafeEnumMember></xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="uuid">
+                <xsd:annotation>
+                    <xsd:documentation>The universal unique ID pre-defined token name</xsd:documentation> 
+                    <xsd:appinfo><jxb:typesafeEnumMember name="UUID"><jxb:javadoc>The universal unique ID pre-defined token name</jxb:javadoc></jxb:typesafeEnumMember></xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="property">
+                <xsd:annotation>
+                    <xsd:documentation>The SDO Property name</xsd:documentation>
+                    <xsd:appinfo><jxb:typesafeEnumMember name="PROPERTY"><jxb:javadoc>The SDO Property name</jxb:javadoc></jxb:typesafeEnumMember></xsd:appinfo>
+                </xsd:annotation>
+            </xsd:enumeration>        
+        </xsd:restriction>
+    </xsd:simpleType> 
+
+</xsd:schema>
