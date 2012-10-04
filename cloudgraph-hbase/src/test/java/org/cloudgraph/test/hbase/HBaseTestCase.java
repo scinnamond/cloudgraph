@@ -17,9 +17,11 @@ public abstract class HBaseTestCase extends PlasmaTest {
     protected SDODataAccessClient service;
     protected String classesDir = System.getProperty("classes.dir");
     protected String targetDir = System.getProperty("target.dir");
+    
     public void setUp() throws Exception {
         service = new SDODataAccessClient(
         		new HBasePojoDataAccessClient());
     }
         
+    
 }
