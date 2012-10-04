@@ -35,15 +35,15 @@ public class StudyModelCRUDTest extends StudyModelTest {
         ISBN2 = "ISBN2_" + String.valueOf(id);
         ISBN3 = "ISBN3_" + String.valueOf(id);
 
-        int countBefore = getProfileCount();
+        //int countBefore = getProfileCount();
     	
     	Profile profile = this.createProfileGraph(id);
     	
     	//save the graph
         service.commit(profile.getDataGraph(), "test-user");
     	
-        int countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
+        //int countAfter = getProfileCount();
+        //assertTrue(countAfter == countBefore+1); 
                 
         // fetch the full graph
         Profile fetchedProfile = this.fetchProfileGraphFull(id);
@@ -64,8 +64,8 @@ public class StudyModelCRUDTest extends StudyModelTest {
         
         
         //  check we did not create a dup etc...
-        countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
+        //countAfter = getProfileCount();
+        //assertTrue(countAfter == countBefore+1); 
         
         // delete a section of graph
         Goal goal = (Goal)profile.get("goal[@name='"+GOAL_1+"']");
@@ -94,8 +94,8 @@ public class StudyModelCRUDTest extends StudyModelTest {
         service.commit(profile.getDataGraph(), "test-user2");        
                
         //  check we did not create a dup etc...
-        countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
+        //countAfter = getProfileCount();
+        //assertTrue(countAfter == countBefore+1); 
 
         fetchedProfile = this.fetchProfileGraphFull(id);
         xml = serializeGraph(fetchedProfile.getDataGraph());
