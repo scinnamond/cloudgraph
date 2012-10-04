@@ -34,15 +34,7 @@
 
             <DataAccessProvider name="HBASE"
                 className="org.cloudgraph.hbase.service.HBaseGraphService">
-                <!--
-                <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
-                 <Property name="hbase.zookeeper.quorum">97.74.67.155</Property>    
-                <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
-                <Property name="hbase.zookeeper.property.clientPort">2181</Property>    
-                <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
-                <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
-                -->
-
+                
                 <SequenceConfiguration  
                     generatorClassName="org.hgraph.generator.HBaseSequenceGenerator"/>         
                 <Concurrency 
