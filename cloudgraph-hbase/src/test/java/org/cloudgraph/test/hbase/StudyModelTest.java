@@ -38,6 +38,7 @@ import commonj.sdo.helper.XMLDocument;
  */
 public class StudyModelTest extends HBaseTestCase {
     private static Log log = LogFactory.getLog(StudyModelTest.class);
+    private static int numRuns = 100;
 
     private String GOAL_1 = "Goal 1";
     private String GOAL_2 = "Goal 2";
@@ -56,106 +57,112 @@ public class StudyModelTest extends HBaseTestCase {
     
     public void testProfileCRUD() throws IOException       
     {
-        long id = System.currentTimeMillis();
-        ISBN1 = "ISBN1_" + String.valueOf(id);
-        ISBN2 = "ISBN2_" + String.valueOf(id);
-        ISBN3 = "ISBN3_" + String.valueOf(id);
-
-        int countBefore = getProfileCount();
-    	
-    	Profile profile = this.createProfileGraph(id);
-    	
-    	//save the graph
-        service.commit(profile.getDataGraph(), "test-user");
-    	
-        int countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
-                
-        // fetch the full graph
-        Profile fetchedProfile = this.fetchProfileGraphFull(id);
+    	for (int run = 0; run < numRuns; run++) {
+	    	
+	        long id = System.currentTimeMillis();
+	        ISBN1 = "ISBN1_" + String.valueOf(id);
+	        ISBN2 = "ISBN2_" + String.valueOf(id);
+	        ISBN3 = "ISBN3_" + String.valueOf(id);
+	
+	        int countBefore = getProfileCount();
+	    	
+	    	Profile profile = this.createProfileGraph(id);
+	    	
+	    	//save the graph
+	        service.commit(profile.getDataGraph(), "test-user");
+	    	
+	        int countAfter = getProfileCount();
+	        assertTrue(countAfter == countBefore+1); 
+	                
+	        // fetch the full graph
+	        Profile fetchedProfile = this.fetchProfileGraphFull(id);
+	        
+	        // update a property
+	        // make a change
+	        String newRef = "updated ref";
+	        //fetchedProfile.set("goal[@name='"+GOAL_2+"']/studyItem/citation[position()=1]/@reference", newRef);
+	        fetchedProfile.getGoal(1).getStudyItem(0).getCitation(0).setReference(newRef);
+	        service.commit(fetchedProfile.getDataGraph(), "test-user2");
+	        
+	        fetchedProfile = this.fetchProfileGraphFull(id);
+	        String xml = serializeGraph(fetchedProfile.getDataGraph());
+	        log.info("UPDATED GRAPH: " + xml);        
+	        assertTrue(fetchedProfile.getProfileId() == id);
+	        String updated = fetchedProfile.getGoal(1).getStudyItem(0).getCitation(0).getReference();
+	        assertTrue(newRef.equals(updated));
+	        
+	        
+	        //  check we did not create a dup etc...
+	        countAfter = getProfileCount();
+	        assertTrue(countAfter == countBefore+1); 
+	        
+	        // delete a section of graph
+	        Goal goal = (Goal)profile.get("goal[@name='"+GOAL_1+"']");
+	        Goal goal3 = (Goal)profile.get("goal[@name='"+GOAL_3+"']");
+	        StudyItem studyItem = goal.getStudyItem(0);
+	        Tag commonTag = studyItem.getTag(0);
+	        Citation citation = studyItem.getCitation(0);
+	        Citation citation1 = studyItem.getCitation(1);
+	        // FIXME: this check for a study item with 2 parent goals
+	        // is super important but fails currently for a fetched profile
+	        assertTrue(studyItem.getGoalCount() == 2);
+	        goal.delete();
+	        // now check the state of the client graph before commit
+	        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(goal));
+	        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(studyItem));
+	        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(citation));
+	        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(citation1));
+	        // expect these non-containment references to trigger a modification
+	        // as link object is deleted.
+	        assertTrue(profile.getDataGraph().getChangeSummary().isModified(profile));
+	        assertTrue(profile.getGoalCount() == 2);
+	        assertTrue(profile.getDataGraph().getChangeSummary().isModified(commonTag));
+	        assertTrue(goal3.getStudyItemCount() == 0);
+	        assertTrue(profile.getDataGraph().getChangeSummary().isModified(goal3));
+	               
+	        service.commit(profile.getDataGraph(), "test-user2");        
+	               
+	        //  check we did not create a dup etc...
+	        countAfter = getProfileCount();
+	        assertTrue(countAfter == countBefore+1); 
+	
+	        fetchedProfile = this.fetchProfileGraphFull(id);
+	        xml = serializeGraph(fetchedProfile.getDataGraph());
+	        log.info("GRAPH W/O Goal 1 PATH: " + xml);        
+	        assertTrue(fetchedProfile.getProfileId() == id);
+	        assertTrue(fetchedProfile.getGoalCount() == 2);   
         
-        // update a property
-        // make a change
-        String newRef = "updated ref";
-        //fetchedProfile.set("goal[@name='"+GOAL_2+"']/studyItem/citation[position()=1]/@reference", newRef);
-        fetchedProfile.getGoal(1).getStudyItem(0).getCitation(0).setReference(newRef);
-        service.commit(fetchedProfile.getDataGraph(), "test-user2");
-        
-        fetchedProfile = this.fetchProfileGraphFull(id);
-        String xml = serializeGraph(fetchedProfile.getDataGraph());
-        log.info("UPDATED GRAPH: " + xml);        
-        assertTrue(fetchedProfile.getProfileId() == id);
-        String updated = fetchedProfile.getGoal(1).getStudyItem(0).getCitation(0).getReference();
-        assertTrue(newRef.equals(updated));
-        
-        
-        //  check we did not create a dup etc...
-        countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
-        
-        // delete a section of graph
-        Goal goal = (Goal)profile.get("goal[@name='"+GOAL_1+"']");
-        Goal goal3 = (Goal)profile.get("goal[@name='"+GOAL_3+"']");
-        StudyItem studyItem = goal.getStudyItem(0);
-        Tag commonTag = studyItem.getTag(0);
-        Citation citation = studyItem.getCitation(0);
-        Citation citation1 = studyItem.getCitation(1);
-        // FIXME: this check for a study item with 2 parent goals
-        // is super important but fails currently for a fetched profile
-        assertTrue(studyItem.getGoalCount() == 2);
-        goal.delete();
-        // now check the state of the client graph before commit
-        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(goal));
-        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(studyItem));
-        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(citation));
-        assertTrue(profile.getDataGraph().getChangeSummary().isDeleted(citation1));
-        // expect these non-containment references to trigger a modification
-        // as link object is deleted.
-        assertTrue(profile.getDataGraph().getChangeSummary().isModified(profile));
-        assertTrue(profile.getGoalCount() == 2);
-        assertTrue(profile.getDataGraph().getChangeSummary().isModified(commonTag));
-        assertTrue(goal3.getStudyItemCount() == 0);
-        assertTrue(profile.getDataGraph().getChangeSummary().isModified(goal3));
-               
-        service.commit(profile.getDataGraph(), "test-user2");        
-               
-        //  check we did not create a dup etc...
-        countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
-
-        fetchedProfile = this.fetchProfileGraphFull(id);
-        xml = serializeGraph(fetchedProfile.getDataGraph());
-        log.info("GRAPH W/O Goal 1 PATH: " + xml);        
-        assertTrue(fetchedProfile.getProfileId() == id);
-        assertTrue(fetchedProfile.getGoalCount() == 2);        
+    	} // runs
     }
 
     public void testProfileSlice() throws IOException       
     {
-        long id = System.currentTimeMillis();
-        ISBN1 = "ISBN1_" + String.valueOf(id);
-        ISBN2 = "ISBN2_" + String.valueOf(id);
-        ISBN3 = "ISBN3_" + String.valueOf(id);
-    	int countBefore = getProfileCount();
-    	
-    	Profile profile = this.createProfileGraph(id);
-    	
-    	//save the graph
-        service.commit(profile.getDataGraph(), "test-user");
-    	
-        int countAfter = getProfileCount();
-        assertTrue(countAfter == countBefore+1); 
+    	for (int run = 0; run < numRuns; run++) {
+	        long id = System.currentTimeMillis();
+	        ISBN1 = "ISBN1_" + String.valueOf(id);
+	        ISBN2 = "ISBN2_" + String.valueOf(id);
+	        ISBN3 = "ISBN3_" + String.valueOf(id);
+	    	int countBefore = getProfileCount();
+	    	
+	    	Profile profile = this.createProfileGraph(id);
+	    	
+	    	//save the graph
+	        service.commit(profile.getDataGraph(), "test-user");
+	    	
+	        int countAfter = getProfileCount();
+	        assertTrue(countAfter == countBefore+1); 
+	        
+	        // fetch a slice
+	        Profile fetchedProfile = this.fetchProfileDSLGraphSlice(id);
+	        String xml = serializeGraph(fetchedProfile.getDataGraph());
+	        log.info("SLICED GRAPH: " + xml);
+	        assertTrue(fetchedProfile.getProfileId() == id);
+	        assertTrue(fetchedProfile.getGoalCount() == 1); // expect single slice
+	        String isbn2 = fetchedProfile.getString(
+	        		"goal[@name='"+GOAL_2+"']/@ISBN");
+	        assertTrue(ISBN2.equals(isbn2)); 
         
-        // fetch a slice
-        Profile fetchedProfile = this.fetchProfileDSLGraphSlice(id);
-        String xml = serializeGraph(fetchedProfile.getDataGraph());
-        log.info("SLICED GRAPH: " + xml);
-        assertTrue(fetchedProfile.getProfileId() == id);
-        assertTrue(fetchedProfile.getGoalCount() == 1); // expect single slice
-        String isbn2 = fetchedProfile.getString(
-        		"goal[@name='"+GOAL_2+"']/@ISBN");
-        assertTrue(ISBN2.equals(isbn2)); 
-        
+    	} // runs
     }    
     
     private Profile createProfileGraph(long id) {
