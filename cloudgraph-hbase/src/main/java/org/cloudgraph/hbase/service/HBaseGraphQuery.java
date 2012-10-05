@@ -193,24 +193,17 @@ public class HBaseGraphQuery extends DispatcherSupport
                 		+ query.getStartRange() + ", end: "
                 		+ query.getEndRange() + ") ignored for count operation");
                 
+        	long before = System.currentTimeMillis();
             if (log.isDebugEnabled())  
                 log.debug("executing count...");
         	ResultScanner scanner = con.getScanner(scan);
             for (Result result : scanner) {
             	count++;
-            	/*
-            	if (log.isDebugEnabled()) {
-              	    log.debug("row: " + new String(result.getRow()));
-              	    for (KeyValue keyValue : result.list()) {
-              	    	log.debug("\tkey: " 
-              	    		+ new String(keyValue.getQualifier())
-              	    	    + "\tvalue: " + new String(keyValue.getValue()));
-              	    }
-            	}
-            	*/
             }       
+            long after = System.currentTimeMillis();
             if (log.isDebugEnabled())  
-                log.debug("returning count " + String.valueOf(count));
+                log.debug("returning count " + String.valueOf(count)
+                		+ " (" + String.valueOf(after - before) + ")");
 		} catch (IOException e) {
 			throw new GraphServiceException(e);
 		}            	 
@@ -294,6 +287,7 @@ public class HBaseGraphQuery extends DispatcherSupport
         // Create a scan. For each result row, 
         // assemble a graph and return it
         try {
+        	long before = System.currentTimeMillis();
             if (log.isDebugEnabled() ) 
                 log.debug("executing scan...");
             
@@ -302,10 +296,10 @@ public class HBaseGraphQuery extends DispatcherSupport
             ResultScanner scanner = con.getScanner(scan);
         	int count = 0;
             for (Result resultRow : scanner) {
-            	if (log.isDebugEnabled()) {
-          	        log.debug("row: " + new String(resultRow.getRow()));              	  
+            	if (log.isTraceEnabled()) {
+          	        log.trace("row: " + new String(resultRow.getRow()));              	  
               	    for (KeyValue keyValue : resultRow.list()) {
-              	    	log.debug("\tkey: " 
+              	    	log.trace("\tkey: " 
               	    		+ new String(keyValue.getQualifier())
               	    	    + "\tvalue: " + new String(keyValue.getValue()));
               	    }
@@ -314,8 +308,10 @@ public class HBaseGraphQuery extends DispatcherSupport
                 result.add(graphAssembler.getDataGraph());
                 graphAssembler.clear();
                 count++;
-            }       
-            log.info("assembled " + String.valueOf(count) + " results");
+            }      
+            long after = System.currentTimeMillis();
+            log.info("assembled " + String.valueOf(count) + " results ("
+            	+ String.valueOf(after - before) + ")");
         }
         catch (IOException e) {
             throw new GraphServiceException(e);
