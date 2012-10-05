@@ -193,9 +193,8 @@ public class HBaseGraphQuery extends DispatcherSupport
                 		+ query.getStartRange() + ", end: "
                 		+ query.getEndRange() + ") ignored for count operation");
                 
-            if (log.isDebugEnabled() ){
+            if (log.isDebugEnabled())  
                 log.debug("executing count...");
-            }            
         	ResultScanner scanner = con.getScanner(scan);
             for (Result result : scanner) {
             	count++;
@@ -210,6 +209,8 @@ public class HBaseGraphQuery extends DispatcherSupport
             	}
             	*/
             }       
+            if (log.isDebugEnabled())  
+                log.debug("returning count " + String.valueOf(count));
 		} catch (IOException e) {
 			throw new GraphServiceException(e);
 		}            	 
