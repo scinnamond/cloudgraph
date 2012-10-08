@@ -7,7 +7,7 @@ import org.plasma.sdo.PlasmaProperty;
  * Associates an SDO property with a data value and optional 
  * path to the property from a given context root.
  */
-public class TokenValue {
+public class KeyValue {
 	private PlasmaProperty prop;
 	private String propertyPath;
 	private Object value;
@@ -15,8 +15,8 @@ public class TokenValue {
 	private String wildcard = QueryConstants.WILDCARD; 
 	
 	@SuppressWarnings("unused")
-	private TokenValue() {}
-	public TokenValue(PlasmaProperty prop, Object value) {
+	private KeyValue() {}
+	public KeyValue(PlasmaProperty prop, Object value) {
     	this.prop = prop;
     	this.value = value;
     }

@@ -5,9 +5,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.key.GraphColumnKeyFactory;
-import org.cloudgraph.config.ColumnKeyToken;
+import org.cloudgraph.config.ColumnKeyField;
 import org.cloudgraph.config.DataGraphConfig;
-import org.cloudgraph.config.PreDefinedTokenName;
+import org.cloudgraph.config.PreDefinedFieldName;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
@@ -60,13 +60,13 @@ public class CompositeColumnKeyFactory extends ByteBufferKeyFactory
 		}
 		
 		// URI
-		byte[] uriToken = configureTokenBytes(type.getURIBytes(), graph, hash, PreDefinedTokenName.URI);
+		byte[] uriToken = configureTokenBytes(type.getURIBytes(), graph, hash, PreDefinedFieldName.URI);
 
 		// local type name
-		byte[] typeToken = configureTokenBytes(typeNameToken, graph, hash, PreDefinedTokenName.TYPE);
+		byte[] typeToken = configureTokenBytes(typeNameToken, graph, hash, PreDefinedFieldName.TYPE);
 
 		// property name
-		byte[] propToken = configureTokenBytes(propertyNameToken, graph, hash, PreDefinedTokenName.PROPERTY);
+		byte[] propToken = configureTokenBytes(propertyNameToken, graph, hash, PreDefinedFieldName.PROPERTY);
 
 		int tokensLen = uriToken.length + typeToken.length + propToken.length;
 		byte[] delim = graph.getColumnKeyFieldDelimiterBytes();
@@ -93,10 +93,10 @@ public class CompositeColumnKeyFactory extends ByteBufferKeyFactory
 
 	protected byte[] configureTokenBytes(byte[] token, 
 			DataGraphConfig graph, Hash hash, 
-			PreDefinedTokenName tokenName)
+			PreDefinedFieldName tokenName)
 	{
 		byte[] result = token;
-		ColumnKeyToken tokenConfig = graph.getColumnKeyToken(tokenName);
+		ColumnKeyField tokenConfig = graph.getColumnKeyField(tokenName);
 		if (tokenConfig != null) {
 			if (tokenConfig.isHash()) {
 				int hashValue = hash.hash(result);

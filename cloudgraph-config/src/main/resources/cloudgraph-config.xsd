@@ -141,26 +141,26 @@ to be unique.
             <xsd:documentation>
 Specifies the composite row-key generation characteristics for a
 specific data graph (cloudgraph). The characteristics for each pre-defined
-token may be specified and any number of user-defined tokens
-may also be added to the row key. Each user defined token maps
+field may be specified and any number of user-defined fields
+may also be added to the row key. Each user defined field maps
 a property within the cloudgraph (data graph) to a position
 within the composite row key, adding another "dimension" to the
 key. For HBase, this user defined composite row-key approach enables the partial key-scan functionality
 which greatly improves query performance. For query properties within a "Where"
 clause restriction not found in the composite row-key, a column scan is required.
-cloudgraph first looks for a composite row-key token matching the query property, but if not
+cloudgraph first looks for a composite row-key field matching the query property, but if not
 found creates a column scan for the property.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="RowKeyToken" type="cloudgraph:RowKeyToken" minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="RowKeyField" type="cloudgraph:RowKeyField" minOccurs="1" maxOccurs="unbounded">
                 <xsd:annotation>
-                    <xsd:documentation>The settings for a pre-defined token within this row-key model.</xsd:documentation>
+                    <xsd:documentation>The settings for a pre-defined field within this row-key model.</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="UserDefinedToken" type="cloudgraph:UserDefinedToken" minOccurs="0" maxOccurs="unbounded">
+            <xsd:element name="UserDefinedField" type="cloudgraph:UserDefinedField" minOccurs="0" maxOccurs="unbounded">
                 <xsd:annotation>
-                    <xsd:documentation>The settings for a user-defined token within this composite row-key model.</xsd:documentation>
+                    <xsd:documentation>The settings for a user-defined field within this composite row-key model.</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
         </xsd:sequence>
@@ -183,39 +183,39 @@ found creates a column scan for the property.
         </xsd:annotation>
     </xsd:element>
 
-    <xsd:complexType name="RowKeyToken">
+    <xsd:complexType name="RowKeyField">
         <xsd:annotation>
-            <xsd:documentation>The settings for one pre-defined token within a composite row-key.</xsd:documentation>
+            <xsd:documentation>The settings for one pre-defined field within a composite row-key.</xsd:documentation>
         </xsd:annotation>
-        <xsd:attribute name="name" type="cloudgraph:PreDefinedTokenName" use="required">
+        <xsd:attribute name="name" type="cloudgraph:PreDefinedFieldName" use="required">
             <xsd:annotation>
                 <xsd:documentation></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
             <xsd:annotation>
-                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this token</xsd:documentation>
+                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this field</xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
     </xsd:complexType>
 
-    <xsd:element name="RowKeyToken" type="cloudgraph:RowKeyToken">
+    <xsd:element name="RowKeyField" type="cloudgraph:RowKeyField">
         <xsd:annotation>
             <xsd:documentation></xsd:documentation>
         </xsd:annotation>
     </xsd:element>
     
-    <xsd:complexType name="UserDefinedToken">
+    <xsd:complexType name="UserDefinedField">
         <xsd:annotation>
             <xsd:documentation>
-The settings for one user-defined token within a
-composite row-key. Each user defined token maps
+The settings for one user-defined field within a
+composite row-key. Each user defined field maps
 a property within the cloudgraph (data graph) to a position
 within the composite row key, adding another "dimension" to the
 key. In HBase for example, this user defined composite row-key approach enables the HBase partial key-scan functionality
 which greatly improves query performance. For query properties within a "Where"
 clause restriction not found in the composite row-key, a column scan is required.
-cloudgraph first looks for a composite row-key token matching the query property. If found
+cloudgraph first looks for a composite row-key field matching the query property. If found
 within the cloudgraph configuration a partial row-scan is invoked, but if not
 found cloudgraph invokes a column scan for the query property.
             </xsd:documentation>
@@ -225,7 +225,7 @@ found cloudgraph invokes a column scan for the query property.
                 <xsd:documentation>
 An SDO XPath expression which identifies an
 SDO property, the value of which to be used as a composite
-row-key element or token. The XPath expression may traverse any
+row-key element or field. The XPath expression may traverse any
 number of nodes within the data graph and may contain any number of
 predicates.
                 </xsd:documentation>
@@ -233,12 +233,12 @@ predicates.
         </xsd:attribute>
         <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
             <xsd:annotation>
-                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this token</xsd:documentation>
+                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this field</xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
     </xsd:complexType>
 
-    <xsd:element name="UserDefinedToken" type="cloudgraph:UserDefinedToken">
+    <xsd:element name="UserDefinedField" type="cloudgraph:UserDefinedField">
         <xsd:annotation>
             <xsd:documentation></xsd:documentation>
         </xsd:annotation>
@@ -249,13 +249,13 @@ predicates.
             <xsd:documentation>
 Specifies the composite column-key generation characteristics for a
 specific data graph (cloudgraph). The characteristics for each pre-defined
-column token may be specified.
+column field may be specified.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="ColumnKeyToken" type="cloudgraph:ColumnKeyToken" minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="ColumnKeyField" type="cloudgraph:ColumnKeyField" minOccurs="1" maxOccurs="unbounded">
                 <xsd:annotation>
-                    <xsd:documentation>The settings for a pre-defined token within this column-key model.</xsd:documentation>
+                    <xsd:documentation>The settings for a pre-defined field within this column-key model.</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
         </xsd:sequence>
@@ -278,23 +278,23 @@ column token may be specified.
         </xsd:annotation>
     </xsd:element>
 
-    <xsd:complexType name="ColumnKeyToken">
+    <xsd:complexType name="ColumnKeyField">
         <xsd:annotation>
-            <xsd:documentation>The settings for one pre-defined token within a composite column-key.</xsd:documentation>
+            <xsd:documentation>The settings for one pre-defined field within a composite column-key.</xsd:documentation>
         </xsd:annotation>
-        <xsd:attribute name="name" type="cloudgraph:PreDefinedTokenName" use="required">
+        <xsd:attribute name="name" type="cloudgraph:PreDefinedFieldName" use="required">
             <xsd:annotation>
                 <xsd:documentation></xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
         <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
             <xsd:annotation>
-                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this token</xsd:documentation>
+                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this field</xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
     </xsd:complexType>
 
-    <xsd:element name="ColumnKeyToken" type="cloudgraph:ColumnKeyToken">
+    <xsd:element name="ColumnKeyField" type="cloudgraph:ColumnKeyField">
         <xsd:annotation>
             <xsd:documentation></xsd:documentation>
         </xsd:annotation>
@@ -352,19 +352,19 @@ column token may be specified.
         </xsd:restriction>
     </xsd:simpleType>
       
-    <xsd:simpleType name="PreDefinedTokenName">
+    <xsd:simpleType name="PreDefinedFieldName">
         <xsd:annotation>
-            <xsd:documentation>Composite pre-defined row key token names</xsd:documentation>
+            <xsd:documentation>Composite pre-defined row key field names</xsd:documentation>
         </xsd:annotation>
         <xsd:restriction base="xsd:string">
             <xsd:enumeration value="uri">
-                <xsd:annotation><xsd:documentation>The universal resource identifier pre-defined token name</xsd:documentation></xsd:annotation>
+                <xsd:annotation><xsd:documentation>The universal resource identifier pre-defined field name</xsd:documentation></xsd:annotation>
             </xsd:enumeration>
             <xsd:enumeration value="type">
-                <xsd:annotation><xsd:documentation>The SDO Type name pre-defined token name</xsd:documentation></xsd:annotation>
+                <xsd:annotation><xsd:documentation>The SDO Type name pre-defined field name</xsd:documentation></xsd:annotation>
             </xsd:enumeration>
             <xsd:enumeration value="uuid">
-                <xsd:annotation><xsd:documentation>The universal unique ID pre-defined token name</xsd:documentation></xsd:annotation>
+                <xsd:annotation><xsd:documentation>The universal unique ID pre-defined field name</xsd:documentation></xsd:annotation>
             </xsd:enumeration>
             <xsd:enumeration value="property">
                 <xsd:annotation><xsd:documentation>The SDO Property name</xsd:documentation></xsd:annotation>

@@ -163,7 +163,9 @@
                     <argLine>-Djava.compiler=NONE</argLine>
                     <argLine>-Dlog4j.configuration=file:log4j.properties</argLine>
                     -->
-                     
+                    <includes>
+                        <include>**/*PartialRowKeyScan*</include> 
+                    </includes> 
                      
                      
                 </configuration>

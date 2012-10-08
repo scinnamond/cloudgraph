@@ -1,6 +1,7 @@
 package org.cloudgraph.hbase.key;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 
 import javax.xml.namespace.QName;
 
@@ -44,6 +45,8 @@ public abstract class ByteBufferKeyFactory
 	protected TableConfig table;
 	protected Hash hash;
 	protected DataGraphConfig graph;
+	protected Charset charset;
+	protected KeySupport keySupport = new KeySupport();
 	
 	@SuppressWarnings("unused")
 	private ByteBufferKeyFactory() {}
@@ -59,31 +62,8 @@ public abstract class ByteBufferKeyFactory
 		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);
 		this.graph = CloudGraphConfig.getInstance().getDataGraph(
 				rootTypeQname);
-		this.hash = getHashAlgorithm(this.table);
-	}
-	
-	/**
-	 * Returns the specific configured hash algorithm 
-	 * configured for an HTable, or if not configured
-	 * returns the configured HBase hash algorithm as
-	 * configured within HBase using the 'hbase.hash.type'
-	 * property.
-	 * @return the specific configured hash algorithm 
-	 * configured for an HTable.
-	 */
-	private Hash getHashAlgorithm(TableConfig table) {
-		if (this.hash== null) {
-			if (table.hasHashAlgorithm()) {
-				String hashName = table.getTable().getHashAlgorithm().getName().value();
-				this.hash = Hash.getInstance(Hash.parseHashType(hashName));
-			}
-			else {
-			    String algorithm = CloudGraphContext.instance().getConfig().get(
-			    		CloudGraphConstants.PROPERTY_HBASE_CONFIG_HASH_TYPE);
-			    this.hash = Hash.getInstance(Hash.parseHashType(algorithm));			
-			}
-		}
-		return this.hash;
+		this.hash = this.keySupport.getHashAlgorithm(this.table);
+		this.charset = CloudGraphConfig.getInstance().getCharset();
 	}
 
 	public TableConfig getTable() {

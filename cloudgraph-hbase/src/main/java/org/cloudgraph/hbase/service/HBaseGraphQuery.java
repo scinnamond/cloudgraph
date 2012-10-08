@@ -22,11 +22,13 @@ import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraph;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.connect.HBaseConnectionManager;
-import org.cloudgraph.hbase.filter.BulkFetchColumnFilterAssembler;
+import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.filter.InitialFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
 import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
+import org.cloudgraph.hbase.scan.CompositeRowKeyScanAssembler;
+import org.cloudgraph.hbase.scan.ScanContext;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.From;
@@ -38,6 +40,7 @@ import org.plasma.query.visitor.QueryVisitor;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.QueryDispatcher;
+import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
 /**
@@ -51,7 +54,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * Any "slice" of a graph or set of sub-graphs can be selected using the
  * PlasmaQuery&#8482; API by specifying paths through the graph. Paths may
  * include any number of predicates along the path. Based on this selection
- * criteria an {@link BulkFetchColumnFilterAssembler} is used to 
+ * criteria an {@link GraphFetchColumnFilterAssembler} is used to 
  * precisely restrict the HBase columns returned for each result row.      
  * </p>
  * <p>
@@ -75,7 +78,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * @see org.plasma.query.Query
  * @see PredicateRowFilterAssembler
  * @see DefaultGraphAssembler
- * @see BulkFetchColumnFilterAssembler
+ * @see GraphFetchColumnFilterAssembler
  * 
  */
 public class HBaseGraphQuery extends DispatcherSupport 
@@ -239,7 +242,7 @@ public class HBaseGraphQuery extends DispatcherSupport
         }
         else {
             columnFilterAssembler = 
-        		new BulkFetchColumnFilterAssembler(
+        		new GraphFetchColumnFilterAssembler(
         				collector, type);
         }
         rootFilter.addFilter(columnFilterAssembler.getFilter());
@@ -248,32 +251,49 @@ public class HBaseGraphQuery extends DispatcherSupport
         Where where = query.findWhereClause();
         if (where != null)
         {
-            PredicateRowFilterAssembler rowFilterAssembler = 
-            	new PredicateRowFilterAssembler(type);
-            rowFilterAssembler.assemble(where, type);
-            rootFilter.addFilter(rowFilterAssembler.getFilter());
+        	ScanContext scanContext = 
+        			new ScanContext(type, where);
+        	if (scanContext.canUsePartialKeyScan()) {
+        		CompositeRowKeyScanAssembler scanAssembler = new CompositeRowKeyScanAssembler(type);
+        		scanAssembler.assemble(where, type);
+                scan.setStartRow(scanAssembler.getStartKey()); // inclusive
+                scan.setStopRow(scanAssembler.getStopKey()); // exclusive
+          		if (log.isDebugEnabled())
+        			log.debug("partial key scan: (" 
+          		        + "start: " + Bytes.toString(scan.getStartRow())
+          		        + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
+        	}
+        	else {
+	            PredicateRowFilterAssembler rowFilterAssembler = 
+	            	new PredicateRowFilterAssembler(type);
+	            rowFilterAssembler.assemble(where, type);
+	            rootFilter.addFilter(rowFilterAssembler.getFilter());
+        	}
         } 
         else {
+        	// since no predicate, create a default row key based on 
+        	// only the root type
             CompositeRowKeyFactory rowKeyGen = new CompositeRowKeyFactory(type);
             
             byte[] rowKey = rowKeyGen.createRowKeyBytes(type);
-    		if (log.isDebugEnabled())
-    			log.debug("row-id: " + rowKey);
-
             scan.setStartRow(rowKey);
             //shorter string lexicographically precedes the longer string, so
             //add max unicode char and use as stop-row key
-            byte[] maxCharBytes = Bytes.toBytes(Character.MAX_VALUE);
+            byte[] maxCharBytes = Bytes.toBytes("A"/*Character.MAX_VALUE*/);
             byte[] stopRowKey = new byte[rowKey.length + maxCharBytes.length];
             System.arraycopy(rowKey, 0, stopRowKey, 0, rowKey.length);
             System.arraycopy(maxCharBytes, 0, stopRowKey, rowKey.length, maxCharBytes.length);
             scan.setStopRow(stopRowKey);
+      		if (log.isDebugEnabled())
+    			log.debug("partial key scan: (" 
+      		        + "start: " + Bytes.toString(rowKey)
+      		        + " stop: " + Bytes.toString(stopRowKey) + ")");
             
             //scan.setTimeRange(minStamp, maxStamp)
         }
         
         // Create a graph assembler based on existence
-        // path predicates
+        // on selection path predicates
         HBaseGraphAssembler graphAssembler = null;
         if (collector.getPredicateMap().size() > 0) { 
         	graphAssembler = new GraphSliceAssembler(type, 
@@ -282,7 +302,7 @@ public class HBaseGraphQuery extends DispatcherSupport
         else {
         	graphAssembler = new DefaultGraphAssembler(type, 
                 collector.getResult(), snapshotDate, tableConfig);
-        }	
+        }
         
         // Create a scan. For each result row, 
         // assemble a graph and return it

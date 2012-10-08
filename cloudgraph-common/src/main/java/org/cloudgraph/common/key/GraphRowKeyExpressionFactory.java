@@ -30,8 +30,8 @@ public interface GraphRowKeyExpressionFactory {
 	 * @param values the token value list
 	 * @return the row key expression
 	 */
-	public String createRowKeyExpr(List<TokenValue> values);
-	public byte[] createRowKeyExprBytes(List<TokenValue> values);
+	public String createRowKeyExpr(List<KeyValue> values);
+	public byte[] createRowKeyExprBytes(List<KeyValue> values);
 	
 	/**
 	 * Returns true if the data graph configured for the given 

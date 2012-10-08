@@ -2,6 +2,7 @@ package org.cloudgraph.config;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import org.cloudgraph.config.Table;
 import org.cloudgraph.config.Property;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.common.env.EnvProperties;
+import org.plasma.sdo.core.CoreConstants;
 import org.xml.sax.SAXException;
 
 
@@ -35,7 +37,7 @@ public class CloudGraphConfig {
     private static CloudGraphConfig instance = null;
     private static final String PROPERTY_NAME_CLOUDGRAPH_CONFIG = "cloudgraph.configuration";     
     private static final String defaultConfigFileName = "cloudgraph-config.xml";     
-    
+    private Charset charset = Charset.forName( CoreConstants.UTF8_ENCODING );
     private CloudGraphConfiguration config;
     
     private Map<QName, TableConfig> graphURIToTableMap = new HashMap<QName, TableConfig>();
@@ -185,4 +187,10 @@ public class CloudGraphConfig {
     				" '" + qname.toString() + "'");
     	return result;
     }
+
+	public Charset getCharset() {
+		return charset;
+	}
+    
+    
 }

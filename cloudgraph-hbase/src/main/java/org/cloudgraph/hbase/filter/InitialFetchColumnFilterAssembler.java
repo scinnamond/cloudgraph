@@ -38,7 +38,7 @@ import commonj.sdo.Type;
  *  
  * @see GraphColumnKeyFactory
  * @see CompositeColumnKeyFactory
- * @see BulkFetchColumnFilterAssembler
+ * @see GraphFetchColumnFilterAssembler
  */
 public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
     private static Log log = LogFactory.getLog(InitialFetchColumnFilterAssembler.class);

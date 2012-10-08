@@ -11,10 +11,10 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.key.GraphKeyException;
 import org.cloudgraph.common.key.GraphRowKeyExpressionFactory;
-import org.cloudgraph.common.key.TokenValue;
+import org.cloudgraph.common.key.KeyValue;
 import org.cloudgraph.config.CloudGraphConfigurationException;
-import org.cloudgraph.config.RowKeyToken;
-import org.cloudgraph.config.UserDefinedTokenConfig;
+import org.cloudgraph.config.RowKeyField;
+import org.cloudgraph.config.UserDefinedFieldConfig;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -26,7 +26,7 @@ import commonj.sdo.Type;
  * Generates an HBase row key based on the configured CloudGraph {@link org.cloudgraph.config.RowKeyModel Row Key
  * Model} for a specific {@link org.cloudgraph.config.Table HTable Configuration}. 
  * <p>
- * The initial creation and subsequent reconstitution for query retrieval
+ * The initial creation and subsequent re-constitution for query retrieval
  * purposes of both row and column keys in CloudGraph&#8482; is efficient, 
  * as it leverages byte array level API in both Java and the current 
  * underlying SDO 2.1 implementation, <a target="#" href="http://plasma-sdo.org">PlasmaSDO&#8482;</a>. Both composite row and 
@@ -46,22 +46,22 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
 	}
 	
 	@Override
-	public String createRowKeyExpr(List<TokenValue> values) {
+	public String createRowKeyExpr(List<KeyValue> values) {
 		byte[] result = createRowKeyExprBytes(values);
 		return new String(result, 
 			Charset.forName(CoreConstants.UTF8_ENCODING));
 	}
 	
 	//@Override
-	public String createRowKeyExprs(List<TokenValue> values) {
+	public String createRowKeyExprs(List<KeyValue> values) {
 		StringBuilder result = new StringBuilder();
 		
 		if (values == null || values.size() == 0)
 			throw new IllegalArgumentException("expected non-null, non-zero length list argument 'values'");
 		
-		List<RowKeyToken> preDefinedTokens = graph.getPreDefinedRowKeyTokens();
+		List<RowKeyField> preDefinedTokens = graph.getPreDefinedRowKeyFields();
         for (int i = 0; i < preDefinedTokens.size(); i++) {
-        	RowKeyToken preDefinedToken = preDefinedTokens.get(i);
+        	RowKeyField preDefinedToken = preDefinedTokens.get(i);
     		if (i > 0)
         	    result.append(graph.getRowKeyFieldDelimiter());
        	    String tokenValue = this.getPredefinedTokenValue(this.rootType, 
@@ -73,11 +73,11 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
             result.append(graph.getRowKeySectionDelimiter());
         
         int count = 0;
-		for (UserDefinedTokenConfig userTokenConfig : graph.getUserDefinedRowKeyTokens()) {				
+		for (UserDefinedFieldConfig userTokenConfig : graph.getUserDefinedRowKeyFields()) {				
 			if (count > 0)
 			    result.append(graph.getRowKeyFieldDelimiter());
 			
-			TokenValue found = findTokenValue(userTokenConfig.getPropertyPath(), values);
+			KeyValue found = findTokenValue(userTokenConfig.getPropertyPath(), values);
             // user has a configuration for this path
 			if (found != null) {
 				String tokenValue = String.valueOf(found.getValue());	
@@ -86,7 +86,7 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
 						throw new GraphKeyException("cannot create wildcard expression for user"  
 							+ " defined row-key token with XPath expression '" 
 							+ userTokenConfig.getPathExpression() + "'"
-							+ " for HTable '"
+							+ " for table '"
 							+ table.getName() + "' - this token is defined as using an integral hash algorithm which prevents the use of wildcards");
 						 
 					int hashValue = hash.hash(tokenValue.getBytes());
@@ -111,16 +111,16 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
 	}
 	
 	@Override
-	public byte[] createRowKeyExprBytes(List<TokenValue> values) {
+	public byte[] createRowKeyExprBytes(List<KeyValue> values) {
 		
 		if (values == null || values.size() == 0)
 			throw new IllegalArgumentException("expected non-null, non-zero length list argument 'values'");
 		
 		this.buf.clear();
 
-		List<RowKeyToken> preDefinedTokens = graph.getPreDefinedRowKeyTokens();
+		List<RowKeyField> preDefinedTokens = graph.getPreDefinedRowKeyFields();
         for (int i = 0; i < preDefinedTokens.size(); i++) {
-        	RowKeyToken preDefinedToken = preDefinedTokens.get(i);
+        	RowKeyField preDefinedToken = preDefinedTokens.get(i);
     		if (i > 0)
     			this.buf.put(graph.getRowKeyFieldDelimiterBytes());
     		byte[] tokenValue = this.getPredefinedTokenValueBytes(this.rootType, 
@@ -132,11 +132,11 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
         	this.buf.put(graph.getRowKeySectionDelimiterBytes());
         
         int count = 0;
-		for (UserDefinedTokenConfig userTokenConfig : graph.getUserDefinedRowKeyTokens()) {				
+		for (UserDefinedFieldConfig userTokenConfig : graph.getUserDefinedRowKeyFields()) {				
 			if (count > 0)
 				this.buf.put(graph.getRowKeyFieldDelimiterBytes());
 			
-			TokenValue found = findTokenValue(userTokenConfig.getPropertyPath(), values);
+			KeyValue found = findTokenValue(userTokenConfig.getPropertyPath(), values);
             // user has a configuration for this path
 			if (found != null) {
 				String tokenValue = String.valueOf(found.getValue());	
@@ -145,7 +145,7 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
 						throw new GraphKeyException("cannot create wildcard expression for user"  
 							+ " defined row-key token with XPath expression '" 
 							+ userTokenConfig.getPathExpression() + "'"
-							+ " for HTable '"
+							+ " for table '"
 							+ table.getName() + "' - this token is defined as using an integral hash algorithm which prevents the use of wildcards");
 						 
 					int hashValue = hash.hash(tokenValue.getBytes());
@@ -177,8 +177,8 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
 		return result;
 	}	
 
-	private TokenValue findTokenValue(String path, List<TokenValue> values) {
-		for (TokenValue pair : values) {
+	private KeyValue findTokenValue(String path, List<KeyValue> values) {
+		for (KeyValue pair : values) {
         	if (pair.getPropertyPath().equals(path))
                 return pair;
         }
@@ -206,7 +206,7 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
 	 */
 	private String getPredefinedTokenValue(
 			PlasmaType type, Hash hash, 
-			RowKeyToken token) {
+			RowKeyField token) {
 		String result = null;
 		switch (token.getName()) {
 		case URI: 
@@ -239,7 +239,7 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
 
 	private byte[] getPredefinedTokenValueBytes(
 			PlasmaType type, Hash hash, 
-			RowKeyToken token) {
+			RowKeyField token) {
 		byte[] result = null;
 		switch (token.getName()) {
 		case URI: 
@@ -283,9 +283,8 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
 	 * maps to the given property path. 
 	 */
 	@Override
-    public boolean hasUserDefinedRowKeyToken(Type type, String path) {
-		
-		return this.graph.getUserDefinedRowKeyToken(path) != null;    	
+    public boolean hasUserDefinedRowKeyToken(Type type, String path) {		
+		return this.graph.getUserDefinedRowKeyField(path) != null;    	
     }	
 	
 }

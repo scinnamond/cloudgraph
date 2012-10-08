@@ -15,31 +15,31 @@
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
          
-    <Table name="data13" dataColumnFamilyName="f1">
+    <Table name="data9" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
          
         <DataGraph uri="http://crackoo.com/domain" type="Profile">
             <RowKeyModel>
-                <RowKeyToken name="uri" hash="true"/>
-                <RowKeyToken name="type"/>
+                <RowKeyField name="uri" hash="true"/>
+                <RowKeyField name="type"/>
                 <!--
-                <RowKeyToken name="uuid">
+                <RowKeyField name="uuid">
                     <KeyFormat>
                     </KeyFormat>
-                </RowKeyToken>
+                </RowKeyField>
                 -->
-                <UserDefinedToken 
+                <UserDefinedField 
                     path="profileId"/>
-                <UserDefinedToken 
+                <UserDefinedField 
                     path="creationDate"/>
-                <UserDefinedToken 
+                <UserDefinedField 
                     path="goal[@name='Goal 2']/@ISBN"/>
             </RowKeyModel>
             
             <ColumnKeyModel>
-                <ColumnKeyToken name="uri" hash="true"/>
-                <ColumnKeyToken name="type"/>
-                <ColumnKeyToken name="property"/>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
             </ColumnKeyModel>
         </DataGraph>
 

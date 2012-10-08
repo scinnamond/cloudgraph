@@ -42,8 +42,7 @@ public class PredicateRowFilterAssembler extends RowPredicateVisitor
 	public PredicateRowFilterAssembler( 
 			PlasmaType rootType) 
 	{
-		super(rootType);
-    	
+		super(rootType);    	
         this.rowKeyFac = new CompositeRowKeyExpressionFactory(rootType);        
 	}	
 	
@@ -94,6 +93,4 @@ public class PredicateRowFilterAssembler extends RowPredicateVisitor
 		}
         log.debug("query: " + xml);
     }
-
-
 }

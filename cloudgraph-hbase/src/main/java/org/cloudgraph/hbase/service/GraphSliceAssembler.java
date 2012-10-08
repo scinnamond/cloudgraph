@@ -78,17 +78,22 @@ public class GraphSliceAssembler
     implements HBaseGraphAssembler {
 
     private static Log log = LogFactory.getLog(GraphSliceAssembler.class);
-	private PlasmaType rootType;
-	private PlasmaDataObject root;
+	
+    // variables that remain constant for multiple assemblies
+    private PlasmaType rootType;
 	private PropertySelectionCollector collector;
 	private Map<Type, List<String>> propertyMap;
 	private Map<commonj.sdo.Property, Where> predicateMap; 
 	private Timestamp snapshotDate;
-	private GraphState graphState;		
-	private GraphStatefullColumnKeyFactory columnKeyFac;
-	private Map<UUID, PlasmaDataObject> dataObjects = new HashMap<UUID, PlasmaDataObject>();
 	private TableConfig tableConfig;
 	private HTableInterface con;
+
+	// variables that are reset, cleared or recreated
+	// for each row assembly
+	private GraphState graphState;		
+	private PlasmaDataObject root;
+	private GraphStatefullColumnKeyFactory columnKeyFac;
+	private Map<UUID, PlasmaDataObject> dataObjects = new HashMap<UUID, PlasmaDataObject>();
 	private byte[] rowKey;
 	private ColumnMap columnMap;
 	private int scanCount = 1; 
@@ -118,8 +123,8 @@ public class GraphSliceAssembler
 		this.snapshotDate = snapshotDate;
 		this.tableConfig =tableConfig;
 		this.con = con;
-		
-
+		this.propertyMap = this.collector.getResult();
+		this.predicateMap = this.collector.getPredicateMap();
 	}
 	
 	/**
@@ -131,44 +136,26 @@ public class GraphSliceAssembler
 	public void assemble(Result resultRow) {
 		
 		this.rowKey = resultRow.getRow();
-		if (this.columnMap == null)
-			this.columnMap = new ColumnMap(resultRow);
-		
-		this.propertyMap = this.collector.getResult();
-		this.predicateMap = this.collector.getPredicateMap();
-		
-		byte[] state = resultRow.getValue(
-				this.tableConfig.getDataColumnFamilyNameBytes(), 
-				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
-        if (state != null) {
-        	if (log.isDebugEnabled())
-        		log.debug(GraphState.STATE_MAP_COLUMN_NAME
-        			+ ": " + new String(state));
-        }
-        else
-			throw new DataAccessException("expected column '"
-				+ GraphState.STATE_MAP_COLUMN_NAME + "' for row " 
-				+ Bytes.toString(resultRow.getRow()) + "'"); 
+		this.columnMap = new ColumnMap(resultRow);
+        this.graphState = createGraphState(resultRow);
         
-        this.graphState = new GraphState(Bytes.toString(state));
-        if (log.isDebugEnabled()) {
-        	String stateStr = this.graphState.toString();
-        	log.debug("STATE: " + stateStr);
-        }
         
-        this.columnKeyFac = new StatefullColumnKeyFactory(this.rootType,
-        		graphState);
+        // create column factories and column
+        // filter assemblers
+        this.columnKeyFac = new StatefullColumnKeyFactory(
+        	this.rootType,
+        	this.graphState);
 		this.graphSliceColumnFilterAssembler = 
-            	new PredicateColumnFilterAssembler( 
-            		this.graphState,  
-        			this.rootType);
+            new PredicateColumnFilterAssembler( 
+            	this.graphState,  
+        		this.rootType);
 		this.multiColumnPrefixFilterAssembler = 
-				new BinaryPrefixColumnFilterAssembler(this.rootType);
+			new BinaryPrefixColumnFilterAssembler(this.rootType);
 		this.multiColumnStatefullPrefixFilterAssembler = 
-				new StatefullBinaryPrefixColumnFilterAssembler( 
-				this.graphState, this.rootType);
+			new StatefullBinaryPrefixColumnFilterAssembler( 
+			    this.graphState, this.rootType);
 		
-        // build the graph
+        // build the graph and root
     	PlasmaDataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
     	dataGraph.setId(resultRow.getRow());    	
     	this.root = (PlasmaDataObject)dataGraph.createRootObject(this.rootType);				
@@ -179,23 +166,12 @@ public class GraphSliceAssembler
         	rootNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
 
         // need to reconstruct the original graph, so need original UUID
-		byte[] rootUuid = resultRow.getValue(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
-                Bytes.toBytes(CloudGraphConstants.ROOT_UUID_COLUMN_NAME));
-		if (rootUuid == null)
-			throw new GraphServiceException("expected column: "
-				+ this.tableConfig.getDataColumnFamilyName() + ":"
-				+ CloudGraphConstants.ROOT_UUID_COLUMN_NAME);
-		String uuidStr = null;
-		try {
-			uuidStr = new String(rootUuid, HConstants.UTF8_ENCODING);
-		} catch (UnsupportedEncodingException e) {
-			throw new GraphServiceException(e);
-		}
-		UUID uuid = UUID.fromString(uuidStr);
+		UUID uuid = this.recreateRootUUID(resultRow);
 		rootNode.setValue(CoreConstants.PROPERTY_NAME_UUID, 
 				uuid);
 		this.dataObjects.put(uuid, this.root);
 		
+		// traverse
 		assemble(this.root, null, null, uuid);
 	}
 	
@@ -335,6 +311,47 @@ public class GraphSliceAssembler
 			}
 		}
     }	
+	
+	private GraphState createGraphState(Result resultRow) {
+		
+		byte[] state = resultRow.getValue(
+				this.tableConfig.getDataColumnFamilyNameBytes(), 
+				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
+        if (state != null) {
+        	if (log.isDebugEnabled())
+        		log.debug(GraphState.STATE_MAP_COLUMN_NAME
+        			+ ": " + new String(state));
+        }
+        else
+			throw new DataAccessException("expected column '"
+				+ GraphState.STATE_MAP_COLUMN_NAME + "' for row " 
+				+ Bytes.toString(resultRow.getRow()) + "'"); 
+        
+        GraphState graphState = new GraphState(Bytes.toString(state));
+        if (log.isDebugEnabled()) {
+        	String stateStr = this.graphState.toString();
+        	log.debug("STATE: " + stateStr);
+        }
+		return graphState;
+	}
+	
+	private UUID recreateRootUUID(Result resultRow)
+	{
+        // need to reconstruct the original graph, so need original UUID
+		byte[] rootUuid = resultRow.getValue(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
+                Bytes.toBytes(CloudGraphConstants.ROOT_UUID_COLUMN_NAME));
+		if (rootUuid == null)
+			throw new GraphServiceException("expected column: "
+				+ this.tableConfig.getDataColumnFamilyName() + ":"
+				+ CloudGraphConstants.ROOT_UUID_COLUMN_NAME);
+		String uuidStr = null;
+		try {
+			uuidStr = new String(rootUuid, HConstants.UTF8_ENCODING);
+		} catch (UnsupportedEncodingException e) {
+			throw new GraphServiceException(e);
+		}
+		return UUID.fromString(uuidStr);
+	}
 	
 	private boolean found(Edge edge, List<Long> sequences) {
 		for (Long seq : sequences)
@@ -501,9 +518,19 @@ public class GraphSliceAssembler
 		this.root = null;
 		if (this.dataObjects != null)
 		    this.dataObjects.clear();
-		if (this.columnMap != null)
-		    this.columnMap.clear();
+		
 		this.scanCount = 1;
+		this.graphState = null;		
+		this.root = null;
+		this.columnKeyFac = null;
+		if (this.dataObjects != null)
+		    this.dataObjects.clear();
+		this.rowKey = null;
+		this.columnMap = null;
+		this.scanCount = 1;
+		this.graphSliceColumnFilterAssembler = null;
+		this.multiColumnPrefixFilterAssembler = null;
+		this.multiColumnStatefullPrefixFilterAssembler = null;
 	}
 	
 }

@@ -2,26 +2,30 @@ package org.cloudgraph.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.config.UserDefinedToken;
+import org.cloudgraph.config.UserDefinedField;
 
 import commonj.sdo.Type;
 
-public class UserDefinedTokenConfig {
-    private static Log log = LogFactory.getLog(UserDefinedTokenConfig.class);
+public class UserDefinedFieldConfig {
+    private static Log log = LogFactory.getLog(UserDefinedFieldConfig.class);
 	
     private DataGraphConfig dataGraph;
-    private UserDefinedToken userToken;
+    private UserDefinedField userToken;
     private String propertyPath;
     private commonj.sdo.Property endpointProperty;
+    private int sequenceNum;
     
     @SuppressWarnings("unused")
-	private UserDefinedTokenConfig() {}
+	private UserDefinedFieldConfig() {}
     
-	public UserDefinedTokenConfig(DataGraphConfig dataGraph, 
-			UserDefinedToken userToken) {
+	public UserDefinedFieldConfig(DataGraphConfig dataGraph, 
+			UserDefinedField userToken,
+			int sequenceNum) {
 		super();
 		this.dataGraph = dataGraph;
 		this.userToken = userToken;
+		this.sequenceNum = sequenceNum;
+		
 		try {
 			construct(this.userToken.getPath());
 		}
@@ -55,12 +59,21 @@ public class UserDefinedTokenConfig {
 		}
 		this.propertyPath = buf.toString();	
 	}
-	
+
+    public boolean equals(Object obj) {
+    	UserDefinedFieldConfig other = (UserDefinedFieldConfig)obj;
+	    return (this.sequenceNum == other.sequenceNum);
+    }
+    
+	public int getSequenceNum() {
+		return sequenceNum;
+	}
+
 	public DataGraphConfig getDataGraph() {
 		return dataGraph;
 	}
 
-	public UserDefinedToken getUserToken() {
+	public UserDefinedField getUserToken() {
 		return userToken;
 	}
 

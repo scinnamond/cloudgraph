@@ -48,7 +48,11 @@ public abstract class StudyModelTest extends HBaseTestCase {
     
 
     protected Profile createProfileGraph(long id) {
-    	DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
+        ISBN1 = "ISBN1_" + String.valueOf(id);
+        ISBN2 = "ISBN2_" + String.valueOf(id);
+        ISBN3 = "ISBN3_" + String.valueOf(id);
+
+        DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
         dataGraph.getChangeSummary().beginLogging(); // log changes from this point
     	Type rootType = PlasmaTypeHelper.INSTANCE.getType(Profile.class);
     	Profile profile = (Profile)dataGraph.createRootObject(rootType);
@@ -192,7 +196,7 @@ public abstract class StudyModelTest extends HBaseTestCase {
     	assertTrue(result.length == 1);
     	
     	return (Profile)result[0].getRootObject();
-   }
+    }
     
     protected Profile fetchProfileXPathGraphSlice(long id) {    	
     	 

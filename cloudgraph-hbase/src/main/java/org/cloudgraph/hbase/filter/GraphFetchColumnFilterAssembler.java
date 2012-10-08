@@ -32,22 +32,22 @@ import commonj.sdo.Type;
 /**
  * Creates an HBase column filter set based on the given criteria
  * which leverages the HBase <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/MultipleColumnPrefixFilter.html">MultipleColumnPrefixFilter</a>
- * to return only selected columns. The advantage of this strategy is that
+ * to return only columns which make up the selected data graph. The advantage of this strategy is that
  * a complete graph of any complexity may be returned in a single round trip. 
  *  
  * @see GraphColumnKeyFactory
  * @see InitialFetchColumnFilterAssembler
  */
-public class BulkFetchColumnFilterAssembler extends FilterListAssembler 
+public class GraphFetchColumnFilterAssembler extends FilterListAssembler 
     implements HBaseFilterAssembler
 {
-    private static Log log = LogFactory.getLog(BulkFetchColumnFilterAssembler.class);
+    private static Log log = LogFactory.getLog(GraphFetchColumnFilterAssembler.class);
 
 	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
     private PropertySelectionCollector collector;
 	
-	public BulkFetchColumnFilterAssembler( 
+	public GraphFetchColumnFilterAssembler( 
 			PropertySelectionCollector collector,
 			PlasmaType rootType) {
 		

@@ -13,7 +13,7 @@ import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.WritableByteArrayComparable;
 import org.cloudgraph.common.filter.GraphFilterException;
 import org.cloudgraph.common.key.GraphRowKeyExpressionFactory;
-import org.cloudgraph.common.key.TokenValue;
+import org.cloudgraph.common.key.KeyValue;
 import org.plasma.query.QueryException;
 import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.Expression;
@@ -84,7 +84,6 @@ public class RowPredicateVisitor extends PredicateVisitor {
         	if (term.getSubqueryOperator() != null)
                 throw new GraphFilterException("subqueries for row filters not yet supported");
     }                               
- 
 	
 	/**
 	 * Process the traversal end event for a query {@link org.plasma.query.model.Expression expression}
@@ -149,8 +148,7 @@ public class RowPredicateVisitor extends PredicateVisitor {
 					+ operator.getValue().toString() + "'");
 		}
 		super.start(operator);
-	}
-	
+	}	
 	
     /**
      * Process the traversal start event for a query {@link org.plasma.query.model.Literal literal}
@@ -179,7 +177,7 @@ public class RowPredicateVisitor extends PredicateVisitor {
 		// row key token, if match we can add a row filter.
 		if (this.rowKeyFac.hasUserDefinedRowKeyToken(this.rootType, this.contextPropertyPath)) 
 		{
-			TokenValue pair = new TokenValue(
+			KeyValue pair = new KeyValue(
 					this.contextProperty, 
 					content);			
 			pair.setPropertyPath(this.contextPropertyPath);
@@ -187,7 +185,7 @@ public class RowPredicateVisitor extends PredicateVisitor {
 				pair.setIsWildcard(true);
 			
 			// FIXME: can't several of these be lumped together if in the same AND expression parent??
-			List<TokenValue> pairs = new ArrayList<TokenValue>();
+			List<KeyValue> pairs = new ArrayList<KeyValue>();
 			pairs.add(pair);
 			
 	        String rowKeyExpr = this.rowKeyFac.createRowKeyExpr(
@@ -254,124 +252,4 @@ public class RowPredicateVisitor extends PredicateVisitor {
 		super.start(operator);
 	}
 
-	protected boolean hasChildExpressions(Expression expression) {
-		for (Term term : expression.getTerms())
-			if (term.getExpression() != null)
-				return true;
-		return false;
-	}
-	
-	public void start(RelationalOperator operator) {
-
-		this.contextOpWildcard = false;
-		
-		switch (operator.getValue()) {
-		case EQUALS:
-			this.contextOp = CompareFilter.CompareOp.EQUAL;
-			break;
-		case NOT_EQUALS:
-			this.contextOp = CompareFilter.CompareOp.NOT_EQUAL;
-			break;
-		case GREATER_THAN:
-			this.contextOp = CompareFilter.CompareOp.GREATER;
-			break;
-		case GREATER_THAN_EQUALS:
-			this.contextOp = CompareFilter.CompareOp.GREATER_OR_EQUAL;
-			break;
-		case LESS_THAN:
-			this.contextOp = CompareFilter.CompareOp.LESS;
-			break;
-		case LESS_THAN_EQUALS:
-			this.contextOp = CompareFilter.CompareOp.LESS_OR_EQUAL;
-			break;
-		default:
-			throw new DataAccessException("unknown operator '"
-					+ operator.getValue().toString() + "'");
-		}
-		super.start(operator);
-	}
-	
-	public void start(GroupOperator operator) {
-		switch (operator.getValue()) {
-		case RP_1:  		
-	        if (log.isDebugEnabled())
-				log.debug("pushing expression filter");
-	        this.pushFilter(); 
-	        break;
-		case RP_2:  		
-	        if (log.isDebugEnabled())
-				log.debug("pushing 2 expression filters");
-	        this.pushFilter(); 
-	        this.pushFilter(); 
-		    break;
-		case RP_3:  			
-	        if (log.isDebugEnabled())
-				log.debug("pushing 3 expression filters");
-	        this.pushFilter(); 
-	        this.pushFilter(); 
-	        this.pushFilter(); 
-			break;
-		case LP_1:  
-	        if (log.isDebugEnabled())
-				log.debug("poping expression filter");
-			this.popFilter() ;
-			break;
-		case LP_2:  			
-	        if (log.isDebugEnabled())
-				log.debug("poping 2 expression filters");
-			this.popFilter() ;
-			this.popFilter() ;
-			break;
-		case LP_3:  
-	        if (log.isDebugEnabled())
-				log.debug("poping 3 expression filters");
-			this.popFilter() ;
-			this.popFilter() ;
-			this.popFilter() ;
-			break;
-		default:
-			throw new QueryException("unknown group operator, "
-						+ operator.getValue().name());
-		}
-		super.start(operator);
-	}
-	
-	protected void pushFilter() {
-        FilterList top = this.filterStack.peek();
-        FilterList next = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-        top.addFilter(next);
-        this.filterStack.push(next);  		
-	}
-	
-	protected void popFilter() {
-		this.filterStack.pop();
-	}	
-	
-	// String.split() can cause empty tokens under some circumstances
-	protected String[] filterTokens(String[] tokens) {
-		int count = 0;
-		for (int i = 0; i < tokens.length; i++)
-			if (tokens[i].length() > 0)
-				count++;
-		String[] result = new String[count];
-		int j = 0;
-		for (int i = 0; i < tokens.length; i++)
-			if (tokens[i].length() > 0) {
-				result[j] = tokens[i];
-				j++;
-			}
-		return result;
-	}
-	
-	protected boolean hasWildcard(Expression expression) {
-		for (int i = 0; i < expression.getTerms().size(); i++) {
-			if (expression.getTerms().get(i).getWildcardOperator() != null)
-			{
-			    Literal literal = expression.getTerms().get(i + 1).getLiteral();
-			    if (literal.getValue().indexOf(QueryConstants.WILDCARD) >= 0) // otherwise we can treat the expr like any other
-				    return true;
-		    }
-		}
-		return false;
-	}
 }

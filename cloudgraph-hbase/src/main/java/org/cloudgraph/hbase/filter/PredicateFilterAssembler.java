@@ -18,11 +18,11 @@ import org.plasma.sdo.PlasmaType;
  */
 public interface PredicateFilterAssembler extends HBaseFilterAssembler {
     /**
-     * Assembles a predicate filter hierarchy based on one of more
+     * Assembles a predicate filter list or hierarchy based on one or more
      * given query predicates.
      * @param where the where clause
      * @param contextType the context type which may be the root type or another
-     * type linked by one of more relations to the root
+     * type linked by one or more relations to the root
      */
 	public void assemble(Where where, PlasmaType contextType);
 }

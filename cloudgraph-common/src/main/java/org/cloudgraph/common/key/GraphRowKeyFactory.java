@@ -1,5 +1,7 @@
 package org.cloudgraph.common.key;
 
+import java.util.List;
+
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
@@ -22,21 +24,29 @@ import commonj.sdo.Type;
 public interface GraphRowKeyFactory {
 	
 	/**
-	 * Creates and returns a composite row key capable
-	 * of locating the given Data Graph. Implementations are
+	 * Creates and returns a composite row key based on
+	 * properties within the given Data Graph. Implementations are
 	 * typically driven by the CloudGraph configuration section 
 	 * specified for the given Data Graph URI and Type name.  
 	 * @param dataGraph the Data Graph
-	 * @return a composite row key capable
-	 * of locating the given Data Graph
+	 * @return a composite row key.
 	 */
 	public byte[] createRowKeyBytes(DataGraph dataGraph); 
 	
 	/**
-	 * Generates a row key based on the given root data type
+	 * Generates a row key based only on the given root type.
 	 * @param type the root type for the target data graph
 	 * @return the row key
 	 */
 	public byte[] createRowKeyBytes(Type type);
 		
+	/**
+	 * Creates and returns a composite row key based on
+	 * the given key values. Implementations are
+	 * typically driven by the CloudGraph configuration section 
+	 * specified for the given Data Graph URI and Type name.  
+	 * @param values the key values
+	 * @return a composite row key.
+	 */
+	public byte[] createRowKeyBytes(List<KeyValue> values);
 }

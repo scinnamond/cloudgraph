@@ -63,7 +63,6 @@ public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor
 	public Filter getFilter() {
 		return rootFilter;
 	}
-
 	
 	public Object[] getParams() {
 		Object[] result = new Object[params.size()];
@@ -76,8 +75,7 @@ public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor
 				result[i] = null;
 		}
 		return result;
-	}	
-	
+	}		
 	
 	protected void pushFilter() {
         FilterList top = this.filterStack.peek();
@@ -105,7 +103,4 @@ public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor
 			}
 		return result;
 	}
-	
-
-
 }
