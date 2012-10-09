@@ -7,43 +7,44 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.filter.GraphFilterException;
-import org.cloudgraph.common.key.KeyValue;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.UserDefinedFieldConfig;
 import org.plasma.query.QueryException;
-import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.GroupOperator;
-import org.plasma.query.model.Literal;
 import org.plasma.query.model.LogicalOperator;
-import org.plasma.query.model.Path;
-import org.plasma.query.model.PathElement;
-import org.plasma.query.model.Property;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.query.model.Where;
 import org.plasma.query.model.WildcardOperator;
-import org.plasma.query.model.WildcardPathElement;
 import org.plasma.query.visitor.DefaultQueryVisitor;
-import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.access.DataAccessException;
 
 /**
- * Creates context
- * information useful for determining an HBase scan strategy
+ * Conducts an initial traversal while capturing and 
+ * analyzing the characteristics of a query in order to 
+ * leverage the important HBase partial row-key scan
+ * capability for every possible predicate expression. 
+ * <p>
+ * Based on the various access methods, if a client determines that
+ * an HBase partial row-key scan is possible based, a {@link PartialRowKeyScanAssembler} may 
+ * be invoked using the current scan context resulting is a precise set of 
+ * composite start/stop row keys. These are used in HBase client <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/client/Scan.html">scan</a> API
+ * start and stop row.
+ * </p>
  */
 public class ScanContext extends DefaultQueryVisitor {
     
 	private static Log log = LogFactory.getLog(ScanContext.class);
 	
-    protected PlasmaType contextType;
-	protected PlasmaProperty contextProperty;
-	protected String contextPropertyPath;
+    //protected PlasmaType contextType;
+	//protected PlasmaProperty contextProperty;
+	//protected String contextPropertyPath;
 	protected PlasmaType rootType;
 	protected DataGraphConfig graph;
-	protected List<KeyValue> pairs = new ArrayList<KeyValue>();
+	protected List<ScanLiteral> literals = new ArrayList<ScanLiteral>();
+	//protected RelationalOperator contextRelationalOperator;
+	//protected LogicalOperator contextLogicalOperator;
 	protected boolean hasWildcardOperators;
 	protected boolean hasContiguousFieldValues;
 	protected boolean hasOnlyPartialKeyScanSupportedLogicalOperators = true;
@@ -51,6 +52,15 @@ public class ScanContext extends DefaultQueryVisitor {
 	
     @SuppressWarnings("unused")
 	private ScanContext() {}
+
+    /**
+     * Conducts an initial traversal while capturing and 
+     * analyzing the characteristics of a query in order to 
+     * leverage the important HBase partial row-key scan
+     * capability for every possible predicate expression. 
+     * @param rootType the root type
+     * @param where the predicates
+     */
     public ScanContext(PlasmaType rootType, Where where)
     {
     	this.rootType = rootType;
@@ -59,6 +69,11 @@ public class ScanContext extends DefaultQueryVisitor {
 				rootTypeQname);
     	if (log.isDebugEnabled())
     		log.debug("begin traverse");
+    	
+		ScanLiteralAssembler literalAssembler = 
+				new ScanLiteralAssembler(this.rootType);
+    	where.accept(literalAssembler); // traverse
+    	this.literals.addAll(literalAssembler.getLiteralList());
     	
     	where.accept(this); // traverse
     	
@@ -69,27 +84,37 @@ public class ScanContext extends DefaultQueryVisitor {
     }
     
 	private void construct() {
-    	if (this.pairs.size() == 0)
+    	if (this.literals.size() == 0)
     		throw new IllegalStateException("no literals found in predicate");
     	this.hasContiguousFieldValues = true;
     	int size = this.graph.getUserDefinedRowKeyFields().size();
-    	KeyValue[] keyValues = new KeyValue[size];
+    	ScanLiteral[] scanLiterals = new ScanLiteral[size];
     	
     	for (int i = 0; i < size; i++) {
     		UserDefinedFieldConfig fieldConfig = this.graph.getUserDefinedRowKeyFields().get(i); 
-    		KeyValue keyValue = findKeyValue(fieldConfig);
-    		keyValues[i] = keyValue;
+    		ScanLiteral literal = findScanLiteral(fieldConfig);
+    		scanLiterals[i] = literal;
     	}
     	
     	for (int i = 0; i < size-1; i++)
-    		if (keyValues[i] == null && keyValues[i+1] != null)
+    		if (scanLiterals[i] == null && scanLiterals[i+1] != null)
     			this.hasContiguousFieldValues = false;    	
     }
     
-	public List<KeyValue> getKeyValues() {
-		return pairs;
+	/**
+	 * Return the current scan literals.
+	 * @return the current scan literals.
+	 */
+	public List<ScanLiteral> getLiterals() {
+		return literals;
 	}
 	
+	/**
+	 * Returns whether an HBase partial row-key scan is possible
+	 * under the current scan context. 
+	 * @return whether an HBase partial row-key scan is possible
+	 * under the current scan context.
+	 */
 	public boolean canUsePartialKeyScan() {
 		return this.hasWildcardOperators == false &&
 			this.hasContiguousFieldValues == true &&
@@ -97,80 +122,66 @@ public class ScanContext extends DefaultQueryVisitor {
 			this.hasOnlyPartialKeyScanSupportedRelationalOperators == true;		
 	}
     
+	/**
+	 * Returns whether underlying query contains wildcard operators.
+	 * @return whether underlying query contains wildcard operators.
+	 */
     public boolean hasWildcardOperators() {
 		return hasWildcardOperators;
 	}
     
+    /**
+     * Returns whether the underlying query predicates represent
+     * a contiguous set of composite row-key fields making a partial
+     * row-key scan possible. 
+     * @return whether the underlying query predicates represent
+     * a contiguous set of composite row-key fields making a partial
+     * row-key scan possible. 
+     */
 	public boolean hasContiguousFieldValues() {
 		return hasContiguousFieldValues;
 	}
 	
+	/**
+	 * Returns whether the underlying query contains only
+	 * logical operators supportable for under a partial
+     * row-key scan.   
+	 * @return whether the underlying query contains only
+	 * logical operators supportable for under a partial
+     * row-key scan.
+	 */
 	public boolean hasOnlyPartialKeyScanSupportedLogicalOperators() {
 		return hasOnlyPartialKeyScanSupportedLogicalOperators;
 	} 
 	
+	/**
+	 * Returns whether the underlying query contains only
+	 * relational operators supportable for under a partial
+     * row-key scan.   
+	 * @return whether the underlying query contains only
+	 * relational operators supportable for under a partial
+     * row-key scan.
+	 */
 	public boolean hasOnlyPartialKeyScanSupportedRelationalOperators() {
 		return hasOnlyPartialKeyScanSupportedRelationalOperators;
 	}
 	
-    private KeyValue findKeyValue(UserDefinedFieldConfig fieldConfig) {
-    	
-    	commonj.sdo.Property fieldProperty = fieldConfig.getEndpointProperty();
-    	commonj.sdo.Type fieldPropertyType = fieldProperty.getContainingType();
-    	
-		for (KeyValue keyValue : this.pairs) {
-			if (keyValue.getProp().getName().equals(fieldConfig.getEndpointProperty().getName())) {
-				if (keyValue.getProp().getContainingType().getName().equals(fieldPropertyType.getName())) {
-					if (keyValue.getProp().getContainingType().getURI().equals(fieldPropertyType.getURI())) {
-					    if (fieldConfig.getPropertyPath() != null) {
-					    	if (keyValue.getPropertyPath() != null && 
-					    		keyValue.getPropertyPath().equals(fieldConfig.getPropertyPath())) {
-					    		return keyValue;
-					    	}
-					    }
-					}					
-				}
-			}
+    private ScanLiteral findScanLiteral(UserDefinedFieldConfig fieldConfig) {
+		for (ScanLiteral literal : this.literals) {
+			if (literal.getFieldConfig().getSequenceNum() == fieldConfig.getSequenceNum())
+				return literal;
 		}
 		return null;
     }    
     
-	/**
-	 * Process the traversal start event for a query {@link org.plasma.query.model.Property property}
-     * within an {@link org.plasma.query.model.Expression expression} just
-     * traversing the property path if exists and capturing context information
-     * for the current {@link org.plasma.query.model.Expression expression}.  
-	 * @see org.plasma.query.visitor.DefaultQueryVisitor#start(org.plasma.query.model.Property)
-	 */
-	@Override
-    public void start(Property property)
-    {                
-        org.plasma.query.model.FunctionValues function = property.getFunction();
-        if (function != null)
-            throw new GraphServiceException("aggregate functions only supported in subqueries not primary queries");
-          
-        Path path = property.getPath();
-        PlasmaType targetType = (PlasmaType)this.rootType;                
-        if (path != null)
-        {
-            for (int i = 0 ; i < path.getPathNodes().size(); i++)
-            {    
-            	AbstractPathElement pathElem = path.getPathNodes().get(i).getPathElement();
-                if (pathElem instanceof WildcardPathElement)
-                    throw new DataAccessException("wildcard path elements applicable for 'Select' clause paths only, not 'Where' clause paths");
-                String elem = ((PathElement)pathElem).getValue();
-                PlasmaProperty prop = (PlasmaProperty)targetType.getProperty(elem);                
-                targetType = (PlasmaType)prop.getType(); // traverse
-            }
-        }
-        PlasmaProperty endpointProp = (PlasmaProperty)targetType.getProperty(property.getName());
-        this.contextProperty = endpointProp;
-        this.contextType = targetType;
-        this.contextPropertyPath = property.asPathString();
-        
-        super.start(property);
-    }     
-
+    /**
+     * Process the traversal start event for a query {@link org.plasma.query.model.WildcardOperator WildcardOperator}
+     * within an {@link org.plasma.query.model.Expression expression} creating context
+     * information useful for determining an HBase scan strategy.
+     * @param literal the expression literal
+     * @throws GraphServiceException if an unknown wild card operator
+     * is encountered.
+     */
 	public void start(WildcardOperator operator) {
 		switch (operator.getValue()) {
 		case LIKE:
@@ -184,44 +195,13 @@ public class ScanContext extends DefaultQueryVisitor {
 	}	
 	
     /**
-     * Process the traversal start event for a query {@link org.plasma.query.model.Literal literal}
+     * Process the traversal start event for a query {@link org.plasma.query.model.LogicalOperator LogicalOperator}
      * within an {@link org.plasma.query.model.Expression expression} creating context
      * information useful for determining an HBase scan strategy.
      * @param literal the expression literal
-     * @throws GraphFilterException if no user defined row-key token
-     * is configured for the current literal context.
+     * @throws GraphServiceException if an unknown logical operator
+     * is encountered.
      */
-	@Override
-	public void start(Literal literal) {
-		String content = literal.getValue();
-		if (this.contextProperty == null)
-			throw new IllegalStateException("expected context property for literal");
-		if (this.contextType == null)
-			throw new IllegalStateException("expected context type for literal");
-		if (this.rootType == null)
-			throw new IllegalStateException("expected context type for literal");
-
-		// Match the current property to a user defined 
-		// row key token, if found we can process
-		if (this.graph.getUserDefinedRowKeyField(this.contextPropertyPath) != null) 
-		{
-			KeyValue pair = new KeyValue(
-					this.contextProperty, 
-					content);			
-			pair.setPropertyPath(this.contextPropertyPath);			
-			pairs.add(pair);
-		}
-		else
-	        throw new GraphServiceException("no user defined row-key field for query path '"
-			    	+ this.contextPropertyPath + "'");
-		
-		super.start(literal);
-	}
-
-	/**
-	 * Process a {@link org.plasma.query.model.LogicalOperator logical operator} query traversal
-	 * start event. 
-	 */
 	public void start(LogicalOperator operator) {
 		
 		switch (operator.getValue()) {
@@ -234,6 +214,14 @@ public class ScanContext extends DefaultQueryVisitor {
 		super.start(operator);
 	}
     
+    /**
+     * Process the traversal start event for a query {@link org.plasma.query.model.RelationalOperator RelationalOperator}
+     * within an {@link org.plasma.query.model.Expression expression} creating context
+     * information useful for determining an HBase scan strategy.
+     * @param literal the expression literal
+     * @throws GraphServiceException if an unknown relational operator
+     * is encountered.
+     */
 	public void start(RelationalOperator operator) {
 		switch (operator.getValue()) {
 		case EQUALS:
@@ -252,6 +240,14 @@ public class ScanContext extends DefaultQueryVisitor {
 		super.start(operator);
 	}
 	
+    /**
+     * Process the traversal start event for a query {@link org.plasma.query.model.GroupOperator GroupOperator}
+     * within an {@link org.plasma.query.model.Expression expression} creating context
+     * information useful for determining an HBase scan strategy.
+     * @param literal the expression literal
+     * @throws GraphServiceException if an unknown group operator
+     * is encountered.
+     */
 	public void start(GroupOperator operator) {
 		switch (operator.getValue()) {
 		case RP_1:  		

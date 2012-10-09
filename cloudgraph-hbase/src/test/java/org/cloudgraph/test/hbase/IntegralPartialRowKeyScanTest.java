@@ -16,11 +16,11 @@ import com.crackoo.domain.query.QProfile;
 
 import commonj.sdo.DataGraph;
 
-public class StudyModelPartialRowKeyScanTest extends StudyModelTest {
-    private static Log log = LogFactory.getLog(StudyModelPartialRowKeyScanTest.class);
+public class IntegralPartialRowKeyScanTest extends StudyModelTest {
+    private static Log log = LogFactory.getLog(IntegralPartialRowKeyScanTest.class);
 
     public static Test suite() {
-        return PlasmaTestSetup.newTestSetup(StudyModelPartialRowKeyScanTest.class);
+        return PlasmaTestSetup.newTestSetup(IntegralPartialRowKeyScanTest.class);
     }
     
     public void setUp() throws Exception {
@@ -43,8 +43,7 @@ public class StudyModelPartialRowKeyScanTest extends StudyModelTest {
         assertTrue(fetchedProfile.getGoalCount() == 1); // expect single slice
         String isbn2 = fetchedProfile.getString(
         		"goal[@name='"+GOAL_2+"']/@ISBN");
-        assertTrue(ISBN2.equals(isbn2)); 
-        
+        assertTrue(ISBN2.equals(isbn2));         
     }  
     
     public void testIntegralBetween() throws IOException       
@@ -111,8 +110,7 @@ public class StudyModelPartialRowKeyScanTest extends StudyModelTest {
         //assertTrue(fetchedProfiles[2].getProfileId() == id3);
         assertTrue(fetchedProfiles[2].getGoalCount() == 1);
         xml = serializeGraph(fetchedProfiles[2].getDataGraph());
-        log.info("GRAPH3: " + xml);
-        
+        log.info("GRAPH3: " + xml);        
     }  
     
     public void testIntegralExclusive() throws IOException       

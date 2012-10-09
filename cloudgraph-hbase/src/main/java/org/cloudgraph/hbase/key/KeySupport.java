@@ -20,7 +20,9 @@ import org.apache.hadoop.hbase.util.Hash;
 
 import commonj.sdo.DataGraph;
 
-
+/**
+ * Delegate class supporting composite key generation.
+ */
 public class KeySupport {
 	private static final Log log = LogFactory.getLog(CompositeRowKeyFactory.class);
 

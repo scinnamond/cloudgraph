@@ -153,7 +153,7 @@ found creates a column scan for the property.
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
-            <xsd:element name="RowKeyField" type="cloudgraph:RowKeyField" minOccurs="1" maxOccurs="unbounded">
+            <xsd:element name="RowKeyField" type="cloudgraph:RowKeyField" minOccurs="0" maxOccurs="unbounded">
                 <xsd:annotation>
                     <xsd:documentation>The settings for a pre-defined field within this row-key model.</xsd:documentation>
                 </xsd:annotation>
@@ -212,12 +212,8 @@ The settings for one user-defined field within a
 composite row-key. Each user defined field maps
 a property within the cloudgraph (data graph) to a position
 within the composite row key, adding another "dimension" to the
-key. In HBase for example, this user defined composite row-key approach enables the HBase partial key-scan functionality
-which greatly improves query performance. For query properties within a "Where"
-clause restriction not found in the composite row-key, a column scan is required.
-cloudgraph first looks for a composite row-key field matching the query property. If found
-within the cloudgraph configuration a partial row-scan is invoked, but if not
-found cloudgraph invokes a column scan for the query property.
+key. In HBase for example, this user defined composite row-key approach enables the HBase partial row-key scan functionality
+which greatly improves query performance. 
             </xsd:documentation>
         </xsd:annotation>
         <xsd:attribute name="path" type="xsd:string" use="required">
@@ -231,6 +227,11 @@ predicates.
                 </xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
+        <!--
+        Applying a hash function can introuduce negative numbers into the
+        composite key which seems to invalidate lexicographic comparisons
+        for the composite key as a whole. 
+        -->
         <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
             <xsd:annotation>
                 <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this field</xsd:documentation>

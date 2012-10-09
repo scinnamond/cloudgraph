@@ -16,7 +16,6 @@ import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
-import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.common.service.DuplicateRowException;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.common.service.GraphState;
@@ -74,7 +73,7 @@ import commonj.sdo.Property;
  * @see org.cloudgraph.common.key.GraphColumnKeyFactory
  * @see org.cloudgraph.common.service.GraphState
  */
-public class HBaseGraphDispatcher extends DispatcherSupport
+public class HBaseGraphDispatcher
     implements DataGraphDispatcher 
 {
     private static Log log = LogFactory.getLog(HBaseGraphDispatcher.class);

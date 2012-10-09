@@ -16,7 +16,6 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.service.DispatcherSupport;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraph;
@@ -27,7 +26,7 @@ import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.filter.InitialFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
 import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
-import org.cloudgraph.hbase.scan.CompositeRowKeyScanAssembler;
+import org.cloudgraph.hbase.scan.PartialRowKeyScanAssembler;
 import org.cloudgraph.hbase.scan.ScanContext;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.plasma.query.collector.PropertySelectionCollector;
@@ -81,7 +80,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * @see GraphFetchColumnFilterAssembler
  * 
  */
-public class HBaseGraphQuery extends DispatcherSupport 
+public class HBaseGraphQuery 
     implements QueryDispatcher
 {
     private static Log log = LogFactory.getLog(HBaseGraphQuery.class);
@@ -170,27 +169,40 @@ public class HBaseGraphQuery extends DispatcherSupport
     		Bytes.toBytes(CloudGraphConstants.ROOT_UUID_COLUMN_NAME));
         
         try {
+            // Create and add a scan start/stop range or row filter 
             Where where = query.findWhereClause();
             if (where != null)
             {
-                PredicateRowFilterAssembler rowFilterAssembler = 
-                	new PredicateRowFilterAssembler(type);
-                rowFilterAssembler.assemble(where, type);
-                scan.setFilter(rowFilterAssembler.getFilter());
+            	ScanContext scanContext = 
+            			new ScanContext(type, where);
+            	if (scanContext.canUsePartialKeyScan()) {
+            		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(type);
+            		scanAssembler.assemble(scanContext.getLiterals());
+                    scan.setStartRow(scanAssembler.getStartKey()); // inclusive
+                    scan.setStopRow(scanAssembler.getStopKey()); // exclusive
+              		if (log.isDebugEnabled())
+            			log.debug("partial key scan: (" 
+              		        + "start: " + Bytes.toString(scan.getStartRow())
+              		        + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
+            	}
+            	else {
+    	            PredicateRowFilterAssembler rowFilterAssembler = 
+    	            	new PredicateRowFilterAssembler(type);
+    	            rowFilterAssembler.assemble(where, type);
+    	            scan.setFilter(rowFilterAssembler.getFilter());
+            	}
             }
             else {
-                CompositeRowKeyFactory rowKeyGen = new CompositeRowKeyFactory(type);
-                
-                String rowKey = rowKeyGen.createRowKey(type);
-        		if (log.isDebugEnabled())
-        			log.debug("row-id: " + rowKey);
-
-                scan.setStartRow(Bytes.toBytes(rowKey));
-                //shorter string lexicographically precedes the longer string, so
-                //add max unicode char
-                String endRowKey = rowKey + Character.MAX_VALUE;
-                scan.setStopRow(Bytes.toBytes(endRowKey));
+        		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(type);
+        		scanAssembler.assemble();
+                scan.setStartRow(scanAssembler.getStartKey()); // inclusive
+                scan.setStopRow(scanAssembler.getStopKey()); // exclusive
+          		if (log.isDebugEnabled())
+        			log.debug("default graph partial key scan: (" 
+          		        + "start: " + Bytes.toString(scan.getStartRow())
+          		        + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
             }
+
             if (query.getStartRange() != null && query.getEndRange() != null)
                 log.warn("query range (start: "
                 		+ query.getStartRange() + ", end: "
@@ -247,15 +259,15 @@ public class HBaseGraphQuery extends DispatcherSupport
         }
         rootFilter.addFilter(columnFilterAssembler.getFilter());
 
-        // Create and add a row filter 
+        // Create and add a scan start/stop range or row filter 
         Where where = query.findWhereClause();
         if (where != null)
         {
         	ScanContext scanContext = 
         			new ScanContext(type, where);
         	if (scanContext.canUsePartialKeyScan()) {
-        		CompositeRowKeyScanAssembler scanAssembler = new CompositeRowKeyScanAssembler(type);
-        		scanAssembler.assemble(where, type);
+        		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(type);
+        		scanAssembler.assemble(scanContext.getLiterals());
                 scan.setStartRow(scanAssembler.getStartKey()); // inclusive
                 scan.setStopRow(scanAssembler.getStopKey()); // exclusive
           		if (log.isDebugEnabled())
@@ -269,27 +281,16 @@ public class HBaseGraphQuery extends DispatcherSupport
 	            rowFilterAssembler.assemble(where, type);
 	            rootFilter.addFilter(rowFilterAssembler.getFilter());
         	}
-        } 
+        }
         else {
-        	// since no predicate, create a default row key based on 
-        	// only the root type
-            CompositeRowKeyFactory rowKeyGen = new CompositeRowKeyFactory(type);
-            
-            byte[] rowKey = rowKeyGen.createRowKeyBytes(type);
-            scan.setStartRow(rowKey);
-            //shorter string lexicographically precedes the longer string, so
-            //add max unicode char and use as stop-row key
-            byte[] maxCharBytes = Bytes.toBytes("A"/*Character.MAX_VALUE*/);
-            byte[] stopRowKey = new byte[rowKey.length + maxCharBytes.length];
-            System.arraycopy(rowKey, 0, stopRowKey, 0, rowKey.length);
-            System.arraycopy(maxCharBytes, 0, stopRowKey, rowKey.length, maxCharBytes.length);
-            scan.setStopRow(stopRowKey);
+    		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(type);
+    		scanAssembler.assemble();
+            scan.setStartRow(scanAssembler.getStartKey()); // inclusive
+            scan.setStopRow(scanAssembler.getStopKey()); // exclusive
       		if (log.isDebugEnabled())
-    			log.debug("partial key scan: (" 
-      		        + "start: " + Bytes.toString(rowKey)
-      		        + " stop: " + Bytes.toString(stopRowKey) + ")");
-            
-            //scan.setTimeRange(minStamp, maxStamp)
+    			log.debug("default graph partial key scan: (" 
+      		        + "start: " + Bytes.toString(scan.getStartRow())
+      		        + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
         }
         
         // Create a graph assembler based on existence
