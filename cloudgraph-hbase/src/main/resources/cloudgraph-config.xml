@@ -15,13 +15,13 @@
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
          
-    <Table name="data3" dataColumnFamilyName="f1">
+    <Table name="data15" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
          
         <DataGraph uri="http://crackoo.com/domain" type="Profile">
             <RowKeyModel>
-                <!--
                 <RowKeyField name="uri" hash="true"/>
+                <!--
                 <RowKeyField name="type" hash="true"/>
                 <RowKeyField name="uuid"/>
                 -->
