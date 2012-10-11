@@ -3,6 +3,7 @@ package org.cloudgraph.hbase.service;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -40,6 +41,7 @@ import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.core.NullValue;
 import org.plasma.sdo.core.SnapshotMap;
+import org.plasma.sdo.helper.DataConverter;
 import org.plasma.sdo.profile.ConcurrencyType;
 import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
@@ -375,8 +377,7 @@ public class HBaseGraphDispatcher
         }
         
         this.updateOrigination(dataObject, type, colGen, row);
-        this.updateOptimistic(dataObject, type, colGen, row, 
-        		this.snapshotMap.getSnapshotDate());
+        this.updateOptimistic(dataObject, type, colGen, row);
                 
         List<Property> properties = type.getProperties();
         for (Property p : properties)
@@ -438,7 +439,7 @@ public class HBaseGraphDispatcher
                 log.debug("snapshot date: " + String.valueOf(snapshotDate)); 
         
         checkLock(dataObject, type, snapshotDate);
-        updateOptimistic(dataObject, type, colGen, row, snapshotDate);
+        updateOptimistic(dataObject, type, colGen, row);
         
         List<Property> properties = type.getProperties();
         for (Property p : properties)
@@ -561,8 +562,12 @@ public class HBaseGraphDispatcher
         Property originationTimestampProperty = type.findProperty(ConcurrencyType.origination, 
             	ConcurrentDataFlavor.time);
         if (originationTimestampProperty != null) {
+        	Date dateSnapshot = new Date(
+        		this.snapshotMap.getSnapshotDate().getTime());
+        	Object snapshot = DataConverter.INSTANCE.convert(
+        		originationTimestampProperty.getType(), dateSnapshot);
         	dataObject.set(originationTimestampProperty, 
-        			this.snapshotMap.getSnapshotDate());
+        			snapshot);
         }
         else
             if (log.isDebugEnabled()) 
@@ -586,8 +591,12 @@ public class HBaseGraphDispatcher
         Property originationTimestampProperty = type.findProperty(ConcurrencyType.origination, 
             	ConcurrentDataFlavor.time);
         if (originationTimestampProperty != null) {
+        	Date dateSnapshot = new Date(
+            	this.snapshotMap.getSnapshotDate().getTime());
+            Object snapshot = DataConverter.INSTANCE.convert(
+            	originationTimestampProperty.getType(), dateSnapshot);
             byte[] bytes = HBaseDataConverter.INSTANCE.toBytes(originationTimestampProperty, 
-            		this.snapshotMap.getSnapshotDate());
+            		snapshot);
             this.updateCell(colGen, row, dataObject, 
             		originationTimestampProperty, 
             		bytes);
@@ -622,13 +631,17 @@ public class HBaseGraphDispatcher
         } 
         else
         {
-        	dataObject.set(concurrencyTimestampProperty, snapshotDate);     	
+        	Date dateSnapshot = new Date(
+            		this.snapshotMap.getSnapshotDate().getTime());
+            Object snapshot = DataConverter.INSTANCE.convert(
+            	concurrencyTimestampProperty.getType(), dateSnapshot);
+        	dataObject.set(concurrencyTimestampProperty, snapshot);     	
         }    	
     }
 
     //FIXME: deal with optimistic concurrency in HBase later
     private void updateOptimistic(PlasmaDataObject dataObject, PlasmaType type,
-    		GraphStatefullColumnKeyFactory colGen, Put row, Timestamp snapshotDate) 
+    		GraphStatefullColumnKeyFactory colGen, Put row) 
     {
         PlasmaProperty concurrencyUserProperty = (PlasmaProperty)type.findProperty(ConcurrencyType.optimistic, 
             	ConcurrentDataFlavor.user);
@@ -655,8 +668,12 @@ public class HBaseGraphDispatcher
         } 
         else
         {
+        	Date dateSnapshot = new Date(
+            		this.snapshotMap.getSnapshotDate().getTime());
+            Object snapshot = DataConverter.INSTANCE.convert(
+            	concurrencyTimestampProperty.getType(), dateSnapshot);
             byte[] bytes = HBaseDataConverter.INSTANCE.toBytes(concurrencyTimestampProperty, 
-            		snapshotDate);
+            	snapshot);
             this.updateCell(colGen, row, dataObject, 
             		concurrencyTimestampProperty,   
             		bytes);       	

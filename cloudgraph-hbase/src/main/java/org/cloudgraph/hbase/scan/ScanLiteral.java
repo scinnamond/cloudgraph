@@ -52,12 +52,12 @@ public abstract class ScanLiteral {
 			LogicalOperator logicalOperator,
 			UserDefinedFieldConfig fieldConfig) {
 		super();
-		this.literal = literal;
 		this.rootType = rootType;
 		this.relationalOperator = relationalOperator;
 		this.logicalOperator = logicalOperator;
 		this.fieldConfig = fieldConfig;		
 		this.property = (PlasmaProperty)this.fieldConfig.getEndpointProperty();
+		this.literal = literal;
 
 		QName rootTypeQname = this.rootType.getQualifiedName();
 		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);

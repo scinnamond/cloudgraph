@@ -7,11 +7,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Date;
 
-import junit.framework.Test;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.plasma.common.test.PlasmaTestSetup;
 import org.plasma.query.Expression;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
@@ -33,9 +30,6 @@ import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
 
-/**
- * Performs and tests various SDO CRUD operations.
- */
 public abstract class StudyModelTest extends HBaseTestCase {
     private static Log log = LogFactory.getLog(StudyModelTest.class);
 

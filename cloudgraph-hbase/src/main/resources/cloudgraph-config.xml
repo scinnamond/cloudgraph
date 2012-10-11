@@ -14,25 +14,52 @@
       -->
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
+
+    <Table name="data40" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
          
-    <Table name="data15" dataColumnFamilyName="f1">
+        <DataGraph uri="http://cloudgraph.org/test/datatypes" type="DatatypeNode">
+            <RowKeyModel>
+                <RowKeyField name="uri" hash="true"/>
+                <RowKeyField name="type" hash="false"/>
+                <!--
+                <RowKeyField name="uuid"/>
+                -->
+                <!--
+                <UserDefinedField hash="false"
+                    path="rootId"/>
+                <UserDefinedField 
+                    path="name"/>
+                -->
+                <UserDefinedField 
+                    path="createdOn"/>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+
+    </Table>  
+         
+    <Table name="data26" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
          
         <DataGraph uri="http://crackoo.com/domain" type="Profile">
             <RowKeyModel>
                 <RowKeyField name="uri" hash="true"/>
+                <RowKeyField name="type" hash="false"/>
                 <!--
-                <RowKeyField name="type" hash="true"/>
                 <RowKeyField name="uuid"/>
                 -->
                 <UserDefinedField hash="false"
                     path="profileId"/>
                 <UserDefinedField 
                     path="goal[@name='Goal 2']/@ISBN"/>
-                <!--    
                 <UserDefinedField 
                     path="creationDate"/>
-                -->
             </RowKeyModel>
             
             <ColumnKeyModel>

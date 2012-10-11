@@ -13,7 +13,6 @@ import com.crackoo.domain.Goal;
 import com.crackoo.domain.Profile;
 import com.crackoo.domain.StudyItem;
 import com.crackoo.domain.Tag;
-import junit.framework.Test;
 
 public class StudyModelCRUDTest extends StudyModelTest {
     private static Log log = LogFactory.getLog(StudyModelCRUDTest.class);

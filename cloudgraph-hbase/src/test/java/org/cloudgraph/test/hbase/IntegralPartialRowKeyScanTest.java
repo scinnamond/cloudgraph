@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.common.test.PlasmaTestSetup;
@@ -13,7 +12,6 @@ import org.plasma.query.Expression;
 import com.crackoo.domain.Profile;
 import com.crackoo.domain.query.QGoal;
 import com.crackoo.domain.query.QProfile;
-
 import commonj.sdo.DataGraph;
 
 public class IntegralPartialRowKeyScanTest extends StudyModelTest {
@@ -206,4 +204,25 @@ public class IntegralPartialRowKeyScanTest extends StudyModelTest {
     	profile.select(profile.goal(predicate).studyItem().tag().tag());
     	return profile;
     }
+    
+    protected Profile fetchGraphSlice(long id, String goalName) {    	
+    	QProfile profile = QProfile.newQuery();
+    	QGoal goal = QGoal.newQuery();
+    	
+    	profile.select(profile.profileId());
+    	profile.select(profile.creationDate());
+    	profile.select(profile.lastModification());
+    	profile.select(profile.tag().tag());
+    	// Note: goal() path element takes a predicate
+    	// as an argument. This is analogous to the XPath
+    	// expression:  profile/goal[@name = $goalName]/@*
+   	    profile.select(profile.goal(goal.name().eq(goalName)).wildcard());
+    	profile.select(profile.goal(goal.name().eq(goalName)).studyItem().seqId());
+    	
+    	profile.where(profile.profileId().eq(id));
+    	
+    	DataGraph[] result = service.find(profile);
+    	return (Profile)result[0].getRootObject();
+    }
+    
 }

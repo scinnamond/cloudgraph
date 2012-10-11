@@ -49,6 +49,7 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 	protected DataGraphConfig graph;
 	protected TableConfig table;
 	protected List<ScanLiteral> literalList = new ArrayList<ScanLiteral>();
+	protected ScanLiteralFactory scanLiteralFactory = new ScanLiteralFactory();
 	
 	@SuppressWarnings("unused")
 	private ScanLiteralAssembler() {}
@@ -155,7 +156,7 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 		if (fieldConfig != null) 
 		{
 			PlasmaProperty property = (PlasmaProperty)fieldConfig.getEndpointProperty();
-			ScanLiteral context = ScanLiteralFactory.createLiteral(
+			ScanLiteral context = this.scanLiteralFactory.createLiteral(
 					content, property, 
 					this.rootType, 
 					this.contextRelationalOperator, 

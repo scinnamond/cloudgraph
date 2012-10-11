@@ -138,24 +138,15 @@ public class HBaseDataConverter {
 			case Year:
 			case YearMonth:
 			case YearMonthDay:
-			case Duration:
-				String resultStr = DataConverter.INSTANCE.toString(sourceProperty
-						.getType(), value);
-				result = Bytes.toBytes(resultStr);
-				break;
 			case Date:
-				// Plasma SDO allows more precision than just month/day/year
-				// in an SDO date datatype, and using java.sql.Date will truncate
-				// here so use java.sql.Timestamp.
-				
-				// No Bytes.toBytes(java.util.Date) so convert to SDO
-				// String representation first. Note: must then use
-				// SDO DataConverter.fromString() for reverse operation
-				resultStr = DataConverter.INSTANCE.toString(sourceProperty.getType(), value);
+			case Duration:
+				String resultStr = DataConverter.INSTANCE.toString(
+					sourceProperty.getType(), value);
 				result = Bytes.toBytes(resultStr);
 				break;
 			case DateTime:
-				resultStr = DataConverter.INSTANCE.toString(sourceProperty.getType(), value);
+				resultStr = DataConverter.INSTANCE.toString(
+					sourceProperty.getType(), value);
 				result = Bytes.toBytes(resultStr);
 				break;
 			case Decimal:

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import junit.framework.Test;
 
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.common.test.PlasmaTestSetup;

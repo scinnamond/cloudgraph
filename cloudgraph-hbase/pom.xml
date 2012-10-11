@@ -148,7 +148,7 @@
                     <forkMode>pertest</forkMode>
                     <argLine>-Dlog4j.configuration=log4j.properties -Dfuml.configuration=fuml-config.xml -Dplasma.configuration=plasma-config.xml</argLine>
                     <!-- debug
-                    <argLine>-Dlog4j.configuration=log4j.properties -Dfuml.configuration=fuml-config.xml -Dplasma.configuration=plasma-config.xml -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n</argLine>
+                    <argLine>-Dlog4j.configuration=log4j.properties -Dfuml.configuration=fuml-config.xml -Dplasma.configuration=plasma-config.xml -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=y</argLine>
                     --> 
                     <!--
                     <argLine>-Xms250m</argLine>
@@ -164,9 +164,13 @@
                     <argLine>-Dlog4j.configuration=file:log4j.properties</argLine>
                     -->
                     <includes>
-                        <include>**/*PartialRowKeyScan*</include> 
+                        <include>**/*TemporalPartialRowKeyScan*</include> 
                     </includes> 
                      
+                    <excludes>
+                        <exclude>**/*Batch*</exclude> 
+                    </excludes> 
+                      
                      
                 </configuration>
             </plugin>

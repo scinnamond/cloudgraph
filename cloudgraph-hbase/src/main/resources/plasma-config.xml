@@ -23,6 +23,13 @@
             <Provisioning packageName="org.plasma.platform.sdo"/>
   		</DefaultNamespace>
 
+        <Namespace uri="http://cloudgraph.org/test/datatypes"
+            artifact="http://cloudgraph.org/datatypes.mdxml">
+            <Provisioning packageName="org.cloudgraph.test.datatypes">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
+
         <Namespace uri="http://crackoo.com/domain"
             artifact="http://crackoo.com/model">
             <Provisioning packageName="com.crackoo.domain">
@@ -60,9 +67,14 @@
             urn="Plasma_SDO_Profile.mdxml" 
             namespaceUri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"/>
   
+        <Artifact name="datatypes.mdxml"
+            urn="datatypes.mdxml" 
+            namespaceUri="http://cloudgraph.org/datatypes.mdxml"/>  
+     
         <Artifact name="crackoo.mdxml"
             urn="crackoo.mdxml" 
             namespaceUri="http://crackoo.com/model"/>  
+        
         
     </Repository>
     

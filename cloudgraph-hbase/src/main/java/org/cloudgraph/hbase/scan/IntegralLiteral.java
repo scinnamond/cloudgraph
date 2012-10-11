@@ -127,16 +127,12 @@ public class IntegralLiteral extends ScanLiteral {
 	}
 	
 	/**
-	 * Returns the "stop row" bytes 
-	 * used to represent "greater than" relational operator 
-	 * under an HBase partial row-key scan for this integral (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 * @return the "stop row" bytes 
-	 * used to represent "greater than" relational operator 
-	 * under an HBase partial row-key scan for this integral (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
+	 * The "greater than" relational operator does not
+	 * effect the stop bytes for an HBase partial row-key scan
+	 * and this method therefore returns an empty
+	 * byte array or "no-op". 
+	 * @return an empty
+	 * byte array or "no-op". 
 	 */
 	protected byte[] getGreaterThanStopBytes() {
 	    return new byte[0];
@@ -171,33 +167,25 @@ public class IntegralLiteral extends ScanLiteral {
 	}
 	
 	/**
-	 * Returns the "stop row" bytes 
-	 * used to represent "greater than equals" relational operator 
-	 * under an HBase partial row-key scan for this integral (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 * @return the "stop row" bytes 
-	 * used to represent "greater than equals" relational operator 
-	 * under an HBase partial row-key scan for this integral (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
+	 * The "greater than equals" relational operator does not
+	 * effect the stop bytes for an HBase partial row-key scan
+	 * and this method therefore returns an empty
+	 * byte array or "no-op". 
+	 * @return an empty
+	 * byte array or "no-op". 
 	 */
 	protected byte[] getGreaterThanEqualStopBytes() {
 	    return new byte[0];
 	}
 	
 	/**
-	 * Returns the "start row" bytes 
-	 * used to represent "less than" relational operator 
-	 * under an HBase partial row-key scan for this integral (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 * @return the "start row" bytes 
-	 * used to represent "less than" relational operator 
-	 * under an HBase partial row-key scan for this integral (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 */	
+	 * The "less than" relational operator does not
+	 * effect the start bytes for an HBase partial row-key scan
+	 * and this method therefore returns an empty
+	 * byte array or "no-op". 
+	 * @return an empty
+	 * byte array or "no-op". 
+	 */
 	protected byte[] getLessThanStartBytes() {
 	    return new byte[0];
 	}
@@ -233,17 +221,13 @@ public class IntegralLiteral extends ScanLiteral {
 	}
 	
 	/**
-	 * Returns the "start row" bytes 
-	 * used to represent "less than equals" relational operator 
-	 * under an HBase partial row-key scan for this integral (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 * @return the "start row" bytes 
-	 * used to represent "less than equals" relational operator 
-	 * under an HBase partial row-key scan for this integral (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 */	
+	 * The "less than equal" relational operator does not
+	 * effect the start bytes for an HBase partial row-key scan
+	 * and this method therefore returns an empty
+	 * byte array or "no-op". 
+	 * @return an empty
+	 * byte array or "no-op". 
+	 */
 	protected byte[] getLessThanEqualStartBytes() {
 	    return new byte[0];
 	}
@@ -269,12 +253,12 @@ public class IntegralLiteral extends ScanLiteral {
 		if (fieldConfig.isHash()) {
 			String stopValueStr = String.valueOf(stopValue);
 			int stopHashValue = hash.hash(stopValueStr.getBytes());
-			stopHashValue++;
+			stopHashValue = stopHashValue + this.HASH_INCREMENT;
 			stopValueStr = String.valueOf(stopHashValue);
 			stopBytes = stopValueStr.getBytes(this.charset);
 		}
 		else {
-			stopValue++;
+			stopValue = stopValue + this.INCREMENT;
 			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
 			stopBytes = stopValueStr.getBytes(this.charset);
 		}

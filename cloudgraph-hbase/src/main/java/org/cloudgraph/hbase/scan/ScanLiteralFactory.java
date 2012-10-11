@@ -5,6 +5,7 @@ import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
+import org.plasma.sdo.DataType;
 
 /**
  * Simple factory constructing data "flavor" and data type 
@@ -32,12 +33,13 @@ public class ScanLiteralFactory {
      * as well as predicate context specific relational and 
      * logical operators.
 	 */
-	public static ScanLiteral createLiteral(String content,
+	public ScanLiteral createLiteral(String content,
 			PlasmaProperty property, PlasmaType rootType,
 			RelationalOperator relationalOperator,
 			LogicalOperator logicalOperator, UserDefinedFieldConfig fieldConfig) {
 
 		ScanLiteral result = null;
+		DataType dataType = DataType.valueOf(property.getType().getName());
 
 		switch (property.getDataFlavor()) {
 		case integral:
@@ -53,8 +55,13 @@ public class ScanLiteralFactory {
 					logicalOperator, fieldConfig);
 			break;
 		case temporal:
-			result = new TemporalLiteral(content, rootType, relationalOperator,
-					logicalOperator, fieldConfig);
+			switch (dataType) {
+			case Date:
+			case DateTime:
+			default:	
+				result = new TemporalLiteral(content, rootType, relationalOperator,
+						logicalOperator, fieldConfig);
+			}
 			break;
 		case other:
 			throw new RuntimeException("data flavor not supported, '"

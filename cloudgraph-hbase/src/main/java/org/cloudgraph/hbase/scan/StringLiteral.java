@@ -19,6 +19,11 @@ import org.plasma.sdo.PlasmaType;
  */
 public class StringLiteral extends ScanLiteral {
 
+	// FIXME: appending the first lexicographic ASCII char
+	// to the row key "works" as a stop key. But need
+	// to understand more about why, say the min unicode char does not. 
+	protected final String INCREMENT = "A";
+
 	public StringLiteral(String literal,
 			PlasmaType rootType,
 			RelationalOperator relationalOperator,
@@ -68,16 +73,17 @@ public class StringLiteral extends ScanLiteral {
 	protected byte[] getEqualsStopBytes() {
 		byte[] stopBytes = null;
 		String startValueStr = this.literal;
-		String stopValueStr = startValueStr + "A"; // FIXME: 
 		if (fieldConfig.isHash()) {
 			int startHashValue = hash.hash(startValueStr.getBytes());
 			startValueStr = String.valueOf(startHashValue);
 			
 			int stopHashValue = hash.hash(startValueStr.getBytes());
-			stopValueStr = String.valueOf(stopHashValue);
+			stopHashValue = stopHashValue + this.HASH_INCREMENT;
+			String stopValueStr = String.valueOf(stopHashValue);
 			stopBytes = HBaseDataConverter.INSTANCE.toBytes(property, stopValueStr);
 		}
 		else {
+			String stopValueStr = startValueStr + INCREMENT;  
 			stopBytes = HBaseDataConverter.INSTANCE.toBytes(property, stopValueStr);
 		}
 		return stopBytes;
@@ -96,20 +102,28 @@ public class StringLiteral extends ScanLiteral {
 	 * formatting and padding features.
 	 */
 	protected byte[] getGreaterThanStartBytes() {
-	    return new byte[0];
+		byte[] startBytes = null;
+		String startValueStr = this.literal;
+		if (fieldConfig.isHash()) {
+			int startHashValue = hash.hash(startValueStr.getBytes());
+			startHashValue = startHashValue + this.HASH_INCREMENT;
+			startValueStr = String.valueOf(startHashValue);
+			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, startValueStr);
+		}
+		else {
+			startValueStr = startValueStr + INCREMENT;
+			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, startValueStr);
+		}
+		return startBytes;
 	}
 	
 	/**
-	 * Returns the "stop row" bytes 
-	 * used to represent "greater than" relational operator 
-	 * under an HBase partial row-key scan for this string (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 * @return the "stop row" bytes 
-	 * used to represent "greater than" relational operator 
-	 * under an HBase partial row-key scan for this string (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
+	 * The "greater than" relational operator does not
+	 * effect the stop bytes for an HBase partial row-key scan
+	 * and this method therefore returns an empty
+	 * byte array or "no-op". 
+	 * @return an empty
+	 * byte array or "no-op". 
 	 */
 	protected byte[] getGreaterThanStopBytes() {
 	    return new byte[0];
@@ -128,37 +142,29 @@ public class StringLiteral extends ScanLiteral {
 	 * formatting and padding features.
 	 */
 	protected byte[] getGreaterThanEqualStartBytes() {
-	    return new byte[0];
+	    return this.getEqualsStartBytes();
 	}
 	
 	/**
-	 * Returns the "stop row" bytes 
-	 * used to represent "greater than equals" relational operator 
-	 * under an HBase partial row-key scan for this string (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 * @return the "stop row" bytes 
-	 * used to represent "greater than equals" relational operator 
-	 * under an HBase partial row-key scan for this string (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
+	 * The "greater than equals" relational operator does not
+	 * effect the stop bytes for an HBase partial row-key scan
+	 * and this method therefore returns an empty
+	 * byte array or "no-op". 
+	 * @return an empty
+	 * byte array or "no-op". 
 	 */
 	protected byte[] getGreaterThanEqualStopBytes() {
 	    return new byte[0];
 	}
 	
 	/**
-	 * Returns the "start row" bytes 
-	 * used to represent "less than" relational operator 
-	 * under an HBase partial row-key scan for this string (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 * @return the "start row" bytes 
-	 * used to represent "less than" relational operator 
-	 * under an HBase partial row-key scan for this string (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 */	
+	 * The "less than" relational operator does not
+	 * effect the start bytes for an HBase partial row-key scan
+	 * and this method therefore returns an empty
+	 * byte array or "no-op". 
+	 * @return an empty
+	 * byte array or "no-op". 
+	 */
 	protected byte[] getLessThanStartBytes() {
 	    return new byte[0];
 	}
@@ -176,21 +182,29 @@ public class StringLiteral extends ScanLiteral {
 	 * formatting and padding features.
 	 */	
 	protected byte[] getLessThanStopBytes() {
-	    return new byte[0];
+		byte[] stopBytes = null;
+		String stopValueStr = this.literal;
+		// Note: in HBase the stop row is exclusive, so just use
+		// the literal value, no need to decrement it
+		if (fieldConfig.isHash()) {
+			int stopHashValue = hash.hash(stopValueStr.getBytes());
+			stopValueStr = String.valueOf(stopHashValue);
+			stopBytes = stopValueStr.getBytes(this.charset);
+		}
+		else {
+			stopBytes = stopValueStr.getBytes(this.charset);
+		}
+		return stopBytes;
 	}
 	
 	/**
-	 * Returns the "start row" bytes 
-	 * used to represent "less than equals" relational operator 
-	 * under an HBase partial row-key scan for this string (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 * @return the "start row" bytes 
-	 * used to represent "less than equals" relational operator 
-	 * under an HBase partial row-key scan for this string (data flavor) literal under 
-	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
-	 */	
+	 * The "less than equal" relational operator does not
+	 * effect the start bytes for an HBase partial row-key scan
+	 * and this method therefore returns an empty
+	 * byte array or "no-op". 
+	 * @return an empty
+	 * byte array or "no-op". 
+	 */
 	protected byte[] getLessThanEqualStartBytes() {
 	    return new byte[0];
 	}
@@ -208,6 +222,20 @@ public class StringLiteral extends ScanLiteral {
 	 * formatting and padding features.
 	 */	
 	protected byte[] getLessThanEqualStopBytes() {
-	    return new byte[0];
+		byte[] stopBytes = null;
+		String stopValueStr = this.literal;
+		// Note: in HBase the stop row is exclusive, so increment
+		// stop value to get this row for this field/literal
+		if (fieldConfig.isHash()) {
+			int stopHashValue = hash.hash(stopValueStr.getBytes());
+			stopHashValue = stopHashValue + this.HASH_INCREMENT;
+			stopValueStr = String.valueOf(stopHashValue);
+			stopBytes = stopValueStr.getBytes(this.charset);
+		}
+		else {
+			stopValueStr = stopValueStr + this.INCREMENT;
+			stopBytes = stopValueStr.getBytes(this.charset);
+		}
+		return stopBytes;
 	}
 }
