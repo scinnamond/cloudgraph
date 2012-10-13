@@ -114,6 +114,31 @@
                             <goal>dsl</goal>
                         </goals>
                     </execution>
+                    <!-- 
+                    <execution>
+                        <id>compile-query-to-model</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <action>compile</action>
+                            <sourceFile>${basedir}/src/test/resources/datatypes-query.xml</sourceFile>
+                            <destFile>${basedir}/target/generated-sources/datatypes-real.mdxml</destFile>
+                            <destFileType>xmi</destFileType>
+                            <destNamespaceURI>http://cloudgraph.org/test/datatypes/real</destNamespaceURI>
+                            <destNamespacePrefix>tx</destNamespacePrefix>
+                            <systemProperties>
+                                <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+                                <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
+                            </systemProperties>
+                            <additionalClasspathElements>
+                                <param>${basedir}/src/main/resources</param>
+                            </additionalClasspathElements>
+                        </configuration>
+                        <goals>
+                            <goal>query</goal>
+                        </goals>
+                    </execution>
+                    -->
                 </executions>
             </plugin>
             <plugin>
@@ -199,6 +224,7 @@
                                         <goals>
                                             <goal>sdo</goal>
                                             <goal>dsl</goal>
+                                            <goal>query</goal>
                                         </goals>
                                     </pluginExecutionFilter>
                                     <action>

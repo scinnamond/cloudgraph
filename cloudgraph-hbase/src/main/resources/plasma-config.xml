@@ -22,21 +22,49 @@
             artifact="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi">
             <Provisioning packageName="org.plasma.platform.sdo"/>
   		</DefaultNamespace>
-
+   
         <Namespace uri="http://cloudgraph.org/test/datatypes"
             artifact="http://cloudgraph.org/datatypes.mdxml">
             <Provisioning packageName="org.cloudgraph.test.datatypes">
                 <QueryDSL generate="true"/>
             </Provisioning>
         </Namespace>
-
+  
         <Namespace uri="http://crackoo.com/domain"
             artifact="http://crackoo.com/model">
             <Provisioning packageName="com.crackoo.domain">
                 <QueryDSL generate="true"/>
             </Provisioning>
         </Namespace>
+<!--         
+        <Namespace uri="http://cloudgraph.org/test/datatypes/temporal"
+            artifact="http://cloudgraph.org/datatypes-temporal">
+            <Provisioning packageName="org.cloudgraph.test.datatypes.temporal">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
+      
+        <Namespace uri="http://cloudgraph.org/test/datatypes/integral"
+            artifact="http://cloudgraph.org/datatypes-integral">
+            <Provisioning packageName="org.cloudgraph.test.datatypes.integral">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
         
+        <Namespace uri="http://cloudgraph.org/test/datatypes/string"
+            artifact="http://cloudgraph.org/datatypes-string">
+            <Provisioning packageName="org.cloudgraph.test.datatypes.string">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
+        
+        <Namespace uri="http://cloudgraph.org/test/datatypes/real"
+            artifact="http://cloudgraph.org/datatypes-real">
+            <Provisioning packageName="org.cloudgraph.test.datatypes.real">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
+-->        
   	    <DataAccessService dataStoreType="NOSQL"> 	
 
             <DataAccessProvider name="HBASE"
@@ -70,12 +98,27 @@
         <Artifact name="datatypes.mdxml"
             urn="datatypes.mdxml" 
             namespaceUri="http://cloudgraph.org/datatypes.mdxml"/>  
-     
+
         <Artifact name="crackoo.mdxml"
             urn="crackoo.mdxml" 
             namespaceUri="http://crackoo.com/model"/>  
+<!--        
+        <Artifact name="datatypes-temporal.mdxml"
+            urn="datatypes-temporal.mdxml" 
+            namespaceUri="http://cloudgraph.org/datatypes-temporal"/>  
         
+        <Artifact name="datatypes-integral.mdxml"
+            urn="datatypes-integral.mdxml" 
+            namespaceUri="http://cloudgraph.org/datatypes-integral"/>  
         
+        <Artifact name="datatypes-string.mdxml"
+            urn="datatypes-string.mdxml" 
+            namespaceUri="http://cloudgraph.org/datatypes-string"/>  
+
+        <Artifact name="datatypes-real.mdxml"
+            urn="datatypes-real.mdxml" 
+            namespaceUri="http://cloudgraph.org/datatypes-real"/>  
+-->
     </Repository>
     
   

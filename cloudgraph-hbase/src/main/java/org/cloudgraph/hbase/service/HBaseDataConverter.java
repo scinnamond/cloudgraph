@@ -62,21 +62,25 @@ public class HBaseDataConverter {
 				result = Bytes.toBigDecimal(value); 
 				break;
 			case Bytes: 
-			    // NOTE: there's a Bytes.
-				result = value;  
+				result = value; // already bytes 
 				break;
 			case Byte:
 				// NOTE: no toByte method as would expect as there is opposite method, see below
-				//byte resultByte = Bytes.toByte(value);
-				result = value; 
+				// e.g. Bytes.toByte(value);
+				if (value != null) {
+					if (value.length > 0)
+						log.warn("truncating "
+					        + String.valueOf(value.length) 
+					        + " length byte array for target data type 'byte'");
+				    result = value[0]; 
+				}
 				break;
 			case Boolean:
 				result = Bytes.toBoolean(value);  
 				break;
 			case Character:
 				resultStr = Bytes.toString(value); 
-				result = DataConverter.INSTANCE.toCharacter(targetProperty
-						.getType(), resultStr);
+				result = Character.valueOf(resultStr.charAt(0));
 				break;
 			case Double:
 				result = Bytes.toDouble(value);   
@@ -109,7 +113,7 @@ public class HBaseDataConverter {
 				result = list;
 				break;
 			case Object:
-				throw new RuntimeException("not implemented");
+				// FIXME: custom serialization?
 			default:
 				result = Bytes.toString(value);  
 				break;
@@ -213,7 +217,7 @@ public class HBaseDataConverter {
 				result = Bytes.toBytes(resultStr);
 				break;
 			case Object:
-				throw new RuntimeException("not implemented");
+				// FIXME: do we serialize objects in some custom format for hbase
 			default:
 				resultStr = DataConverter.INSTANCE.toString(sourceProperty
 						.getType(), value);
