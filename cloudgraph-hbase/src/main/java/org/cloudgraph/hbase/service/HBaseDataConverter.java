@@ -8,6 +8,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.sdo.DataType;
 import org.plasma.sdo.helper.DataConverter;
 
@@ -31,7 +32,7 @@ public class HBaseDataConverter {
 	public Object fromBytes(Property targetProperty, byte[] value)
 	{
 		Object result = null;
-
+		
 		if (targetProperty.getType().isDataType()) {
 			DataType targetDataType = DataType.valueOf(targetProperty.getType()
 					.getName());
@@ -68,7 +69,7 @@ public class HBaseDataConverter {
 				// NOTE: no toByte method as would expect as there is opposite method, see below
 				// e.g. Bytes.toByte(value);
 				if (value != null) {
-					if (value.length > 0)
+					if (value.length > 2)
 						log.warn("truncating "
 					        + String.valueOf(value.length) 
 					        + " length byte array for target data type 'byte'");
@@ -119,7 +120,10 @@ public class HBaseDataConverter {
 				break;
 			}
 		} else {
-			throw new RuntimeException("not implemented");
+            throw new IllegalArgumentException("property " 
+                    + targetProperty.getType().getURI() 
+                    + "#" + targetProperty.getType().getName() + "." + 
+                    targetProperty.getName() + " is not a datatype property");        
 		}
 
 		return result;
@@ -225,7 +229,10 @@ public class HBaseDataConverter {
 				break;
 			}
 		} else {
-			throw new RuntimeException("not implemented");
+            throw new IllegalArgumentException("property " 
+                    + sourceProperty.getType().getURI() 
+                    + "#" + sourceProperty.getType().getName() + "." + 
+                    sourceProperty.getName() + " is not a datatype property");        
 		}
 		return result;
 	}

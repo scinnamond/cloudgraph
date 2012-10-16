@@ -1,4 +1,4 @@
-package org.cloudgraph.test.hbase;
+package org.cloudgraph.hbase;
 
 import java.io.IOException;
 
@@ -8,7 +8,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.common.test.PlasmaTestSetup;
 
-import com.crackoo.domain.Profile;
+import com.crackoo.profile.Profile;
 
 public class StudyModelSliceTest extends StudyModelTest {
     private static Log log = LogFactory.getLog(StudyModelSliceTest.class);

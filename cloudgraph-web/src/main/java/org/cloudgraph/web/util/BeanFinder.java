@@ -1,5 +1,7 @@
 package org.cloudgraph.web.util;
 
+import java.io.Serializable;
+
 import javax.faces.FactoryFinder;
 import javax.faces.application.Application;
 import javax.faces.application.ApplicationFactory;
@@ -17,6 +19,7 @@ import org.cloudgraph.web.model.search.SearchBean;
 
 
 public class BeanFinder
+    implements Serializable
 {              
     public BeanFinder()                                                                                 
     {                                                                                                     

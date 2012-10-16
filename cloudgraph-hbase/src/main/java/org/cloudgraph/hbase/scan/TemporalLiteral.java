@@ -64,7 +64,6 @@ public class TemporalLiteral extends ScanLiteral {
 		byte[] startBytes = null;
 		// FIXME: convert to native type as we create literals
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
-		log.error("HERE3 " + value.getClass().getName());
 		if (fieldConfig.isHash()) {
 			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
 			int startHashValue = hash.hash(startBytes);

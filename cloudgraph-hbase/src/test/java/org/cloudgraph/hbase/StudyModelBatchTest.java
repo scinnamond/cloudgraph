@@ -1,10 +1,10 @@
-package org.cloudgraph.test.hbase;
+package org.cloudgraph.hbase;
 
 import junit.framework.Test;
 
 import org.plasma.common.test.PlasmaTestSetup;
 
-import com.crackoo.domain.Profile;
+import com.crackoo.profile.Profile;
 
 public class StudyModelBatchTest extends StudyModelTest {
     private static int numRuns = 3;

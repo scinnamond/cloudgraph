@@ -8,9 +8,9 @@
 <html>
 <head>
     <title><h:outputText value="#{bundle.aplsDashboard_title}"/></title>
-    <link href="/apls/css/apls.css" rel="stylesheet" type="text/css" />
+    <link href="/cloudgraph-web/css/cloudgraph-web.css" rel="stylesheet" type="text/css" />
     	
-	<link rel="stylesheet" type="text/css" href="/apls/css/jqcontextmenu.css" />
+	<link rel="stylesheet" type="text/css" href="/cloudgraph-web/css/jqcontextmenu.css" />
 	
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>	
 	<script type="text/javascript" src="/apls/js/jqcontextmenu.js"></script>

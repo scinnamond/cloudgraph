@@ -1,4 +1,4 @@
-package org.cloudgraph.test.hbase;
+package org.cloudgraph.hbase;
 
 import java.io.IOException;
 
@@ -10,7 +10,7 @@ import org.plasma.common.test.PlasmaTestSetup;
 
 import com.crackoo.domain.Citation;
 import com.crackoo.domain.Goal;
-import com.crackoo.domain.Profile;
+import com.crackoo.profile.Profile;
 import com.crackoo.domain.StudyItem;
 import com.crackoo.domain.Tag;
 

@@ -7,7 +7,7 @@
 <f:loadBundle basename="#{UserBean.bundleName}" var="bundle"/>
 <html>
 <head>
-  <link href="/apls/css/apls.css" rel="stylesheet" type="text/css" />
+  <link href="/cloudgraph-web/css/cloudgraph-web.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
 <a4j:outputPanel id="body_panel">

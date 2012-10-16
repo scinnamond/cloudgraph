@@ -282,7 +282,7 @@ public class HBaseGraphDispatcher
 		if (changeSummary.isCreated(dataGraph.getRootObject())) {
     		if (!result.isEmpty())
     			throw new DuplicateRowException("no row for id '"
-    				+ Bytes.toString(rowKey) + "' expected"); 
+    				+ Bytes.toString(rowKey) + "' expected when creating new row"); 
     		graphState = new GraphState();
         }
 		else {

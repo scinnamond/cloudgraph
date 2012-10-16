@@ -1,4 +1,4 @@
-package org.cloudgraph.test.hbase;
+package org.cloudgraph.hbase;
 
 
 
@@ -37,26 +37,26 @@ import commonj.sdo.Property;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
 
-public abstract class DatatypesModelTest extends HBaseTestCase {
-    private static Log log = LogFactory.getLog(DatatypesModelTest.class);
+public abstract class DataTypeGraphModelTest extends HBaseTestCase {
+    private static Log log = LogFactory.getLog(DataTypeGraphModelTest.class);
 
     protected int maxLevels = 3;
     protected int maxRows = 5;        
         
     protected void fillGraph(Node root,
-    		long id, Date now)
+    		long id, Date now, String namePrefix)
     {
     	Node parent = root;
     	for (int i = 0; i < maxRows; i++) {
     		Node child = parent.createChild();
-        	fillNode(child, id, now, 1, i);  
+        	fillNode(child, id, now, namePrefix, 1, i);  
         	 
         	for (int j = 0; j < maxRows; j++) {
         		Node child2 = child.createChild();
-            	fillNode(child2, id, now, 2, j);        	
+            	fillNode(child2, id, now, namePrefix, 2, j);        	
             	for (int k = 0; k < maxRows; k++) {
             		Node child3 = child2.createChild();
-                	fillNode(child3, id, now, 3, k);        	
+                	fillNode(child3, id, now, namePrefix, 3, k);        	
             	}
         	}
         	 
@@ -69,26 +69,26 @@ public abstract class DatatypesModelTest extends HBaseTestCase {
     }
     
     protected void addNodes(Node parent, 
-    		long id, Date now,
+    		long id, Date now, String namePrefix,
     		long maxLevels, long level, 
     		long maxRows) {
     	
     	for (int i = 0; i < maxRows; i++) {
     		Node child = parent.createChild();
-        	fillNode(child, id, now, level, i);
+        	fillNode(child, id, now, namePrefix, level, i);
         	if (level < maxLevels)
         	    addNodes(child, id, now, 
+        	    	namePrefix,	
         			maxLevels, level++, 
         			maxRows);
     	}
     }
     
     protected Node fillNode(
-    		Node node,
-    		long id,
-    		Date now,
+    		Node node, long id,
+    		Date now, String namePrefix,
     		long level, long sequence) {
-    	String name = level + "_" + sequence;
+    	String name = namePrefix + "_" +level + "_" + sequence;
     	String floatIdStr = level + "." + sequence;
     	float floatId = Float.parseFloat(floatIdStr); 
     	node.setRootId(id);	
@@ -163,9 +163,15 @@ public abstract class DatatypesModelTest extends HBaseTestCase {
         return xml;
     }
     
+    protected void logGraph(DataGraph dataGraph) throws IOException 
+    {
+        String xml = serializeGraph(dataGraph);
+        //log.info("GRAPH: " + xml);    	
+    }    		
+    
     protected Node fetchGraphFull(long id) {    	
     	QNode query = createGraphQueryFull(id);
-    	this.marshal(query, id);
+    	this.marshal(query.getModel(), id);
     	
     	DataGraph[] result = service.find(query);
     	assertTrue(result != null);
@@ -227,5 +233,19 @@ public abstract class DatatypesModelTest extends HBaseTestCase {
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException(e);
 		}
+    }
+    
+    protected void waitForMillis(long time) {
+       	Object lock = new Object();
+        synchronized (lock) {
+	        try {
+	        	log.info("waiting "+time+" millis...");
+	        	lock.wait(time);
+	        }
+	        catch (InterruptedException e) {
+	        	log.error(e.getMessage(), e);
+	        }
+        }
+        log.info("...continue");
     }
 }

@@ -16,7 +16,7 @@
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
 
-    <Table name="data41" dataColumnFamilyName="f1">
+    <Table name="TEMPORAL" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
          
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="DateTimeNode">
@@ -33,7 +33,7 @@
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
         </DataGraph>
-
+        
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="DateNode">
             <RowKeyModel>
                 <RowKeyField name="uri" hash="true"/>
@@ -48,6 +48,46 @@
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
         </DataGraph>
+    </Table>  
+
+    <Table name="INTEGRAL" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        
+        <DataGraph uri="http://cloudgraph.org/test/datatypes" type="LongNode">
+            <RowKeyModel>
+                <RowKeyField name="uri" hash="true"/>
+                <RowKeyField name="type" hash="false"/>
+                <UserDefinedField 
+                    path="longField"/>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table>  
+
+    <Table name="STRING" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://cloudgraph.org/test/datatypes" type="StringNode">
+            <RowKeyModel>
+                <RowKeyField name="uri" hash="true"/>
+                <RowKeyField name="type" hash="false"/>
+                <UserDefinedField 
+                    path="rootId"/>
+                <UserDefinedField 
+                    path="stringField"/>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+
     </Table>  
          
     <Table name="data26" dataColumnFamilyName="f1">

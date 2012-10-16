@@ -1,4 +1,4 @@
-package org.cloudgraph.test.hbase;
+package org.cloudgraph.hbase;
 
 
 
@@ -21,11 +21,12 @@ import org.plasma.sdo.xml.DefaultOptions;
 
 import com.crackoo.domain.Citation;
 import com.crackoo.domain.Goal;
-import com.crackoo.domain.Profile;
 import com.crackoo.domain.StudyItem;
 import com.crackoo.domain.Tag;
 import com.crackoo.domain.query.QGoal;
-import com.crackoo.domain.query.QProfile;
+import com.crackoo.profile.Profile;
+import com.crackoo.profile.query.QProfile;
+
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
