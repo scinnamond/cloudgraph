@@ -90,53 +90,5 @@
 
     </Table>  
          
-     <Table name="domain1" dataColumnFamilyName="f1">
-        <HashAlgorithm name="murmur"/>
-         
-        <DataGraph uri="http://crackoo.com/domain" type="Goal">
-            <RowKeyModel>
-                <RowKeyField name="uri" hash="true"/>
-                <RowKeyField name="type" hash="false"/>
-                <!--
-                <RowKeyField name="uuid"/>
-                -->
-                <UserDefinedField hash="false"
-                    path="goalId"/>
-                 <UserDefinedField 
-                    path="creationDate"/>
-            </RowKeyModel>
-            
-            <ColumnKeyModel>
-                <ColumnKeyField name="uri" hash="true"/>
-                <ColumnKeyField name="type"/>
-                <ColumnKeyField name="property"/>
-            </ColumnKeyModel>
-        </DataGraph>
-
-    </Table> 
-    <Table name="profile1" dataColumnFamilyName="f1">
-        <HashAlgorithm name="murmur"/>
-         
-        <DataGraph uri="http://crackoo.com/profile" type="Profile">
-            <RowKeyModel>
-                <RowKeyField name="uri" hash="true"/>
-                <RowKeyField name="type" hash="false"/>
-                <!--
-                <RowKeyField name="uuid"/>
-                -->
-                <UserDefinedField hash="false"
-                    path="profileId"/>
-                 <UserDefinedField 
-                    path="creationDate"/>
-            </RowKeyModel>
-            
-            <ColumnKeyModel>
-                <ColumnKeyField name="uri" hash="true"/>
-                <ColumnKeyField name="type"/>
-                <ColumnKeyField name="property"/>
-            </ColumnKeyModel>
-        </DataGraph>
-
-    </Table>  
     
 </cloudgraph:CloudGraphConfiguration>

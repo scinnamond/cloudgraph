@@ -42,7 +42,7 @@
                     pessimisticLockTimeoutMillis="300000"/>
                 
                 <!-- links HBASE specific DAS provisioning to SDO namespace configs -->                 
-                <NamespaceLink uri="http://crackoo.com/domain"/>
+                <NamespaceLink uri="http://cloudgraph.org/test/datatypes"/>
                
               
             </DataAccessProvider>

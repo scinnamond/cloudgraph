@@ -189,7 +189,7 @@
                     <argLine>-Dlog4j.configuration=file:log4j.properties</argLine>
                     -->
                     <includes>
-                        <include>**/*StudyModelBatchTest*</include> 
+                        <include>**/*PartialRowKey*</include> 
                     </includes> 
                       
                      
