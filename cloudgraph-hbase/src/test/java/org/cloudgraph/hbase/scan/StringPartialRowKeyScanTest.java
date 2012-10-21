@@ -16,9 +16,6 @@ import org.plasma.query.Expression;
 import org.plasma.sdo.helper.PlasmaDataFactory;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
-import com.crackoo.profile.Profile;
-import com.crackoo.domain.query.QGoal;
-import com.crackoo.profile.query.QProfile;
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
