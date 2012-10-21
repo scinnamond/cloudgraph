@@ -60,6 +60,12 @@
                 <QueryDSL generate="true"/>
             </Provisioning>
         </Namespace>
+        <Namespace uri="http://crackoo.com/common"
+            artifact="http://crackoo.com/model">
+            <Provisioning packageName="com.crackoo.common">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
         
   	    <DataAccessService dataStoreType="NOSQL"> 	
 

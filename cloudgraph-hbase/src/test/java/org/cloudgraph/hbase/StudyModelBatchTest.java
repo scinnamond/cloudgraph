@@ -1,13 +1,19 @@
 package org.cloudgraph.hbase;
 
+import java.io.IOException;
+
 import junit.framework.Test;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.plasma.common.test.PlasmaTestSetup;
 
+import com.crackoo.domain.Goal;
 import com.crackoo.profile.Profile;
 
 public class StudyModelBatchTest extends StudyModelTest {
-    private static int numRuns = 3;
+    private static Log log = LogFactory.getLog(StudyModelBatchTest.class);
+    private static int numRuns = 1;
 
     public static Test suite() {
         return PlasmaTestSetup.newTestSetup(StudyModelBatchTest.class);
@@ -17,17 +23,16 @@ public class StudyModelBatchTest extends StudyModelTest {
         super.setUp();
     } 
     
-    public void testProfileGraphInsert() {
+    public void testGoalGraphInsert() throws IOException {
     	for (int run = 0; run < this.numRuns; run++) {
             long id = System.currentTimeMillis();
-            ISBN1 = "ISBN1_" + String.valueOf(id);
-            ISBN2 = "ISBN2_" + String.valueOf(id);
-            ISBN3 = "ISBN3_" + String.valueOf(id);
-        	Profile profile = this.createProfileGraph(id);
+            Goal goal = this.createGoalGraph(id);
         	
         	//save the graph
-            service.commit(profile.getDataGraph(), "test-user");
+            service.commit(goal.getDataGraph(), "test-user");
     		
+			String xml = this.serializeGraph(goal.getDataGraph());
+            log.info("goal: " + xml);
     	}
     }
 }

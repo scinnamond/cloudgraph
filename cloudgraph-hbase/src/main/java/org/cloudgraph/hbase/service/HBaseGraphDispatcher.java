@@ -230,7 +230,7 @@ public class HBaseGraphDispatcher
 
         List<Row> result = new ArrayList<Row>();;
 		Put create = new Put(rowKey);
-    	// if new graph
+    	// if new graph (root is created)
         if (changeSummary.isCreated(dataGraph.getRootObject()))	{
             String uuid = (String)((PlasmaDataObject)dataGraph.getRootObject()).getUUIDAsString();
             if (uuid == null)
@@ -265,6 +265,23 @@ public class HBaseGraphDispatcher
 		return result;
     }
     
+    /**
+     * Initializes a graph state by querying for a row
+     * based on the given row key and either creating a new (empty)
+     * graph state for an entirely new graph, or otherwise initializing
+     * a graph state based on state or state and management columns in
+     * the existing returned row.   
+     * 
+     * @param rowKey the row key
+     * @param dataGraph the data graph
+     * @param changeSummary the change summary
+     * @return the graph state
+     * @throws IOException
+     * @throws DuplicateRowException for a new graph if a row already exists
+     * for the given row key
+     * @throws GraphServiceException where except for a new graph, if no row
+     * exists for the given row key
+     */
     private GraphState initGraphState(byte[] rowKey, 
     		DataGraph dataGraph,
     		PlasmaChangeSummary changeSummary) throws IOException
