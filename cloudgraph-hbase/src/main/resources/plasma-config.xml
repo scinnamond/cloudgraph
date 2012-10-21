@@ -30,43 +30,7 @@
             </Provisioning>
         </Namespace>
   
-        <Namespace uri="http://crackoo.com/domain"
-            artifact="http://crackoo.com/model">
-            <Provisioning packageName="com.crackoo.domain">
-                <QueryDSL generate="true"/>
-            </Provisioning>
-        </Namespace>
-        <Namespace uri="http://crackoo.com/profile"
-            artifact="http://crackoo.com/model">
-            <Provisioning packageName="com.crackoo.profile">
-                <QueryDSL generate="true"/>
-            </Provisioning>
-        </Namespace>
-        <Namespace uri="http://crackoo.com/metric"
-            artifact="http://crackoo.com/model">
-            <Provisioning packageName="com.crackoo.metric">
-                <QueryDSL generate="true"/>
-            </Provisioning>
-        </Namespace>
-        <Namespace uri="http://crackoo.com/categorization"
-            artifact="http://crackoo.com/model">
-            <Provisioning packageName="com.crackoo.categorization">
-                <QueryDSL generate="true"/>
-            </Provisioning>
-        </Namespace>
-        <Namespace uri="http://crackoo.com/ref"
-            artifact="http://crackoo.com/model">
-            <Provisioning packageName="com.crackoo.ref">
-                <QueryDSL generate="true"/>
-            </Provisioning>
-        </Namespace>
-        <Namespace uri="http://crackoo.com/common"
-            artifact="http://crackoo.com/model">
-            <Provisioning packageName="com.crackoo.common">
-                <QueryDSL generate="true"/>
-            </Provisioning>
-        </Namespace>
-        
+       
   	    <DataAccessService dataStoreType="NOSQL"> 	
 
             <DataAccessProvider name="HBASE"
@@ -101,9 +65,6 @@
             urn="datatypes.mdxml" 
             namespaceUri="http://cloudgraph.org/datatypes.mdxml"/>  
 
-        <Artifact name="crackoo-hbase.mdxml"
-            urn="crackoo-hbase.mdxml" 
-            namespaceUri="http://crackoo.com/model"/>  
     </Repository>
     
   
