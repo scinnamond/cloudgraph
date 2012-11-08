@@ -113,7 +113,8 @@ public class JDBCDataAccessProvider implements PlasmaDataAccessService {
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}
-        DataGraphDispatcher dispatcher = new JDBCDataGraphDispatcher(snapshotMap, 
+		DataGraphDispatcher dispatcher = 
+        	new JDBCDataGraphDispatcher(snapshotMap, 
                 username, con);
         try {
             dispatcher.commit(dataGraph);
@@ -141,6 +142,12 @@ public class JDBCDataAccessProvider implements PlasmaDataAccessService {
             throw new DataAccessException(t);
         }
         finally {
+        	 
+        	try {
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage());
+			}
             dispatcher.close();
         }
     }
@@ -160,10 +167,10 @@ public class JDBCDataAccessProvider implements PlasmaDataAccessService {
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}
-        
-        DataGraphDispatcher dispatcher = new JDBCDataGraphDispatcher(snapshotMap,
+		DataGraphDispatcher dispatcher = 
+        	new JDBCDataGraphDispatcher(snapshotMap, 
                 username, con);
-        
+       
         try {
             for (int i = 0; i < dataGraphs.length; i++) { 
                 if (log.isDebugEnabled())
@@ -190,6 +197,11 @@ public class JDBCDataAccessProvider implements PlasmaDataAccessService {
             throw new DataAccessException(t);
         }
         finally {
+        	try {
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage());
+			}
             dispatcher.close();
         }
     }
