@@ -91,8 +91,14 @@ public class JDBCConnectionManager {
 	}
 
 	public Connection getConnection() throws SQLException {
+		try {
+			printDriverStats();
+		} catch (Exception e) {
+			log.error(e.getMessage());
+		}
 		return DS.getConnection();
 	}
+
 
 	/**
 	 * 
@@ -153,8 +159,8 @@ public class JDBCConnectionManager {
 
 	public static void printDriverStats() throws Exception {
 		ObjectPool connectionPool = JDBCConnectionManager._pool;
-		log.info("NumActive: " + connectionPool.getNumActive());
-		log.info("NumIdle: " + connectionPool.getNumIdle());
+		log.debug("NumActive: " + connectionPool.getNumActive());
+		log.debug("NumIdle: " + connectionPool.getNumIdle());
 	}
 
 	/**

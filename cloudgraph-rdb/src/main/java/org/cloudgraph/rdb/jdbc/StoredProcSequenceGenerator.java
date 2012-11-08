@@ -90,6 +90,13 @@ public class StoredProcSequenceGenerator
 
 	@Override
 	public void close() {
-		this.conn = null;
+		try {
+			if (this.conn != null) {
+			    this.conn.close(); // return to pool
+			    this.conn = null;
+			}
+		} catch (SQLException e) {
+			log.error(e.getMessage());
+		}
 	}
 }
