@@ -7,7 +7,6 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
-import org.plasma.config.Property;
 
 /**
  * Provides context information for HBase such as an 
@@ -18,6 +17,8 @@ import org.plasma.config.Property;
  * Used by {@link org.cloudgraph.hbase.connect.HBaseConnectionManager} when creating pooled HTable client
  * instances.
  * @see org.cloudgraph.hbase.connect.HBaseConnectionManager
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class CloudGraphContext {
 	private static final Log log = LogFactory.getLog(CloudGraphContext.class);

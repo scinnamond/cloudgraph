@@ -1,9 +1,12 @@
 package org.cloudgraph.common.service;
 
-import org.plasma.query.model.RelationalOperator;
 import org.plasma.query.model.RelationalOperatorValues;
 
- 
+
+/**
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
 public class IllegalRelationalOperatorException extends GraphServiceException
 {
     private static final long serialVersionUID = 1L;

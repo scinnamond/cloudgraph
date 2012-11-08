@@ -8,6 +8,11 @@ import org.apache.commons.logging.LogFactory;
 import org.plasma.common.bind.BindingValidationEventHandler;
 import org.plasma.config.ConfigurationException;
 
+/**
+ * Configuration parsing (JAXB) event handler.
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
 public class CloudGraphConfigValidationEventHandler implements BindingValidationEventHandler {
 	
     private static Log log = LogFactory.getLog(CloudGraphConfigValidationEventHandler.class);

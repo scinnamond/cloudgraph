@@ -4,12 +4,12 @@
     <parent>
         <groupId>cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5</version>
+        <version>0.5.1</version>
     </parent>
 	<groupId>cloudgraph</groupId>
 	<artifactId>cloudgraph-web</artifactId>
 	<packaging>war</packaging>
-	<version>0.5</version>
+	<version>0.5.1</version>
 	<name>CloudGraph Web</name>
     <repositories>
         <repository>
@@ -44,7 +44,7 @@
         <dependency>
             <groupId>cloudgraph</groupId>
             <artifactId>cloudgraph-rdb</artifactId>
-            <version>0.5</version>
+            <version>0.5.1</version>
         </dependency>
 
         <dependency>

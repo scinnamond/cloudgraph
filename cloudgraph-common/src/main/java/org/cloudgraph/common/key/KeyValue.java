@@ -6,6 +6,8 @@ import org.plasma.sdo.PlasmaProperty;
 /**
  * Associates an SDO property with a data value and optional 
  * path to the property from a given context root.
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class KeyValue {
 	private PlasmaProperty prop;

@@ -12,13 +12,13 @@ Top level configuration settings
 
         <xsd:complexContent>
             <xsd:extension base="cloudgraph:Configuration">
-<xsd:sequence>
-<xsd:element name="Table" type="cloudgraph:Table" minOccurs="1" maxOccurs="unbounded">
-<xsd:annotation>
-<xsd:documentation></xsd:documentation>
-</xsd:annotation>
-</xsd:element>
-</xsd:sequence>
+                <xsd:sequence>
+                <xsd:element name="Table" type="cloudgraph:Table" minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>
+                <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+                </xsd:element>
+                </xsd:sequence>
             </xsd:extension>
         </xsd:complexContent>
          
@@ -39,29 +39,29 @@ Configuration settings for a table.
 
         <xsd:complexContent>
             <xsd:extension base="cloudgraph:Configuration">
-<xsd:sequence>
-<xsd:element name="HashAlgorithm" type="cloudgraph:HashAlgorithm" minOccurs="0" maxOccurs="1">
-<xsd:annotation>
-<xsd:documentation>The non-cryptographic hash algorithm settings used within the context of this HTable</xsd:documentation>
-</xsd:annotation>
-</xsd:element>
-<xsd:element name="DataGraph" type="cloudgraph:DataGraph" minOccurs="1" maxOccurs="unbounded">
-<xsd:annotation>
-<xsd:documentation></xsd:documentation>
-</xsd:annotation>
-</xsd:element>
-</xsd:sequence>
-  <xsd:attribute name="name" type="xsd:string" use="required">
-<xsd:annotation>
-<xsd:documentation>The table name</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-  <xsd:attribute name="dataColumnFamilyName" type="xsd:string" use="required">
-<xsd:annotation>
-<xsd:documentation>The name of the column family used for data</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>    
-</xsd:extension>
+                <xsd:sequence>
+	                <xsd:element name="HashAlgorithm" type="cloudgraph:HashAlgorithm" minOccurs="0" maxOccurs="1">
+	                <xsd:annotation>
+	                <xsd:documentation>The non-cryptographic hash algorithm settings used within the context of this HTable</xsd:documentation>
+	                </xsd:annotation>
+	                </xsd:element>
+	                <xsd:element name="DataGraph" type="cloudgraph:DataGraph" minOccurs="1" maxOccurs="unbounded">
+	                <xsd:annotation>
+	                <xsd:documentation></xsd:documentation>
+	                </xsd:annotation>
+	                </xsd:element>
+                </xsd:sequence>
+                <xsd:attribute name="name" type="xsd:string" use="required">
+	                <xsd:annotation>
+	                <xsd:documentation>The table name</xsd:documentation>
+	                </xsd:annotation>
+                </xsd:attribute>
+                <xsd:attribute name="dataColumnFamilyName" type="xsd:string" use="required">
+                    <xsd:annotation>
+                    <xsd:documentation>The name of the column family used for data</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute>    
+            </xsd:extension>
         </xsd:complexContent>
          
     </xsd:complexType>
@@ -79,37 +79,36 @@ Configuration settings for a table.
 
         <xsd:complexContent>
             <xsd:extension base="cloudgraph:Configuration">
-<xsd:sequence>
-<xsd:element name="RowKeyModel" type="cloudgraph:RowKeyModel" minOccurs="1" maxOccurs="1">
-<xsd:annotation>
-<xsd:documentation>The composite row-key model settings for this cloudgraph.</xsd:documentation>
-</xsd:annotation>
-</xsd:element>  
-<xsd:element name="ColumnKeyModel" type="cloudgraph:ColumnKeyModel" minOccurs="1" maxOccurs="1">
-<xsd:annotation>
-<xsd:documentation>The composite column-key model settings for this cloudgraph.</xsd:documentation>
-</xsd:annotation>
-</xsd:element>  
-</xsd:sequence>
-  <xsd:attribute name="uri" type="xsd:string" use="required">
-<xsd:annotation>
-<xsd:documentation>The SDO namespace URI for a specific Data Graph stored within this table.</xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-  <xsd:attribute name="type" type="xsd:string" use="required">
-<xsd:annotation>
-<xsd:documentation>
+                <xsd:sequence>
+                    <xsd:element name="RowKeyModel" type="cloudgraph:RowKeyModel" minOccurs="1" maxOccurs="1">
+                    <xsd:annotation>
+                    <xsd:documentation>The composite row-key model settings for this cloudgraph.</xsd:documentation>
+                    </xsd:annotation>
+                    </xsd:element>  
+                    <xsd:element name="ColumnKeyModel" type="cloudgraph:ColumnKeyModel" minOccurs="1" maxOccurs="1">
+                    <xsd:annotation>
+                    <xsd:documentation>The composite column-key model settings for this cloudgraph.</xsd:documentation>
+                    </xsd:annotation>
+                    </xsd:element>  
+                </xsd:sequence>
+              <xsd:attribute name="uri" type="xsd:string" use="required">
+                  <xsd:annotation>
+                  <xsd:documentation>The SDO namespace URI for a specific Data Graph stored within this table.</xsd:documentation>
+                  </xsd:annotation>
+              </xsd:attribute>
+              <xsd:attribute name="type" type="xsd:string" use="required">
+                  <xsd:annotation>
+                  <xsd:documentation>
 The (root) SDO Type for a specific Data Graph stored within this
 table. Multiple cloudgraph configurations with the same root type
 may be used within the same table configuration, but the URI must
 differ. The SDO specification requires the URI/Type-Name combination
 to be unique.
-                        </xsd:documentation>
-</xsd:annotation>
-</xsd:attribute>
-</xsd:extension>
-        </xsd:complexContent>
-         
+                  </xsd:documentation>
+                  </xsd:annotation>
+              </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>         
     </xsd:complexType>
 
     <xsd:element name="DataGraph" type="cloudgraph:DataGraph">
@@ -140,16 +139,13 @@ to be unique.
         <xsd:annotation>
             <xsd:documentation>
 Specifies the composite row-key generation characteristics for a
-specific data graph (cloudgraph). The characteristics for each pre-defined
+specific data graph. The characteristics for each pre-defined
 field may be specified and any number of user-defined fields
 may also be added to the row key. Each user defined field maps
-a property within the cloudgraph (data graph) to a position
+a property within the data graph to a position
 within the composite row key, adding another "dimension" to the
 key. For HBase, this user defined composite row-key approach enables the partial key-scan functionality
-which greatly improves query performance. For query properties within a "Where"
-clause restriction not found in the composite row-key, a column scan is required.
-cloudgraph first looks for a composite row-key field matching the query property, but if not
-found creates a column scan for the property.
+which greatly improves query performance. 
             </xsd:documentation>
         </xsd:annotation>
         <xsd:sequence>
@@ -158,20 +154,10 @@ found creates a column scan for the property.
                     <xsd:documentation>The settings for a pre-defined field within this row-key model.</xsd:documentation>
                 </xsd:annotation>
             </xsd:element>
-            <xsd:element name="UserDefinedField" type="cloudgraph:UserDefinedField" minOccurs="0" maxOccurs="unbounded">
-                <xsd:annotation>
-                    <xsd:documentation>The settings for a user-defined field within this composite row-key model.</xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
         </xsd:sequence>
         <xsd:attribute name="fieldDelimiter" type="xsd:string" use="optional" default=":">
             <xsd:annotation>
                 <xsd:documentation>The delimiter used to seperate fields within the row keys</xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-        <xsd:attribute name="sectionDelimiter" type="xsd:string" use="optional" default="#">
-            <xsd:annotation>
-                <xsd:documentation>The delimiter used to seperate the metadata and data row key sections</xsd:documentation>
             </xsd:annotation>
         </xsd:attribute>
                 
@@ -185,13 +171,30 @@ found creates a column scan for the property.
 
     <xsd:complexType name="RowKeyField">
         <xsd:annotation>
-            <xsd:documentation>The settings for one pre-defined field within a composite row-key.</xsd:documentation>
+            <xsd:documentation>The settings for a row key field within a composite row-key.</xsd:documentation>
         </xsd:annotation>
-        <xsd:attribute name="name" type="cloudgraph:PreDefinedFieldName" use="required">
-            <xsd:annotation>
-                <xsd:documentation></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
+        <xsd:choice>
+            <xsd:element name="PredefinedField" type="cloudgraph:PredefinedField"/>
+            <xsd:element name="UserDefinedField" type="cloudgraph:UserDefinedField"/>
+        </xsd:choice> 
+    </xsd:complexType>
+
+    <xsd:element name="RowKeyField" type="cloudgraph:RowKeyField">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+
+    <xsd:complexType name="KeyField" abstract="true">
+        <xsd:annotation>
+            <xsd:documentation>The settings for one field within a composite row or column key.</xsd:documentation>
+        </xsd:annotation>
+        <!--
+        Note: Applying a hash function can introuduce negative numbers into the
+        composite key which seems to invalidate lexicographic comparisons
+        for the composite key as a whole. 
+        -->
         <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
             <xsd:annotation>
                 <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this field</xsd:documentation>
@@ -199,7 +202,28 @@ found creates a column scan for the property.
         </xsd:attribute>
     </xsd:complexType>
 
-    <xsd:element name="RowKeyField" type="cloudgraph:RowKeyField">
+    <xsd:element name="KeyField" type="cloudgraph:KeyField">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    
+    <xsd:complexType name="PredefinedField">
+        <xsd:annotation>
+            <xsd:documentation>The settings for one pre-defined field within a composite row-key.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:complexContent>
+            <xsd:extension base="cloudgraph:KeyField">
+		        <xsd:attribute name="name" type="cloudgraph:PreDefinedFieldName" use="required">
+		            <xsd:annotation>
+		                <xsd:documentation></xsd:documentation>
+		            </xsd:annotation>
+		        </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="PredefinedField" type="cloudgraph:PredefinedField">
         <xsd:annotation>
             <xsd:documentation></xsd:documentation>
         </xsd:annotation>
@@ -210,33 +234,28 @@ found creates a column scan for the property.
             <xsd:documentation>
 The settings for one user-defined field within a
 composite row-key. Each user defined field maps
-a property within the cloudgraph (data graph) to a position
+a property within the data graph to a position
 within the composite row key, adding another "dimension" to the
-key. In HBase for example, this user defined composite row-key approach enables the HBase partial row-key scan functionality
+key. In HBase for example, this user defined composite row-key approach 
+enables the HBase partial row-key scan functionality
 which greatly improves query performance. 
             </xsd:documentation>
         </xsd:annotation>
-        <xsd:attribute name="path" type="xsd:string" use="required">
-            <xsd:annotation>
-                <xsd:documentation>
+        <xsd:complexContent>
+            <xsd:extension base="cloudgraph:KeyField">
+		        <xsd:attribute name="path" type="xsd:string" use="required">
+		            <xsd:annotation>
+		                <xsd:documentation>
 An SDO XPath expression which identifies an
 SDO property, the value of which to be used as a composite
 row-key element or field. The XPath expression may traverse any
 number of nodes within the data graph and may contain any number of
 predicates.
-                </xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-        <!--
-        Applying a hash function can introuduce negative numbers into the
-        composite key which seems to invalidate lexicographic comparisons
-        for the composite key as a whole. 
-        -->
-        <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
-            <xsd:annotation>
-                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this field</xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
+		                </xsd:documentation>
+		            </xsd:annotation>
+		        </xsd:attribute>
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:element name="UserDefinedField" type="cloudgraph:UserDefinedField">
@@ -283,16 +302,10 @@ column field may be specified.
         <xsd:annotation>
             <xsd:documentation>The settings for one pre-defined field within a composite column-key.</xsd:documentation>
         </xsd:annotation>
-        <xsd:attribute name="name" type="cloudgraph:PreDefinedFieldName" use="required">
-            <xsd:annotation>
-                <xsd:documentation></xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
-        <xsd:attribute name="hash" type="xsd:boolean" use="optional" default="false">
-            <xsd:annotation>
-                <xsd:documentation>Whether to apply the specified non-cryptographic hash algorithm to this field</xsd:documentation>
-            </xsd:annotation>
-        </xsd:attribute>
+        <xsd:complexContent>
+            <xsd:extension base="cloudgraph:PredefinedField">
+            </xsd:extension>
+        </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:element name="ColumnKeyField" type="cloudgraph:ColumnKeyField">
@@ -300,14 +313,7 @@ column field may be specified.
             <xsd:documentation></xsd:documentation>
         </xsd:annotation>
     </xsd:element>
-
-
-
-
-
-
-
-        
+    
     <!-- complex types used in extensions -->
     <xsd:complexType name="Configuration">
         <xsd:annotation>
@@ -328,14 +334,14 @@ column field may be specified.
         </xsd:annotation>
     </xsd:element>
 
-<xsd:complexType name="Property">
-<xsd:annotation><xsd:documentation>defines a property element with both content and attributes</xsd:documentation></xsd:annotation>
-<xsd:simpleContent>
-<xsd:extension base="xsd:string">
-<xsd:attribute name="name" type="xsd:string" use="required"/>
-</xsd:extension>    
-</xsd:simpleContent>
-</xsd:complexType>
+    <xsd:complexType name="Property">
+        <xsd:annotation><xsd:documentation>defines a property element with both content and attributes</xsd:documentation></xsd:annotation>
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+                <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:extension>    
+        </xsd:simpleContent>
+    </xsd:complexType>
 
     <xsd:element name="Property" type="cloudgraph:Property">
         <xsd:annotation>

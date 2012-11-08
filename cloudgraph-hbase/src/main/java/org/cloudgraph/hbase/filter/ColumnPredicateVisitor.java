@@ -46,6 +46,8 @@ import org.plasma.sdo.access.DataAccessException;
  * or columns in HBase.
  * </p> 
  * @see org.cloudgraph.common.key.CompositeColumnKeyFactory
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class ColumnPredicateVisitor extends PredicateVisitor {
     private static Log log = LogFactory.getLog(ColumnPredicateVisitor.class);

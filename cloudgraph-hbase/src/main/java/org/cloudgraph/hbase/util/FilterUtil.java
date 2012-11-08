@@ -9,6 +9,8 @@ import org.apache.hadoop.hbase.filter.MultipleColumnPrefixFilter;
 
 /**
  * HBase filter debugging utilities
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class FilterUtil {
 	

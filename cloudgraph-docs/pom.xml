@@ -4,11 +4,11 @@
   <parent>
       <groupId>cloudgraph</groupId>
       <artifactId>cloudgraph</artifactId>
-      <version>0.5</version>
+      <version>0.5.1</version>
   </parent>
   <groupId>cloudgraph</groupId>
   <artifactId>cloudgraph-docs</artifactId>
-  <version>0.5</version>
+  <version>0.5.1</version>
   <packaging>jar</packaging>
 
   <name>CloudGraph Docs</name>  

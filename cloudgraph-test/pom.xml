@@ -4,11 +4,11 @@
     <parent>
         <groupId>cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5</version>
+        <version>0.5.1</version>
     </parent>
 	<groupId>cloudgraph</groupId>
 	<artifactId>cloudgraph-test</artifactId>
-	<version>0.5</version>
+	<version>0.5.1</version>
 	<name>CloudGraph Test</name>
     <repositories>
         <repository>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>cloudgraph</groupId>
             <artifactId>cloudgraph-rdb</artifactId>
-            <version>0.5</version>
+            <version>0.5.1</version>
         </dependency>
         <!-- Local Dependencies -->
         <dependency>

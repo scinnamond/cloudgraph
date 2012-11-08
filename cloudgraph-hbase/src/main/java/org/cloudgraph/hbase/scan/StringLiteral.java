@@ -1,6 +1,6 @@
 package org.cloudgraph.hbase.scan;
 
-import org.cloudgraph.config.UserDefinedFieldConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.service.HBaseDataConverter;
 import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
@@ -16,6 +16,8 @@ import org.plasma.sdo.PlasmaType;
  * 
  * @see org.cloudgraph.config.TableConfig
  * @see org.cloudgraph.hbase.service.HBaseDataConverter
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class StringLiteral extends ScanLiteral {
 
@@ -27,7 +29,7 @@ public class StringLiteral extends ScanLiteral {
 	public StringLiteral(String literal,
 			PlasmaType rootType,
 			RelationalOperator relationalOperator,
-			LogicalOperator logicalOperator, UserDefinedFieldConfig fieldConfig) {
+			LogicalOperator logicalOperator, UserDefinedRowKeyFieldConfig fieldConfig) {
 		super(literal, rootType, relationalOperator, 
 				logicalOperator, fieldConfig);
 	}

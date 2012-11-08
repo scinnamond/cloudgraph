@@ -29,6 +29,8 @@ import org.plasma.sdo.PlasmaType;
  * </p> 
  * @see org.cloudgraph.common.key.GraphColumnKeyFactory
  * @see org.cloudgraph.hbase.key.CompositeColumnKeyFactory
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class BinaryPrefixColumnFilterAssembler extends FilterListAssembler
 {

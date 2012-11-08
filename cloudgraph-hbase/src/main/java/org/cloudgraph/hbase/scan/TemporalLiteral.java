@@ -4,7 +4,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.config.UserDefinedFieldConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.service.HBaseDataConverter;
 import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
@@ -32,7 +32,7 @@ public class TemporalLiteral extends ScanLiteral {
 	public TemporalLiteral(String literal,
 			PlasmaType rootType,
 			RelationalOperator relationalOperator,
-			LogicalOperator logicalOperator, UserDefinedFieldConfig fieldConfig) {
+			LogicalOperator logicalOperator, UserDefinedRowKeyFieldConfig fieldConfig) {
 		super(literal, rootType, relationalOperator, 
 				logicalOperator, fieldConfig);
 	}

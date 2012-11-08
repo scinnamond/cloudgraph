@@ -19,6 +19,8 @@ import commonj.sdo.Type;
  * </p>
  * @see org.cloudgraph.config.RowKeyModel
  * @see org.cloudgraph.config.Table
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public interface GraphRowKeyExpressionFactory {
 	

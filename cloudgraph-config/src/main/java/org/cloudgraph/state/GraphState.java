@@ -1,5 +1,6 @@
-package org.cloudgraph.common.service;
+package org.cloudgraph.state;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaEdge;
 import org.plasma.sdo.PlasmaNode;
+import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.TraversalDirection;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
@@ -18,22 +20,46 @@ import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 
 /**
- * Manages a minimal set of "state" information
- * persisted with each data graph. In short, integral sequence 
- * numbers (which are used in column keys) are mapped to unique 
- * UUID values for each SDO Type.  
+ * A minimal set of "state" information is persisted with each 
+ * data graph in order to reduce overall storage space. 
+ * In general mappings from various space intensive properties 
+ * required for graph management, such as UUIDs, are mapped 
+ * to integral values and the mapping stored in specific 
+ * graph management columns within each row. Federation across
+ * tables is enabled by mapping any UUID's to row keys for any references
+ * to external tables.  
+ * 
  * <p>
- * Each sequence number is unique to a Type within
+ * Sequence Numbers. Each sequence number is unique to a Type within
  * the context of a single data graph. Each new sequence number 
  * generated is simply the number of existing elements 
  * already mapped for a particular SDO Type (plus 1).  
  * </p>
+ * 
+ * @author Scott Cinnamond
+ * @since 0.5
  */
-public class GraphState {
+public class GraphState implements State {
 
     private static Log log = LogFactory.getLog(GraphState.class);
+	
+	/**
+	 * The name of the table column containing the mapped UUID state
+	 * of a graph.  
+	 */
+	public static final String UUID_MAP_COLUMN_NAME = "__UUIDMAP__";
 
-    public static final String STATE_MAP_COLUMN_NAME = "state";
+	/**
+	 * The name of the table column containing the mapped row key state
+	 * of a graph.  
+	 */
+	public static final String KEY_MAP_COLUMN_NAME = "__KEYMAP__";
+    
+	/**
+     * The name of the table column which stores the UUID for the
+     * data object which is the data graph root. 
+     */
+	public static final String ROOT_UUID_COLUMN_NAME = "__ROOT__";
     
     private static final String EDGE_RIGHT = "R";
     private static final String EDGE_LEFT = "L";
@@ -44,20 +70,26 @@ public class GraphState {
     private static final String MAP_DELIM_URI = "@";
     private static final String MAP_DELIM_UUID = ",";
     private static final String MAP_DELIM_ID = ":";
+    private static final String MAP_DELIM_KEY = "@";
 
+    /** maps types to UUID/sequence number sub-maps */
     private Map<Type, Map<String, Long>> seqMap;
+    /** maps types to sequence number/UUID sub-maps */
     private Map<Type, Map<Long, String>> uuidMap;
+    /** maps UUIDs to row keys */
+    private Map<String, byte[]> keyMap;
     
     private StringBuilder buf = new StringBuilder();
-    
+    private Charset charset = Charset.forName( CoreConstants.UTF8_ENCODING );
+   
     public GraphState() {
 		this.seqMap = new HashMap<Type, Map<String, Long>>();
 		this.uuidMap = new HashMap<Type, Map<Long, String>>();
+		this.keyMap = new HashMap<String, byte[]>();
     }
     
     public GraphState(String state) {
-		this.seqMap = new HashMap<Type, Map<String, Long>>();
-		this.uuidMap = new HashMap<Type, Map<Long, String>>();
+    	this();
 		
 		String[] typeArray = state.split(GraphState.MAP_DELIM_TYPES);
 		for (String typeToken : typeArray) {
@@ -73,12 +105,32 @@ public class GraphState {
 			for (String token : pairs) {
 				String[] pair =  token.split(GraphState.MAP_DELIM_ID);
 				Long id = new Long(pair[1]);
+				String uuid = pair[0];
+				if (uuid == null || uuid.length() == 0)
+					throw new IllegalArgumentException("found null or zero length UUID while parsing uuid map");
+				if (uuid.length() != 36)
+					throw new IllegalArgumentException("found "+uuid.length()+" rather than 38 char length UUID while parsing uuid map");
 				seqSubMap.put(pair[0], id);
 				uuidSubMap.put(id, pair[0]);
 			}
 		}
 	}
-	
+    
+    public GraphState(String uuidSequenceMap, String uuidRowKeyMap) {
+    	this(uuidSequenceMap);
+		String[] uuidArray = uuidRowKeyMap.split(GraphState.MAP_DELIM_UUID);
+		for (String token : uuidArray) {
+			String[] pairArray = token.split(GraphState.MAP_DELIM_KEY);
+			String uuid = pairArray[0];
+			if (uuid == null || uuid.length() == 0)
+				throw new IllegalArgumentException("found null or zero length UUID while parsing row-key map");
+			if (uuid.length() != 36)
+				throw new IllegalArgumentException("found "+uuid.length()+" rather than 38 char length UUID while parsing row-key map");
+			byte[] rowKey = pairArray[1].getBytes(this.charset);
+			this.keyMap.put(uuid, rowKey);
+		}
+    }
+    
 	public void close() {
 		if (seqMap != null)
 			seqMap.clear();
@@ -196,6 +248,7 @@ public class GraphState {
 		return id;
 	}
 	
+	
 	/**
 	 * Returns an existing UUID for the given 
 	 * sequence number, or null if none exists. 
@@ -208,8 +261,8 @@ public class GraphState {
 		if (uuidSubMap == null) 
 			return null;
 		return uuidSubMap.get(sequence);
-	}
-
+	}	
+	
 	/**
 	 * Returns an existing UUID for the given 
 	 * sequence number, or null if none exists. 
@@ -234,10 +287,107 @@ public class GraphState {
 				+ String.valueOf(sequence) + ") for given type, "
 				+ type.getURI() + "#" + type.getName());
 	}
+
+	/**
+	 * Returns an existing mapped row key for the given data object, 
+	 * or null if none exists. 
+	 * @param dataObject the data object
+	 * @return an existing mapped row key for the given data object, 
+	 * or null if none exists. 
+	 */
+	public byte[] findRowKey(DataObject dataObject) {
+		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+		byte[] key = this.keyMap.get(uuid);
+		return key;
+	}	
+	/**
+	 * Returns an existing mapped row key for the given data object. 
+	 * @param dataObject the data object
+	 * @return an existing mapped row key for the given data object. 
+	 * @throws IllegalArgumentException if no row key is mapped for the given data object 
+	 */
+	public byte[] getRowKey(DataObject dataObject) {
+		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+		return getRowKey(uuid);
+	}
 	
-	@Deprecated
-    public String toString() {
-		return formatUUIDMap();
+	/**
+	 * Returns an existing mapped row key for the given data object UUID. 
+	 * @param dataObject the data object
+	 * @return an existing mapped row key for the given data object. 
+	 * @throws IllegalArgumentException if no row key is mapped for the given data object UUID, the UUID is null or the incorrect length
+	 */
+	public byte[] getRowKey(String uuid) {
+	
+		if (uuid == null || uuid.length() == 0)
+			throw new IllegalArgumentException("found null or zero length UUID from data object");
+		if (uuid.length() != 36)
+			throw new IllegalArgumentException("found "+uuid.length()+" rather than 38 char length UUID from data object");
+		byte[] key = this.keyMap.get(uuid);
+		if (key == null)
+			throw new IllegalArgumentException("no key mapped for UUID, " +
+					uuid);
+		if (log.isDebugEnabled())
+			log.debug("returning row-key: " 
+		        + uuid + "->" + new String(key, this.charset));
+		return key;
+	}	
+	
+	/**
+	 * Creates a new mapping for the given row key and
+	 * data object.
+	 * @param dataObject the data object
+	 * @param key the row key;
+	 */
+	public void addRowKey(DataObject dataObject, byte[] key) {
+		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+		if (uuid == null || uuid.length() == 0)
+			throw new IllegalArgumentException("found null or zero length UUID from data object");
+		if (uuid.length() != 36)
+			throw new IllegalArgumentException("found "+uuid.length()+" rather than 38 char length UUID from data object");
+		if (log.isDebugEnabled())
+			log.debug("adding row-key: " 
+		        + uuid + "->" + new String(key, this.charset));
+		this.keyMap.put(uuid, key);
+	}
+
+	/**
+	 * Removes an existing mapping, if exists, for the given data object.
+	 * @param dataObject the data object
+	 * @param key the row key;
+	 */
+	public void removeRowKey(DataObject dataObject) {
+		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+		if (uuid == null || uuid.length() == 0)
+			throw new IllegalArgumentException("found null or zero length UUID from data object");
+		if (uuid.length() != 36)
+			throw new IllegalArgumentException("found "+uuid.length()+" rather than 38 char length UUID from data object");
+		byte[] key = this.keyMap.remove(uuid);
+		if (key == null) {
+			log.warn("could not remove key - no row key mapped to UUID, "
+					+ uuid);
+		}
+		else
+		    if (log.isDebugEnabled())
+			    log.debug("removed row-key: " 
+		            + uuid + "->" + new String(key, this.charset));
+	}
+	
+	/**
+	 * Returns a count of the current row keys
+	 * @return a count of the current row keys
+	 */ 
+	public int getRowKeyCount() {
+	    return this.keyMap.size();
+	}
+	
+    public String dump() {
+		StringBuilder buf = new StringBuilder();
+		buf.append("\nUUID: ");
+		buf.append(formatUUIDMap());
+		buf.append("\nROKEY: ");
+		buf.append(formatKeyMap());
+		return buf.toString();
 	}
 	
 	/**
@@ -273,23 +423,54 @@ public class GraphState {
     	}
     	return buf.toString();
     }
+
+	/**
+	 * Returns a string representation of the external key map.
+	 * @return a string representation of the external key map.
+	 */
+    public String formatKeyMap() {
+    	StringBuilder buf = new StringBuilder();
+    	Iterator<String> mapiter = keyMap.keySet().iterator();
+    	int i = 0;
+    	while (mapiter.hasNext()) {
+    		if (i > 0)
+    			buf.append(GraphState.MAP_DELIM_UUID);
+    		String uuid = mapiter.next();
+    		buf.append(uuid);
+    		buf.append(GraphState.MAP_DELIM_KEY);
+    		byte[] rowKey = keyMap.get(uuid);
+    		String rowKeyStr = new String(rowKey, this.charset);
+    		buf.append(rowKeyStr);
+    		i++;
+    	}
+    	return buf.toString();
+    }
+    
+	public void addEdges(PlasmaNode dataNode, List<PlasmaEdge> edges) {
+		if (edges != null) {
+			for (PlasmaEdge edge : edges) {
+	    		PlasmaDataObject opposite = edge.getOpposite(dataNode).getDataObject();
+	    		createSequence(opposite);
+			}
+		}
+    }
     
     /**
      * Returns a formatted string representation for the graph 
      * edge(s) found linked from the given data object.
-     * @param dataObject the data object
+     * @param dataNode the source data node
      * @param edges the edges
      * @return a formatted string representation for the graph 
      * edge(s) found linked from the given data object.
      */
-	public String formatEdges(PlasmaDataObject dataObject, List<PlasmaEdge> edges) {
+	public String formatEdges(PlasmaNode dataNode, List<PlasmaEdge> edges) {
 		String[] result = new String[0];
 		if (edges != null) {
 			result = new String[edges.size()];
 			int i = 0;
 			for (PlasmaEdge edge : edges) {
-	    		PlasmaDataObject opposite = edge.getOpposite((PlasmaNode)dataObject).getDataObject();
-	    		Long seq = createSequence(opposite);
+	    		PlasmaDataObject opposite = edge.getOpposite(dataNode).getDataObject();
+	    		Long seq = getSequence(opposite);
 	    		result[i] = formatEdge(edge, seq);
 	         	i++;
 			}
@@ -297,6 +478,11 @@ public class GraphState {
 		// use Arrays formatting
 		return Arrays.toString(result);
     }
+	
+	public Edge[] parseEdges(Type type, byte[] data) {
+		String edges = new String(data, this.charset);
+		return parseEdges(type, edges);
+	}
 	
 	public Edge[] parseEdges(Type type, String data) {
 		// replace Arrays formatting and whitespace, then split
@@ -318,6 +504,16 @@ public class GraphState {
         this.buf.append(dir);
         this.buf.append(EDGE_DELIM);
         this.buf.append(String.valueOf(seq));        	
+    	return this.buf.toString();   	
+    }
+    
+    private String formatEdge(PlasmaEdge edge, byte[] key)
+    {
+        String dir = formatDirection(edge.getDirection());
+    	this.buf.setLength(0);        	
+        this.buf.append(dir);
+        this.buf.append(EDGE_DELIM);        
+        this.buf.append(new String(key, this.charset));        	
     	return this.buf.toString();   	
     }
 

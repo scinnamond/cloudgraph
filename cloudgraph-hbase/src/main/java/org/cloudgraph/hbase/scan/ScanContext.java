@@ -1,6 +1,5 @@
 package org.cloudgraph.hbase.scan;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -10,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
-import org.cloudgraph.config.UserDefinedFieldConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.plasma.query.QueryException;
 import org.plasma.query.model.GroupOperator;
 import org.plasma.query.model.LogicalOperator;
@@ -32,19 +31,16 @@ import org.plasma.sdo.PlasmaType;
  * composite start/stop row keys. These are used in HBase client <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/client/Scan.html">scan</a> API
  * start and stop row.
  * </p>
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class ScanContext extends DefaultQueryVisitor {
     
 	private static Log log = LogFactory.getLog(ScanContext.class);
 	
-    //protected PlasmaType contextType;
-	//protected PlasmaProperty contextProperty;
-	//protected String contextPropertyPath;
 	protected PlasmaType rootType;
 	protected DataGraphConfig graph;
-	protected List<ScanLiteral> literals = new ArrayList<ScanLiteral>();
-	//protected RelationalOperator contextRelationalOperator;
-	//protected LogicalOperator contextLogicalOperator;
+	protected ScanLiterals scanLiterals;
 	protected boolean hasWildcardOperators;
 	protected boolean hasContiguousFieldValues;
 	protected boolean hasOnlyPartialKeyScanSupportedLogicalOperators = true;
@@ -73,7 +69,7 @@ public class ScanContext extends DefaultQueryVisitor {
 		ScanLiteralAssembler literalAssembler = 
 				new ScanLiteralAssembler(this.rootType);
     	where.accept(literalAssembler); // traverse
-    	this.literals.addAll(literalAssembler.getLiteralList());
+    	this.scanLiterals = literalAssembler.getResult();
     	
     	where.accept(this); // traverse
     	
@@ -84,20 +80,23 @@ public class ScanContext extends DefaultQueryVisitor {
     }
     
 	private void construct() {
-    	if (this.literals.size() == 0)
+    	if (this.scanLiterals.size() == 0)
     		throw new IllegalStateException("no literals found in predicate");
     	this.hasContiguousFieldValues = true;
     	int size = this.graph.getUserDefinedRowKeyFields().size();
-    	ScanLiteral[] scanLiterals = new ScanLiteral[size];
+    	int[] scanLiteralCount = new int[size];
     	
     	for (int i = 0; i < size; i++) {
-    		UserDefinedFieldConfig fieldConfig = this.graph.getUserDefinedRowKeyFields().get(i); 
-    		ScanLiteral literal = findScanLiteral(fieldConfig);
-    		scanLiterals[i] = literal;
+    		UserDefinedRowKeyFieldConfig fieldConfig = this.graph.getUserDefinedRowKeyFields().get(i); 
+    		List<ScanLiteral> list = this.scanLiterals.getLiterals(fieldConfig);
+    		if (list != null)
+    		    scanLiteralCount[i] = list.size();
+    		else
+    			scanLiteralCount[i] = 0; 
     	}
     	
     	for (int i = 0; i < size-1; i++)
-    		if (scanLiterals[i] == null && scanLiterals[i+1] != null)
+    		if (scanLiteralCount[i] == 0 && scanLiteralCount[i+1] > 0)
     			this.hasContiguousFieldValues = false;    	
     }
     
@@ -105,8 +104,8 @@ public class ScanContext extends DefaultQueryVisitor {
 	 * Return the current scan literals.
 	 * @return the current scan literals.
 	 */
-	public List<ScanLiteral> getLiterals() {
-		return literals;
+	public ScanLiterals getLiterals() {
+		return this.scanLiterals;
 	}
 	
 	/**
@@ -166,14 +165,6 @@ public class ScanContext extends DefaultQueryVisitor {
 		return hasOnlyPartialKeyScanSupportedRelationalOperators;
 	}
 	
-    private ScanLiteral findScanLiteral(UserDefinedFieldConfig fieldConfig) {
-		for (ScanLiteral literal : this.literals) {
-			if (literal.getFieldConfig().getSequenceNum() == fieldConfig.getSequenceNum())
-				return literal;
-		}
-		return null;
-    }    
-    
     /**
      * Process the traversal start event for a query {@link org.plasma.query.model.WildcardOperator WildcardOperator}
      * within an {@link org.plasma.query.model.Expression expression} creating context

@@ -14,6 +14,11 @@ import org.plasma.common.bind.DataBinding;
 import org.plasma.common.bind.ValidatingUnmarshaler;
 import org.xml.sax.SAXException;
 
+/**
+ * Configuration JAXB Binding delegate. 
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
 public class CloudGraphConfigDataBinding implements DataBinding {
 
     private static Log log = LogFactory.getLog(CloudGraphConfigDataBinding.class);

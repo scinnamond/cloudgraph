@@ -1,5 +1,9 @@
 package org.cloudgraph.common;
 
+/**
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
 public interface Hash {
 	/**
 	 * Calculate a hash using all bytes from the input argument, and a seed of -1. Uses

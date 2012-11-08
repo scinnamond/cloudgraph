@@ -4,22 +4,17 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
-import javax.xml.namespace.QName;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.key.GraphRowKeyFactory;
 import org.cloudgraph.common.key.KeyValue;
-import org.cloudgraph.config.CloudGraphConfig;
-import org.cloudgraph.config.CloudGraphConfigurationException;
-import org.cloudgraph.config.RowKeyField;
-import org.cloudgraph.config.UserDefinedFieldConfig;
-import org.plasma.sdo.PlasmaDataObject;
+import org.cloudgraph.config.KeyFieldConfig;
+import org.cloudgraph.config.PreDefinedKeyFieldConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataGraph;
+import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 
 /**
@@ -35,6 +30,8 @@ import commonj.sdo.Type;
  * cached lookup of all basic metadata elements including logical and 
  * physical type and property names.  
  * </p>
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class CompositeRowKeyFactory extends ByteBufferKeyFactory
     implements GraphRowKeyFactory 
@@ -45,15 +42,21 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 		super(rootType);
 	}
 	
-	//@Override
+	/**
+	 * Creates a row key using only the given type information. The
+	 * key is therefore composed of only "metadata" fields which are
+	 * pre-defined. 
+	 * @param type the data object type
+	 * @return the row key
+	 */
 	public String createRowKey(Type type) {
 		StringBuilder result = new StringBuilder();
 		PlasmaType plasmaType = (PlasmaType)type;
 
 		
-		List<RowKeyField> preDefinedFields = graph.getPreDefinedRowKeyFields();
+		List<PreDefinedKeyFieldConfig> preDefinedFields = graph.getPreDefinedRowKeyFields();
         for (int i = 0; i < preDefinedFields.size(); i++) {
-        	RowKeyField preDefinedField = preDefinedFields.get(i);
+        	PreDefinedKeyFieldConfig preDefinedField = preDefinedFields.get(i);
     		if (i > 0)
         	    result.append(graph.getRowKeyFieldDelimiter());
        	    String tokenValue = this.keySupport.getPredefinedFieldValue(plasmaType, 
@@ -84,9 +87,9 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 		
 	private void create(PlasmaType type)
 	{
-		List<RowKeyField> preDefinedFields = this.graph.getPreDefinedRowKeyFields();
+		List<PreDefinedKeyFieldConfig> preDefinedFields = this.graph.getPreDefinedRowKeyFields();
         for (int i = 0; i < preDefinedFields.size(); i++) {
-        	RowKeyField preDefinedField = preDefinedFields.get(i);
+        	PreDefinedKeyFieldConfig preDefinedField = preDefinedFields.get(i);
     		if (i > 0)
     			this.buf.put(this.graph.getRowKeyFieldDelimiterBytes());
     		byte[] tokenValue = this.keySupport.getPredefinedFieldValueBytes(type, 
@@ -97,54 +100,30 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 	
 	@Override
 	public byte[] createRowKeyBytes(DataGraph dataGraph) {
+	    return createRowKeyBytes(dataGraph.getRootObject());
+	}	
+	
+	@Override
+	public byte[] createRowKeyBytes(DataObject rootDataObject) {
 		
 		this.buf.clear();
 		
-		List<RowKeyField> preDefinedFields = graph.getPreDefinedRowKeyFields();
-        for (int i = 0; i < preDefinedFields.size(); i++) {
-        	RowKeyField preDefinedField = preDefinedFields.get(i);
+		byte[] keyValue = null;
+		int i = 0;
+		for (KeyFieldConfig fieldConfig : this.graph.getRowKeyFields()) {
     		if (i > 0)
         	    this.buf.put(graph.getRowKeyFieldDelimiterBytes());
-    		byte[] tokenValue = this.keySupport.getPredefinedFieldValueBytes(dataGraph, 
-       	    		hash, preDefinedField);
-       	    this.buf.put(tokenValue);
-        }		
-		
-		if (!graph.hasUserDefinedRowKeyFields())
-			return this.buf.array();
-		
-		if (preDefinedFields.size() > 0)
-		    this.buf.put(graph.getRowKeySectionDelimiterBytes());
-
-		int count = 0;
-		for (UserDefinedFieldConfig userFieldConfig : graph.getUserDefinedRowKeyFields()) {				
-			
-			// invoke SDO xpath fetch
-			// FIXME: do we want to invoke a converter here?
-			// FIXME: do we want to transform this value somehow?
-			String tokenValue = dataGraph.getRootObject().getString(
-				userFieldConfig.getPathExpression());
-			
-			if (tokenValue != null) {
-				if (count > 0)
-					this.buf.put(graph.getRowKeyFieldDelimiterBytes());
-						
-				if (userFieldConfig.isHash()) {
-					int hashValue = hash.hash(tokenValue.getBytes());
-					tokenValue = String.valueOf(hashValue);
-				}
-				
-				this.buf.put(Bytes.toBytes(tokenValue));
-				count++;
+			keyValue = fieldConfig.getKeyBytes(rootDataObject);
+			if (fieldConfig.isHash()) {
+				int hashValue = hash.hash(keyValue);
+				keyValue = String.valueOf(hashValue).getBytes(charset);
 			}
-			else
-				log.warn("null value resulted from user defined row-key token with XPath expression '" 
-					+ userFieldConfig.getPathExpression() + "'"
-					+ " for HTable '"
-					+ table.getName() + "' - excluding token "
-					+ "(suggest using XPath which resolves to a mandatory property)");
-		}	
-		
+	       	
+		    this.buf.put(keyValue);
+				
+			i++;
+		}
+
 		// ByteBuffer.array() returns unsized array so don't sent that back to clients
 		// to misuse. 
 		// Use native arraycopy() method as it uses native memcopy to create result array
@@ -159,48 +138,36 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 	public byte[] createRowKeyBytes(List<KeyValue> values) {
 		this.buf.clear();
 		
-		List<RowKeyField> preDefinedFields = graph.getPreDefinedRowKeyFields();
-        for (int i = 0; i < preDefinedFields.size(); i++) {
-        	RowKeyField preDefinedField = preDefinedFields.get(i);
+		byte[] fieldValue = null;
+		int i = 0;
+		for (KeyFieldConfig fieldConfig : this.graph.getRowKeyFields()) {
     		if (i > 0)
         	    this.buf.put(graph.getRowKeyFieldDelimiterBytes());
-    		byte[] tokenValue = this.keySupport.getPredefinedFieldValueBytes(this.rootType, 
-       	    		hash, preDefinedField);
-       	    this.buf.put(tokenValue);
-        }		
-		
-		if (!graph.hasUserDefinedRowKeyFields())
-			return this.buf.array();
-		
-		if (preDefinedFields.size() > 0)
-		    this.buf.put(graph.getRowKeySectionDelimiterBytes());
-
-		int count = 0;
-		for (UserDefinedFieldConfig userFieldConfig : graph.getUserDefinedRowKeyFields()) {				
-			
-			// FIXME: do we want to invoke a converter here?
-			// FIXME: do we want to transform this value somehow?
-			KeyValue keyValue = this.keySupport.findKeyValue(userFieldConfig, values);
-			
-			if (keyValue != null) {
-				if (count > 0)
-					this.buf.put(graph.getRowKeyFieldDelimiterBytes());
-				
-				String stringValue = String.valueOf(keyValue.getValue());
-				if (userFieldConfig.isHash()) {
-					int hashValue = hash.hash(stringValue.getBytes(this.charset));
-					stringValue = String.valueOf(hashValue);
-				}
-				
-				this.buf.put(stringValue.getBytes(this.charset));
-				count++;
-			}
-			else
-				log.warn("null value resulted from user defined row-key token with XPath expression '" 
-					+ userFieldConfig.getPathExpression() + "'"
-					+ " for HTable '"
-					+ table.getName() + "' - excluding token "
-					+ "(suggest using XPath which resolves to a mandatory property)");
+    		if (fieldConfig instanceof PreDefinedKeyFieldConfig) {
+    			PreDefinedKeyFieldConfig predefinedConfig = (PreDefinedKeyFieldConfig)fieldConfig;
+    			fieldValue = predefinedConfig.getKeyBytes(this.rootType);
+    		}
+    		else if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
+    			UserDefinedRowKeyFieldConfig userFieldConfig = (UserDefinedRowKeyFieldConfig)fieldConfig;
+    			KeyValue keyValue = this.keySupport.findKeyValue(userFieldConfig, values);
+    			
+    			if (keyValue != null) {
+        			// FIXME: do we want to invoke a converter here?
+        			// FIXME: do we want to transform this value somehow?
+     				String stringValue = String.valueOf(keyValue.getValue());
+    				fieldValue = stringValue.getBytes(this.charset);
+    			}
+    			else {
+    				continue; // could be a partial row key scan
+    			}
+    		}
+    		
+			if (fieldConfig.isHash()) {
+				int hashValue = hash.hash(fieldValue);
+				fieldValue = String.valueOf(hashValue).getBytes(charset);
+			}    		
+       	    this.buf.put(fieldValue);
+			i++;
 		}	
 		
 		// ByteBuffer.array() returns unsized array so don't sent that back to clients

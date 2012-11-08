@@ -1,8 +1,5 @@
 package org.cloudgraph.hbase.scan;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
@@ -11,7 +8,7 @@ import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.config.UserDefinedFieldConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.GroupOperator;
 import org.plasma.query.model.Literal;
@@ -36,6 +33,8 @@ import org.plasma.sdo.PlasmaType;
  * 
  * @see org.cloudgraph.config.DataGraphConfig
  * @see org.cloudgraph.config.TableConfig
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class ScanLiteralAssembler extends DefaultQueryVisitor 
 {
@@ -48,7 +47,7 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 	protected LogicalOperator contextLogicalOperator;
 	protected DataGraphConfig graph;
 	protected TableConfig table;
-	protected List<ScanLiteral> literalList = new ArrayList<ScanLiteral>();
+	protected ScanLiterals scanLiterals = new ScanLiterals();
 	protected ScanLiteralFactory scanLiteralFactory = new ScanLiteralFactory();
 	
 	@SuppressWarnings("unused")
@@ -64,10 +63,10 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);
 	}
 	
-    public List<ScanLiteral> getLiteralList() {
-		return literalList;
+    public ScanLiterals getResult() {    	
+		return this.scanLiterals;
 	}
-
+    
 	/**
      * Assemble the set of data "flavor" and data type specific
      * scan literals used to construct composite partial row 
@@ -152,17 +151,17 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 
 		// Match the current property to a user defined 
 		// row key token, if found we can process
-		UserDefinedFieldConfig fieldConfig = this.graph.getUserDefinedRowKeyField(this.contextPropertyPath);
+		UserDefinedRowKeyFieldConfig fieldConfig = this.graph.getUserDefinedRowKeyField(this.contextPropertyPath);
 		if (fieldConfig != null) 
 		{
 			PlasmaProperty property = (PlasmaProperty)fieldConfig.getEndpointProperty();
-			ScanLiteral context = this.scanLiteralFactory.createLiteral(
+			ScanLiteral scanLiteral = this.scanLiteralFactory.createLiteral(
 					content, property, 
 					this.rootType, 
 					this.contextRelationalOperator, 
 					this.contextLogicalOperator, 
 					fieldConfig);
-			literalList.add(context);
+			this.scanLiterals.addLiteral(scanLiteral);
 		}
 		else
 	        throw new GraphServiceException("no user defined row-key field for query path '"

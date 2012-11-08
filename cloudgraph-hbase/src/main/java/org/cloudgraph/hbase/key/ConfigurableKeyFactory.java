@@ -22,7 +22,9 @@ import org.plasma.sdo.PlasmaType;
  * @see org.cloudgraph.config.CloudGraphConfig
  * @see org.cloudgraph.config.TableConfig
  * @see org.cloudgraph.config.DataGraphConfig
-*/
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
 public interface ConfigurableKeyFactory {
 	public TableConfig getTable();
 	public DataGraphConfig getGraph();

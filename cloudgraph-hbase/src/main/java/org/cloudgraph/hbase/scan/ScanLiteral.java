@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.config.UserDefinedFieldConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.key.KeySupport;
 import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
@@ -27,6 +27,8 @@ import org.plasma.sdo.helper.DataConverter;
  * and other features.
  * 
  * @see org.cloudgraph.config.TableConfig
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public abstract class ScanLiteral {
 	protected final int HASH_INCREMENT = 1;
@@ -34,7 +36,7 @@ public abstract class ScanLiteral {
 	protected String literal;
 	protected RelationalOperator relationalOperator;
 	protected LogicalOperator logicalOperator;
-	protected UserDefinedFieldConfig fieldConfig;
+	protected UserDefinedRowKeyFieldConfig fieldConfig;
 	protected DataConverter dataConverter = DataConverter.INSTANCE;
 	protected Hash hash;
 	protected PlasmaType rootType;
@@ -50,7 +52,7 @@ public abstract class ScanLiteral {
 			PlasmaType rootType,
 			RelationalOperator relationalOperator,
 			LogicalOperator logicalOperator,
-			UserDefinedFieldConfig fieldConfig) {
+			UserDefinedRowKeyFieldConfig fieldConfig) {
 		super();
 		this.rootType = rootType;
 		this.relationalOperator = relationalOperator;
@@ -93,7 +95,7 @@ public abstract class ScanLiteral {
 	 * Returns the composite row-key field configuration. 
 	 * @return the composite row-key field configuration.
 	 */
-	public final UserDefinedFieldConfig getFieldConfig() {
+	public final UserDefinedRowKeyFieldConfig getFieldConfig() {
 		return fieldConfig;
 	}
 	

@@ -5,7 +5,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.key.GraphColumnKeyFactory;
-import org.cloudgraph.config.ColumnKeyField;
+import org.cloudgraph.config.ColumnKeyFieldConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.PreDefinedFieldName;
 import org.plasma.sdo.PlasmaProperty;
@@ -27,6 +27,8 @@ import org.plasma.sdo.PlasmaType;
  * </p>
  * @see org.cloudgraph.config.ColumnKeyModel
  * @see org.cloudgraph.config.Table
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class CompositeColumnKeyFactory extends ByteBufferKeyFactory  
     implements GraphColumnKeyFactory 
@@ -96,7 +98,7 @@ public class CompositeColumnKeyFactory extends ByteBufferKeyFactory
 			PreDefinedFieldName tokenName)
 	{
 		byte[] result = token;
-		ColumnKeyField tokenConfig = graph.getColumnKeyField(tokenName);
+		ColumnKeyFieldConfig tokenConfig = graph.getColumnKeyField(tokenName);
 		if (tokenConfig != null) {
 			if (tokenConfig.isHash()) {
 				int hashValue = hash.hash(result);

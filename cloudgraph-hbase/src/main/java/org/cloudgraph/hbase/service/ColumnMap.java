@@ -11,6 +11,8 @@ import org.apache.hadoop.hbase.util.Bytes;
 /**
  * Local column qualifier/value map which is mutable such that
  * column results can be incrementally added. 
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class ColumnMap {
 	

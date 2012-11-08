@@ -2,9 +2,6 @@ package org.cloudgraph.hbase.scan;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -14,8 +11,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
-import org.cloudgraph.config.RowKeyField;
+import org.cloudgraph.config.KeyFieldConfig;
+import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.TableConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.key.KeySupport;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaType;
@@ -28,7 +27,11 @@ import org.plasma.sdo.PlasmaType;
  * 
  * @see org.cloudgraph.config.DataGraphConfig
  * @see org.cloudgraph.config.TableConfig
- * @see KeySupport
+ * @see org.cloudgraph.config.UserDefinedField 
+ * @see org.cloudgraph.config.PredefinedField 
+ * @see org.cloudgraph.config.PreDefinedFieldName 
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class PartialRowKeyScanAssembler  
     implements RowKeyScanAssembler
@@ -43,13 +46,18 @@ public class PartialRowKeyScanAssembler
 	protected TableConfig table;
 	protected KeySupport keySupport = new KeySupport();
 	protected Charset charset;
-	protected List<ScanLiteral> literalList = new ArrayList<ScanLiteral>();
-    protected int startRowFieldCount;
+	protected ScanLiterals scanLiterals;
+	protected int startRowFieldCount;
     protected int stopRowFieldCount;
+    protected String rootUUID;
 	
 	@SuppressWarnings("unused")
 	private PartialRowKeyScanAssembler() {}
-	
+
+	/**
+	 * Constructor
+	 * @param rootType the root type
+	 */
 	public PartialRowKeyScanAssembler(PlasmaType rootType)
 	{
     	this.rootType = rootType;
@@ -61,10 +69,25 @@ public class PartialRowKeyScanAssembler
 		this.charset = CloudGraphConfig.getInstance().getCharset();
 	}
 	
+	/**
+	 * Constructor which enables the use of data object UUID as
+	 * a pre-defined row key field. Only applicable for graph
+	 * predicate "slice" queries. 
+	 * @param rootType the root type
+	 * @param rootUUID the root UUID.
+	 */
+	public PartialRowKeyScanAssembler(PlasmaType rootType, String rootUUID)
+	{
+		this(rootType);
+		this.rootUUID = rootUUID;
+	}
+	
     /**
-     * Assemble row key scan information based only on the
-     * data graph root type information such as the URI
-     * and type name or physical name. 
+     * Assemble row key scan information based only on any
+     * pre-defined row-key fields such as the
+     * data graph root type or URI.
+     * @see org.cloudgraph.config.PredefinedField 
+     * @see org.cloudgraph.config.PreDefinedFieldName 
      */
 	@Override
 	public void assemble() {    	
@@ -75,15 +98,17 @@ public class PartialRowKeyScanAssembler
 	
 	/**
 	 * Assemble row key scan information based on the given
-	 * scan literals.
+	 * scan literals as well as pre-defined row-key fields such as the
+     * data graph root type or URI.
 	 * @param literalList the scan literals
+     * @see org.cloudgraph.config.PredefinedField 
+     * @see org.cloudgraph.config.PreDefinedFieldName 
 	 */
 	@Override
-	public void assemble(List<ScanLiteral> literalList) {
-		this.literalList = literalList;
+	public void assemble(ScanLiterals literals) {
+		this.scanLiterals = literals;
 		this.startKey = ByteBuffer.allocate(bufsize);
 		this.stopKey = ByteBuffer.allocate(bufsize);
-    	assemblePredefinedFields();
     	assembleLiterals();
 	}
 	
@@ -105,20 +130,20 @@ public class PartialRowKeyScanAssembler
 		ScanLiteralAssembler literalAssembler = 
 				new ScanLiteralAssembler(this.rootType);
     	where.accept(literalAssembler); // traverse
-    	this.literalList.addAll(literalAssembler.getLiteralList());
+    	
+    	this.scanLiterals = literalAssembler.getResult();
     	
     	if (log.isDebugEnabled())
     		log.debug("end traverse");      	
 
-    	assemblePredefinedFields();
     	assembleLiterals();
     }
 	
 	private void assemblePredefinedFields()
 	{
-    	List<RowKeyField> preDefinedFields = this.graph.getPreDefinedRowKeyFields();
+    	List<PreDefinedKeyFieldConfig> preDefinedFields = this.graph.getPreDefinedRowKeyFields();
         for (int i = 0; i < preDefinedFields.size(); i++) {
-        	RowKeyField preDefinedField = preDefinedFields.get(i);
+        	PreDefinedKeyFieldConfig preDefinedField = preDefinedFields.get(i);
     		if (i > 0) {
         	    this.startKey.put(graph.getRowKeyFieldDelimiterBytes());
         	    this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());
@@ -131,45 +156,65 @@ public class PartialRowKeyScanAssembler
 	}
 	
 	private void assembleLiterals()
-	{
-    	List<RowKeyField> preDefinedFields = this.graph.getPreDefinedRowKeyFields();
-		if (preDefinedFields.size() > 0) {
-		    this.startKey.put(graph.getRowKeySectionDelimiterBytes());
-		    this.stopKey.put(graph.getRowKeySectionDelimiterBytes());
-		}
-		
-		ScanLiteral[] literalArray = new ScanLiteral[literalList.size()];
-		literalList.toArray(literalArray);
-		Arrays.sort(literalArray, new Comparator<ScanLiteral>() {
-			public int compare(ScanLiteral o1, ScanLiteral o2) {
-				Integer seq1 = Integer.valueOf(
-						o1.getFieldConfig().getSequenceNum());
-				Integer seq2 = Integer.valueOf(
-						o2.getFieldConfig().getSequenceNum());
-				return seq1.compareTo(seq2);
-			}
-		});
-		
-		for (ScanLiteral literal : literalArray) {
-			byte[] startBytes = literal.getStartBytes();
-			if (startBytes.length > 0) {
-				if (this.startRowFieldCount > 0) {
-					this.startKey.put(graph.getRowKeyFieldDelimiterBytes());		
-				}
-				this.startKey.put(startBytes);
-				this.startRowFieldCount++;
-			}
-			
-			byte[] stopBytes = literal.getStopBytes();
-			if (stopBytes.length > 0) {
-				if (this.stopRowFieldCount > 0) {
-					this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());		
-				}
-				this.stopKey.put(stopBytes);
-				this.stopRowFieldCount++;
-			}
-		}
-		
+	{		
+		for (KeyFieldConfig fieldConfig : this.graph.getRowKeyFields()) {
+    		if (fieldConfig instanceof PreDefinedKeyFieldConfig) {
+    			PreDefinedKeyFieldConfig predefinedConfig = (PreDefinedKeyFieldConfig)fieldConfig;
+        		
+        		byte[] tokenValue = null;
+        		switch (predefinedConfig.getName()) {
+        		case UUID:
+        			if (this.rootUUID != null) {
+        				tokenValue = this.rootUUID.getBytes(this.charset);
+        				break;
+        			}
+        			else
+        				continue;        			
+        		default:	
+        		    tokenValue = predefinedConfig.getKeyBytes(this.rootType);
+        			break;
+        		}        		
+        		
+        		if (fieldConfig.isHash()) {
+    				int hashValue = hash.hash(tokenValue);
+    				tokenValue = String.valueOf(hashValue).getBytes(charset);
+    			}    			
+        		if (startRowFieldCount > 0) 
+            	    this.startKey.put(graph.getRowKeyFieldDelimiterBytes());
+        		if (stopRowFieldCount > 0) 
+            	    this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());
+    			
+           	    this.startKey.put(tokenValue);
+           	    this.stopKey.put(tokenValue);
+           	    this.startRowFieldCount++;
+           	    this.stopRowFieldCount++;
+    		}
+    		else if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
+    			UserDefinedRowKeyFieldConfig userFieldConfig = (UserDefinedRowKeyFieldConfig)fieldConfig;
+    			List<ScanLiteral> scanLiterals = this.scanLiterals.getLiterals(userFieldConfig);    				 
+    			if (scanLiterals == null)
+    				continue;
+    			for (ScanLiteral scanLiteral : scanLiterals) {
+    				byte[] startBytes = scanLiteral.getStartBytes();
+    				if (startBytes.length > 0) {
+    					if (this.startRowFieldCount > 0) {
+    						this.startKey.put(graph.getRowKeyFieldDelimiterBytes());		
+    					}
+    					this.startKey.put(startBytes);
+    					this.startRowFieldCount++;
+    				}
+    				
+    				byte[] stopBytes = scanLiteral.getStopBytes();
+    				if (stopBytes.length > 0) {
+    					if (this.stopRowFieldCount > 0) {
+    						this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());		
+    					}
+    					this.stopKey.put(stopBytes);
+    					this.stopRowFieldCount++;
+    				} 
+    			}
+    		}
+		}			
 	}
 	
 	/**

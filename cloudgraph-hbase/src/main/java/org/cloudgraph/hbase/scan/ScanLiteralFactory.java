@@ -1,11 +1,11 @@
 package org.cloudgraph.hbase.scan;
 
-import org.cloudgraph.config.UserDefinedFieldConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
+import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.DataType;
 
 /**
  * Simple factory constructing data "flavor" and data type 
@@ -13,7 +13,9 @@ import org.plasma.sdo.DataType;
  * as well as predicate context specific relational and 
  * logical operators.
  * 
- * See ScanLiteral
+ * @see ScanLiteral
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class ScanLiteralFactory {
 
@@ -36,7 +38,7 @@ public class ScanLiteralFactory {
 	public ScanLiteral createLiteral(String content,
 			PlasmaProperty property, PlasmaType rootType,
 			RelationalOperator relationalOperator,
-			LogicalOperator logicalOperator, UserDefinedFieldConfig fieldConfig) {
+			LogicalOperator logicalOperator, UserDefinedRowKeyFieldConfig fieldConfig) {
 
 		ScanLiteral result = null;
 		DataType dataType = DataType.valueOf(property.getType().getName());

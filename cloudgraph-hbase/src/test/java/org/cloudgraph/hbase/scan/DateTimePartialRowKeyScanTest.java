@@ -8,8 +8,8 @@ import junit.framework.Test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.hbase.DataTypeGraphModelTest;
-import org.cloudgraph.test.datatypes.Node;
 import org.cloudgraph.test.datatypes.DateTimeNode;
+import org.cloudgraph.test.datatypes.Node;
 import org.cloudgraph.test.datatypes.query.QDateTimeNode;
 import org.plasma.common.test.PlasmaTestSetup;
 import org.plasma.query.Expression;
@@ -19,6 +19,11 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
+/**
+ * DateTime SDO datatype specific partial row-key scan operations test. 
+ * @author Scott Cinnamond
+ * @since 0.5.1
+ */
 public class DateTimePartialRowKeyScanTest extends DataTypeGraphModelTest {
     private static Log log = LogFactory.getLog(DateTimePartialRowKeyScanTest.class);
     private long WAIT_TIME = 4;

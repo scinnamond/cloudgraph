@@ -4,23 +4,23 @@
     <parent>
         <groupId>cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5</version>
+        <version>0.5.1</version>
     </parent>
     <groupId>cloudgraph</groupId>
     <artifactId>cloudgraph-hbase</artifactId>
     <packaging>jar</packaging>
-    <version>0.5</version>
+    <version>0.5.1</version>
     <name>CloudGraph HBase Service</name>
     <dependencies>
         <dependency>
             <groupId>cloudgraph</groupId>
             <artifactId>cloudgraph-common</artifactId>
-            <version>0.5</version>
+            <version>0.5.1</version>
         </dependency>
         <dependency>
             <groupId>cloudgraph</groupId>
             <artifactId>cloudgraph-config</artifactId>
-            <version>0.5</version>
+            <version>0.5.1</version>
         </dependency>
         
         <!-- Plasma Dependencies -->
@@ -59,7 +59,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3</version>
-                <!-- <configuration> <webXml>target/web.xml</webXml> </configuration> -->
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -163,40 +162,75 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.10</version>
+                <version>2.12.4</version>
+                <executions>
+                   <execution>
+                    <id>non-federated-tests</id>
+                    <goals>
+                      <goal>test</goal>
+                    </goals>
+                    <configuration>
+                        <skip>false</skip>
+                        <additionalClasspathElements>
+                            <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
+                            <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
+                        </additionalClasspathElements>                  
+                        <forkMode>always</forkMode>
+                        <systemProperties>
+                            <property><name>cloudgraph.configuration</name><value>simple-cloudgraph-config.xml</value></property>
+                            <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
+                            <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
+                            <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                        </systemProperties>
+                        <includes>               
+                            <include>**/*SocialGraphNonFederatedTest*</include>                     
+                            <include>**/*PartialRowKeyScanTest*</include>   
+                        </includes> 
+                    </configuration>
+                  </execution>
+                  <execution>
+                    <id>federation-tests</id>
+                    <goals>
+                      <goal>test</goal>
+                    </goals>
+                    <configuration>
+	                    <skip>false</skip>
+	                    <additionalClasspathElements>
+	                        <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
+	                        <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
+	                    </additionalClasspathElements>                  
+	                    <forkMode>always</forkMode>
+	                    <systemProperties>
+	                        <property><name>cloudgraph.configuration</name><value>federated-cloudgraph-config.xml</value></property>
+	                        <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
+	                        <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
+	                        <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+	                    </systemProperties>
+	                    <includes>               
+	                        <include>**/*SocialGraphFederationTest*</include>                     
+	                    </includes> 
+                    </configuration>
+                  </execution>
+                </executions>                
                 <configuration>
-                    <additionalClasspathElements>
-                        <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
-                        <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
-                    </additionalClasspathElements>                  
-                     
-                    <forkMode>pertest</forkMode>
-                    <argLine>-Dlog4j.configuration=log4j.properties -Dfuml.configuration=fuml-config.xml -Dplasma.configuration=plasma-config.xml</argLine>
-                    <!-- debug
-                    <argLine>-Dlog4j.configuration=log4j.properties -Dfuml.configuration=fuml-config.xml -Dplasma.configuration=plasma-config.xml -Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=y</argLine>
-                    --> 
-                    <!--
-                    <argLine>-Xms250m</argLine>
-                    <argLine>-Xmx500m</argLine>
-                    <argLine>-XX:MaxPermSize=350m</argLine>
-                    <argLine>-Xloggc:cloudgraph-test-gc.log</argLine>
-                    <argLine>-XX:+PrintGCDetails</argLine>
-                    
-                    <argLine>-Xdebug</argLine>
-                    <argLine>-Xnoagent</argLine>
-                    <argLine>-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n</argLine>
-                    <argLine>-Djava.compiler=NONE</argLine>
-                    <argLine>-Dlog4j.configuration=file:log4j.properties</argLine>
+                    <skip>true</skip>
+                    <!-- 
+                    <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>
                     -->
-                    <includes>
-                        <include>**/*PartialRowKey*</include> 
-                    </includes> 
-                      
-                     
                 </configuration>
             </plugin>
-            
-            
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <executions>
+                  <execution>
+                      <id>attach-sources</id>
+                      <goals>
+                          <goal>jar</goal>
+                      </goals>
+                  </execution>
+              </executions>
+            </plugin>
         </plugins>
         <pluginManagement>
             <plugins>

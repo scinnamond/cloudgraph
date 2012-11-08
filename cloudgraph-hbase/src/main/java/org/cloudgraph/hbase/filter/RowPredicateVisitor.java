@@ -14,18 +14,14 @@ import org.apache.hadoop.hbase.filter.WritableByteArrayComparable;
 import org.cloudgraph.common.filter.GraphFilterException;
 import org.cloudgraph.common.key.GraphRowKeyExpressionFactory;
 import org.cloudgraph.common.key.KeyValue;
-import org.plasma.query.QueryException;
 import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.Expression;
-import org.plasma.query.model.GroupOperator;
 import org.plasma.query.model.Literal;
 import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.NullLiteral;
 import org.plasma.query.model.Path;
 import org.plasma.query.model.PathElement;
 import org.plasma.query.model.Property;
-import org.plasma.query.model.QueryConstants;
-import org.plasma.query.model.RelationalOperator;
 import org.plasma.query.model.Term;
 import org.plasma.query.model.WildcardOperator;
 import org.plasma.query.model.WildcardPathElement;
@@ -52,6 +48,8 @@ import org.plasma.sdo.access.DataAccessException;
  * </p> 
  *  
  * @see org.cloudgraph.common.key.GraphRowKeyExpressionFactory
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class RowPredicateVisitor extends PredicateVisitor {
     private static Log log = LogFactory.getLog(RowPredicateVisitor.class);

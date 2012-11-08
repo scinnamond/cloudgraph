@@ -2,6 +2,7 @@ package org.cloudgraph.config;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,48 +13,75 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.cloudgraph.config.ColumnKeyField;
 import org.cloudgraph.config.DataGraph;
 import org.cloudgraph.config.PreDefinedFieldName;
-import org.cloudgraph.config.RowKeyField;
 import org.cloudgraph.config.UserDefinedField;
 
 import commonj.sdo.Type;
 
+/**
+ * Encapsulates logic related to access of graph specific
+ * configuration information.  
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
 public class DataGraphConfig {
     private DataGraph graph;
-    private Map<PreDefinedFieldName, RowKeyField> preDefinedRowKeyFields = new HashMap<PreDefinedFieldName, RowKeyField>(); 
-    private Map<PreDefinedFieldName, ColumnKeyField> preDefinedColumnKeyFields = new HashMap<PreDefinedFieldName, ColumnKeyField>(); 
-	private List<UserDefinedFieldConfig> userDefinedRowKeyFields = new ArrayList<UserDefinedFieldConfig>();
-	private Map<String, UserDefinedFieldConfig> pathTouserDefinedRowKeyMap = new HashMap<String, UserDefinedFieldConfig>();
+    private TableConfig table;
+    private Map<PreDefinedFieldName, PreDefinedKeyFieldConfig> preDefinedRowKeyFieldMap = new HashMap<PreDefinedFieldName, PreDefinedKeyFieldConfig>(); 
+    private List<PreDefinedKeyFieldConfig> preDefinedRowKeyFieldList = new ArrayList<PreDefinedKeyFieldConfig>(); 
+    private Map<PreDefinedFieldName, ColumnKeyFieldConfig> preDefinedColumnKeyFieldMap = new HashMap<PreDefinedFieldName, ColumnKeyFieldConfig>(); 
+	private List<UserDefinedRowKeyFieldConfig> userDefinedRowKeyFieldList = new ArrayList<UserDefinedRowKeyFieldConfig>();
+	private Map<String, UserDefinedRowKeyFieldConfig> pathToUserDefinedRowKeyMap = new HashMap<String, UserDefinedRowKeyFieldConfig>();
+	private Map<commonj.sdo.Property, UserDefinedRowKeyFieldConfig> propertyToUserDefinedRowKeyMap = new HashMap<commonj.sdo.Property, UserDefinedRowKeyFieldConfig>();
+    private List<KeyFieldConfig> rowKeyFieldList = new ArrayList<KeyFieldConfig>(); 
+
+	
 	private byte[] rowKeyFieldDelimiterBytes;
-	private byte[] rowKeySectionDelimiterBytes;
 	private byte[] columnKeyFieldDelimiterBytes;
 	private byte[] columnKeySectionDelimiterBytes;
     
     @SuppressWarnings("unused")
 	private DataGraphConfig() {}
-	public DataGraphConfig(DataGraph graph) {
+	public DataGraphConfig(DataGraph graph, TableConfig table) {
 		super();
 		this.graph = graph;
-		for (RowKeyField token : this.graph.getRowKeyModel().getRowKeyFields())
-			preDefinedRowKeyFields.put(token.getName(), token);
-		
-		for (ColumnKeyField ctoken : this.graph.getColumnKeyModel().getColumnKeyFields())
-			preDefinedColumnKeyFields.put(ctoken.getName(), ctoken);
+		this.table = table;
 		
 		int seqNum = 1;
-	    for (UserDefinedField token : this.graph.getRowKeyModel().getUserDefinedFields())
-	    {
-	    	UserDefinedFieldConfig tokenConfig = new UserDefinedFieldConfig(this, token, seqNum);
-	    	userDefinedRowKeyFields.add(tokenConfig);
-	    	if (this.pathTouserDefinedRowKeyMap.get(tokenConfig.getPropertyPath()) != null) 
-	    		throw new CloudGraphConfigurationException("a user defined token path '" 
-	    				+ tokenConfig.getPathExpression()
-	    				+ "' already exists with property path '"
-	    				+ tokenConfig.getPropertyPath()
-	    				+ "' for data graph of type, "
-	    				+ this.graph.getUri() + "#" + this.graph.getType());
-	    	this.pathTouserDefinedRowKeyMap.put(tokenConfig.getPropertyPath(), tokenConfig);
-	    	seqNum++;
-	    }
+		for (RowKeyField rowKeyField : this.graph.getRowKeyModel().getRowKeyFields()) {
+			if (rowKeyField.getPredefinedField() != null) {
+				PredefinedField predefinedField = rowKeyField.getPredefinedField();
+				PreDefinedKeyFieldConfig predefinedFieldConfig = new PreDefinedKeyFieldConfig(predefinedField, seqNum);
+			    preDefinedRowKeyFieldMap.put(predefinedField.getName(), predefinedFieldConfig);
+			    preDefinedRowKeyFieldList.add(predefinedFieldConfig);
+			    this.rowKeyFieldList.add(predefinedFieldConfig);
+			}
+			else if (rowKeyField.getUserDefinedField() != null) {
+				UserDefinedField userField = rowKeyField.getUserDefinedField();
+		    	UserDefinedRowKeyFieldConfig userFieldConfig = new UserDefinedRowKeyFieldConfig(this, userField, seqNum);
+		    	userDefinedRowKeyFieldList.add(userFieldConfig);
+		    	if (this.pathToUserDefinedRowKeyMap.get(userFieldConfig.getPropertyPath()) != null) 
+		    		throw new CloudGraphConfigurationException("a user defined token path '" 
+		    				+ userFieldConfig.getPathExpression()
+		    				+ "' already exists with property path '"
+		    				+ userFieldConfig.getPropertyPath()
+		    				+ "' for data graph of type, "
+		    				+ this.graph.getUri() + "#" + this.graph.getType());
+		    	this.pathToUserDefinedRowKeyMap.put(userFieldConfig.getPropertyPath(), userFieldConfig);
+		    	this.propertyToUserDefinedRowKeyMap.put(userFieldConfig.getEndpointProperty(), userFieldConfig);
+			    this.rowKeyFieldList.add(userFieldConfig);
+			}
+			else
+				throw new CloudGraphConfigurationException("unexpected row key model field instance, "
+						+ rowKeyField.getClass().getName());
+			seqNum++;
+		}
+		
+		seqNum = 1;
+		for (ColumnKeyField ctoken : this.graph.getColumnKeyModel().getColumnKeyFields()) {
+			ColumnKeyFieldConfig columnFieldConfig = new ColumnKeyFieldConfig(ctoken, seqNum);
+			preDefinedColumnKeyFieldMap.put(ctoken.getName(), columnFieldConfig);
+			seqNum++;
+		}
 	}
 
 	public DataGraph getGraph() {
@@ -65,21 +93,17 @@ public class DataGraphConfig {
 				this.graph.getUri(), this.graph.getType());
 	}
 	
-	public List<RowKeyField> getPreDefinedRowKeyFields()
+	public List<PreDefinedKeyFieldConfig> getPreDefinedRowKeyFields()
 	{
-		return graph.getRowKeyModel().getRowKeyFields();
+		return this.preDefinedRowKeyFieldList;
 	}
 	
-	public RowKeyField getRowKeyField(PreDefinedFieldName name) {
-		return preDefinedRowKeyFields.get(name);
+	public PreDefinedKeyFieldConfig getPreDefinedRowKeyField(PreDefinedFieldName name) {
+		return this.preDefinedRowKeyFieldMap.get(name);
 	}
 	
 	public String getRowKeyFieldDelimiter() {
         return this.graph.getRowKeyModel().getFieldDelimiter();		
-	}
-	
-	public String getRowKeySectionDelimiter() {
-        return this.graph.getRowKeyModel().getSectionDelimiter();		
 	}
 	
 	public byte[] getRowKeyFieldDelimiterBytes() {
@@ -90,28 +114,37 @@ public class DataGraphConfig {
         return rowKeyFieldDelimiterBytes;		
 	}
 	
-	public byte[] getRowKeySectionDelimiterBytes() {
-		if (rowKeySectionDelimiterBytes == null) {
-			this.rowKeySectionDelimiterBytes = this.graph.getRowKeyModel().getSectionDelimiter().getBytes(
-	        		Charset.forName( CoreConstants.UTF8_ENCODING ));
-		}
-        return rowKeySectionDelimiterBytes;		
-	}
-
 	public boolean hasUserDefinedRowKeyFields() {
-		return this.graph.getRowKeyModel().getUserDefinedFields().size() > 0;
+		return this.userDefinedRowKeyFieldList.size() > 0;
 	}
 	
-	public List<UserDefinedFieldConfig> getUserDefinedRowKeyFields() {
-		return userDefinedRowKeyFields;
+	public List<UserDefinedRowKeyFieldConfig> getUserDefinedRowKeyFields() {
+		return userDefinedRowKeyFieldList;
 	}
 	
-	public UserDefinedFieldConfig getUserDefinedRowKeyField(String path) {
-		return this.pathTouserDefinedRowKeyMap.get(path);
+	public UserDefinedRowKeyFieldConfig getUserDefinedRowKeyField(String path) {
+		return this.pathToUserDefinedRowKeyMap.get(path);
+	}
+	
+	public List<KeyFieldConfig> getRowKeyFields()
+	{
+		return this.rowKeyFieldList;
 	}
 
-	public ColumnKeyField getColumnKeyField(PreDefinedFieldName name) {
-		return preDefinedColumnKeyFields.get(name);
+	/**
+	 * Returns the row key field config for the given path endpoint property, or
+	 * null if not exists. An endpoint property is a property which terminates
+	 * an SDO XPath.
+	 * @param property the endpoint property
+	 * @return the row key field config for the given path endpoint property, or
+	 * null if not exists.
+	 */
+	public UserDefinedRowKeyFieldConfig findUserDefinedRowKeyField(commonj.sdo.Property property) {
+		return this.propertyToUserDefinedRowKeyMap.get(property);
+	}
+
+	public ColumnKeyFieldConfig getColumnKeyField(PreDefinedFieldName name) {
+		return preDefinedColumnKeyFieldMap.get(name);
 	}
 	
 	public String getColumnKeyFieldDelimiter() {
@@ -137,4 +170,14 @@ public class DataGraphConfig {
 		}
         return columnKeySectionDelimiterBytes;		
 	}
+	
+	/**
+	 * Returns the configured table for this data graph config. 
+	 * @return the configured table for this data graph config.
+	 */
+	public TableConfig getTable() {
+		return table;
+	}
+	
+	
 }

@@ -21,6 +21,8 @@ import org.plasma.sdo.PlasmaType;
  * </p>
  * @see org.cloudgraph.config.ColumnKeyModel
  * @see org.cloudgraph.config.Table
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public interface GraphStatefullColumnKeyFactory {
 	

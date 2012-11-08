@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cloudgraph:CloudGraphConfiguration  
+    xmlns:cloudgraph="http://www.cloudgraph.org/config">
+    
+     <!--
+    <Property name="hbase.zookeeper.quorum">u16361628.onlinehome-server.com</Property>    
+    <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
+      -->
+    <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
+    <Property name="hbase.zookeeper.property.clientPort">2181</Property>  
+     
+     <!--
+     does not seem to do anything 
+    <Property name="hbase.master">slphetad4002.phe.fs.fed.us:49302</Property>  
+      -->
+    <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
+    <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
+
+    <Table name="TEMPORAL" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://cloudgraph.org/test/datatypes" type="DateTimeNode">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="dateTimeField"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        
+        <DataGraph uri="http://cloudgraph.org/test/datatypes" type="DateNode">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="dateField"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table>  
+
+    <Table name="INTEGRAL" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        
+        <DataGraph uri="http://cloudgraph.org/test/datatypes" type="LongNode">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="longField"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table>  
+
+    <Table name="STRING" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://cloudgraph.org/test/datatypes" type="StringNode">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="rootId"/>
+                </RowKeyField>
+                <RowKeyField>    
+                    <UserDefinedField path="stringField"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+
+    </Table>  
+         
+    <Table name="actor9" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://cloudgraph.org/test/social" type="Actor">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+
+    </Table>  
+           
+    <Table name="media9" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://cloudgraph.org/test/social" type="Photo">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="uuid"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+
+    </Table>  
+
+    <Table name="topic9" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://cloudgraph.org/test/social" type="Topic">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="uuid"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+
+    </Table>  
+ 
+    
+</cloudgraph:CloudGraphConfiguration>

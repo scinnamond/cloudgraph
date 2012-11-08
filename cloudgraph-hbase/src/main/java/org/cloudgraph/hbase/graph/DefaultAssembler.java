@@ -1,0 +1,307 @@
+package org.cloudgraph.hbase.graph;
+
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.config.TableConfig;
+import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
+import org.cloudgraph.hbase.io.RowReader;
+import org.cloudgraph.hbase.io.TableReader;
+import org.cloudgraph.hbase.service.HBaseDataConverter;
+import org.cloudgraph.hbase.util.FilterUtil;
+import org.cloudgraph.state.GraphState;
+import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.sdo.PlasmaDataGraph;
+import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.PlasmaProperty;
+import org.plasma.sdo.PlasmaType;
+import org.plasma.sdo.core.CoreConstants;
+import org.plasma.sdo.core.CoreNode;
+import org.plasma.sdo.helper.PlasmaDataFactory;
+
+import commonj.sdo.DataObject;
+import commonj.sdo.Property;
+import commonj.sdo.Type;
+
+/**
+ * Supports both federated and non-federated graph assemblers by
+ * providing default functionality.
+ * @author Scott Cinnamond
+ * @since 0.5.1
+ */
+public abstract class DefaultAssembler {
+
+    private static Log log = LogFactory.getLog(DefaultAssembler.class);
+	
+    protected PlasmaType rootType;
+	protected PlasmaDataObject root;
+	protected TableReader rootTableReader;
+	protected PropertySelectionCollector collector;
+	protected Map<Type, List<String>> propertyMap;
+	protected Timestamp snapshotDate;
+	
+	@SuppressWarnings("unused")
+	private DefaultAssembler() {}
+	
+	/**
+	 * Constructor.
+	 * @param rootType the SDO root type for the result data graph
+	 * @param collector the selection properties for the graph to assemble.
+	 * @param snapshotDate the query snapshot date which is populated
+	 * into every data object in the result data graph. 
+	 */
+	public DefaultAssembler(PlasmaType rootType,
+			PropertySelectionCollector collector,
+			TableReader rootTableReader,
+			Timestamp snapshotDate) {
+		this.rootType = rootType;
+		this.collector = collector;
+		this.propertyMap = collector.getResult();
+		this.rootTableReader = rootTableReader;
+		this.snapshotDate = snapshotDate;
+	}
+	
+	/**
+	 * Returns the assembled data graph.
+	 */
+	public PlasmaDataGraph getDataGraph() {
+		return (PlasmaDataGraph)this.root.getDataGraph();
+	}
+	
+	protected PlasmaDataObject createRoot(Result resultRow) {
+        // build the graph
+    	PlasmaDataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
+    	dataGraph.setId(resultRow.getRow());    	
+    	PlasmaDataObject rootObject = (PlasmaDataObject)dataGraph.createRootObject(this.rootType);				
+		CoreNode rootNode = (CoreNode)rootObject;
+        
+		// add concurrency fields
+        if (snapshotDate != null)
+        	rootNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
+
+        // need to reconstruct the original graph, so need original UUID
+		byte[] rootUuid = resultRow.getValue(Bytes.toBytes(
+				this.rootTableReader.getTable().getDataColumnFamilyName()), 
+                Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME));
+		if (rootUuid == null)
+			throw new GraphServiceException("expected column: "
+				+ this.rootTableReader.getTable().getDataColumnFamilyName() + ":"
+				+ GraphState.ROOT_UUID_COLUMN_NAME);
+		String uuidStr = null;
+		uuidStr = new String(rootUuid, 
+				this.rootTableReader.getTable().getCharset());
+		UUID uuid = UUID.fromString(uuidStr);
+		rootNode.setValue(CoreConstants.PROPERTY_NAME_UUID, uuid);
+		return rootObject;
+	}
+	
+	/**
+	 * Populates data properties for the given target data object using
+	 * the given property name list.
+	 * @param target the data object to populate
+	 * @param names the property names
+	 * @param rowReader the row reader
+	 * @throws IOException if a remote or network exception occurs.
+	 */
+	protected void assembleData(PlasmaDataObject target,
+		List<String> names,
+		RowReader rowReader) throws IOException
+	{
+		CoreNode targetDataNode = (CoreNode)target;
+		TableReader tableReader = rowReader.getTableReader();
+		TableConfig tableConfig = tableReader.getTable();
+		
+		// add concurrency fields
+        if (this.snapshotDate != null)
+        	targetDataNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
+
+		// data props
+		for (String name : names) {
+			PlasmaProperty prop = (PlasmaProperty)target.getType().getProperty(name);
+			if (!prop.getType().isDataType())
+				continue;
+			
+			byte[] keyValue = getColumnValue(target, prop, 
+					tableConfig, rowReader);
+			
+			if (keyValue == null)
+				continue;
+			
+			Object value = HBaseDataConverter.INSTANCE.fromBytes(prop, 
+					keyValue);
+	        
+			if (log.isDebugEnabled())
+				log.debug("set: (" + prop.getName() + ") " + String.valueOf(value));
+
+			if (!prop.isReadOnly()) {
+			    target.set(prop, value);
+			}
+			else {
+				targetDataNode.setValue(prop.getName(), 
+						value);
+			}
+		}		
+	}
+	
+	/**
+	 * Returns a value for the given property from the given row reader
+	 * by generating a column qualifier based on column key model 
+	 * configurations settings, graph state information and other 
+	 * factors. Returns null if the qualifier does not exist.  
+	 * @param target the data object 
+	 * @param prop the property
+	 * @param tableConfig the table configuration
+	 * @param rowReader the row reader
+	 * @return a value for the given property from the given row reader
+	 * by generating a column qualifier based on column key model 
+	 * configurations settings, graph state information and other factors. 
+	 * @throws IOException if a remote or network exception occurs.
+	 */
+	protected byte[] getColumnValue(PlasmaDataObject target, 
+		PlasmaProperty prop, TableConfig tableConfig, 
+		RowReader rowReader) throws IOException
+	{
+		byte[] family = tableConfig.getDataColumnFamilyNameBytes();
+		
+		byte[] qualifier = rowReader.getColumnKeyFactory().createColumnKey(
+				target, prop);
+		 	
+		if (!rowReader.getRow().containsColumn(family, qualifier)) {
+			if (log.isDebugEnabled()) {
+				String qualifierStr = Bytes.toString(qualifier);
+				log.debug("qualifier not found: "
+						+ qualifierStr + " - continuing...");
+			}
+			return null;
+		}
+		
+		return rowReader.getRow().getColumnValue(
+			family, qualifier);		
+	}
+	
+	/**
+	 * Associates the source data object with the target as a non-containment
+	 * reference. 
+	 * @param target the data object target
+	 * @param source the data object source
+	 * @param sourceProperty the reference property
+	 * @throws IllegalStateException if the target data object does not have a container
+	 */
+    @SuppressWarnings("unchecked")
+	protected void link(PlasmaDataObject target, PlasmaDataObject source, 
+    		Property sourceProperty)
+    {       
+        if (log.isDebugEnabled())
+            log.debug("linking source (" + source.getUUIDAsString() + ") "
+                    + source.getType().getURI() + "#" + source.getType().getName() 
+                    + "." + sourceProperty.getName() + "->("
+                    + target.getUUIDAsString() + ") "
+                    + target.getType().getURI() + "#" + target.getType().getName());
+        
+        if (sourceProperty.isMany()) {
+			List<DataObject> list = source.getList(sourceProperty);
+            if (list == null) 
+                list = new ArrayList<DataObject>();
+            if (log.isDebugEnabled()) {
+                for (DataObject existingObject : list) {
+                    log.debug("existing: (" + 
+                            ((org.plasma.sdo.PlasmaNode)existingObject).getUUIDAsString()
+                            + ") " + existingObject.getType().getURI() + "#" + existingObject.getType().getName());
+                }
+            } 
+            if (!list.contains(target)) {
+                if (log.isDebugEnabled())
+                    log.debug("adding target  (" + source.getUUIDAsString() + ") "
+                        + source.getType().getURI() + "#" + source.getType().getName() 
+                        + "." + sourceProperty.getName() + "->(" + target.getUUIDAsString() + ") "
+                        + target.getType().getURI() + "#" + target.getType().getName());
+                if (target.getContainer() == null) {
+                	throw new IllegalStateException("the given target (" + target.getUUIDAsString() + ") "
+                        + "of type " 
+                		+ target.getType().getURI() + "#" + target.getType().getName()
+                		+ " has no container");
+                }
+                list.add(target);                
+                source.setList(sourceProperty, list); 
+            }
+        }
+        else {
+            PlasmaDataObject existing = (PlasmaDataObject)source.get(sourceProperty);
+            if (existing == null) {
+                source.set(sourceProperty, target); 
+                if (target.getContainer() != null) {
+                	throw new IllegalStateException("the given target (" + target.getUUIDAsString() + ") "
+                            + "of type " 
+                    		+ target.getType().getURI() + "#" + target.getType().getName()
+                    		+ " has no container");
+                }
+            }
+            else
+                if (!existing.getUUIDAsString().equals(target.getUUIDAsString()))
+                    log.warn("unexpected (" + existing.getType().getName()
+                        + ") value found while creating link (" + source.getUUIDAsString() + ") "
+                        + source.getType().getURI() + "#" + source.getType().getName() 
+                        + "." + sourceProperty.getName() + "->("
+                        + target.getUUIDAsString() + ") "
+                        + target.getType().getURI() + "#" + target.getType().getName());
+        }
+    }
+	
+    /**
+     * Returns the selection graph as a single result.
+     * @param rowKey the row key
+     * @param tableReader the table reader
+     * @param dataObject the 
+     * @return the selection graph as a single result.
+     * @throws IOException if a remote or network exception occurs.
+     * @see GraphFetchColumnFilterAssembler
+     */
+    protected Result fetchGraph(byte[] rowKey, TableReader tableReader, 
+			PlasmaDataObject dataObject) throws IOException {
+        Get row = new Get(rowKey);
+        FilterList rootFilter = new FilterList(
+    			FilterList.Operator.MUST_PASS_ALL);
+        row.setFilter(rootFilter);
+		GraphFetchColumnFilterAssembler columnFilterAssembler = 
+    		new GraphFetchColumnFilterAssembler(
+    			this.collector, (PlasmaType)dataObject.getType());
+        rootFilter.addFilter(columnFilterAssembler.getFilter());
+    	long before = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("executing scan...");
+        
+        if (log.isDebugEnabled() ) 
+        	log.debug(FilterUtil.printFilterTree(rootFilter));
+        
+        Result result = tableReader.getConnection().get(row);
+        if (result == null || result.isEmpty())
+        	throw new GraphServiceException("expected result from table "
+                + tableReader.getTable().getName() + " for row '"
+        		+ new String(rowKey) + "'");
+    	if (log.isTraceEnabled()) {
+  	        log.trace("row: " + new String(result.getRow()));              	  
+      	    for (KeyValue keyValue : result.list()) {
+      	    	log.trace("\tkey: " 
+      	    		+ new String(keyValue.getQualifier())
+      	    	    + "\tvalue: " + new String(keyValue.getValue()));
+      	    }
+    	}
+        long after = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("assembled 1 results ("
+        	    + String.valueOf(after - before) + ")");
+        return result;
+	}
+}

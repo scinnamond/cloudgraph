@@ -8,28 +8,27 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.client.Delete;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
 import org.cloudgraph.common.service.DuplicateRowException;
 import org.cloudgraph.common.service.GraphServiceException;
-import org.cloudgraph.common.service.GraphState;
+import org.cloudgraph.config.CloudGraphConfig;
+import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
-import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.hbase.io.FederatedGraphWriter;
+import org.cloudgraph.hbase.io.FederatedWriter;
+import org.cloudgraph.hbase.io.RowWriter;
+import org.cloudgraph.hbase.io.TableWriter;
+import org.cloudgraph.state.GraphState;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaChangeSummary;
-import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaEdge;
 import org.plasma.sdo.PlasmaNode;
 import org.plasma.sdo.PlasmaProperty;
+import org.plasma.sdo.PlasmaSetting;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.DataGraphDispatcher;
@@ -53,48 +52,44 @@ import commonj.sdo.Property;
 /**
  * Propagates changes to a {@link commonj.sdo.DataGraph data graph} including
  * any number of creates (inserts), modifications (updates) and deletes
- * to a single HBase table row. 
+ * across one or more HBase table rows. 
  * <p>
  * For new (created) data graphs, a row key {org.cloudgraph.hbase.key.HBaseRowKeyFactory factory} 
  * is used to create a new composite HBase row key. The row key generation is
  * driven by a configured CloudGraph row key {@link org.cloudgraph.config.RowKeyModel
  * model} for a specific HTable {@link org.cloudgraph.config.Table configuration}.
- * A minimal set of {@link org.cloudgraph.common.service.GraphState state} information is 
+ * A minimal set of {@link org.cloudgraph.state.GraphState state} information is 
  * persisted with each new data graph.     
  * </p>
  * <p>
  * For data graphs with any other combination of changes, e.g. 
  * data object modifications, deletes, etc... an existing HBase
  * row key is fetched using an HBase <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/client/Get.html" target="#">Get</a> 
- * operation
- * 
+ * operation.
  * </p>
- * <p>
- * </p>
+ * @see org.cloudgraph.hbase.io.FederatedWriter
  * @see org.cloudgraph.common.key.GraphRowKeyFactory
  * @see org.cloudgraph.common.key.GraphColumnKeyFactory
- * @see org.cloudgraph.common.service.GraphState
+ * @see org.cloudgraph.state.GraphState
+ * @author Scott Cinnamond
+ * @since 0.5
  */
-public class HBaseGraphDispatcher
+public class GraphDispatcher
     implements DataGraphDispatcher 
 {
-    private static Log log = LogFactory.getLog(HBaseGraphDispatcher.class);
+    private static Log log = LogFactory.getLog(GraphDispatcher.class);
     private static List<Row> EMPTY_ROW_LIST = new ArrayList<Row>();
-    private HTableInterface con;
-    private TableConfig tableConfig;
     private SnapshotMap snapshotMap;
     private String username;
+    private FederatedWriter graphWriter;
     
     @SuppressWarnings("unused")
-    private HBaseGraphDispatcher() {}
+    private GraphDispatcher() {}
     
-    public HBaseGraphDispatcher(SnapshotMap snapshotMap, 
-            String username, TableConfig tableConfig, 
-            HTableInterface con) {
+    public GraphDispatcher(SnapshotMap snapshotMap, 
+            String username) {
         this.snapshotMap = snapshotMap;
         this.username = username;
-        this.tableConfig = tableConfig;
-        this.con = con;        
     }
     
     public void close()
@@ -126,40 +121,23 @@ public class HBaseGraphDispatcher
         try {
 	        for (DataObject changed : changeSummary.getChangedDataObjects()) 
 	        	this.checkConcurrency(dataGraph, (PlasmaDataObject)changed);           
-            
-	        byte[] rowKey = null;
-	        if (changeSummary.isCreated(dataGraph.getRootObject())) {
-		        CompositeRowKeyFactory rowKeyGen = new CompositeRowKeyFactory(
-		        	(PlasmaType)dataGraph.getRootObject().getType());
-		        rowKey = rowKeyGen.createRowKeyBytes(dataGraph);
-	            ((PlasmaDataGraph)dataGraph).setId(rowKey); // FIXME: use snapshot map
-	        }
-	        else 
-	        	rowKey = (byte[])((PlasmaDataGraph)dataGraph).getId();
-           
-	        if (rowKey == null)
-	        	throw new IllegalStateException("could not find or create row key");
-            if (log.isDebugEnabled())
-    			log.debug("row-id: " + Bytes.toString(rowKey));
-            
-    		GraphState graphState = this.initGraphState(rowKey, 
-    				dataGraph, changeSummary);
-    		
-    		StatefullColumnKeyFactory colGen = new StatefullColumnKeyFactory(
-    			(PlasmaType)dataGraph.getRootObject().getType(), graphState);
-    		List<Row> created = this.create(rowKey, dataGraph, changeSummary, graphState, colGen);
-    		List<Row> modified = this.modify(rowKey, dataGraph, changeSummary, graphState, colGen);
-    		List<Row> deleted = this.delete(rowKey, dataGraph, changeSummary, graphState, colGen);
-            
-    		List<Row> actions = new ArrayList<Row>(); 
-    		actions.addAll(created);
-    		actions.addAll(modified);
-    		actions.addAll(deleted);
+            	        
+	        this.graphWriter = new FederatedGraphWriter(dataGraph);
+	        
+    		this.create(dataGraph, this.graphWriter);    		    		
+    		this.modify(dataGraph, this.graphWriter);
+    		this.delete(dataGraph, this.graphWriter);
             
     		// commit to HBase
-            this.con.batch(actions);
-            this.con.flushCommits();
-
+    		for (TableWriter context : this.graphWriter.getTableWriters()) {
+        		List<Row> actions = new ArrayList<Row>(); 
+    			for (RowWriter rowContext : context.getAllRowWriters()) {
+    				actions.add(rowContext.getRow());
+    			}
+    			context.getConnection().batch(actions);
+    			context.getConnection().flushCommits();
+    		}
+    		
             return snapshotMap;
         }                                                         
         catch(IOException e) {                         
@@ -171,155 +149,6 @@ public class HBaseGraphDispatcher
         catch(IllegalAccessException e) {                         
             throw new DataAccessException(e);                         
         }               
-    }
-    
-    private List<Row> delete(byte[] rowKey,  
-    		DataGraph dataGraph,
-    		PlasmaChangeSummary changeSummary,
-    		GraphState graphState, StatefullColumnKeyFactory colGen) throws IllegalAccessException 
-    {
-        DeletedObjectCollector deleted = new DeletedObjectCollector(dataGraph);
-        if (deleted.getResult().size() == 0)
-            return EMPTY_ROW_LIST;
-
-        List<Row> result = new ArrayList<Row>();;
-		// if delete the row/graph
-		if (changeSummary.isDeleted(dataGraph.getRootObject())) {
-    		Delete rowDelete = new Delete(rowKey);
-    		result.add(rowDelete);
-		}
-		else {
-    		Delete columnDelete = new Delete(rowKey);
-            for (PlasmaDataObject dataObject : deleted.getResult()) {
-                delete(dataGraph, dataObject, graphState, colGen, columnDelete);
-                graphState.removeSequence(dataObject);
-            }
-            result.add(columnDelete);
-    		Put uuidMapUpdate = new Put(rowKey);
-    		uuidMapUpdate.add(this.tableConfig.getDataColumnFamilyNameBytes(), 
-                    Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
-                    Bytes.toBytes(graphState.formatUUIDMap())); 
-    		result.add(uuidMapUpdate);
-		}
-		return result;
-    }
-    
-    private List<Row> modify(byte[] rowKey,  
-    		DataGraph dataGraph,
-    		PlasmaChangeSummary changeSummary,
-    		GraphState graphState, StatefullColumnKeyFactory colGen) throws IllegalAccessException 
-    {
-        ModifiedObjectCollector modified = new ModifiedObjectCollector(dataGraph);
-        if (modified.getResult().size() == 0)
-            return EMPTY_ROW_LIST;
-    	List<Row> result = new ArrayList<Row>();
-    	Put modify = new Put(rowKey);
-    	for (PlasmaDataObject dataObject : modified.getResult())
-            update(dataGraph, dataObject, graphState, colGen, modify);
-    	result.add(modify);
-		return result;
-    }
-    	
-    private List<Row> create(byte[] rowKey,   
-    		DataGraph dataGraph,
-    		PlasmaChangeSummary changeSummary,
-    		GraphState graphState, StatefullColumnKeyFactory colGen) {
-        CreatedObjectCollector created = new CreatedObjectCollector(dataGraph);   	
-		if (created.getResult().size() == 0) 
-			return EMPTY_ROW_LIST;		
-
-        List<Row> result = new ArrayList<Row>();;
-		Put create = new Put(rowKey);
-    	// if new graph (root is created)
-        if (changeSummary.isCreated(dataGraph.getRootObject()))	{
-            String uuid = (String)((PlasmaDataObject)dataGraph.getRootObject()).getUUIDAsString();
-            if (uuid == null)
-                throw new GraphServiceException("expected UUID for data object '" 
-                		+ dataGraph.getRootObject().getType().getName() + "'");
-            for (PlasmaDataObject dataObject : created.getResult())
-            	graphState.createSequence(dataObject);
-            
-            for (PlasmaDataObject dataObject : created.getResult())
-                create(dataGraph, dataObject, graphState, colGen, create);
-             
-    		create.add(this.tableConfig.getDataColumnFamilyNameBytes(), 
-                    Bytes.toBytes(CloudGraphConstants.ROOT_UUID_COLUMN_NAME),
-                    Bytes.toBytes(uuid));    		        		
-    
-    		create.add(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
-                Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
-                Bytes.toBytes(graphState.formatUUIDMap()));    		        		
-    	}
-        else { // partially new graph
-            for (PlasmaDataObject dataObject : created.getResult()) {
-            	graphState.createSequence(dataObject);
-            }
-            for (PlasmaDataObject dataObject : created.getResult()) {
-                create(dataGraph, dataObject, graphState, colGen, create);
-            }
-            create.add(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
-                    Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME),
-                    Bytes.toBytes(graphState.formatUUIDMap())); 
-        }
-        result.add(create);
-		return result;
-    }
-    
-    /**
-     * Initializes a graph state by querying for a row
-     * based on the given row key and either creating a new (empty)
-     * graph state for an entirely new graph, or otherwise initializing
-     * a graph state based on state or state and management columns in
-     * the existing returned row.   
-     * 
-     * @param rowKey the row key
-     * @param dataGraph the data graph
-     * @param changeSummary the change summary
-     * @return the graph state
-     * @throws IOException
-     * @throws DuplicateRowException for a new graph if a row already exists
-     * for the given row key
-     * @throws GraphServiceException where except for a new graph, if no row
-     * exists for the given row key
-     */
-    private GraphState initGraphState(byte[] rowKey, 
-    		DataGraph dataGraph,
-    		PlasmaChangeSummary changeSummary) throws IOException
-    {
-    	GraphState graphState;
-		// --ensure row exists unless a new row/graph
-		// --use empty get with only necessary "state" column
-		Get existing = new Get(rowKey);
-		existing.addColumn(this.tableConfig.getDataColumnFamilyNameBytes(), 
-				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
-		
-		Result result = this.con.get(existing);
-		
-		// if entirely new graph
-		if (changeSummary.isCreated(dataGraph.getRootObject())) {
-    		if (!result.isEmpty())
-    			throw new DuplicateRowException("no row for id '"
-    				+ Bytes.toString(rowKey) + "' expected when creating new row"); 
-    		graphState = new GraphState();
-        }
-		else {
-    		if (result.isEmpty())
-    			throw new GraphServiceException("expected row for id '"
-    					+ Bytes.toString(rowKey) + "'");            	
-    		byte[] uuids = result.getValue(Bytes.toBytes(this.tableConfig.getDataColumnFamilyName()), 
-    				Bytes.toBytes(GraphState.STATE_MAP_COLUMN_NAME));
-            if (uuids != null) {
-            	if (log.isDebugEnabled())
-            		log.debug(GraphState.STATE_MAP_COLUMN_NAME
-            			+ ": " + new String(uuids));
-            }
-            else
-    			throw new GraphServiceException("expected column '"
-    				+ GraphState.STATE_MAP_COLUMN_NAME + " for row " 
-    				+ Bytes.toString(rowKey) + "'");            	
-            graphState = new GraphState(new String(uuids));
-    	}   		
-    	return graphState;
     }
     
     private void checkConcurrency(DataGraph dataGraph, PlasmaDataObject dataObject) {
@@ -342,59 +171,146 @@ public class HBaseGraphDispatcher
         }
     }
     
-    private void create(DataGraph dataGraph, PlasmaDataObject dataObject, GraphState graphState, GraphStatefullColumnKeyFactory colGen, Put row) {
-        PlasmaType type = (PlasmaType)dataObject.getType();
-        String uuid = (String)((CoreDataObject)dataObject).getUUIDAsString();
-        if (uuid == null)
-            throw new DataAccessException("expected UUID for created entity '" 
-            		+ type.getName() + "'");
-        if (log.isDebugEnabled())
-            log.debug("creating " + type.getName() + " '" + ((PlasmaDataObject)dataObject).getUUIDAsString()+ "'");
-        
-        List<Property> pkList = type.findProperties(KeyType.primary);
-        if (pkList == null || pkList.size() == 0)
-            throw new DataAccessException("no pri-key properties found for type '" 
-                    + dataObject.getType().getName() + "'");
+    private void delete(
+    		DataGraph dataGraph,
+    		FederatedWriter graphWriter) throws IllegalAccessException, IOException 
+    {
+        DeletedObjectCollector deleted = new DeletedObjectCollector(dataGraph);
+        if (deleted.getResult().size() == 0)
+            return;
 
-        for (Property pkp : pkList) {
-            PlasmaProperty targetPriKeyProperty = (PlasmaProperty)pkp;
-            Object pk = dataObject.get(targetPriKeyProperty);
-            if (pk == null)
-            {
-            	DataFlavor dataFlavor = targetPriKeyProperty.getDataFlavor();
-            	switch (dataFlavor) {
-            	case integral:
-                    if (log.isDebugEnabled()) {
-                        log.debug("getting seq-num for " + type.getName());
-                    }
-                    pk = graphState.createSequence(dataObject); 
-                    byte[] pkBytes = HBaseDataConverter.INSTANCE.toBytes(targetPriKeyProperty, pk);
-                    this.updateCell(colGen, row, dataObject, 
-                    		targetPriKeyProperty, pkBytes);
-                    //entity.set(targetPriKeyProperty.getName(), pk);                 
-                    ((CoreDataObject)dataObject).setValue(targetPriKeyProperty.getName(), pk); // FIXME: bypassing modification detection on pri-key
-            		break;
-            	default:
-                    throw new DataAccessException("found null primary key property '"
-                    		+ targetPriKeyProperty.getName() + "' for type, "
-                            + type.getURI() + "#" + type.getName());  
-            	}
+        for (PlasmaDataObject dataObject : deleted.getResult()) {
+
+        	RowWriter rowWriter = graphWriter.getRowWriter(dataObject);
+            TableWriter tableWriter = rowWriter.getTableWriter();
+            if (rowWriter.getRootDataObject().equals(dataObject)) {
+            	// create a row delete w/no columns, HBase deletes row
+            	rowWriter.getRowDelete(); 
             }
-            else
-            {
-                byte[] pkBytes = HBaseDataConverter.INSTANCE.toBytes(targetPriKeyProperty, pk);
-                this.updateCell(colGen, row, dataObject, 
-                		targetPriKeyProperty, pkBytes);
-            }   
-            if (log.isDebugEnabled()) {
-                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(pk) + ")");
+            else {
+            	if (rowWriter.isRootDeleted())
+            		continue;
             }
-            // FIXME: multiple PK's not supported
-            snapshotMap.put(uuid, pk); // map new PK back to UUID
+        	
+        	if (log.isDebugEnabled())
+        		log.debug("deleting: " + dataObject.getType().getURI() 
+        			+ "#" + dataObject.getType().getName());
+        	
+        	delete(dataGraph, dataObject, 
+        		 graphWriter, tableWriter, rowWriter);
+            rowWriter.getGraphState().removeSequence(dataObject);
+        }
+		for (TableWriter tableWriter : graphWriter.getTableWriters()) {
+        	for (RowWriter rowWriter : tableWriter.getAllRowWriters()) {
+        		if (rowWriter.isRootDeleted())
+        			continue;
+        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
+                        Bytes.toBytes(GraphState.UUID_MAP_COLUMN_NAME),
+                        Bytes.toBytes(rowWriter.getGraphState().formatUUIDMap()));    		        		
+
+        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
+                            Bytes.toBytes(GraphState.KEY_MAP_COLUMN_NAME),
+                            Bytes.toBytes(rowWriter.getGraphState().formatKeyMap()));    		        		
+        	}
+        }
+    }
+    
+    private void modify(
+    		DataGraph dataGraph,
+    		FederatedWriter graphWriter) throws IllegalAccessException, IOException 
+    {
+        ModifiedObjectCollector modified = new ModifiedObjectCollector(dataGraph);
+        if (modified.getResult().size() == 0)
+            return;
+    	for (PlasmaDataObject dataObject : modified.getResult()) {
+        	RowWriter rowWriter = graphWriter.getRowWriter(dataObject);
+            TableWriter tableWriter = rowWriter.getTableWriter();
+        	if (log.isDebugEnabled())
+        		log.debug("validating modifications: " + dataObject.getType().getURI() 
+        			+ "#" + dataObject.getType().getName());
+            this.validateModifications(dataGraph, dataObject, rowWriter);
+            
+        	if (log.isDebugEnabled())
+        		log.debug("modifying: " + dataObject.getType().getURI() 
+        			+ "#" + dataObject.getType().getName());
+            this.update(dataGraph, dataObject, 
+            	graphWriter, tableWriter, rowWriter);
+    	}
+    	
+        for (TableWriter tableWriter : graphWriter.getTableWriters()) {
+        	for (RowWriter rowWriter : tableWriter.getAllRowWriters()) {
+        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
+                        Bytes.toBytes(GraphState.UUID_MAP_COLUMN_NAME),
+                        Bytes.toBytes(rowWriter.getGraphState().formatUUIDMap()));    		        		
+
+        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
+                            Bytes.toBytes(GraphState.KEY_MAP_COLUMN_NAME),
+                            Bytes.toBytes(rowWriter.getGraphState().formatKeyMap()));    		        		
+        	}
+        }
+    }
+    	
+    private void create(DataGraph dataGraph,
+    		FederatedWriter graphWriter) throws IOException, IllegalAccessException {
+        CreatedObjectCollector created = new CreatedObjectCollector(dataGraph);   	
+		if (created.getResult().size() == 0) 
+			return;		
+
+		for (PlasmaDataObject dataObject : created.getResult()) {
+        	RowWriter rowWriter = graphWriter.getRowWriter(dataObject);
+        	rowWriter.getGraphState().createSequence(dataObject);
         }
         
-        this.updateOrigination(dataObject, type, colGen, row);
-        this.updateOptimistic(dataObject, type, colGen, row);
+        for (PlasmaDataObject dataObject : created.getResult()) {
+        	RowWriter rowWriter = graphWriter.getRowWriter(dataObject);
+            TableWriter tableWriter = rowWriter.getTableWriter();
+            if (rowWriter.getRootDataObject().equals(dataObject)) {
+            	// create a row delete w/o
+            	rowWriter.getRowDelete(); 
+            }
+        	
+        	if (log.isDebugEnabled())
+        		log.debug("creating: " + dataObject.getType().getURI() 
+        			+ "#" + dataObject.getType().getName());
+            create(dataGraph, dataObject, 
+            	graphWriter,  tableWriter,  rowWriter);
+        }
+        
+        for (TableWriter tableWriter : graphWriter.getTableWriters()) {
+        	for (RowWriter rowWriter : tableWriter.getAllRowWriters()) {
+        		
+        		if (rowWriter.isRootCreated()) {
+        			String rootUUID = ((PlasmaDataObject)rowWriter.getRootDataObject()).getUUIDAsString();
+        		    rowWriter.getRow().add(tableWriter.getTable().getDataColumnFamilyNameBytes(), 
+                        Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME),
+                        Bytes.toBytes(rootUUID)); 
+        		}
+            
+        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
+                        Bytes.toBytes(GraphState.UUID_MAP_COLUMN_NAME),
+                        Bytes.toBytes(rowWriter.getGraphState().formatUUIDMap()));    		        		
+
+        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
+                            Bytes.toBytes(GraphState.KEY_MAP_COLUMN_NAME),
+                            Bytes.toBytes(rowWriter.getGraphState().formatKeyMap()));    		        		
+        	}
+        }
+    }    
+    
+    private void create(DataGraph dataGraph, 
+    	PlasmaDataObject dataObject,
+    	FederatedWriter graphWriter,
+    	TableWriter tableWriter,
+    	RowWriter rowWriter) throws IOException, IllegalAccessException 
+    {
+        PlasmaType type = (PlasmaType)dataObject.getType();
+        if (log.isDebugEnabled())
+            log.debug("creating " + type.getName() + " '" + ((PlasmaDataObject)dataObject).getUUIDAsString()+ "'");
+        PlasmaNode dataNode = (PlasmaNode)dataObject;
+        
+        this.updateKeys(dataObject,  type, rowWriter); 
+        this.updateOrigination(dataObject, type, rowWriter);
+        this.updateOptimistic(dataObject, type, rowWriter);
                 
         List<Property> properties = type.getProperties();
         for (Property p : properties)
@@ -413,19 +329,29 @@ public class HBaseGraphDispatcher
         	if (value instanceof NullValue) {
         		value = null;
         	}
+            if (property.isReadOnly())
+    		    throw new IllegalAccessException("attempt to add read-only property, "
+        			+ type.getURI() + "#" + type.getName() + "." + property.getName());
         	
     		byte[] valueBytes = null;
         	if (!property.getType().isDataType()) {
-        		List <PlasmaEdge> edges = ((PlasmaNode)dataObject).getEdges(property);
-        		String data = graphState.formatEdges(dataObject, edges);
-        		valueBytes = Bytes.toBytes(data);
+        		List <PlasmaEdge> edges = dataNode.getEdges(property);
+        		// creating this object so add all edges to row graph state
+        		rowWriter.getGraphState().addEdges(dataNode, edges);
+        		// create a formatted column value
+        		// for this edge collection
+        		valueBytes = this.createEdgeValueBytes(
+        			dataObject, dataNode,
+        			property, edges,  
+        			tableWriter, rowWriter);
         	}
         	else {
                 valueBytes = HBaseDataConverter.INSTANCE.toBytes(
                 	property, value);
             }
-        	this.updateCell(colGen, row, dataObject, 
-                	property, valueBytes);
+        	this.updateCell(rowWriter, 
+        		rowWriter.getRow(), dataObject, 
+                property, valueBytes);
         }
         
         if (log.isDebugEnabled()) {
@@ -433,17 +359,92 @@ public class HBaseGraphDispatcher
         }
     }
     
-    private void update(DataGraph dataGraph, PlasmaDataObject dataObject, GraphState graphState, GraphStatefullColumnKeyFactory colGen, Put row) 
+    private byte[] createEdgeValueBytes(
+        PlasmaDataObject dataObject,	
+    	PlasmaNode dataNode,
+    	Property property, 
+    	List <PlasmaEdge> edges, 
+        TableWriter tableWriter, RowWriter rowWriter) throws IOException
+    {
+    	byte[] valueBytes;
+		PlasmaType targetType = (PlasmaType)property.getType();
+		TableConfig targetTable = CloudGraphConfig.getInstance().findTable(
+    			targetType.getQualifiedName());
+		        		
+		// If the target type is defined as a root in any table
+		// create external row keys
+		if (targetTable != null) {
+			Property oppositeProperty = property.getOpposite();
+			
+		    // find a new table writer and row writer
+		    // and for each edge, format these into the cell.
+			TableWriter oppositeTableWriter = graphWriter.getTableWriter(
+				targetTable.getName());
+			for (PlasmaEdge edge : edges) {
+	    		PlasmaDataObject opposite = edge.getOpposite(dataNode).getDataObject();
+		        String oppositeUUID = opposite.getUUIDAsString();
+		        RowWriter oppositeRowWriter = oppositeTableWriter.getRowWriter(oppositeUUID);	
+			    // maps opposite UUID to its row key
+		        rowWriter.getGraphState().addRowKey(opposite,
+			        oppositeRowWriter.getRowKey());
+		        
+		        // maps this DO uuid to current row key
+		        if (oppositeProperty != null)
+		            oppositeRowWriter.getGraphState().addRowKey(dataObject,
+		        		rowWriter.getRowKey());
+			}
+		}
+		String valueStr = rowWriter.getGraphState().formatEdges(dataNode, edges);
+		valueBytes = Bytes.toBytes(valueStr);
+    	return valueBytes;
+    }
+    
+    private void validateModifications(DataGraph dataGraph, PlasmaDataObject dataObject,
+    		RowWriter rowWriter) 
         throws IllegalAccessException
     {   
         PlasmaType type = (PlasmaType)dataObject.getType();
         if (log.isDebugEnabled())
             log.debug("updating " + type.getName() + " '" + ((PlasmaDataObject)dataObject).getUUIDAsString()+ "'");
+        PlasmaNode dataNode = (PlasmaNode)dataObject;
 
-        List<Property> pkList = type.findProperties(KeyType.primary);
-        if (pkList == null || pkList.size() == 0)
-            throw new DataAccessException("no pri-key properties found for type '" 
-                    + dataObject.getType().getName() + "'");
+        PlasmaType rootType = (PlasmaType)rowWriter.getRootDataObject().getType();
+        DataGraphConfig dataGraphConfig = CloudGraphConfig.getInstance().getDataGraph(rootType.getQualifiedName());
+
+        List<Property> properties = type.getProperties();
+        for (Property p : properties)
+        {
+        	PlasmaProperty property = (PlasmaProperty)p;
+            
+            Object oldValue = dataGraph.getChangeSummary().getOldValue(dataObject, property);
+            if (oldValue == null)
+            	continue; // it's not been modified   
+            
+            if (property.isReadOnly())
+    		    throw new IllegalAccessException("attempt to modify read-only property, "
+        			+ type.getURI() + "#" + type.getName() + "." + property.getName());
+
+            UserDefinedRowKeyFieldConfig userDefinedField = 
+            	dataGraphConfig.findUserDefinedRowKeyField(property);
+            if (userDefinedField != null) {
+    		    throw new IllegalAccessException("attempt to modify row-key property, "
+            		+ type.getURI() + "#" + type.getName() + "." + property.getName()
+            		+ " - this property is configured as a row-key field for table '"
+            		+ dataGraphConfig.getTable().getName() + "'");
+            }
+        }    
+    }
+     
+    private void update(DataGraph dataGraph, PlasmaDataObject dataObject, 
+    		FederatedWriter graphWriter,
+    		TableWriter context,
+        	RowWriter rowWriter) 
+        throws IllegalAccessException, IOException
+    {   
+        PlasmaType type = (PlasmaType)dataObject.getType();
+        if (log.isDebugEnabled())
+            log.debug("updating " + type.getName() + " '" + ((PlasmaDataObject)dataObject).getUUIDAsString()+ "'");
+        PlasmaNode dataNode = (PlasmaNode)dataObject;
 
         // FIXME: get rid of cast - define instance properties in 'base type'
         Timestamp snapshotDate = (Timestamp)((CoreDataObject)dataObject).getValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP);                                     
@@ -456,8 +457,9 @@ public class HBaseGraphDispatcher
                 log.debug("snapshot date: " + String.valueOf(snapshotDate)); 
         
         checkLock(dataObject, type, snapshotDate);
-        updateOptimistic(dataObject, type, colGen, row);
-        
+        updateOptimistic(dataObject, type, rowWriter);
+
+
         List<Property> properties = type.getProperties();
         for (Property p : properties)
         {
@@ -469,41 +471,67 @@ public class HBaseGraphDispatcher
                 continue; // processed above           
     		
             Object oldValue = dataGraph.getChangeSummary().getOldValue(dataObject, property);
-            if (oldValue != null) { // it's been modified  
-            	if (!property.isReadOnly()) {
-                    Object value = dataObject.get(property);
-                    if (value == null)
-                    	continue;
-                    
-                	if (value instanceof NullValue) {
-                		value = null;
-                	}
-                	
-            		byte[] valueBytes = null;
-                	if (!property.getType().isDataType()) {
-                		List <PlasmaEdge> edges = ((PlasmaNode)dataObject).getEdges(property);
-                		String data = graphState.formatEdges(dataObject, edges);
-                		valueBytes = Bytes.toBytes(data);
-                	}
-                	else {
-                        valueBytes = HBaseDataConverter.INSTANCE.toBytes(
-                        	property, value);
-                    }
-                	this.updateCell(colGen, row, dataObject, 
-                        	property, valueBytes);
-            	}
-            	else
-            		throw new IllegalAccessException("attempt to modify read-only property, "
-            			+ type.getURI() + "#" + type.getName() + "." + property.getName());
+            if (oldValue == null)
+            	continue; // it's not been modified   
+            
+            if (property.isReadOnly())
+    		    throw new IllegalAccessException("attempt to modify read-only property, "
+        			+ type.getURI() + "#" + type.getName() + "." + property.getName());
+
+            Object value = dataObject.get(property);
+            if (value == null)
+            	continue;
+            
+        	if (value instanceof NullValue) {
+        		value = null;
+        	}
+        	
+    		byte[] valueBytes = null;
+        	if (!property.getType().isDataType()) {
+    			PlasmaSetting setting = (PlasmaSetting)oldValue;
+    			Object oldOppositeValue = setting.getValue();
+    			if (oldOppositeValue instanceof List) {
+        			List<DataObject> oldOpposites = (List<DataObject>)oldOppositeValue;
+        		    for (DataObject oldOpposite : oldOpposites) {
+        		    	rowWriter.getGraphState().removeSequence(oldOpposite);
+        		    	rowWriter.getGraphState().removeRowKey(oldOpposite);
+        		    }
+    			}
+        		else {
+        			DataObject oldOpposite = (DataObject)oldOppositeValue;
+    		    	rowWriter.getGraphState().removeSequence(oldOpposite);
+    		    	rowWriter.getGraphState().removeRowKey(oldOpposite);
+        		}
+        		
+        		List <PlasmaEdge> edges = dataNode.getEdges(property);
+        		// modifying this object but add all edges to row graph state
+        		rowWriter.getGraphState().addEdges(dataNode, edges);
+        		// create a formatted cell value
+        		// for this edge collection and overwrite cell
+        		valueBytes = this.createEdgeValueBytes(
+        			dataObject, dataNode,
+        			property, edges, 
+        			context, rowWriter);
+        	}
+        	else {
+                valueBytes = HBaseDataConverter.INSTANCE.toBytes(
+                	property, value);
             }
+        	this.updateCell(rowWriter,
+        		rowWriter.getRow(), dataObject, 
+                property, valueBytes);
         }    
     }
  
-    private void delete(DataGraph dataGraph, PlasmaDataObject dataObject, GraphState graphState, GraphStatefullColumnKeyFactory colGen, Delete row)
+    private void delete(DataGraph dataGraph, PlasmaDataObject dataObject, 
+    	FederatedWriter graphWriter,
+    	TableWriter context,
+        RowWriter rowContext) throws IOException
     {
         PlasmaType type = (PlasmaType)dataObject.getType();
         if (log.isDebugEnabled())
             log.debug("deleting " + type.getName() + " '" + ((PlasmaDataObject)dataObject).getUUIDAsString()+ "'");
+        PlasmaNode dataNode = (PlasmaNode)dataObject;
         List<Property> pkList = type.findProperties(KeyType.primary);
         if (pkList == null || pkList.size() == 0)
             throw new DataAccessException("no pri-key properties found for type '" 
@@ -538,33 +566,36 @@ public class HBaseGraphDispatcher
         for (Property p : properties)
         {
         	PlasmaProperty property = (PlasmaProperty)p;
-        	byte[] qualifier = colGen.createColumnKey(dataObject, 
+        	byte[] qualifier = rowContext.getColumnKeyFactory().createColumnKey(dataObject, 
         			property);
         	
         	
             if (log.isDebugEnabled())
                 log.debug("deleting column: " 
-                		+ Bytes.toString(qualifier));  
-        	row.deleteColumns(this.tableConfig.getDataColumnFamilyNameBytes(), 
-        			qualifier);    	
+                		+ Bytes.toString(qualifier));
+            rowContext.getRowDelete().deleteColumns(context.getTable().getDataColumnFamilyNameBytes(), 
+        		qualifier);    	
         }    
     }    
         
-    private void updateCell(GraphStatefullColumnKeyFactory colGen, 
-    		Put row, PlasmaDataObject dataObject, Property property, 
-    		byte[] value)
+    private void updateCell(
+    		RowWriter rowContext, 
+    		Put row, PlasmaDataObject dataObject, 
+    		Property property, 
+    		byte[] value) throws IOException
     {
     	PlasmaProperty prop = (PlasmaProperty)property;
-    	byte[] qualifier = colGen.createColumnKey(
+    	byte[] qualifier = rowContext.getColumnKeyFactory().createColumnKey(
     		dataObject, prop);
     	    	
      	// FIXME: adding NULL string as null on update to preserve history..is this correct?
-    	row.add(this.tableConfig.getDataColumnFamilyNameBytes(), 
+    	row.add(rowContext.getTableWriter().getTable().getDataColumnFamilyNameBytes(), 
     		qualifier,
             value);     	
     }    
     
-    private void setOrigination(PlasmaDataObject dataObject, PlasmaType type) {
+    private void setOrigination(PlasmaDataObject dataObject, 
+    		PlasmaType type) {
         // FIXME - could be a reference to a user
         Property originationUserProperty = type.findProperty(ConcurrencyType.origination, 
             	ConcurrentDataFlavor.user);
@@ -592,8 +623,60 @@ public class HBaseGraphDispatcher
                     + type + "#" + type.getName());      	
     }  
     
+    private void updateKeys(PlasmaDataObject dataObject, 
+    	PlasmaType type,
+    	RowWriter rowWriter) throws IOException 
+    {
+        String uuid = (String)((CoreDataObject)dataObject).getUUIDAsString();
+        if (uuid == null)
+            throw new GraphServiceException("expected UUID for created entity '" 
+            		+ type.getName() + "'");
+        List<Property> pkList = type.findProperties(KeyType.primary);
+        if (pkList == null || pkList.size() == 0)
+        	return; // don't care for NOSQL services
+
+        for (Property pkp : pkList) {
+            PlasmaProperty targetPriKeyProperty = (PlasmaProperty)pkp;
+            Object pk = dataObject.get(targetPriKeyProperty);
+            if (pk == null)
+            {
+            	DataFlavor dataFlavor = targetPriKeyProperty.getDataFlavor();
+            	switch (dataFlavor) {
+            	case integral:
+                    if (log.isDebugEnabled()) {
+                        log.debug("getting seq-num for " + type.getName());
+                    }
+                    pk = rowWriter.getGraphState().createSequence(dataObject); 
+                    byte[] pkBytes = HBaseDataConverter.INSTANCE.toBytes(targetPriKeyProperty, pk);
+                    this.updateCell(rowWriter, 
+                    		rowWriter.getRow(), dataObject, 
+                    	targetPriKeyProperty, pkBytes);
+                    //entity.set(targetPriKeyProperty.getName(), pk);                 
+                    ((CoreDataObject)dataObject).setValue(targetPriKeyProperty.getName(), pk); // FIXME: bypassing modification detection on pri-key
+            		break;
+            	default:
+                    throw new DataAccessException("found null primary key property '"
+                    		+ targetPriKeyProperty.getName() + "' for type, "
+                            + type.getURI() + "#" + type.getName());  
+            	}
+            }
+            else
+            {
+                byte[] pkBytes = HBaseDataConverter.INSTANCE.toBytes(targetPriKeyProperty, pk);
+                this.updateCell(rowWriter, 
+                	rowWriter.getRow(), dataObject, 
+                	targetPriKeyProperty, pkBytes);
+            }   
+            if (log.isDebugEnabled()) {
+                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(pk) + ")");
+            }
+            // FIXME: multiple PK's not supported
+            snapshotMap.put(uuid, pk); // map new PK back to UUID
+        }    	
+    }
+    
     private void updateOrigination(PlasmaDataObject dataObject, PlasmaType type,
-    		GraphStatefullColumnKeyFactory colGen, Put row) {
+    		RowWriter rowContext) throws IOException {
         // FIXME - could be a reference to a user
         Property originationUserProperty = type.findProperty(ConcurrencyType.origination, 
             	ConcurrentDataFlavor.user);
@@ -614,7 +697,7 @@ public class HBaseGraphDispatcher
             	originationTimestampProperty.getType(), dateSnapshot);
             byte[] bytes = HBaseDataConverter.INSTANCE.toBytes(originationTimestampProperty, 
             		snapshot);
-            this.updateCell(colGen, row, dataObject, 
+            this.updateCell(rowContext, rowContext.getRow(), dataObject, 
             		originationTimestampProperty, 
             		bytes);
         }
@@ -658,7 +741,7 @@ public class HBaseGraphDispatcher
 
     //FIXME: deal with optimistic concurrency in HBase later
     private void updateOptimistic(PlasmaDataObject dataObject, PlasmaType type,
-    		GraphStatefullColumnKeyFactory colGen, Put row) 
+    		RowWriter rowContext) throws IOException 
     {
         PlasmaProperty concurrencyUserProperty = (PlasmaProperty)type.findProperty(ConcurrencyType.optimistic, 
             	ConcurrentDataFlavor.user);
@@ -671,7 +754,7 @@ public class HBaseGraphDispatcher
         {
             byte[] bytes = HBaseDataConverter.INSTANCE.toBytes(concurrencyUserProperty, 
             		username);
-            this.updateCell(colGen, row, dataObject, 
+            this.updateCell(rowContext, rowContext.getRow(), dataObject, 
             		concurrencyUserProperty,   
             		bytes);       	
         }
@@ -691,7 +774,7 @@ public class HBaseGraphDispatcher
             	concurrencyTimestampProperty.getType(), dateSnapshot);
             byte[] bytes = HBaseDataConverter.INSTANCE.toBytes(concurrencyTimestampProperty, 
             	snapshot);
-            this.updateCell(colGen, row, dataObject, 
+            this.updateCell(rowContext, rowContext.getRow(), dataObject, 
             		concurrencyTimestampProperty,   
             		bytes);       	
         }    	

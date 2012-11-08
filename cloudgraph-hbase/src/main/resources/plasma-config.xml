@@ -29,6 +29,13 @@
                 <QueryDSL generate="true"/>
             </Provisioning>
         </Namespace>
+ 
+        <Namespace uri="http://cloudgraph.org/test/social"
+            artifact="http://cloudgraph.org/social-graph.mdxml">
+            <Provisioning packageName="org.cloudgraph.test.social">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
   
        
   	    <DataAccessService dataStoreType="NOSQL"> 	
@@ -65,6 +72,9 @@
             urn="datatypes.mdxml" 
             namespaceUri="http://cloudgraph.org/datatypes.mdxml"/>  
 
+        <Artifact name="social-graph.mdxml"
+            urn="social-graph.mdxml" 
+            namespaceUri="http://cloudgraph.org/social-graph.mdxml"/>  
     </Repository>
     
   

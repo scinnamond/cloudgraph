@@ -16,10 +16,14 @@ import org.plasma.query.Expression;
 import org.plasma.sdo.helper.PlasmaDataFactory;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
-
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
+/**
+ * Long SDO datatype specific partial row-key scan operations test. 
+ * @author Scott Cinnamond
+ * @since 0.5.1
+ */
 public class LongPartialRowKeyScanTest extends DataTypeGraphModelTest {
     private static Log log = LogFactory.getLog(LongPartialRowKeyScanTest.class);
     private long WAIT_TIME = 4;

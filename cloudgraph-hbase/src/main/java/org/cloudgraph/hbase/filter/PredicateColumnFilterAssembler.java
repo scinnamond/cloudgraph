@@ -5,8 +5,8 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
+import org.cloudgraph.state.GraphState;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.Where;
@@ -34,6 +34,8 @@ import org.xml.sax.SAXException;
  * or columns in HBase.
  * </p> 
  * @see org.cloudgraph.common.key.CompositeColumnKeyFactory
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class PredicateColumnFilterAssembler extends ColumnPredicateVisitor
     implements PredicateFilterAssembler

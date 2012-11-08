@@ -1,4 +1,4 @@
-package org.cloudgraph.hbase.service;
+package org.cloudgraph.hbase.graph;
 
 import org.apache.hadoop.hbase.client.Result;
 import org.plasma.sdo.access.DataGraphAssembler;
@@ -20,6 +20,8 @@ import org.plasma.sdo.access.DataGraphAssembler;
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  * @see org.plasma.sdo.PlasmaDataGraph
  * @see org.apache.hadoop.hbase.client.Result
+ * @author Scott Cinnamond
+ * @since 0.5.1
  */
 public interface HBaseGraphAssembler extends DataGraphAssembler{
 	/**

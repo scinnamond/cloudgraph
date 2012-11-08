@@ -16,14 +16,16 @@ import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.HTablePool;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.context.ContextException;
 import org.cloudgraph.hbase.service.CloudGraphContext;
+import org.cloudgraph.state.StateException;
 
 
 /**
  * Manages HBase table pool and table interface access.
  * @see CloudGraphContext
  * @see TableConfig
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class HBaseConnectionManager {
 
@@ -87,7 +89,7 @@ public class HBaseConnectionManager {
 			try {
 				result = getPooledTable(tableName);
 			} catch (TableNotFoundException e1) {
-				throw new ContextException(e1);
+				throw new StateException(e1);
 			}
 		}
 		catch (Throwable t) {
@@ -97,11 +99,11 @@ public class HBaseConnectionManager {
 				try {
 					result = getPooledTable(tableName);
 				} catch (TableNotFoundException e1) {
-					throw new ContextException(e1);
+					throw new StateException(e1);
 				}
 			}
 			else
-			    throw new ContextException(t);
+			    throw new StateException(t);
 		}
 		if (result.isAutoFlush())
 			log.warn("table " + tableName + " set to auto-flush");
@@ -129,11 +131,11 @@ public class HBaseConnectionManager {
 	    	//tableDesc.addFamily(fam2);
 			hbase.createTable(tableDesc);
 		} catch (MasterNotRunningException e1) {
-			throw new ContextException(e1);
+			throw new StateException(e1);
 		} catch (ZooKeeperConnectionException e1) {
-			throw new ContextException(e1);
+			throw new StateException(e1);
 		} catch (IOException e) {
-			throw new ContextException(e);
+			throw new StateException(e);
 		} 	
     }
 

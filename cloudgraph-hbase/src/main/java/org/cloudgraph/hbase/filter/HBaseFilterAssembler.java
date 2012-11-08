@@ -14,6 +14,8 @@ import org.cloudgraph.common.filter.FilterAssembler;
  * used to represent complex expression trees filtering either rows
  * or columns in HBase.
  * </p> 
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public interface HBaseFilterAssembler extends FilterAssembler {
 

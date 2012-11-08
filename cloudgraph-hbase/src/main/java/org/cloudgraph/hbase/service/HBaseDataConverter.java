@@ -8,12 +8,17 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.sdo.DataType;
 import org.plasma.sdo.helper.DataConverter;
 
 import commonj.sdo.Property;
 
+/**
+ * HBase specific data converter, delegates to {@link DataConverter} under
+ * certain conditions. 
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
 public class HBaseDataConverter {
 	private static Log log = LogFactory.getFactory().getInstance(
 			HBaseDataConverter.class);

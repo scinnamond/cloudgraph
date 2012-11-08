@@ -1,6 +1,7 @@
 package org.cloudgraph.hbase.filter;
 
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -10,8 +11,8 @@ import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
-import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
+import org.cloudgraph.state.GraphState;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
@@ -30,6 +31,8 @@ import org.plasma.sdo.PlasmaType;
  * </p> 
  * @see org.cloudgraph.common.key.GraphStatefullColumnKeyFactory
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class StatefullBinaryPrefixColumnFilterAssembler extends FilterListAssembler
 {
@@ -50,7 +53,7 @@ public class StatefullBinaryPrefixColumnFilterAssembler extends FilterListAssemb
         this.columnKeyFac = new StatefullColumnKeyFactory(rootType, this.graphState);  
 	} 
 	
-	public void assemble(List<String> propertyNames, List<Long> sequences,
+	public void assemble(List<String> propertyNames, Collection<Long> sequences,
 		PlasmaType contextType) 
 	{
     	// Note: using many binary prefix qualifier filters

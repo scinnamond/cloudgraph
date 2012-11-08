@@ -1,0 +1,121 @@
+package org.cloudgraph.config;
+
+import javax.xml.namespace.QName;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.PlasmaType;
+
+import commonj.sdo.DataObject;
+
+/**
+ * Encapsulates logic related to access of a configured
+ * pre-defined row or column key field. 
+ * @author Scott Cinnamond
+ * @since 0.5.1
+ */
+public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
+
+	private static final Log log = LogFactory.getLog(PreDefinedKeyFieldConfig.class);
+	private PredefinedField field;
+	
+	public PreDefinedKeyFieldConfig(PredefinedField field, 
+		int seqNum) {
+		super(field, seqNum);
+		this.field = field;
+	}
+
+	public PredefinedField getField() {
+		return field;
+	}
+	
+	public PreDefinedFieldName getName()
+	{
+	    return field.getName();
+	}
+	
+    public boolean isHash() {
+    	return field.isHash();
+    }	
+    
+	/**
+	 * Returns a key value from the given Data Graph
+	 * @param dataGraph the data graph 
+	 * @return the key value
+	 */
+	public byte[] getKeyBytes(
+			commonj.sdo.DataGraph dataGraph) {
+		return this.getKeyBytes(dataGraph.getRootObject());
+	}
+
+	/**
+	 * Returns a key value from the given data object
+	 * @param dataObject the root data object 
+	 * @return the key value
+	 */
+	public byte[] getKeyBytes(
+			DataObject dataObject) 
+	{
+		PlasmaType rootType = (PlasmaType)dataObject.getType();
+		
+		byte[] result = null;
+		switch (this.getName()) {
+		case URI: 
+			result = rootType.getURIBytes();
+			break;
+		case TYPE:
+			QName qname = rootType.getQualifiedName();
+			
+			result = rootType.getPhysicalNameBytes();
+			if (result == null || result.length == 0) {
+				if (log.isDebugEnabled())
+				    log.debug("no physical name for type, "
+				    		+ qname.getNamespaceURI() + "#" + rootType.getName() 
+				    		+ ", defined - using logical name");
+				result = rootType.getNameBytes();
+			}
+			break;
+		case UUID:
+			result = ((PlasmaDataObject)dataObject).getUUIDAsString().getBytes(charset);
+			break;
+		default:
+		    throw new CloudGraphConfigurationException("invalid row key field name, "
+		    		+ this.getName().name() + " - cannot get this field from a Data Graph");
+		}
+		
+		return result;
+	}
+    
+	/**
+	 * Returns a key value from the given data object
+	 * @param dataObject the root data object 
+	 * @return the key value
+	 */
+	public byte[] getKeyBytes(PlasmaType rootType) 
+	{
+		byte[] result = null;
+		switch (this.getName()) {
+		case URI: 
+			result = rootType.getURIBytes();
+			break;
+		case TYPE:
+			QName qname = rootType.getQualifiedName();
+			
+			result = rootType.getPhysicalNameBytes();
+			if (result == null || result.length == 0) {
+				if (log.isDebugEnabled())
+				    log.debug("no physical name for type, "
+				    		+ qname.getNamespaceURI() + "#" + rootType.getName() 
+				    		+ ", defined - using logical name");
+				result = rootType.getNameBytes();
+			}
+			break;
+		default:
+		    throw new CloudGraphConfigurationException("invalid row key field name, "
+		    		+ this.getName().name() + " - cannot get this field from a type");
+		}
+		
+		return result;
+	}
+}

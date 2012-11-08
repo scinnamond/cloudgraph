@@ -1,7 +1,5 @@
 package org.cloudgraph.hbase.scan;
 
-import java.util.List;
-
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaType;
 
@@ -9,6 +7,8 @@ import org.plasma.sdo.PlasmaType;
  * Assembles a composite partial row (start/stop) key pair where each
  * field within the composite start and stop row keys are constructed 
  * based a set of query predicates.   
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public interface RowKeyScanAssembler extends PartialRowKeyScan {
     /**
@@ -31,7 +31,7 @@ public interface RowKeyScanAssembler extends PartialRowKeyScan {
 	/**
 	 * Assemble row key scan information based on the given
 	 * scan literals.
-	 * @param literalList the scan literals
+	 * @param literals the scan literals
 	 */
-	public void assemble(List<ScanLiteral> literalList);
+	public void assemble(ScanLiterals literals);
 }

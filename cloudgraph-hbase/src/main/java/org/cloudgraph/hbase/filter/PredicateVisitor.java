@@ -28,6 +28,8 @@ import org.plasma.sdo.access.DataAccessException;
  * used to represent complex expression trees filtering either rows
  * or columns in HBase.
  * </p> 
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public abstract class PredicateVisitor extends FilterHierarchyAssembler {
     private static Log log = LogFactory.getLog(PredicateVisitor.class);

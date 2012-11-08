@@ -6,11 +6,9 @@ import java.nio.charset.Charset;
 import javax.xml.namespace.QName;
 
 import org.apache.hadoop.hbase.util.Hash;
-import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.service.CloudGraphContext;
 import org.plasma.sdo.PlasmaType;
 
 /**
@@ -34,6 +32,8 @@ import org.plasma.sdo.PlasmaType;
  * @see org.cloudgraph.config.CloudGraphConfig
  * @see org.cloudgraph.config.TableConfig
  * @see org.cloudgraph.config.DataGraphConfig
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public abstract class ByteBufferKeyFactory 
     implements ConfigurableKeyFactory

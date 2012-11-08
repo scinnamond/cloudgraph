@@ -27,6 +27,8 @@ import org.xml.sax.SAXException;
  * @see org.cloudgraph.common.key.GraphRowKeyFactory
  * @see org.plasma.query.visitor.QueryVisitor
  * @see org.plasma.query.model.Query
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class PredicateRowFilterAssembler extends RowPredicateVisitor
     implements PredicateFilterAssembler

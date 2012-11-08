@@ -4,24 +4,28 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.key.KeyValue;
-import org.cloudgraph.config.CloudGraphConfigurationException;
-import org.cloudgraph.config.RowKeyField;
-import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.config.UserDefinedFieldConfig;
-import org.cloudgraph.hbase.service.CloudGraphContext;
-import org.plasma.sdo.PlasmaDataObject;
-import org.plasma.sdo.PlasmaType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
+import org.cloudgraph.common.CloudGraphConstants;
+import org.cloudgraph.common.key.KeyValue;
+import org.cloudgraph.config.CloudGraphConfigurationException;
+import org.cloudgraph.config.PreDefinedKeyFieldConfig;
+import org.cloudgraph.config.PredefinedField;
+import org.cloudgraph.config.TableConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.hbase.service.CloudGraphContext;
+import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataGraph;
+import commonj.sdo.DataObject;
 
 /**
  * Delegate class supporting composite key generation.
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class KeySupport {
 	private static final Log log = LogFactory.getLog(CompositeRowKeyFactory.class);
@@ -43,13 +47,14 @@ public class KeySupport {
 		}
 		else {
 		    String algorithm = CloudGraphContext.instance().getConfig().get(
-		    		CloudGraphConstants.PROPERTY_HBASE_CONFIG_HASH_TYPE);
-		    hash = Hash.getInstance(Hash.parseHashType(algorithm));			
+		    		CloudGraphConstants.PROPERTY_CONFIG_HASH_TYPE);
+		    if (algorithm != null)
+		        hash = Hash.getInstance(Hash.parseHashType(algorithm));			
 		}
 		return hash;
 	}
 
-    public KeyValue findKeyValue(UserDefinedFieldConfig fieldConfig, List<KeyValue> pairs) {
+    public KeyValue findKeyValue(UserDefinedRowKeyFieldConfig fieldConfig, List<KeyValue> pairs) {
     	
     	commonj.sdo.Property fieldProperty = fieldConfig.getEndpointProperty();
     	commonj.sdo.Type fieldPropertyType = fieldProperty.getContainingType();
@@ -81,7 +86,7 @@ public class KeySupport {
 	 */
     public String getPredefinedFieldValue(
 			PlasmaType type, Hash hash, 
-			RowKeyField token) {
+			PreDefinedKeyFieldConfig token) {
 		String result = null;
 		switch (token.getName()) {
 		case URI: 
@@ -114,7 +119,7 @@ public class KeySupport {
 
     public byte[] getPredefinedFieldValueBytes(
 			PlasmaType type, Hash hash, 
-			RowKeyField token) {
+			PreDefinedKeyFieldConfig token) {
 		byte[] result = null;
 		switch (token.getName()) {
 		case URI: 
@@ -157,8 +162,23 @@ public class KeySupport {
 	 */
 	public byte[] getPredefinedFieldValueBytes(
 			DataGraph dataGraph, Hash hash, 
-			RowKeyField token) {
-		PlasmaType rootType = (PlasmaType)dataGraph.getRootObject().getType();
+			PredefinedField token) {
+		return getPredefinedFieldValueBytes(dataGraph.getRootObject(),
+			hash, token);
+	}
+    
+    /**
+	 * Returns a token value from the given data object
+	 * @param dataObject the root data object 
+	 * @param hash the hash algorithm to use in the event the
+	 * row key token is to be hashed 
+	 * @param token the pre-defined row key token configuration
+	 * @return the token value
+	 */
+	public byte[] getPredefinedFieldValueBytes(
+			DataObject dataObject, Hash hash, 
+			PredefinedField token) {
+		PlasmaType rootType = (PlasmaType)dataObject.getType();
 		
 		byte[] result = null;
 		switch (token.getName()) {
@@ -178,7 +198,7 @@ public class KeySupport {
 			}
 			break;
 		case UUID:
-			result = Bytes.toBytes(((PlasmaDataObject)dataGraph.getRootObject()).getUUIDAsString());
+			result = Bytes.toBytes(((PlasmaDataObject)dataObject).getUUIDAsString());
 			break;
 		default:
 		    throw new CloudGraphConfigurationException("invalid row key token name, "

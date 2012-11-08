@@ -30,6 +30,8 @@ import org.xml.sax.SAXException;
  * name of the configuration file. If not found looks for
  * the default file name 'cloudgraph-config.xml'. The CloudGraph
  * configuration file must be somewhere on the Java class path.     
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class CloudGraphConfig {
 
@@ -70,7 +72,7 @@ public class CloudGraphConfig {
             					+ table.getName() + "' for type (uri/name), " 
             					+ graph.getUri() + "#" + graph.getType());
             		graphURIToTableMap.put(qname, tableConfig);
-            		graphURIToGraphMap.put(qname, new DataGraphConfig(graph));
+            		graphURIToGraphMap.put(qname, new DataGraphConfig(graph, tableConfig));
             	}
             }
         }
@@ -141,9 +143,21 @@ public class CloudGraphConfig {
     
     /**
      * Returns a table configuration for the given qualified SDO 
+     * Type name or null if not found.
+     * @param typeName the qualified name of an SDO Type 
+     * @return the table configuration or null if not found
+     */
+    public TableConfig findTable(QName typeName) {
+    	TableConfig result = this.graphURIToTableMap.get(typeName);
+    	return result;
+    }
+
+    /**
+     * Returns a table configuration for the given qualified SDO 
      * Type name.
      * @param typeName the qualified name of an SDO Type 
      * @return the table configuration
+     * @throws CloudGraphConfigurationException if the given name is not found
      */
     public TableConfig getTable(QName typeName) {
     	TableConfig result = this.graphURIToTableMap.get(typeName);
@@ -155,8 +169,19 @@ public class CloudGraphConfig {
 
     /**
      * Returns a table configuration based on the given table name.
+     * @param tableName the table name or null if not found.
+     * @return the table configuration  or null if not found.
+     */
+    public TableConfig findTable(String tableName) {
+    	TableConfig result = this.tableNameToTableMap.get(tableName);
+    	return result;
+    }
+
+    /**
+     * Returns a table configuration based on the given table name.
      * @param tableName the table name
      * @return the table configuration
+     * @throws CloudGraphConfigurationException if the given name is not found
      */
     public TableConfig getTable(String tableName) {
     	TableConfig result = this.tableNameToTableMap.get(tableName);
@@ -180,10 +205,32 @@ public class CloudGraphConfig {
     	return result.getTable().getName();
     }
     
+    /**
+     * Returns a data graph config for the given qualified SDO 
+     * Type name or null of not exists.
+     * @param typeName the qualified name of an SDO Type 
+     * @return a data graph config for the given qualified SDO 
+     * Type name or null of not exists. 
+     */
+    public DataGraphConfig findDataGraph(QName qname) {
+    	DataGraphConfig result = this.graphURIToGraphMap.get(qname);
+    	return result;
+    }
+
+    /**
+     * Returns a data graph config for the given qualified SDO 
+     * Type name.
+     * @param typeName the qualified name of an SDO Type 
+     * @return a data graph config for the given qualified SDO 
+     * Type name.
+     * @throws CloudGraphConfigurationException if no configured data graph
+     * exists for the given qualified SDO 
+     * Type name
+     */
     public DataGraphConfig getDataGraph(QName qname) {
     	DataGraphConfig result = this.graphURIToGraphMap.get(qname);
     	if (result == null)
-    		throw new CloudGraphConfigurationException("no CloudGraph configured for" +
+    		throw new CloudGraphConfigurationException("no configured for" +
     				" '" + qname.toString() + "'");
     	return result;
     }

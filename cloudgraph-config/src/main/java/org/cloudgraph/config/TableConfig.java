@@ -8,9 +8,12 @@ import org.plasma.sdo.core.CoreConstants;
 /**
  * Encapsulates logic related to access of HTable specific
  * configuration information.  
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class TableConfig {
     private Table table;
+    private Charset charset;
     
     @SuppressWarnings("unused")
 	private TableConfig() {}
@@ -18,6 +21,7 @@ public class TableConfig {
 	public TableConfig(Table table) {
 		super();
 		this.table = table;
+		this.charset = Charset.forName( CoreConstants.UTF8_ENCODING );
 		
 	}
 
@@ -43,7 +47,7 @@ public class TableConfig {
 	
 	public byte[] getDataColumnFamilyNameBytes() {
 		return this.table.getDataColumnFamilyName().getBytes(
-			Charset.forName( CoreConstants.UTF8_ENCODING ));
+				this.charset);
 	}	
 	
 	/**
@@ -54,6 +58,10 @@ public class TableConfig {
 	 */
 	public boolean hasHashAlgorithm() {
 		return this.getTable().getHashAlgorithm() != null;
+	}
+
+	public Charset getCharset() {
+		return charset;
 	}
 	
 

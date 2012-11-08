@@ -4,7 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
-import org.cloudgraph.common.service.GraphState;
+import org.cloudgraph.state.GraphState;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -25,7 +25,9 @@ import org.plasma.sdo.PlasmaType;
  * </p>
  * @see org.cloudgraph.config.ColumnKeyModel
  * @see org.cloudgraph.config.Table
- * @see org.cloudgraph.common.service.GraphState
+ * @see org.cloudgraph.state.GraphState
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class StatefullColumnKeyFactory extends CompositeColumnKeyFactory 
     implements GraphStatefullColumnKeyFactory 

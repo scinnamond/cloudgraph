@@ -9,16 +9,11 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.client.HTableInterface;
-import org.cloudgraph.config.CloudGraphConfig;
-import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.connect.HBaseConnectionManager;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.QueryValidator;
-import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.DataGraphDispatcher;
 import org.plasma.sdo.access.PlasmaDataAccessService;
@@ -32,8 +27,8 @@ import commonj.sdo.Type;
 /**
  * Top level provider service implementing the
  * {@link org.plasma.sdo.access.DataAccessService DataAccessService } 
- * interface and delegating to {@link HBaseGraphQuery} for serving
- * data from HBase back to the client, and {@link HBaseGraphDispatcher} for
+ * interface and delegating to {@link GraphQuery} for serving
+ * data from HBase back to the client, and {@link GraphDispatcher} for
  * propagating changes to one or more data graphs back to HBase. 
  * <p>
  * CloudGraph&#8482; is based on the Service Data Objects (SDO) 2.1 specification 
@@ -47,8 +42,10 @@ import commonj.sdo.Type;
  * common SDO query mechanisms including XPath and others.     
  * </p>
  * @see org.plasma.sdo.access.DataAccessService
- * @see HBaseGraphQuery
- * @see HBaseGraphDispatcher
+ * @see GraphQuery
+ * @see GraphDispatcher
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class HBaseGraphService implements PlasmaDataAccessService {
     
@@ -67,7 +64,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        HBaseGraphQuery dispatcher = new HBaseGraphQuery();
+        GraphQuery dispatcher = new GraphQuery();
         return dispatcher.count(query);
     }
     
@@ -87,7 +84,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        HBaseGraphQuery dispatcher = new HBaseGraphQuery();
+        GraphQuery dispatcher = new GraphQuery();
         Timestamp snapshotDate = new Timestamp((new Date()).getTime());
         return dispatcher.find(query, snapshotDate);
     }
@@ -99,7 +96,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        HBaseGraphQuery dispatcher = new HBaseGraphQuery();
+        GraphQuery dispatcher = new GraphQuery();
         DataGraph[] results = dispatcher.find(query, -1, new Timestamp((new Date()).getTime()));
         return results;
     }
@@ -107,7 +104,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
     public List<DataGraph[]> find(Query[] queries) {
         if (queries == null)
             throw new IllegalArgumentException("expected non-null 'queries' argument");
-        HBaseGraphQuery dispatcher = new HBaseGraphQuery();
+        GraphQuery dispatcher = new GraphQuery();
         List<DataGraph[]> list = new ArrayList<DataGraph[]>();
         Timestamp snapshotDate = new Timestamp((new Date()).getTime());
         for (int i = 0; i < queries.length; i++)
@@ -130,15 +127,8 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         if (username.trim().length() == 0)
             throw new IllegalArgumentException("unexpected zero length 'username' argument");
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
-        
-        PlasmaType type = (PlasmaType)dataGraph.getRootObject().getType();
-        TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(
-        		type.getQualifiedName());
-    	HTableInterface con = HBaseConnectionManager.instance().getConnection(
-    			tableConfig.getName());
-        //con.setAutoCommit(false);
-        DataGraphDispatcher dispatcher = new HBaseGraphDispatcher(snapshotMap, 
-                username, tableConfig, con);
+        DataGraphDispatcher dispatcher = new GraphDispatcher(snapshotMap, 
+                username);
         try {
             dispatcher.commit(dataGraph);
             //con.commit();
@@ -175,21 +165,13 @@ public class HBaseGraphService implements PlasmaDataAccessService {
             for (int i = 0; i < dataGraphs.length; i++) { 
                 if (log.isDebugEnabled())
                     log.debug("commiting: " + dataGraphs[i].getChangeSummary().toString());
-                PlasmaType type = (PlasmaType)dataGraphs[i].getRootObject().getType();
-                TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(
-                		type.getQualifiedName());
-            	HTableInterface con = HBaseConnectionManager.instance().getConnection(
-            			tableConfig.getName());
-                //con.setAutoCommit(false);
-                
-                DataGraphDispatcher dispatcher = new HBaseGraphDispatcher(snapshotMap,
-                        username, tableConfig, con);
+                DataGraphDispatcher dispatcher = new GraphDispatcher(snapshotMap,
+                        username);
                 try {
                     dispatcher.commit(dataGraphs[i]);        
                 }
                 finally {
                     dispatcher.close();
-                    con.close();
                 }
             }  
             //con.commit();

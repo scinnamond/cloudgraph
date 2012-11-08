@@ -15,10 +15,9 @@ import org.apache.hadoop.hbase.filter.MultipleColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
 import org.apache.hadoop.hbase.filter.SubstringComparator;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.key.GraphColumnKeyFactory;
-import org.cloudgraph.common.service.GraphState;
 import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
+import org.cloudgraph.state.GraphState;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelectionCollector;
@@ -37,6 +36,8 @@ import commonj.sdo.Type;
  *  
  * @see GraphColumnKeyFactory
  * @see InitialFetchColumnFilterAssembler
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public class GraphFetchColumnFilterAssembler extends FilterListAssembler 
     implements HBaseFilterAssembler
@@ -61,12 +62,16 @@ public class GraphFetchColumnFilterAssembler extends FilterListAssembler
     	// add default filters for graph state info needed for all queries
         QualifierFilter rootUUIDFilter = new QualifierFilter(
         	CompareFilter.CompareOp.EQUAL,
-        	new SubstringComparator(CloudGraphConstants.ROOT_UUID_COLUMN_NAME));   
+        	new SubstringComparator(GraphState.ROOT_UUID_COLUMN_NAME));   
         this.rootFilter.addFilter(rootUUIDFilter);
-        QualifierFilter stateFilter = new QualifierFilter(
+        QualifierFilter uuidMapFilter = new QualifierFilter(
         	CompareFilter.CompareOp.EQUAL,
-        	new SubstringComparator(GraphState.STATE_MAP_COLUMN_NAME));   
-        this.rootFilter.addFilter(stateFilter);
+        	new SubstringComparator(GraphState.UUID_MAP_COLUMN_NAME));   
+        this.rootFilter.addFilter(uuidMapFilter);
+        QualifierFilter keyMapFilter = new QualifierFilter(
+            	CompareFilter.CompareOp.EQUAL,
+            	new SubstringComparator(GraphState.KEY_MAP_COLUMN_NAME));   
+        this.rootFilter.addFilter(keyMapFilter);
     	
     	collect();
     	

@@ -2,12 +2,12 @@
 <cloudgraph:CloudGraphConfiguration  
     xmlns:cloudgraph="http://www.cloudgraph.org/config">
     
+     <!--
     <Property name="hbase.zookeeper.quorum">u16361628.onlinehome-server.com</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
-     <!--
+      -->
     <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2181</Property>  
-      -->
      
      <!--
      does not seem to do anything 
@@ -21,10 +21,15 @@
          
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="DateTimeNode">
             <RowKeyModel>
-                <RowKeyField name="uri" hash="true"/>
-                <RowKeyField name="type" hash="false"/>
-                <UserDefinedField 
-                    path="dateTimeField"/>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="dateTimeField"/>
+                </RowKeyField>
             </RowKeyModel>
             
             <ColumnKeyModel>
@@ -36,10 +41,15 @@
         
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="DateNode">
             <RowKeyModel>
-                <RowKeyField name="uri" hash="true"/>
-                <RowKeyField name="type" hash="false"/>
-                <UserDefinedField 
-                    path="dateField"/>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="dateField"/>
+                </RowKeyField>
             </RowKeyModel>
             
             <ColumnKeyModel>
@@ -55,10 +65,15 @@
         
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="LongNode">
             <RowKeyModel>
-                <RowKeyField name="uri" hash="true"/>
-                <RowKeyField name="type" hash="false"/>
-                <UserDefinedField 
-                    path="longField"/>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="longField"/>
+                </RowKeyField>
             </RowKeyModel>
             
             <ColumnKeyModel>
@@ -73,12 +88,18 @@
         <HashAlgorithm name="murmur"/>
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="StringNode">
             <RowKeyModel>
-                <RowKeyField name="uri" hash="true"/>
-                <RowKeyField name="type" hash="false"/>
-                <UserDefinedField 
-                    path="rootId"/>
-                <UserDefinedField 
-                    path="stringField"/>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="rootId"/>
+                </RowKeyField>
+                <RowKeyField>    
+                    <UserDefinedField path="stringField"/>
+                </RowKeyField>
             </RowKeyModel>
             
             <ColumnKeyModel>
@@ -90,5 +111,29 @@
 
     </Table>  
          
+    <Table name="social" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://cloudgraph.org/test/social" type="Actor">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+
+    </Table>  
+            
     
 </cloudgraph:CloudGraphConfiguration>

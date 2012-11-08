@@ -21,6 +21,8 @@ import org.plasma.sdo.PlasmaType;
  * used to represent complex expression trees filtering either rows
  * or columns in HBase.
  * </p> 
+ * @author Scott Cinnamond
+ * @since 0.5
  */
 public abstract class FilterListAssembler
     implements HBaseFilterAssembler
