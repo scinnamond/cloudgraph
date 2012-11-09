@@ -10,6 +10,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.service.DuplicateRowException;
 import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.common.service.MissingRowException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
@@ -124,9 +125,8 @@ public class OperationHelper {
         }
 		else {
     		if (result.isEmpty())
-    			throw new GraphServiceException("expected row for id '"
-    				+ Bytes.toString(rowKey) + "' for table '"
-        			+ tableConfig.getTable().getName() + "'");            	
+    			throw new MissingRowException(tableConfig.getTable().getName(),
+    					Bytes.toString(rowKey));            	
     		byte[] uuids = result.getValue(Bytes.toBytes(tableConfig.getDataColumnFamilyName()), 
     				Bytes.toBytes(GraphState.UUID_MAP_COLUMN_NAME));
             if (uuids != null) {

@@ -183,8 +183,8 @@
                             <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                         </systemProperties>
                         <includes>               
-                            <include>**/*SocialGraphNonFederatedTest*</include>                     
-                            <include>**/*PartialRowKeyScanTest*</include>   
+                            <include>**/*SocialGraphNonFederatedTest*</include>                      
+                            <include>**/*PartialRowKeyScanTest*</include>    
                         </includes> 
                     </configuration>
                   </execution>
@@ -207,7 +207,7 @@
 	                        <property><name>log4j.configuration</name><value>log4j.properties</value></property>
 	                    </systemProperties>
 	                    <includes>               
-	                        <include>**/*SocialGraphFederationTest*</include>                     
+	                        <include>**/*SocialGraphFederationTest*</include>                      
 	                    </includes> 
                     </configuration>
                   </execution>

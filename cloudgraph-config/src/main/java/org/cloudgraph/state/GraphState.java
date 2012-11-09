@@ -20,7 +20,7 @@ import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 
 /**
- * A minimal set of "state" information is persisted with each 
+ * Manages a minimal set of "state" information persisted with each 
  * data graph in order to reduce overall storage space. 
  * In general mappings from various space intensive properties 
  * required for graph management, such as UUIDs, are mapped 

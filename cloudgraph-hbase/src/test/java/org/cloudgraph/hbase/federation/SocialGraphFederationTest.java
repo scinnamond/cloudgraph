@@ -16,6 +16,7 @@ import org.cloudgraph.test.social.query.QBlog;
 import org.cloudgraph.test.social.query.QPhoto;
 import org.plasma.common.test.PlasmaTestSetup;
 import org.plasma.query.Expression;
+import org.plasma.sdo.helper.PlasmaCopyHelper;
 import org.plasma.sdo.helper.PlasmaDataFactory;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
@@ -30,8 +31,7 @@ import commonj.sdo.Type;
 public class SocialGraphFederationTest extends HBaseTestCase {
     private static Log log = LogFactory.getLog(SocialGraphFederationTest.class);
     private long WAIT_TIME = 1000;
-    private String USERNAME_BASE = "social";
-    
+    private String USERNAME_BASE = "social";    
     
     public static Test suite() {
         return PlasmaTestSetup.newTestSetup(SocialGraphFederationTest.class);
@@ -46,7 +46,7 @@ public class SocialGraphFederationTest extends HBaseTestCase {
     	String name = USERNAME_BASE 
     		+ String.valueOf(System.currentTimeMillis())
     		+ "_example.com";	
-    	Actor actor = createActor(name);
+    	Actor actor = createRootActor(name);
     	actor.setName(name);
     	actor.setDescription("I'm a guy who likes storms...");
     	
@@ -148,11 +148,77 @@ public class SocialGraphFederationTest extends HBaseTestCase {
     	assertTrue(fetchedPhoto != null);
     }  
     
-    protected Actor createActor(String name) {
+    public void testTopicInsertAndLink() throws IOException       
+    {
+    	Topic physics = createRootTopic("Physics");
+    	Topic plasmaPhysics = physics.createChild();
+    	plasmaPhysics.setName("Plasma Physics");
+    	
+    	Topic ionization = plasmaPhysics.createChild();
+    	ionization.setName("Plasma Ionization");
+    	
+    	Topic magnetization = plasmaPhysics.createChild();
+    	magnetization.setName("Plasma Magnetization");
+    	
+    	Topic darkEnergy = physics.createChild();
+    	darkEnergy.setName("Dark Energy");
+    	
+    	Topic darkMatter = physics.createChild();
+    	darkMatter.setName("Dark Metter");
+    	
+    	this.service.commit(physics.getDataGraph(), 
+    			"test1");
+    	
+    	String name = USERNAME_BASE 
+        	+ String.valueOf(System.currentTimeMillis())
+        	+ "_example.com";	
+    	Actor actor = createRootActor(name);
+    	actor.setName(name);
+    	actor.setDescription("Guy who likes plasma physics...");
+    	
+    	Blog physicsBlog = actor.createBlog();
+    	physicsBlog.setName("Thoughts on Plasma Magnetization");
+    	physicsBlog.setDescription("Magnetization parameters and temperature...");
+    	
+    	// separate it from its graph so we can 
+    	// add to another graph
+    	magnetization.detach();
+    	
+    	physicsBlog.addTopic(magnetization);
+    	
+    	this.service.commit(actor.getDataGraph(), 
+    			"test2");
+    	
+    	Actor fetchedActor = fetchGraph(
+        		createGraphQuery(name));    	
+        String xml = this.serializeGraph(fetchedActor.getDataGraph());
+        log.info(xml);
+        
+    	assertTrue(fetchedActor.getBlogCount() == 1);
+    	Blog fetchedBlog = (Blog)fetchedActor.get("blog[@name='"+physicsBlog.getName()+"']");
+    	assertTrue(fetchedBlog != null);
+    	assertTrue(fetchedBlog.getTopicCount() == 1);
+    	Topic fetchedTopic = fetchedBlog.getTopic(0);
+    	assertTrue(fetchedTopic.getName() != null);
+    	assertTrue(fetchedTopic.getName().equals(magnetization.getName()));
+        
+    }    
+    
+    protected Actor createRootActor(String name) {
         DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
         dataGraph.getChangeSummary().beginLogging(); // log changes from this point
     	Type rootType = PlasmaTypeHelper.INSTANCE.getType(Actor.class);
     	Actor root = (Actor)dataGraph.createRootObject(rootType);
+    	root.setName(name);
+    	
+    	return root;
+    }
+
+    protected Topic createRootTopic(String name) {
+        DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
+        dataGraph.getChangeSummary().beginLogging(); // log changes from this point
+    	Type rootType = PlasmaTypeHelper.INSTANCE.getType(Topic.class);
+    	Topic root = (Topic)dataGraph.createRootObject(rootType);
     	root.setName(name);
     	
     	return root;
@@ -178,6 +244,8 @@ public class SocialGraphFederationTest extends HBaseTestCase {
     	    .select(root.blog().topic().wildcard())
     	    .select(root.blog().topic().child().wildcard())
     	    .select(root.blog().topic().child().child().wildcard())
+    	    .select(root.blog().topic().parent().wildcard())
+    	    .select(root.blog().topic().parent().parent().wildcard())
     	    .select(root.photo().wildcard());
         
     	root.where(root.name().eq(name));
