@@ -9,6 +9,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.MultipleColumnPrefixFilter;
@@ -74,18 +75,18 @@ public class GraphFetchColumnFilterAssembler extends FilterListAssembler
         this.rootFilter.addFilter(keyMapFilter);
     	
     	collect();
-    	
+
     	byte[][] prefixes = new byte[this.prefixMap.size()][];
     	int i = 0;
     	for (byte[] prefix : this.prefixMap.values()) {
     		prefixes[i] = prefix; 
     		i++;
-    	}
-    	
+    	}    	
         MultipleColumnPrefixFilter multiPrefixfilter = 
         	new MultipleColumnPrefixFilter(prefixes);
         
-        this.rootFilter.addFilter(multiPrefixfilter);    	
+        this.rootFilter.addFilter(multiPrefixfilter);  
+          	
 	}
 	
 	public void clear() {

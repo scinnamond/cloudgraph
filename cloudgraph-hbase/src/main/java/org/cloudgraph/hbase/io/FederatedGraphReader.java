@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
@@ -41,8 +42,10 @@ public class FederatedGraphReader implements FederatedReader {
 	private TableReader rootReader;
 	/** maps table names to table readers */
 	private Map<String, TableReader> tableReaderMap = new HashMap<String, TableReader>();
-	/** maps qualified type names to table readers */
+	/** maps qualified graph-root type names to table readers */
 	private Map<QName, TableReader> typeTableReaderMap = new HashMap<QName, TableReader>();
+	/** maps table readers to graph-root type names */
+	private Map<TableReader, List<Type>> tableReaderTypeMap = new HashMap<TableReader, List<Type>>();
 	
 	// maps data objects to row readers
 	private Map<DataObject, RowReader> rowReaderMap = new HashMap<DataObject, RowReader>();
@@ -58,20 +61,40 @@ public class FederatedGraphReader implements FederatedReader {
 	    TableReader tableReader = new GraphTableReader(rootTable);
 	    this.tableReaderMap.put(tableReader.getTable().getName(), 
 	    	tableReader);
+	    
 		this.rootReader = tableReader;
 	    this.typeTableReaderMap.put(((PlasmaType)rootType).getQualifiedName(), 
 	    		this.rootReader);
+	    List<Type> list = new ArrayList<Type>();
+	    this.tableReaderTypeMap.put(this.rootReader, list);
+	    list.add(rootType);
 		
 		for (Type t : types) {
 		    PlasmaType type = (PlasmaType)t;
 		    TableConfig table = CloudGraphConfig.getInstance().findTable(
 				type.getQualifiedName());
-		    if (table == null || table.getName().equals(rootTable.getName()))
-		    	continue; // added above
-		    tableReader = new GraphTableReader(table);
-		    this.tableReaderMap.put(tableReader.getTable().getName(), 
-		    	tableReader);		    
+		    if (table == null)
+		    	continue; // not a graph root
+		    
+		    tableReader = this.tableReaderMap.get(table.getName());
+		    if (tableReader == null) {
+		        // create a new table reader if not added already, e.g.
+		    	// as root above or from a graph root type
+		    	// mapped to a table we have seen here
+		        tableReader = new GraphTableReader(table);
+		        this.tableReaderMap.put(tableReader.getTable().getName(), 
+		    	    tableReader);
+		    }
+		    
+		    // always map root types 
 		    this.typeTableReaderMap.put(type.getQualifiedName(), tableReader);
+		    
+		    list = this.tableReaderTypeMap.get(tableReader);
+		    if (list == null) {
+		    	list = new ArrayList<Type>();
+		    	this.tableReaderTypeMap.put(tableReader, list);
+		    }
+		    list.add(type);
 		}
 	}	
 	
@@ -87,6 +110,10 @@ public class FederatedGraphReader implements FederatedReader {
 		return this.tableReaderMap.get(tableName);
 	}
 
+	{
+		
+	}
+	
 	/**
 	 * Returns the table reader for the given 
 	 * qualified type name, or null if not exists.
@@ -179,6 +206,17 @@ public class FederatedGraphReader implements FederatedReader {
     	       + " is already associated with a row reader");
     	rowReaderMap.put(dataObject, rowReader);
     }
+    
+    /**
+     * Returns a list of types associated
+     * with the given table reader. 
+     * @param reader the table reader
+     * @return a list of types associated
+     * with the given table reader. 
+     */
+	public List<Type> getTypes(TableReader reader) {
+		return this.tableReaderTypeMap.get(reader);
+	}
     
     /**
      * Frees resources associated with this reader and any

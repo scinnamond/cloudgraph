@@ -253,7 +253,7 @@ public class GraphQuery
         	int count = 0;
             for (Result resultRow : scanner) {
             	if (log.isTraceEnabled()) {
-          	        log.trace("row: " + new String(resultRow.getRow()));              	  
+          	        log.trace(rootTableReader.getTable().getName() + ": " + new String(resultRow.getRow()));              	  
               	    for (KeyValue keyValue : resultRow.list()) {
               	    	log.trace("\tkey: " 
               	    		+ new String(keyValue.getQualifier())
@@ -395,18 +395,17 @@ public class GraphQuery
     		Timestamp snapshotDate)
     {
         HBaseGraphAssembler graphAssembler = null;
-        // FIXME: this is an invalid check - single table graph
-        // could still be federated if multiples of same root type
-        if (graphReader.getTableReaderCount() == 1) {
-        	TableReader tableReader = graphReader.getRootTableReader();        	
-        	
+    	TableReader rootTableReader = graphReader.getRootTableReader();  
+        if (graphReader.getTableReaderCount() == 1 &&
+        	graphReader.getTypes(rootTableReader).size() == 1) 
+        {
 	        if (collector.getPredicateMap().size() > 0) { 
 	        	graphAssembler = new GraphSliceAssembler(type, 
-	                collector, tableReader, snapshotDate);
+	                collector, rootTableReader, snapshotDate);
 	        }
 	        else {
 	        	graphAssembler = new GraphAssembler(type, 
-	                collector, tableReader, snapshotDate);
+	                collector, rootTableReader, snapshotDate);
 	        }
         }
         else {

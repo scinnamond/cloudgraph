@@ -99,11 +99,10 @@ public class FederatedGraphAssembler extends FederatedAssembler
 			if (keyValue == null)
 				continue;
 			
-			Edge[] edges = rowReader.getGraphState().parseEdges(prop.getType(), 
-				keyValue);
-			
 			PlasmaType childType = (PlasmaType)prop.getType();
-			
+			Edge[] edges = rowReader.getGraphState().parseEdges(childType, 
+				keyValue);
+						
 			// if target type is not bound to a specific table/root,
 			// derive a child row reader context from its level
 			TableReader externalTableReader = this.federatedReader.getTableReader(childType.getQualifiedName());

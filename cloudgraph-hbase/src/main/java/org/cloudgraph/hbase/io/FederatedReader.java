@@ -5,6 +5,7 @@ import java.util.List;
 import javax.xml.namespace.QName;
 
 import commonj.sdo.DataObject;
+import commonj.sdo.Type;
 
 
 /**
@@ -78,6 +79,14 @@ public interface FederatedReader {
      */
     public void setRootTableReader(TableReader reader);
 
+    /**
+     * Returns a list of types associated
+     * with the given table reader. 
+     * @param reader the table reader
+     * @return a list of types associated
+     * with the given table reader. 
+     */
+	public List<Type> getTypes(TableReader reader);
 
     /**
      * Returns the row reader associated with the given data object

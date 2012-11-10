@@ -61,6 +61,7 @@ public interface TableReader extends TableOperation {
 	 */
 	public List<RowReader> getAllRowReaders();
 
+	
 	/**
      * Frees resources associated with this reader and any
      * component readers. 
