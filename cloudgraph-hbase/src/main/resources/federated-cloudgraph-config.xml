@@ -30,6 +30,9 @@
                 <RowKeyField>
                     <UserDefinedField path="dateTimeField"/>
                 </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="uuid"/>
+                </RowKeyField>
             </RowKeyModel>
             
             <ColumnKeyModel>
@@ -49,6 +52,9 @@
                 </RowKeyField>
                 <RowKeyField>
                     <UserDefinedField path="dateField"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="uuid"/>
                 </RowKeyField>
             </RowKeyModel>
             
@@ -73,6 +79,9 @@
                 </RowKeyField>
                 <RowKeyField>
                     <UserDefinedField path="longField"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="uuid"/>
                 </RowKeyField>
             </RowKeyModel>
             
@@ -99,6 +108,9 @@
                 </RowKeyField>
                 <RowKeyField>    
                     <UserDefinedField path="stringField"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="uuid"/>
                 </RowKeyField>
             </RowKeyModel>
             
