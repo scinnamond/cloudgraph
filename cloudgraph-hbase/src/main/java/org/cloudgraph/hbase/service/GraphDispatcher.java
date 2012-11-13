@@ -490,18 +490,20 @@ public class GraphDispatcher
         	if (!property.getType().isDataType()) {
     			PlasmaSetting setting = (PlasmaSetting)oldValue;
     			Object oldOppositeValue = setting.getValue();
-    			if (oldOppositeValue instanceof List) {
-        			List<DataObject> oldOpposites = (List<DataObject>)oldOppositeValue;
-        		    for (DataObject oldOpposite : oldOpposites) {
-        		    	rowWriter.getGraphState().removeSequence(oldOpposite);
-        		    	rowWriter.getGraphState().removeRowKey(oldOpposite);
-        		    }
+    			if (!(oldOppositeValue instanceof NullValue)) {
+	    			if (oldOppositeValue instanceof List) {
+	        			List<DataObject> oldOpposites = (List<DataObject>)oldOppositeValue;
+	        		    for (DataObject oldOpposite : oldOpposites) {
+	        		    	rowWriter.getGraphState().removeSequence(oldOpposite);
+	        		    	rowWriter.getGraphState().removeRowKey(oldOpposite);
+	        		    }
+	    			}
+	        		else {
+	        			DataObject oldOpposite = (DataObject)oldOppositeValue;
+	    		    	rowWriter.getGraphState().removeSequence(oldOpposite);
+	    		    	rowWriter.getGraphState().removeRowKey(oldOpposite);
+	        		}
     			}
-        		else {
-        			DataObject oldOpposite = (DataObject)oldOppositeValue;
-    		    	rowWriter.getGraphState().removeSequence(oldOpposite);
-    		    	rowWriter.getGraphState().removeRowKey(oldOpposite);
-        		}
         		
         		List <PlasmaEdge> edges = dataNode.getEdges(property);
         		// modifying this object but add all edges to row graph state
