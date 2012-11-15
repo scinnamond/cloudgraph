@@ -75,7 +75,19 @@ public class TableWriterCollector implements PlasmaDataGraphVisitor {
 	public void visit(DataObject target, DataObject source,
 			String sourcePropertyName, int level) {
 		
+		// May need opposite just for sake of getting its
+		// row writer and getting the row key to link into
+		// modified graph.
+		// FIXME: how do we detect this condition? Can we create
+		// a row reader here??
+		//if (!(this.changeSummary.isCreated(target) || 
+		//	this.changeSummary.isModified(target) || 
+		//	this.changeSummary.isDeleted(target))) {
+		//	return; // no changes
+		//}
+		
 		PlasmaType type = (PlasmaType)target.getType();
+		
 		TableConfig table = CloudGraphConfig.getInstance().findTable(
 				type.getQualifiedName());
         if (table == null) {
