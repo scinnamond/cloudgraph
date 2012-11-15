@@ -36,10 +36,12 @@ public class GraphTableReader extends GraphTable
     private HTableInterface connection;   
     /** maps data object UUIDs to row readers */
     private Map<String, RowReader> rowReaderMap = new HashMap<String, RowReader>();
-
-
-	public GraphTableReader(TableConfig table) {
+    private FederatedOperation federatedOperation;
+    
+	public GraphTableReader(TableConfig table, 
+			FederatedOperation federatedOperation) {
 		super(table);
+		this.federatedOperation = federatedOperation;
 	}
 
 	@Override
@@ -125,6 +127,17 @@ public class GraphTableReader extends GraphTable
         this.addRowReader(uuid, rowReader);
 		
 		return rowReader;
+	}
+	
+	/**
+	 * Returns the federated context associated with this table
+	 * operation context. 
+	 * @return the federated context associated with this table
+	 * operation context. 
+	 */
+	@Override
+	public FederatedOperation getFederatedOperation() {
+		return this.federatedOperation;
 	}
 	
     /**

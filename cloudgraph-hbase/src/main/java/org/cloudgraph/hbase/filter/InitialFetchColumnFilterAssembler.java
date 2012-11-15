@@ -65,12 +65,8 @@ public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
         this.rootFilter.addFilter(rootUUIDFilter);
         QualifierFilter stateFilter = new QualifierFilter(
         	CompareFilter.CompareOp.EQUAL,
-        	new SubstringComparator(GraphState.UUID_MAP_COLUMN_NAME));   
+        	new SubstringComparator(GraphState.STATE_COLUMN_NAME));   
         this.rootFilter.addFilter(stateFilter);
-        QualifierFilter keyFilter = new QualifierFilter(
-            	CompareFilter.CompareOp.EQUAL,
-            	new SubstringComparator(GraphState.KEY_MAP_COLUMN_NAME));   
-            this.rootFilter.addFilter(keyFilter);
     	
     	collect();
     	

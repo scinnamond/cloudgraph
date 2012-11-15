@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cloudgraph:StateModel xmlns:cloudgraph="http://www.cloudgraph.org/state">
+<RowKeyMap>
+    <Entry>
+        <UUID>942b696b-d510-491d-9349-3eac450b7e6c</UUID>
+        <Row>286478555:GOAL:linear-algebra-20120306.epub</Row>
+    </Entry>
+</RowKeyMap>
+<SequenceMap>
+    <URI uri="http://crackoo.com/domain">
+    <Type name="Goal">
+        <Entry>
+            <UUID>942b696b-d510-491d-9349-3eac450b7e6c</UUID>
+            <ID>1</ID>
+        </Entry>    
+        <Entry>
+            <UUID>6add9cb3-7758-4df9-9dc7-0e180b4da250</UUID>
+            <ID>15</ID>
+        </Entry>    
+    </Type>
+    <Type name="StudyItem">
+        <Entry>
+            <UUID>942b696b-d510-491d-9349-ddfac450b7e6c</UUID>
+            <ID>6</ID>
+        </Entry>    
+    </Type>
+    </URI>
+    <URI uri="http://crackoo.com/content">
+    <Type name="Folder">
+        <Entry>
+            <UUID>942b696b-d510-491d-9349-3eac450b7ssd</UUID>
+            <ID>3</ID>
+        </Entry>    
+        <Entry>
+            <UUID>6add9cb3-7758-4df9-9dc7-0e180b4dahhj</UUID>
+            <ID>6</ID>
+        </Entry>    
+    </Type>
+    </URI>
+</SequenceMap>
+</cloudgraph:StateModel>

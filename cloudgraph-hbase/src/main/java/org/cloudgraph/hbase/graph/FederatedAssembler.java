@@ -28,6 +28,7 @@ import org.plasma.sdo.core.TraversalDirection;
  * row reader must be determined. 
  * 
  * @see org.cloudgraph.hbase.io.FederatedReader
+ * @see org.cloudgraph.hbase.io.TableReader
  * @see org.cloudgraph.hbase.io.RowReader
  * @author Scott Cinnamond
  * @since 0.5.1

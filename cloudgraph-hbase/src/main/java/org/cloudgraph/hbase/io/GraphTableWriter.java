@@ -31,10 +31,13 @@ public class GraphTableWriter extends GraphTable
     private HTableInterface connection;
     /** maps data object UUIDs to row writers */
     private Map<String, RowWriter> rowContextMap = new HashMap<String, RowWriter>();
+    private FederatedOperation federatedOperation;
 
 
-	public GraphTableWriter(TableConfig table) {
+	public GraphTableWriter(TableConfig table,
+			FederatedOperation federatedOperation) {
 		super(table);
+		this.federatedOperation = federatedOperation;
 	}
 
 	@Override
@@ -72,4 +75,13 @@ public class GraphTableWriter extends GraphTable
 		return result;
 	}
 
-}
+	/**
+	 * Returns the federated context associated with this table
+	 * operation context. 
+	 * @return the federated context associated with this table
+	 * operation context. 
+	 */
+	@Override
+	public FederatedOperation getFederatedOperation() {
+		return this.federatedOperation;
+	}}

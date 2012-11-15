@@ -2,9 +2,6 @@ package org.cloudgraph.config;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.Hash;
-import org.cloudgraph.config.UserDefinedField;
-import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataObject;
 import commonj.sdo.Type;

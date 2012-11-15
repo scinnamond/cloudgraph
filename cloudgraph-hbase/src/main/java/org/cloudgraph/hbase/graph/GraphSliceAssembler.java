@@ -108,7 +108,7 @@ public class GraphSliceAssembler extends DefaultAssembler
 		    			childType, rowReader);
 			}						
 			
-			Edge[] edges = this.rowReader.getGraphState().parseEdges(prop.getType(), 
+			Edge[] edges = this.rowReader.getGraphState().unmarshalEdges(prop.getType(), 
 				keyValue);
 			
 			assembleEdges(target, prop, edges, sequences, this.rowReader, level);

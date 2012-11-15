@@ -4,23 +4,23 @@
     <parent>
         <groupId>cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
     </parent>
 	<groupId>cloudgraph</groupId>
 	<artifactId>cloudgraph-rdb</artifactId>
 	<packaging>jar</packaging>
-	<version>0.5.1</version>
+	<version>0.5.2</version>
 	<name>CloudGraph Relational Database Service</name>
 	<dependencies>
 		<dependency>
 			<groupId>cloudgraph</groupId>
 			<artifactId>cloudgraph-common</artifactId>
-			<version>0.5.1</version>
+			<version>0.5.2</version>
 		</dependency>
 		<dependency>
 			<groupId>cloudgraph</groupId>
 			<artifactId>cloudgraph-config</artifactId>
-			<version>0.5.1</version>
+			<version>0.5.2</version>
 		</dependency>
 		
 		<!-- Plasma Dependencies -->

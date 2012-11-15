@@ -3,6 +3,7 @@ package org.cloudgraph.hbase.io;
 import java.util.List;
 
 import commonj.sdo.DataObject;
+import commonj.sdo.Type;
 
 
 /**
@@ -20,7 +21,7 @@ import commonj.sdo.DataObject;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public interface FederatedWriter {
+public interface FederatedWriter extends FederatedOperation {
 	
 	/**
 	 * Returns the table writer for the given 
@@ -76,4 +77,13 @@ public interface FederatedWriter {
      * is not associated with any row writer.
      */
     public RowWriter getRowWriter(DataObject dataObject);
+
+    /**
+     * Returns a list of types associated
+     * with the given table operation. 
+     * @param reader the table operation
+     * @return a list of types associated
+     * with the given table operation. 
+     */
+	public List<Type> getTypes(TableWriter operation);
 }

@@ -4,11 +4,11 @@
   <parent>
       <groupId>cloudgraph</groupId>
       <artifactId>cloudgraph</artifactId>
-      <version>0.5.1</version>
+      <version>0.5.2</version>
   </parent>
   <groupId>cloudgraph</groupId>
   <artifactId>cloudgraph-docs</artifactId>
-  <version>0.5.1</version>
+  <version>0.5.2</version>
   <packaging>jar</packaging>
 
   <name>CloudGraph Docs</name>  
@@ -58,7 +58,7 @@
                   <configuration>                                            
                     <target>                                                 
                       <property name="compile_classpath" refid="maven.compile.classpath"/>
-                      <property name="release_suffix" value="0.5"/>
+                      <property name="release_suffix" value="0.5.2"/>
                       <path id="cp">                                                                                                                                                                                                                             
                          <pathelement path="${compile_classpath}"/>                                                                                                                                                                                                  
                       </path>	                                                                                                                                                                                                                                       
@@ -66,7 +66,7 @@
 			            author="true"
 			            version="true"
 			            use="true"
-			            windowtitle="Plasma SDO ${release_suffix}"
+			            windowtitle="CloudGraph ${release_suffix}"
 			        	additionalparam="-breakiterator"
 			            doclet="ydoc.doclets.YStandard"
 			            docletpath="C:/yworks-uml-doclet-3.0_01-jdk1.5/lib/ydoc.jar;C:/yworks-uml-doclet-3.0_01-jdk1.5/resources">
@@ -101,7 +101,7 @@
 			            </doclet>
 			
 			            <doctitle><![CDATA[<h1>CloudGraph ${release_suffix}</h1>]]></doctitle>
-			            <bottom><![CDATA[<i>CloudGraph&#8482; is a trademark of TerraMeta Software, Inc. Copyright &#169; 2011 - All Rights Reserved.</i>]]></bottom>
+			            <bottom><![CDATA[<i>CloudGraph&#8482; is a trademark of TerraMeta Software, Inc. Copyright &#169; 2012 - All Rights Reserved.</i>]]></bottom>
 			            <tag name="todo" scope="all" description="To do:"/>
 			            <group title="CloudGraph Packages" packages="org.plasma.*"/>
 			            <classpath refid="cp"/>

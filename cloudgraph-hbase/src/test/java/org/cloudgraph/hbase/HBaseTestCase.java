@@ -14,6 +14,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.CommonTest;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.common.test.PlasmaTest;
 import org.plasma.query.Query;
@@ -31,7 +32,7 @@ import commonj.sdo.helper.XMLDocument;
  * @author Scott Cinnamond
  * @since 0.5
  */
-public abstract class HBaseTestCase extends PlasmaTest {
+public abstract class HBaseTestCase extends CommonTest {
     private static Log log = LogFactory.getLog(HBaseTestCase.class);
     protected SDODataAccessClient service;
     protected String classesDir = System.getProperty("classes.dir");

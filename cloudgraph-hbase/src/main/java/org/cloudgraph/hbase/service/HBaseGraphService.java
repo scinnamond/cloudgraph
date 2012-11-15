@@ -9,6 +9,9 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.state.StateMarshallingContext;
+import org.cloudgraph.state.model.StateModelDataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.From;
@@ -50,8 +53,18 @@ import commonj.sdo.Type;
 public class HBaseGraphService implements PlasmaDataAccessService {
     
     private static Log log = LogFactory.getLog(HBaseGraphService.class);
-
+    private ServiceContext context;
+    
     public HBaseGraphService() {
+    	try {
+			StateMarshallingContext marshallingContext = new StateMarshallingContext(
+					new StateModelDataBinding());
+	    	this.context = new ServiceContext(marshallingContext);
+		} catch (JAXBException e) {
+			throw new GraphServiceException(e);
+		} catch (SAXException e) {
+			throw new GraphServiceException(e);
+		}    	
     }
  
     public void initialize() {}
@@ -64,7 +77,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        GraphQuery dispatcher = new GraphQuery();
+        GraphQuery dispatcher = new GraphQuery(this.context);
         return dispatcher.count(query);
     }
     
@@ -84,7 +97,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        GraphQuery dispatcher = new GraphQuery();
+        GraphQuery dispatcher = new GraphQuery(this.context);
         Timestamp snapshotDate = new Timestamp((new Date()).getTime());
         return dispatcher.find(query, snapshotDate);
     }
@@ -96,7 +109,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        GraphQuery dispatcher = new GraphQuery();
+        GraphQuery dispatcher = new GraphQuery(this.context);
         DataGraph[] results = dispatcher.find(query, -1, new Timestamp((new Date()).getTime()));
         return results;
     }
@@ -104,7 +117,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
     public List<DataGraph[]> find(Query[] queries) {
         if (queries == null)
             throw new IllegalArgumentException("expected non-null 'queries' argument");
-        GraphQuery dispatcher = new GraphQuery();
+        GraphQuery dispatcher = new GraphQuery(this.context);
         List<DataGraph[]> list = new ArrayList<DataGraph[]>();
         Timestamp snapshotDate = new Timestamp((new Date()).getTime());
         for (int i = 0; i < queries.length; i++)
@@ -127,7 +140,8 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         if (username.trim().length() == 0)
             throw new IllegalArgumentException("unexpected zero length 'username' argument");
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
-        DataGraphDispatcher dispatcher = new GraphDispatcher(snapshotMap, 
+        DataGraphDispatcher dispatcher = new GraphDispatcher(this.context,
+        		snapshotMap, 
                 username);
         try {
             dispatcher.commit(dataGraph);
@@ -165,7 +179,8 @@ public class HBaseGraphService implements PlasmaDataAccessService {
             for (int i = 0; i < dataGraphs.length; i++) { 
                 if (log.isDebugEnabled())
                     log.debug("commiting: " + dataGraphs[i].getChangeSummary().toString());
-                DataGraphDispatcher dispatcher = new GraphDispatcher(snapshotMap,
+                DataGraphDispatcher dispatcher = new GraphDispatcher(this.context,
+                		snapshotMap,
                         username);
                 try {
                     dispatcher.commit(dataGraphs[i]);        

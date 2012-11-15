@@ -81,13 +81,16 @@ public class GraphDispatcher
     private static List<Row> EMPTY_ROW_LIST = new ArrayList<Row>();
     private SnapshotMap snapshotMap;
     private String username;
+    private ServiceContext context;
     private FederatedWriter graphWriter;
     
     @SuppressWarnings("unused")
     private GraphDispatcher() {}
     
-    public GraphDispatcher(SnapshotMap snapshotMap, 
+    public GraphDispatcher(ServiceContext context, 
+    		SnapshotMap snapshotMap, 
             String username) {
+    	this.context = context;
         this.snapshotMap = snapshotMap;
         this.username = username;
     }
@@ -122,7 +125,8 @@ public class GraphDispatcher
 	        for (DataObject changed : changeSummary.getChangedDataObjects()) 
 	        	this.checkConcurrency(dataGraph, (PlasmaDataObject)changed);           
             	        
-	        this.graphWriter = new FederatedGraphWriter(dataGraph);
+	        this.graphWriter = new FederatedGraphWriter(dataGraph, 
+	        		this.context.getMarshallingContext());
 	        
     		this.create(dataGraph, this.graphWriter);    		    		
     		this.modify(dataGraph, this.graphWriter);
@@ -205,12 +209,8 @@ public class GraphDispatcher
         		if (rowWriter.isRootDeleted())
         			continue;
         		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
-                        Bytes.toBytes(GraphState.UUID_MAP_COLUMN_NAME),
-                        Bytes.toBytes(rowWriter.getGraphState().formatUUIDMap()));    		        		
-
-        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
-                            Bytes.toBytes(GraphState.KEY_MAP_COLUMN_NAME),
-                            Bytes.toBytes(rowWriter.getGraphState().formatKeyMap()));    		        		
+                        Bytes.toBytes(GraphState.STATE_COLUMN_NAME),
+                        Bytes.toBytes(rowWriter.getGraphState().marshal()));    		        		
         	}
         }
     }
@@ -240,12 +240,8 @@ public class GraphDispatcher
         for (TableWriter tableWriter : graphWriter.getTableWriters()) {
         	for (RowWriter rowWriter : tableWriter.getAllRowWriters()) {
         		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
-                        Bytes.toBytes(GraphState.UUID_MAP_COLUMN_NAME),
-                        Bytes.toBytes(rowWriter.getGraphState().formatUUIDMap()));    		        		
-
-        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
-                            Bytes.toBytes(GraphState.KEY_MAP_COLUMN_NAME),
-                            Bytes.toBytes(rowWriter.getGraphState().formatKeyMap()));    		        		
+                        Bytes.toBytes(GraphState.STATE_COLUMN_NAME),
+                        Bytes.toBytes(rowWriter.getGraphState().marshal()));    		        		
         	}
         }
     }
@@ -285,14 +281,9 @@ public class GraphDispatcher
                         Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME),
                         Bytes.toBytes(rootUUID)); 
         		}
-            
         		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
-                        Bytes.toBytes(GraphState.UUID_MAP_COLUMN_NAME),
-                        Bytes.toBytes(rowWriter.getGraphState().formatUUIDMap()));    		        		
-
-        		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
-                            Bytes.toBytes(GraphState.KEY_MAP_COLUMN_NAME),
-                            Bytes.toBytes(rowWriter.getGraphState().formatKeyMap()));    		        		
+                        Bytes.toBytes(GraphState.STATE_COLUMN_NAME),
+                        Bytes.toBytes(rowWriter.getGraphState().marshal()));    		        		
         	}
         }
     }    
@@ -342,7 +333,8 @@ public class GraphDispatcher
         		// for this edge collection
         		valueBytes = this.createEdgeValueBytes(
         			dataObject, dataNode,
-        			property, edges,  
+        			property, edges, 
+        			graphWriter,
         			tableWriter, rowWriter);
         	}
         	else {
@@ -363,17 +355,26 @@ public class GraphDispatcher
         PlasmaDataObject dataObject,	
     	PlasmaNode dataNode,
     	Property property, 
-    	List <PlasmaEdge> edges, 
-        TableWriter tableWriter, RowWriter rowWriter) throws IOException
+    	List <PlasmaEdge> edges,
+    	FederatedWriter federatedWriter,
+        TableWriter tableWriter, 
+        RowWriter rowWriter) throws IOException
     {
     	byte[] valueBytes;
 		PlasmaType targetType = (PlasmaType)property.getType();
-		TableConfig targetTable = CloudGraphConfig.getInstance().findTable(
+		
+		if ("Topic".equals(targetType.getName())) {
+			if ("parent".equals(property.getName())) {
+				int foo = 0;
+				foo++;
+			}
+		}
+		
+		
+	    TableConfig targetTable = CloudGraphConfig.getInstance().findTable(
     			targetType.getQualifiedName());
-		        		
-		// If the target type is defined as a root in any table
-		// create external row keys
-		if (targetTable != null) {
+		// if this edge target is a root in ANY table
+	    if (targetTable != null) {		        		
 			Property oppositeProperty = property.getOpposite();
 			
 		    // find a new table writer and row writer
@@ -384,7 +385,8 @@ public class GraphDispatcher
 	    		PlasmaDataObject opposite = edge.getOpposite(dataNode).getDataObject();
 		        String oppositeUUID = opposite.getUUIDAsString();
 		        RowWriter oppositeRowWriter = oppositeTableWriter.getRowWriter(oppositeUUID);	
-			    // maps opposite UUID to its row key
+			    
+		        // maps opposite UUID to its row key
 		        rowWriter.getGraphState().addRowKey(opposite,
 			        oppositeRowWriter.getRowKey());
 		        
@@ -394,7 +396,7 @@ public class GraphDispatcher
 		        		rowWriter.getRowKey());
 			}
 		}
-		String valueStr = rowWriter.getGraphState().formatEdges(dataNode, edges);
+		String valueStr = rowWriter.getGraphState().marshalEdges(dataNode, edges);
 		valueBytes = Bytes.toBytes(valueStr);
     	return valueBytes;
     }
@@ -437,7 +439,7 @@ public class GraphDispatcher
      
     private void update(DataGraph dataGraph, PlasmaDataObject dataObject, 
     		FederatedWriter graphWriter,
-    		TableWriter context,
+    		TableWriter tableWriter,
         	RowWriter rowWriter) 
         throws IllegalAccessException, IOException
     {   
@@ -511,7 +513,8 @@ public class GraphDispatcher
         		valueBytes = this.createEdgeValueBytes(
         			dataObject, dataNode,
         			property, edges, 
-        			context, rowWriter);
+        			graphWriter,
+        			tableWriter, rowWriter);
         	}
         	else {
                 valueBytes = HBaseDataConverter.INSTANCE.toBytes(

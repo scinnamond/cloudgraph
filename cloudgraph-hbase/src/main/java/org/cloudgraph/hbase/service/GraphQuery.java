@@ -25,8 +25,6 @@ import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
 import org.cloudgraph.hbase.graph.FederatedGraphAssembler;
 import org.cloudgraph.hbase.graph.FederatedGraphSliceAssembler;
 import org.cloudgraph.hbase.graph.GraphAssembler;
-import org.cloudgraph.hbase.graph.GraphAssembler;
-import org.cloudgraph.hbase.graph.GraphSliceAssembler;
 import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
 import org.cloudgraph.hbase.io.FederatedGraphReader;
 import org.cloudgraph.hbase.io.FederatedReader;
@@ -92,9 +90,11 @@ public class GraphQuery
     implements QueryDispatcher
 {
     private static Log log = LogFactory.getLog(GraphQuery.class);
+    private ServiceContext context;
 
-    public GraphQuery()
+    public GraphQuery(ServiceContext context)
     {
+    	this.context = context;
     }
 
     public void close()
@@ -161,7 +161,8 @@ public class GraphQuery
         
         TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(
         		type.getQualifiedName());
-        TableReader tableReader = new GraphTableReader(tableConfig);
+        TableReader tableReader = new GraphTableReader(tableConfig,
+        		null); // FIXME: 
         
         Scan scan = new Scan();
         
@@ -216,7 +217,8 @@ public class GraphQuery
         if (log.isDebugEnabled())
         	log.debug(collector.dumpProperties());
         FederatedGraphReader graphReader = new FederatedGraphReader(
-        		type, collector.getTypes());
+        		type, collector.getTypes(),
+        		this.context.getMarshallingContext());
         TableReader rootTableReader = graphReader.getRootTableReader();
 
         Scan scan = new Scan();
@@ -376,11 +378,13 @@ public class GraphQuery
        
     /**
      * Create a specific graph assembler based on the existence
-     * of selection path predicates found in the given collector. If
-     * more than one table reader is found in the given {@link FederatedReader}
-     * then a federated graph assembler is created. In both cases
-     * if path predicates are found in the given collector, 
-     * a graph slice assembler is created, either federated or not. 
+     * of selection path predicates found in the given collector. 
+     * Since the reader hierarchy is initialized based entirely on metadata
+     * found in the selection graph, whether federation exists across the
+     * persisted graph cannot be determined up front. Federation must be
+     * discovered dynamically during assembly. Therefore on all cases
+     * graph assemblers capable of handling a federated graph are used
+     * on all cases.   
      * 
      * @param type the root type
      * @param graphReader the graph reader
@@ -395,29 +399,16 @@ public class GraphQuery
     		Timestamp snapshotDate)
     {
         HBaseGraphAssembler graphAssembler = null;
-    	TableReader rootTableReader = graphReader.getRootTableReader();  
-        if (graphReader.getTableReaderCount() == 1 &&
-        	graphReader.getTypes(rootTableReader).size() == 1) 
-        {
-	        if (collector.getPredicateMap().size() > 0) { 
-	        	graphAssembler = new GraphSliceAssembler(type, 
-	                collector, rootTableReader, snapshotDate);
-	        }
-	        else {
-	        	graphAssembler = new GraphAssembler(type, 
-	                collector, rootTableReader, snapshotDate);
-	        }
+        
+        if (collector.getPredicateMap().size() > 0) { 
+        	graphAssembler = new FederatedGraphSliceAssembler(type,
+            		collector, graphReader, snapshotDate);
         }
         else {
-	        if (collector.getPredicateMap().size() > 0) { 
-	        	graphAssembler = new FederatedGraphSliceAssembler(type,
-	            		collector, graphReader, snapshotDate);
-	        }
-	        else {
-	        	graphAssembler = new FederatedGraphAssembler(type,
-	            		collector, graphReader, snapshotDate);
-	        }
+        	graphAssembler = new FederatedGraphAssembler(type,
+            		collector, graphReader, snapshotDate);
         }
+	        
     	return graphAssembler;
     }
     

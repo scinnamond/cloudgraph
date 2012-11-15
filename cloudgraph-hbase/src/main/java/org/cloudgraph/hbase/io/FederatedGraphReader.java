@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
+import org.cloudgraph.state.StateMarshallingContext;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataObject;
@@ -44,21 +44,27 @@ public class FederatedGraphReader implements FederatedReader {
 	private Map<String, TableReader> tableReaderMap = new HashMap<String, TableReader>();
 	/** maps qualified graph-root type names to table readers */
 	private Map<QName, TableReader> typeTableReaderMap = new HashMap<QName, TableReader>();
-	/** maps table readers to graph-root type names */
+	/** maps table readers to graph-root types */
 	private Map<TableReader, List<Type>> tableReaderTypeMap = new HashMap<TableReader, List<Type>>();
 	
 	// maps data objects to row readers
 	private Map<DataObject, RowReader> rowReaderMap = new HashMap<DataObject, RowReader>();
 	
+	private StateMarshallingContext marshallingContext;
+	
 	@SuppressWarnings("unused")
 	private FederatedGraphReader() {}
 	
-	public FederatedGraphReader(Type rootType, List<Type> types) {
-	    PlasmaType root = (PlasmaType)rootType;
+	public FederatedGraphReader(Type rootType, List<Type> types,
+			StateMarshallingContext marshallingContext) {
+	    this.marshallingContext = marshallingContext;
+		PlasmaType root = (PlasmaType)rootType;
+	    
 	    TableConfig rootTable = CloudGraphConfig.getInstance().getTable(
 	    		root.getQualifiedName());
 	    
-	    TableReader tableReader = new GraphTableReader(rootTable);
+	    TableReader tableReader = new GraphTableReader(rootTable,
+	    		this);
 	    this.tableReaderMap.put(tableReader.getTable().getName(), 
 	    	tableReader);
 	    
@@ -81,7 +87,7 @@ public class FederatedGraphReader implements FederatedReader {
 		        // create a new table reader if not added already, e.g.
 		    	// as root above or from a graph root type
 		    	// mapped to a table we have seen here
-		        tableReader = new GraphTableReader(table);
+		        tableReader = new GraphTableReader(table, this);
 		        this.tableReaderMap.put(tableReader.getTable().getName(), 
 		    	    tableReader);
 		    }
@@ -89,12 +95,13 @@ public class FederatedGraphReader implements FederatedReader {
 		    // always map root types 
 		    this.typeTableReaderMap.put(type.getQualifiedName(), tableReader);
 		    
-		    list = this.tableReaderTypeMap.get(tableReader);
+		    list = this.tableReaderTypeMap.get((TableOperation)tableReader);
 		    if (list == null) {
 		    	list = new ArrayList<Type>();
 		    	this.tableReaderTypeMap.put(tableReader, list);
 		    }
-		    list.add(type);
+		    if (!list.contains(type))
+		        list.add(type);
 		}
 	}	
 	
@@ -214,9 +221,27 @@ public class FederatedGraphReader implements FederatedReader {
      * @return a list of types associated
      * with the given table reader. 
      */
-	public List<Type> getTypes(TableReader reader) {
-		return this.tableReaderTypeMap.get(reader);
+    @Override
+	public List<Type> getTypes(TableReader operation) {
+		return this.tableReaderTypeMap.get(operation);
 	}
+	
+	/**
+	 * Returns true if only one table operation exists
+	 * with only one associated (root) type for this
+	 * operation. 
+	 * @return true if only one table operation exists
+	 * with only one associated (root) type for this
+	 * operation. 
+	 */
+    public boolean hasSingleRootType() {
+        if (this.getTableReaderCount() == 1 &&
+        	this.getTypes(this.rootReader).size() == 1) {
+        	return true;
+        }
+        else
+        	return false;
+    }
     
     /**
      * Frees resources associated with this reader and any
@@ -229,4 +254,9 @@ public class FederatedGraphReader implements FederatedReader {
     	for (TableReader tableReader : tableReaderMap.values())
     		tableReader.clear();    	
     }
+
+	@Override
+	public StateMarshallingContext getMarshallingContext() {
+		return this.marshallingContext;
+	}
 }

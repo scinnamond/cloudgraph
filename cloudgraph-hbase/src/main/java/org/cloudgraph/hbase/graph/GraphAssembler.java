@@ -103,7 +103,7 @@ public class GraphAssembler extends DefaultAssembler
 			if (keyValue == null)
 				continue;
 			
-			Edge[] edges = this.rowReader.getGraphState().parseEdges(prop.getType(), 
+			Edge[] edges = this.rowReader.getGraphState().unmarshalEdges(prop.getType(), 
 				keyValue);
 			
 			assembleEdges(target, prop, edges, this.rowReader, level);

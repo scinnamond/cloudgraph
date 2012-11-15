@@ -82,8 +82,7 @@ public class FederatedGraphAssembler extends FederatedAssembler
 		if (log.isDebugEnabled())
 			log.debug(target.getType().getName() + " names: " + names.toString());
 		
-		assembleData(target, names, rowReader);
-		
+		assembleData(target, names, rowReader);		
 		
 		TableReader tableReader = rowReader.getTableReader();
 		TableConfig tableConfig = tableReader.getTable();
@@ -100,7 +99,7 @@ public class FederatedGraphAssembler extends FederatedAssembler
 				continue;
 			
 			PlasmaType childType = (PlasmaType)prop.getType();
-			Edge[] edges = rowReader.getGraphState().parseEdges(childType, 
+			Edge[] edges = rowReader.getGraphState().unmarshalEdges(childType, 
 				keyValue);
 						
 			// if target type is not bound to a specific table/root,
@@ -131,14 +130,18 @@ public class FederatedGraphAssembler extends FederatedAssembler
 		int level) throws IOException 
 	{
 		for (Edge edge : edges) {	
-			RowReader existingChildRowReader = childTableReader.getRowReader(edge.getUuid());
-        	if (existingChildRowReader != null)
+        	if (childRowReader.contains(edge.getUuid()))
         	{            		
         		// we've seen this child before so his data is complete, just link 
-        		PlasmaDataObject existingChild = (PlasmaDataObject)existingChildRowReader.getDataObject(edge.getUuid());
+        		PlasmaDataObject existingChild = (PlasmaDataObject)childRowReader.getDataObject(edge.getUuid());
         		link(existingChild, target, prop);
         		continue; 
         	}
+        	
+			if (log.isDebugEnabled())
+				log.debug("local edge: " 
+			        + target.getType().getURI() + "#" +target.getType().getName()
+			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
 			
         	// create a child object
 			PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop);
@@ -172,11 +175,16 @@ public class FederatedGraphAssembler extends FederatedAssembler
         		link(existingChild, target, prop);
         		continue; 
         	}
-			
+			if (log.isDebugEnabled())
+				log.debug("external edge: " 
+			        + target.getType().getURI() + "#" +target.getType().getName()
+			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
+        	
 			PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop);
 			CoreNode childDataNode = (CoreNode)child;
 			childDataNode.setValue(CoreConstants.PROPERTY_NAME_UUID, 
 				UUID.fromString(edge.getUuid()));
+			
 			
 			// create a row reader for every external edge
 			byte[] childRowKey = rowReader.getGraphState().getRowKey(child);

@@ -93,7 +93,7 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 			if (keyValue == null)
 				continue;
 			
-			Edge[] edges = rowReader.getGraphState().parseEdges(prop.getType(), 
+			Edge[] edges = rowReader.getGraphState().unmarshalEdges(prop.getType(), 
 				keyValue);
 			
 			PlasmaType childType = (PlasmaType)prop.getType();
@@ -148,11 +148,10 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 			int level) throws IOException 
 	{
 		for (Edge edge : edges) {	
-			RowReader existingChildRowReader = childTableReader.getRowReader(edge.getUuid());
-        	if (existingChildRowReader != null)
+        	if (childRowReader.contains(edge.getUuid()))
         	{            		
         		// we've seen this child before so his data is complete, just link 
-        		PlasmaDataObject existingChild = (PlasmaDataObject)existingChildRowReader.getDataObject(edge.getUuid());
+        		PlasmaDataObject existingChild = (PlasmaDataObject)childRowReader.getDataObject(edge.getUuid());
         		link(existingChild, target, prop);
         		continue; 
         	}

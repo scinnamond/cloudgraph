@@ -2,7 +2,6 @@ package org.cloudgraph.config;
 
 import java.nio.charset.Charset;
 
-import org.cloudgraph.config.Table;
 import org.plasma.sdo.core.CoreConstants;
 
 /**

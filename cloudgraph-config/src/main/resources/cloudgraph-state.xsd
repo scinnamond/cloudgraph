@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema targetNamespace="http://www.cloudgraph.org/state"
+    xmlns:cloudgraph="http://www.cloudgraph.org/state"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:jxb="http://java.sun.com/xml/ns/jaxb" jxb:version="2.0">
+ 
+    <xsd:complexType name="StateModel">
+        <xsd:annotation>
+            <xsd:documentation>
+            <![CDATA[
+Top level state container.
+@author Scott Cinnamond
+@since 0.5.2]]>
+            </xsd:documentation>
+            <!-- Note: adding jaxb/javadoc annotation here causes parse error where root element 'not expected'-->
+        </xsd:annotation>
+
+        <xsd:sequence>
+            <xsd:element name="RowKeyMap" type="cloudgraph:RowKeyMap" minOccurs="0" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="SequenceMap" type="cloudgraph:SequenceMap" minOccurs="1" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+         
+    </xsd:complexType>
+
+    <xsd:element name="StateModel" type="cloudgraph:StateModel">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+    
+    <xsd:complexType name="RowKeyMap">
+        <xsd:annotation>
+            <xsd:appinfo>
+              <jxb:class>
+                <jxb:javadoc><![CDATA[
+A key/value map structure containing UUIDs mapped to 
+composite row-keys.
+@see URIMap
+@author Scott Cinnamond
+@since 0.5.2
+                ]]></jxb:javadoc>
+              </jxb:class>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="Entry" type="cloudgraph:RowKeyMapEntry" minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation>The map entries for this map.</xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+
+    </xsd:complexType>
+
+    <xsd:complexType name="SequenceMap">
+        <xsd:annotation>
+            <xsd:appinfo>
+              <jxb:class>
+                <jxb:javadoc><![CDATA[
+A multi-level key/value map structure containing URI structures mapped
+to UUIDs, mapped to integral 
+sequence numbers, <b>unique</b> within a type, <b>unique</b> within a row.
+@author Scott Cinnamond
+@since 0.5.2
+                ]]></jxb:javadoc>
+              </jxb:class>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="URI" type="cloudgraph:URIMap" minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+
+    </xsd:complexType>
+        
+    <xsd:complexType name="URIMap">
+        <xsd:annotation>
+            <xsd:appinfo>
+              <jxb:class>
+                <jxb:javadoc><![CDATA[
+A key/value map structure containing UUIDs, mapped to integral 
+sequence numbers, <b>unique</b> within a type, <b>unique</b> within a row.
+@author Scott Cinnamond
+@since 0.5.2
+                ]]></jxb:javadoc>
+              </jxb:class>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="Type" type="cloudgraph:TypeMap" minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>
+                <xsd:appinfo><jxb:property><jxb:javadoc>
+<![CDATA[The collection of type maps within a URI map.]]>
+                </jxb:javadoc></jxb:property></xsd:appinfo>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="uri" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The string of characters used to identify a name or a resource.</xsd:documentation>       
+                <xsd:appinfo><jxb:property><jxb:javadoc>
+<![CDATA[The string of characters used to identify a name or a resource.]]>
+                </jxb:javadoc></jxb:property></xsd:appinfo>
+            </xsd:annotation>                                 
+        </xsd:attribute>                 
+    </xsd:complexType>    
+
+    <xsd:element name="URIMap" type="cloudgraph:URIMap">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="TypeMap">
+        <xsd:annotation>
+            <xsd:appinfo>
+              <jxb:class>
+                <jxb:javadoc><![CDATA[
+A key/value map structure containing UUIDs, mapped to integral 
+sequence numbers, <b>unique</b> within a type, <b>unique</b> within a row.
+@author Scott Cinnamond
+@since 0.5.2
+                ]]></jxb:javadoc>
+              </jxb:class>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="Entry" type="cloudgraph:TypeMapEntry" minOccurs="1" maxOccurs="unbounded">
+                <xsd:annotation>
+                    <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+        <xsd:attribute name="name" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The name of the SDO type which, along with the URI, uniquely identifies a type.</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>                 
+    </xsd:complexType>
+
+    <xsd:element name="TypeMap" type="cloudgraph:TypeMap">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="RowKeyMapEntry">
+        <xsd:annotation>
+            <xsd:appinfo>
+              <jxb:class>
+                <jxb:javadoc><![CDATA[
+A member or entry in a row key map containing a uuid/row-key, key/value pair.
+@author Scott Cinnamond
+@since 0.5.2
+                ]]></jxb:javadoc>
+              </jxb:class>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="UUID" type="xsd:string" minOccurs="1" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="Row" type="xsd:string" minOccurs="1" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="RowKeyMapEntry" type="cloudgraph:RowKeyMapEntry">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="TypeMapEntry">
+        <xsd:annotation>
+            <xsd:appinfo>
+              <jxb:class>
+                <jxb:javadoc><![CDATA[
+A member or entry in a type map containing a uuid/sequence id number, key/value pair.
+@author Scott Cinnamond
+@since 0.5.2
+                ]]></jxb:javadoc>
+              </jxb:class>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:sequence>
+            <xsd:element name="UUID" type="xsd:string" minOccurs="1" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+            <xsd:element name="ID" type="xsd:int" minOccurs="1" maxOccurs="1">
+                <xsd:annotation>
+                    <xsd:documentation></xsd:documentation>
+                </xsd:annotation>
+            </xsd:element>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:element name="TypeMapEntry" type="cloudgraph:TypeMapEntry">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+<!--  
+    <xsd:complexType name="MapKey">
+        <xsd:annotation>
+            <xsd:appinfo>
+              <jxb:class>
+                <jxb:javadoc><![CDATA[
+A string key within a map entry.
+@author Scott Cinnamond
+@since 0.5.2
+                ]]></jxb:javadoc>
+              </jxb:class>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+            </xsd:extension>    
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:element name="MapKey" type="cloudgraph:MapKey">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+
+    <xsd:complexType name="MapValue">
+        <xsd:annotation>
+            <xsd:appinfo>
+              <jxb:class>
+                <jxb:javadoc><![CDATA[
+A string value within a map entry.
+@author Scott Cinnamond
+@since 0.5.2
+                ]]></jxb:javadoc>
+              </jxb:class>
+            </xsd:appinfo>
+        </xsd:annotation>
+        <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+            </xsd:extension>    
+        </xsd:simpleContent>
+    </xsd:complexType>
+
+    <xsd:element name="MapValue" type="cloudgraph:MapValue">
+        <xsd:annotation>
+            <xsd:documentation></xsd:documentation>
+        </xsd:annotation>
+    </xsd:element>
+-->    
+
+</xsd:schema>

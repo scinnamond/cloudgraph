@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudgraph.state.StateMarshallingContext;
+
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
+import commonj.sdo.Type;
 
 
 /**
@@ -35,17 +38,28 @@ public class FederatedGraphWriter implements FederatedWriter {
 	private TableWriter rootWriter;
 	private Map<String, TableWriter> tableWriterMap = new HashMap<String, TableWriter>();
 	private Map<DataObject, RowWriter> rowWriterMap;
+	/** maps table writers to graph-root types */
+	private Map<TableWriter, List<Type>> tableWriterTypeMap = new HashMap<TableWriter, List<Type>>();
+	private StateMarshallingContext marshallingContext;
 	
 	@SuppressWarnings("unused")
 	private FederatedGraphWriter() {}
 	
-	public FederatedGraphWriter(DataGraph dataGraph) {
+	public FederatedGraphWriter(DataGraph dataGraph,
+			StateMarshallingContext marshallingContext) {
+		this.marshallingContext = marshallingContext;
 		TableWriterCollector collector = 
-			new TableWriterCollector(dataGraph);
+			new TableWriterCollector(dataGraph, this);
 		this.rootWriter = collector.getRootTableWriter();
-		for (TableOperation oper : collector.getTableWriters()) {
-			tableWriterMap.put(oper.getTable().getName(), 
-					(TableWriter)oper);
+		for (TableWriter tableWriter : collector.getTableWriters()) {
+			tableWriterMap.put(tableWriter.getTable().getName(), 
+					tableWriter);
+			List<Type> list = new ArrayList<Type>();
+			for (RowWriter rowWriter : tableWriter.getAllRowWriters()) {
+				if (!list.contains(rowWriter.getRootType()))
+					list.add(rowWriter.getRootType());
+			}
+			tableWriterTypeMap.put(tableWriter, list);
 		}
 		this.rowWriterMap = collector.getRowWriterMap();
 	}	
@@ -133,4 +147,37 @@ public class FederatedGraphWriter implements FederatedWriter {
     	return result;
     }
 
+	/**
+	 * Returns true if only one table operation exists
+	 * with only one associated (root) type for this
+	 * operation. 
+	 * @return true if only one table operation exists
+	 * with only one associated (root) type for this
+	 * operation. 
+	 */
+    public boolean hasSingleRootType() {
+        if (this.getTableWriterCount() == 1 &&
+        	this.getTypes(this.rootWriter).size() == 1) {
+        	return true;
+        }
+        else
+        	return false;
+    }
+
+    /**
+     * Returns a list of types associated
+     * with the given table operation. 
+     * @param reader the table operation
+     * @return a list of types associated
+     * with the given table operation. 
+     */
+	@Override
+	public List<Type> getTypes(TableWriter operation) {
+		return this.tableWriterTypeMap.get(operation);
+	}
+
+	@Override
+	public StateMarshallingContext getMarshallingContext() {
+		return this.marshallingContext;
+	}
 }

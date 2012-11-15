@@ -40,7 +40,7 @@ public class SocialGraphFederationTest extends HBaseTestCase {
     public void setUp() throws Exception {
         super.setUp();
     } 
-    
+     
     public void testFederatedInsert() throws IOException       
     {
     	String name = USERNAME_BASE 
@@ -97,14 +97,17 @@ public class SocialGraphFederationTest extends HBaseTestCase {
     	photo2.setDescription("another photo of hurricane Sandy");
     	photo2.setContent(photo.getDescription().getBytes());
     	
+    	log.info("inserting initial graph");
     	this.service.commit(actor.getDataGraph(), 
     			"test1");
     	
     	
+    	log.info("fetching initial graph");
     	Actor fetchedActor = fetchGraph(
     		createGraphQuery(name));    	
     	String xml = this.serializeGraph(fetchedActor.getDataGraph());
     	log.info(xml);
+
     	
     	assertTrue(fetchedActor.getFollowerCount() == 1);
     	Actor fetchedFollower = fetchedActor.getFollower(0);
@@ -119,6 +122,7 @@ public class SocialGraphFederationTest extends HBaseTestCase {
     	assertTrue(fetchedTopic.getName() != null);
     	assertTrue(fetchedTopic.getName().equals(politics.getName()));
     	
+    	log.info("fetching follower slice");
     	Actor fetchedFollowerRoot = fetchGraph(
     		createFollowingGraphQuery(followerName));    	
         xml = this.serializeGraph(fetchedFollowerRoot.getDataGraph());
@@ -129,6 +133,7 @@ public class SocialGraphFederationTest extends HBaseTestCase {
         assertTrue(fetchedFollowing.getName() != null);
         assertTrue(fetchedFollowing.getName().equals(name));
         
+    	log.info("fetching blog slice");
     	Actor fetchedActorSliceRoot = fetchGraph(
     			createBlogPredicateQuery(actor.getName(), 
     				electionBlog.getName()));    	
@@ -138,6 +143,7 @@ public class SocialGraphFederationTest extends HBaseTestCase {
     	fetchedBlog = (Blog)fetchedActorSliceRoot.get("blog[@name='"+electionBlog.getName()+"']");
     	assertTrue(fetchedBlog != null);
                 
+    	log.info("fetching photo slice");
     	fetchedActorSliceRoot = fetchGraph(
     			createPhotoPredicateQuery(actor.getName(), 
     				photo2.getName()));    	
@@ -146,7 +152,9 @@ public class SocialGraphFederationTest extends HBaseTestCase {
     	assertTrue(fetchedActorSliceRoot.getPhotoCount() == 1);
     	Photo fetchedPhoto = (Photo)fetchedActorSliceRoot.get("photo[@name='"+photo2.getName()+"']");
     	assertTrue(fetchedPhoto != null);
+ 
     }  
+ 
     
     public void testTopicInsertAndLink() throws IOException       
     {

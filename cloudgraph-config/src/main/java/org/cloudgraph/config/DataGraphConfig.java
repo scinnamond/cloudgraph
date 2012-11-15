@@ -2,18 +2,12 @@ package org.cloudgraph.config;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
-
-import org.cloudgraph.config.ColumnKeyField;
-import org.cloudgraph.config.DataGraph;
-import org.cloudgraph.config.PreDefinedFieldName;
-import org.cloudgraph.config.UserDefinedField;
 
 import commonj.sdo.Type;
 

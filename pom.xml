@@ -4,7 +4,7 @@
 	<groupId>cloudgraph</groupId>
 	<artifactId>cloudgraph</artifactId>
 	<packaging>pom</packaging>
-	<version>0.5.1</version>
+	<version>0.5.2</version>
 	<name>CloudGraph</name>
     <modules>
         <module>cloudgraph-common</module>

@@ -65,14 +65,10 @@ public class GraphFetchColumnFilterAssembler extends FilterListAssembler
         	CompareFilter.CompareOp.EQUAL,
         	new SubstringComparator(GraphState.ROOT_UUID_COLUMN_NAME));   
         this.rootFilter.addFilter(rootUUIDFilter);
-        QualifierFilter uuidMapFilter = new QualifierFilter(
+        QualifierFilter stateFilter = new QualifierFilter(
         	CompareFilter.CompareOp.EQUAL,
-        	new SubstringComparator(GraphState.UUID_MAP_COLUMN_NAME));   
-        this.rootFilter.addFilter(uuidMapFilter);
-        QualifierFilter keyMapFilter = new QualifierFilter(
-            	CompareFilter.CompareOp.EQUAL,
-            	new SubstringComparator(GraphState.KEY_MAP_COLUMN_NAME));   
-        this.rootFilter.addFilter(keyMapFilter);
+        	new SubstringComparator(GraphState.STATE_COLUMN_NAME));   
+        this.rootFilter.addFilter(stateFilter);
     	
     	collect();
 

@@ -40,14 +40,15 @@ public class TableWriterCollector implements PlasmaDataGraphVisitor {
 	private DataGraph dataGraph;
 	private ChangeSummary changeSummary;
 	private PlasmaDataObject root;
-	private OperationHelper operHelper = new OperationHelper();
+	private OperationHelper operHelper;
 	private TableWriter rootTableWriter;
 	private Stack<WriterFrame> stack = new Stack<WriterFrame>();
-	private Map<DataObject, RowWriter> rowWriterMap = new HashMap<DataObject, RowWriter>();
-	
+	private Map<DataObject, RowWriter> rowWriterMap = new HashMap<DataObject, RowWriter>();	
 	private Map<String, TableWriter> result = new HashMap<String, TableWriter>();
-	
-	public TableWriterCollector(DataGraph dataGraph) {
+
+	public TableWriterCollector(DataGraph dataGraph,
+			FederatedOperation federatedOperation) {
+		this.operHelper = new OperationHelper(federatedOperation);
 		this.dataGraph = dataGraph;
 		this.changeSummary = dataGraph.getChangeSummary();
 		this.root = (PlasmaDataObject)dataGraph.getRootObject();
@@ -102,7 +103,8 @@ public class TableWriterCollector implements PlasmaDataGraphVisitor {
 			    result.put(tableWriter.getTable().getName(), tableWriter);
     		}
     		else { // just add a row writer to existing table writer    			
-    			rowWriter = this.operHelper.addRowWriter(target, tableWriter);
+    			rowWriter = this.operHelper.addRowWriter(
+    					target, tableWriter);
     		}
     		
     		WriterFrame node = new WriterFrame(rowWriter, level);

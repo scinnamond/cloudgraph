@@ -40,34 +40,21 @@ public class GraphRowReader extends GraphRow
 		super(rowKey, rootDataObject);
 		this.row = new ColumnMap(result);
 		this.tableReader = tableReader;
-		byte[] uuidMap = this.row.getColumnValue(
+		byte[] state = this.row.getColumnValue(
 				this.tableReader.getTable().getDataColumnFamilyNameBytes(), 
-				Bytes.toBytes(GraphState.UUID_MAP_COLUMN_NAME));
-        if (uuidMap != null) {
+				Bytes.toBytes(GraphState.STATE_COLUMN_NAME));
+        if (state != null) {
         	if (log.isDebugEnabled())
-        		log.debug(GraphState.UUID_MAP_COLUMN_NAME
-        			+ ": " + new String(uuidMap));
+        		log.debug(GraphState.STATE_COLUMN_NAME
+        			+ ": " + new String(state));
         }
         else
 			throw new OperationException("expected column '"
-				+ GraphState.UUID_MAP_COLUMN_NAME + "' for row " 
+				+ GraphState.STATE_COLUMN_NAME + "' for row " 
 				+ Bytes.toString(rowKey) + "'"); 
-		
-        byte[] keyMap = this.row.getColumnValue(
-        		this.tableReader.getTable().getDataColumnFamilyNameBytes(), 
-				Bytes.toBytes(GraphState.KEY_MAP_COLUMN_NAME));
-        if (keyMap != null) {
-        	if (log.isDebugEnabled())
-        		log.debug(GraphState.KEY_MAP_COLUMN_NAME
-        			+ ": " + new String(keyMap));
-        }
-		
-        if (keyMap != null && keyMap.length > 0) {
-            this.graphState = new GraphState(Bytes.toString(uuidMap),
-        		Bytes.toString(keyMap));
-        }
-        else
-            this.graphState = new GraphState(Bytes.toString(uuidMap));
+        this.graphState = new GraphState(Bytes.toString(state),
+        		this.tableReader.getFederatedOperation().getMarshallingContext());
+
         if (log.isDebugEnabled()) {
         	String stateStr = this.graphState.dump();
         	log.debug("STATE: " + stateStr);

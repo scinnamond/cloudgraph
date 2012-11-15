@@ -13,10 +13,6 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.config.DataGraph;
-import org.cloudgraph.config.CloudGraphConfiguration;
-import org.cloudgraph.config.Table;
-import org.cloudgraph.config.Property;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.common.env.EnvProperties;
 import org.plasma.sdo.core.CoreConstants;

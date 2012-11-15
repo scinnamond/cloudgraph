@@ -50,7 +50,8 @@ public class GraphRowWriter extends GraphRow
     @Override
 	public GraphState getGraphState() throws IOException {
 		if (this.graphState == null) {
-			OperationHelper helper = new OperationHelper();
+			OperationHelper helper = new OperationHelper(
+					this.tableWriter.getFederatedOperation());
 			this.graphState = helper.createGraphState(this.rowKey, 
 				this.rootDataObject, 
 				this.rootDataObject.getDataGraph().getChangeSummary(), 

@@ -4,18 +4,18 @@
     <parent>
         <groupId>cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
     </parent>
 	<groupId>cloudgraph</groupId>
 	<artifactId>cloudgraph-config</artifactId>
 	<packaging>jar</packaging>
-	<version>0.5.1</version>
+	<version>0.5.2</version>
 	<name>CloudGraph Config</name>
 	<dependencies>
 		<dependency>
 			<groupId>cloudgraph</groupId>
 			<artifactId>cloudgraph-common</artifactId>
-			<version>0.5.1</version>
+			<version>0.5.2</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -26,20 +26,37 @@
 				<artifactId>jaxb2-maven-plugin</artifactId>
 				<executions>
 					<execution>
+					    <id>generate-config</id>
 						<phase>generate-sources</phase>
 						<goals>
 							<goal>xjc</goal>
 						</goals>
+				        <configuration>
+							<schemaDirectory>${basedir}/src/main/resources</schemaDirectory>
+							<schemaFiles>cloudgraph-config.xsd</schemaFiles>
+							<bindingDirectory>${basedir}/src/main/resources</bindingDirectory>
+							<bindingFiles>cloudgraph-config-jaxb-bindings.xml</bindingFiles>
+							<staleFile>${project.build.directory}/jaxb2/.xjcStaleFlag-config</staleFile>
+				        </configuration>
 					</execution>
+					<!--  
+					<execution>
+					    <id>generate-state</id>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>xjc</goal>
+						</goals>
+				        <configuration>
+							<schemaDirectory>${basedir}/src/main/resources</schemaDirectory>
+							<schemaFiles>cloudgraph-state.xsd</schemaFiles>
+							<bindingDirectory>${basedir}/src/main/resources</bindingDirectory>
+							<bindingFiles>cloudgraph-state-jaxb-bindings.xml</bindingFiles>
+							<staleFile>${project.build.directory}/jaxb2/.xjcStaleFlag-state</staleFile>
+				        </configuration>
+					</execution>
+					-->
 				</executions>
 				<configuration>
-					<!-- <packagename>com.example.myschema</packagename> The name of your 
-						generated source package -->
-					<schemaDirectory>${basedir}/src/main/resources</schemaDirectory>
-					<schemaFiles>cloudgraph-config.xsd</schemaFiles>
-					<bindingDirectory>${basedir}/src/main/resources</bindingDirectory>
-					<bindingFiles>cloudgraph-jaxb-bindings.xml</bindingFiles>
-					<!-- HACK: where is 'generated-sources' defined ??-->
 					<outputDirectory>${basedir}/target/generated-sources/java</outputDirectory>
 					<clearOutputDir>false</clearOutputDir>
 					<extension>true</extension>
@@ -63,6 +80,27 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>               
+                <configuration>
+                     <!--  
+                    <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>
+                      -->
+                    <additionalClasspathElements>
+                        <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
+                        <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
+                    </additionalClasspathElements>                  
+                    <forkMode>always</forkMode>
+                    <systemProperties>
+                        <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                    </systemProperties>
+                    <includes>               
+                        <include>**/*StateMarshalingTestCase*</include>                      
+                    </includes> 
+                </configuration>
+            </plugin>            
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-source-plugin</artifactId>

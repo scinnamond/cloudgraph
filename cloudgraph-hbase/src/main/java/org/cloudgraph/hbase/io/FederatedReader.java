@@ -23,7 +23,7 @@ import commonj.sdo.Type;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public interface FederatedReader {
+public interface FederatedReader  extends FederatedOperation {
 	
 	/**
 	 * Returns the table reader for the given 
@@ -79,14 +79,6 @@ public interface FederatedReader {
      */
     public void setRootTableReader(TableReader reader);
 
-    /**
-     * Returns a list of types associated
-     * with the given table reader. 
-     * @param reader the table reader
-     * @return a list of types associated
-     * with the given table reader. 
-     */
-	public List<Type> getTypes(TableReader reader);
 
     /**
      * Returns the row reader associated with the given data object
@@ -101,6 +93,15 @@ public interface FederatedReader {
     		RowReader rowReader);
     
     /**
+     * Returns a list of types associated
+     * with the given table operation. 
+     * @param reader the table operation
+     * @return a list of types associated
+     * with the given table operation. 
+     */
+	public List<Type> getTypes(TableReader operation);
+
+	/**
      * Frees resources associated with this reader and any
      * component readers. 
      */
