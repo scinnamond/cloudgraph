@@ -12,6 +12,7 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.state.StateException;
 import org.plasma.common.bind.BindingValidationEventHandler;
 import org.plasma.common.bind.DataBinding;
+import org.plasma.common.bind.NonValidatingUnmarshaler;
 import org.plasma.common.bind.ValidatingUnmarshaler;
 import org.xml.sax.SAXException;
 
@@ -25,14 +26,14 @@ import org.xml.sax.SAXException;
  * @author Scott Cinnamond
  * @since 0.5.2
  */
-public class StateModelDataBinding implements DataBinding {
+public class StateModelDataBinding {
 
     private static Log log = LogFactory.getLog(StateModelDataBinding.class);
     public static String FILENAME_SCHEMA_CHAIN_ROOT = "cloudgraph-state.xsd";
 
     public static Class<?> RESOURCE_CLASS = StateModelDataBinding.class;
 
-    private ValidatingUnmarshaler unmarshaler;
+    private NonValidatingUnmarshaler unmarshaler;
 
     public static Class<?>[] FACTORIES = { org.cloudgraph.state.model.ObjectFactory.class, };
         
@@ -46,9 +47,8 @@ public class StateModelDataBinding implements DataBinding {
             throw new StateException("could not find configuration file schema resource '" 
                     + FILENAME_SCHEMA_CHAIN_ROOT 
                     + "' on the current classpath");        
-        this.unmarshaler = new ValidatingUnmarshaler( 
-        		stream, JAXBContext.newInstance(FACTORIES),
-                new StateModelValidationEventHandler());
+        this.unmarshaler = new NonValidatingUnmarshaler( 
+        	JAXBContext.newInstance(FACTORIES));
     }
 
     public Class<?>[] getObjectFactories() {
@@ -76,17 +76,4 @@ public class StateModelDataBinding implements DataBinding {
     public Object unmarshal(InputStream stream) throws JAXBException {
         return unmarshaler.unmarshal(stream);
     }
-
-    public Object validate(String xml) throws JAXBException {
-        return unmarshaler.validate(xml);
-    }
-
-    public Object validate(InputStream xml) throws JAXBException, UnmarshalException {
-        return unmarshaler.validate(xml);
-    }
-
-    public BindingValidationEventHandler getValidationEventHandler() throws JAXBException {
-        return unmarshaler.getValidationEventHandler();
-    }
-
 }

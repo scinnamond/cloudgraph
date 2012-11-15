@@ -176,7 +176,7 @@
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
                         </additionalClasspathElements>                  
-                        <forkMode>always</forkMode>
+                        <forkMode>once</forkMode>
                         <systemProperties>
                             <property><name>cloudgraph.configuration</name><value>simple-cloudgraph-config.xml</value></property>
                             <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
@@ -201,7 +201,7 @@
 	                        <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
 	                        <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
 	                    </additionalClasspathElements>                  
-	                    <forkMode>always</forkMode>
+	                    <forkMode>once</forkMode>
 	                    <systemProperties>
 	                        <property><name>cloudgraph.configuration</name><value>federated-cloudgraph-config.xml</value></property>
 	                        <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>

@@ -89,7 +89,9 @@ public class GraphState implements State {
     		log.debug("unmarshal: " + state);
     	
 		try {
-	    	this.model = (StateModel)this.context.getBinding().validate(state);
+	    	//this.model = (StateModel)this.context.getBinding().validate(state);
+	    	this.model = (StateModel)this.context.getBinding()
+	    			.unmarshal(state);
 	    	if (log.isDebugEnabled())
 	    		log.debug("unmarshal: " + this.dump());
 	    	

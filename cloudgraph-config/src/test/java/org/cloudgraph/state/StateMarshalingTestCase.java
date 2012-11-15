@@ -34,7 +34,7 @@ public class StateMarshalingTestCase extends StateTestCase {
     	File file = new File("./src/test/resources/state-example.xml");
     	FileInputStream stream = new FileInputStream(file);
     	log.info("validate()");
-    	StateModel root = (StateModel)this.binding.validate(stream);
+    	StateModel root = (StateModel)this.binding.unmarshal(stream);
     	log.info("marshal()");
     	String xml = this.binding.marshal(root);
     	log.info(xml);
