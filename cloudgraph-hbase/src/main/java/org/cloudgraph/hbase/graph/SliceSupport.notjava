@@ -212,7 +212,7 @@ public class SliceSupport {
 	  	    	        + "\tvalue: " + Bytes.toString(keyValue.getValue()));
 	  	    	}
 	  	    }
-        
+    	
         long after = System.currentTimeMillis();
         if (log.isDebugEnabled() ) 
             log.debug("returned 1 results ("
