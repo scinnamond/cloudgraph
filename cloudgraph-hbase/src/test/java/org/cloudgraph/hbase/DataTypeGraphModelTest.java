@@ -45,8 +45,6 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
                 	fillNode(child3, id, now, namePrefix, 3, k);        	
             	}
         	}
-        	 
-        	
     	}
     	
     	//addNodes(root, id, now,

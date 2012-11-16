@@ -9,6 +9,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
@@ -47,22 +48,65 @@ public class SliceSupport {
 	 */
 	public Map<Long, Long> fetchSequences(PlasmaType contextType,
 			Where where, RowReader rowReader) throws IOException {
-        Scan scan = new Scan();
-        scan.setStartRow(rowReader.getRowKey());
-        scan.setStopRow(rowReader.getRowKey());
 
+        Get get = new Get(rowReader.getRowKey());
         PredicateColumnFilterAssembler columnFilterAssembler = 
         	new PredicateColumnFilterAssembler(rowReader.getGraphState(), 
         			(PlasmaType)rowReader.getRootType());
         columnFilterAssembler.assemble(where, contextType);
         Filter filter = columnFilterAssembler.getFilter();
-        scan.setFilter(filter);
+        get.setFilter(filter);
 
         PlasmaType rootType = (PlasmaType)rowReader.getRootType();
 		DataGraphConfig graphConfig = CloudGraphConfig.getInstance().getDataGraph(
 				rootType.getQualifiedName());
         
-        return fetchSequences(scan, rowReader.getTableReader(), graphConfig);
+        return fetchSequences(get, rowReader.getTableReader(), graphConfig);
+	}
+
+	/**
+	 * Runs the given get and parses the column qualifier sequence
+	 * number suffixes from the returned columns.  
+	 * @param get the row get
+	 * @return the sequence numbers.
+	 * @throws IOException 
+	 */
+	public Map<Long, Long> fetchSequences(Get get, TableReader tableReader, DataGraphConfig graphConfig) throws IOException
+	{
+        if (log.isDebugEnabled() )
+			try {
+				log.debug("get filter: " + FilterUtil.printFilterTree(get.getFilter()));
+			} catch (IOException e1) {
+			}
+        
+    	long before = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("executing get...");
+        
+        Result result = tableReader.getConnection().get(get);
+        if (result == null) // Note: may not have any key-values
+        	throw new GraphServiceException("expected result from table "
+                + tableReader.getTable().getName() + " for row '"
+        		+ new String(get.getRow()) + "'");
+    	
+		Map<Long, Long> seqMap = new HashMap<Long, Long>();
+  	    if (!result.isEmpty())
+			for (KeyValue keyValue : result.list()) {
+	  	    	// FIXME: no parsing here !!
+	            String qual = Bytes.toString(keyValue.getQualifier());
+	  	    	if (log.isDebugEnabled()) 
+	  	    	    log.debug("\tkey: " + qual
+	  	    	        + "\tvalue: " + Bytes.toString(keyValue.getValue()));
+	  	        String[] sections = qual.split(graphConfig.getColumnKeySectionDelimiter());
+	  	        Long seq = Long.valueOf(sections[1]);
+	  	        seqMap.put(seq, seq);
+	  	    }
+        
+        long after = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("returned 1 results ("
+        	    + String.valueOf(after - before) + ")");
+        return seqMap;
 	}
 	
 	/**
@@ -109,19 +153,19 @@ public class SliceSupport {
 	}
 
 	public void load(List<String> propertyNames,
-			PlasmaType contextType, RowReader rowReader)
+			PlasmaType contextType, RowReader rowReader) throws IOException
 	{
-        Scan scan = new Scan();
-        scan.setStartRow(rowReader.getRowKey());
-        scan.setStopRow(rowReader.getRowKey());
+        Get get = new Get(rowReader.getRowKey());
+		
         PlasmaType rootType = (PlasmaType)rowReader.getRootType();        
         BinaryPrefixColumnFilterAssembler columnFilterAssembler = 
         	new BinaryPrefixColumnFilterAssembler(rootType);
         columnFilterAssembler.assemble(propertyNames,
         		contextType);
         Filter filter = columnFilterAssembler.getFilter();
-        scan.setFilter(filter);
-        load(scan, rowReader);
+        get.setFilter(filter);
+        
+        load(get, rowReader);
 	}
 	
 	public void loadBySequenceList(Collection<Long> sequences, List<String> propertyNames,
@@ -141,6 +185,40 @@ public class SliceSupport {
         load(scan, rowReader);
 	}
 
+	public void load(Get get, RowReader rowReader) throws IOException
+	{        
+        if (log.isDebugEnabled() )
+			try {
+				log.debug("get filter: " 
+			    + FilterUtil.printFilterTree(get.getFilter()));
+			} catch (IOException e1) {
+			}		
+        
+    	long before = System.currentTimeMillis();
+        if (log.isDebugEnabled())
+        	log.debug("executing get...");
+        
+        Result result = rowReader.getTableReader().getConnection().get(get);
+        if (result == null) // do expect a result since a Get oper, but might have no columns
+        	throw new GraphServiceException("expected result from table "
+                + rowReader.getTableReader().getTable().getName() + " for row '"
+        		+ new String(get.getRow()) + "'");
+    	if (!result.isEmpty())
+	  	    for (KeyValue keyValue : result.list()) {
+	  	    	rowReader.getRow().addColumn(keyValue);
+	  	    	if (log.isDebugEnabled()) {
+	      	    	String qual = Bytes.toString(keyValue.getQualifier());
+	  	    	    log.debug("\tkey: " + qual
+	  	    	        + "\tvalue: " + Bytes.toString(keyValue.getValue()));
+	  	    	}
+	  	    }
+        
+        long after = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("returned 1 results ("
+        	    + String.valueOf(after - before) + ")");
+	}		
+	
 	public void load(Scan scan, RowReader rowReader)
 	{        
         if (log.isDebugEnabled() )
@@ -173,5 +251,4 @@ public class SliceSupport {
       	    }
         }		
 	}	
-
 }

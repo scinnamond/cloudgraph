@@ -83,6 +83,7 @@ public class HBaseConnectionManager {
 		HTableInterface result = null;
 		try {
 		    result = getPooledTable(tableName);
+		    
 	    }
 		catch (TableNotFoundException e) {
 			createTable(tableName);
@@ -125,6 +126,7 @@ public class HBaseConnectionManager {
     		TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(tableName);
     		HTableDescriptor tableDesc = new HTableDescriptor(tableConfig.getName());
 	    	HColumnDescriptor fam1 = new HColumnDescriptor(tableConfig.getDataColumnFamilyName().getBytes());
+	    	 
 	    	//HColumnDescriptor fam2 = new HColumnDescriptor(CloudGraphConstants.DATA_TABLE_FAMILY_2.getBytes());
 	    	//fam2.setBloomFilterType(bt);
 	    	tableDesc.addFamily(fam1);

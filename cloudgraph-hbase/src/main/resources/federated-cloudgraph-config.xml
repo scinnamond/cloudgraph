@@ -4,7 +4,8 @@
     
     <Property name="hbase.zookeeper.quorum">u16361628.onlinehome-server.com</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
-     <!--
+      
+    <!--
     <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2181</Property>  
       -->
@@ -123,7 +124,7 @@
 
     </Table>  
          
-    <Table name="actor9" dataColumnFamilyName="f1">
+    <Table name="ACTOR" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
         <DataGraph uri="http://cloudgraph.org/test/social" type="Actor">
             <RowKeyModel>
@@ -147,7 +148,7 @@
 
     </Table>  
            
-    <Table name="media9" dataColumnFamilyName="f1">
+    <Table name="MEDIA" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
         <DataGraph uri="http://cloudgraph.org/test/social" type="Photo">
             <RowKeyModel>
@@ -174,7 +175,7 @@
 
     </Table>  
 
-    <Table name="topic9" dataColumnFamilyName="f1">
+    <Table name="TOPIC" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
         <DataGraph uri="http://cloudgraph.org/test/social" type="Topic">
             <RowKeyModel>

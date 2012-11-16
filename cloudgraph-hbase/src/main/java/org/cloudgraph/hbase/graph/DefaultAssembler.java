@@ -280,10 +280,9 @@ public abstract class DefaultAssembler {
         rootFilter.addFilter(columnFilterAssembler.getFilter());
     	long before = System.currentTimeMillis();
         if (log.isDebugEnabled() ) 
-            log.debug("executing scan...");
-        
-        if (log.isDebugEnabled() ) 
         	log.debug(FilterUtil.printFilterTree(rootFilter));
+        if (log.isDebugEnabled() ) 
+            log.debug("executing get...");
         
         Result result = tableReader.getConnection().get(row);
         if (result == null || result.isEmpty())

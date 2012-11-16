@@ -26,7 +26,7 @@ import commonj.sdo.Type;
  */
 public class DatePartialRowKeyScanTest extends DataTypeGraphModelTest {
     private static Log log = LogFactory.getLog(DatePartialRowKeyScanTest.class);
-    private long WAIT_TIME = 1000;
+    private long WAIT_TIME = 1050;
     private String USERNAME = "date_test";
     
     
