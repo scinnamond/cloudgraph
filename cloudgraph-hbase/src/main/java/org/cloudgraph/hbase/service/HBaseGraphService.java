@@ -11,7 +11,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.state.StateMarshallingContext;
-import org.cloudgraph.state.model.StateModelDataBinding;
+import org.cloudgraph.state.model.StateModeNonValidatinglDataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.From;
@@ -58,7 +58,7 @@ public class HBaseGraphService implements PlasmaDataAccessService {
     public HBaseGraphService() {
     	try {
 			StateMarshallingContext marshallingContext = new StateMarshallingContext(
-					new StateModelDataBinding());
+					new StateModeNonValidatinglDataBinding());
 	    	this.context = new ServiceContext(marshallingContext);
 		} catch (JAXBException e) {
 			throw new GraphServiceException(e);

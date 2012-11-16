@@ -15,7 +15,7 @@ import javax.xml.bind.JAXBException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.state.model.SequenceMapping;
-import org.cloudgraph.state.model.StateModelDataBinding;
+import org.cloudgraph.state.model.StateModeNonValidatinglDataBinding;
 import org.cloudgraph.state.model.StateModel;
 import org.cloudgraph.state.model.URIMap;
 import org.plasma.sdo.PlasmaDataObject;
@@ -449,10 +449,10 @@ public class GraphState implements State {
 	}
     
     public String dump() {
-    	StateModelDataBinding binding;
+    	StateModeNonValidatinglDataBinding binding;
     	String xml = "";
 		try {
-			binding = new StateModelDataBinding();
+			binding = new StateModeNonValidatinglDataBinding();
 			xml = binding.marshal(this.model);
 		} catch (JAXBException e1) {
 			log.error(e1);
