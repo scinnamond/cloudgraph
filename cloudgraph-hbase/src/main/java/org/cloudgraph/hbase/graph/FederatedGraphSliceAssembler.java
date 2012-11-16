@@ -46,7 +46,7 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 	private Map<Type, List<String>> propertyMap;
 	private Map<commonj.sdo.Property, Where> predicateMap; 
 	private int scanCount;
-	private SliceSupport sliceSupport = new SliceSupport();
+	private SliceSupport2 sliceSupport = new SliceSupport2();
 	private Charset charset;
 
 	public FederatedGraphSliceAssembler(PlasmaType rootType,

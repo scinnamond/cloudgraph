@@ -34,7 +34,7 @@ public class GraphSliceAssembler extends DefaultAssembler
 	protected TableConfig tableConfig;
 	protected RowReader rowReader;
 	protected Map<commonj.sdo.Property, Where> predicateMap; 
-	private SliceSupport sliceSupport = new SliceSupport();
+	private SliceSupport2 sliceSupport = new SliceSupport2();
 	
     public GraphSliceAssembler(PlasmaType rootType,
 			PropertySelectionCollector collector, 
