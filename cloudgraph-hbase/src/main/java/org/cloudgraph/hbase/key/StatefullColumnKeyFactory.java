@@ -47,19 +47,21 @@ public class StatefullColumnKeyFactory extends CompositeColumnKeyFactory
 	{
  	    PlasmaType type = (PlasmaType)dataObject.getType();
 
-		Long seqNum = this.graphState.createSequence(dataObject);
+		Integer seqNum = this.graphState.findSequence(dataObject);
+		if (seqNum == null)
+			seqNum = this.graphState.addSequence(dataObject);
 		return getKey(type, seqNum, property);
 	}
 
 	@Override
 	public byte[] createColumnKey(PlasmaType type, 
-			Long dataObjectSeqNum, PlasmaProperty property)	
+			Integer dataObjectSeqNum, PlasmaProperty property)	
 	{
 		return getKey(type, dataObjectSeqNum, property);
 	}
 	
 	private byte[] getKey(PlasmaType type, 
-			Long dataObjectSeqNum, PlasmaProperty property) 
+			Integer dataObjectSeqNum, PlasmaProperty property) 
 	{
 		// Use the bytes of the sequence number 
 		// String representation for column names so we can read

@@ -140,7 +140,17 @@ public class GraphTableReader extends GraphTable
 		return this.federatedOperation;
 	}
 	
-    /**
+	/**
+	 * Sets the federated context associated with this table
+	 * operation context. 
+	 * @param federatedOperation the operation
+	 */
+	@Override
+	public void setFederatedOperation(FederatedOperation federatedOperation) {
+		this.federatedOperation = federatedOperation;
+	}
+	
+	/**
      * Frees resources associated with this reader and any
      * component readers. 
      */

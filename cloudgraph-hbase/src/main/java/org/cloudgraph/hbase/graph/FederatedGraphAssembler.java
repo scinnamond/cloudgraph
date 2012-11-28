@@ -3,21 +3,23 @@ package org.cloudgraph.hbase.graph;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.common.service.ToumbstoneRowException;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.io.FederatedReader;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
+import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
-import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.collector.PropertySelection;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
 
 /**
@@ -43,6 +45,7 @@ import org.plasma.sdo.core.CoreNode;
  * </p>
  * 
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
+ * 
  * @author Scott Cinnamond
  * @since 0.5.1
  */
@@ -53,17 +56,17 @@ public class FederatedGraphAssembler extends FederatedAssembler
 	/**
 	 * Constructor.
 	 * @param rootType the SDO root type for the result data graph
-	 * @param collector selected SDO properties. Properties are mapped by 
+	 * @param selection selected SDO properties. Properties are mapped by 
      * selected types required in the result graph.
 	 * @param snapshotDate the query snapshot date which is populated
 	 * into every data object in the result data graph. 
 	 */
 	public FederatedGraphAssembler(PlasmaType rootType,
-			PropertySelectionCollector collector, 
+			PropertySelection selection, 
 			FederatedReader federatedReader,			
 			Timestamp snapshotDate) 
 	{
-		super(rootType, collector, federatedReader, snapshotDate);
+		super(rootType, selection, federatedReader, snapshotDate);
 	}	
 	
 	protected void assemble(PlasmaDataObject target, 
@@ -78,7 +81,10 @@ public class FederatedGraphAssembler extends FederatedAssembler
 					+ target.getType().getURI() + "#" 
 					+ target.getType().getName());
 		
-		List<String> names = this.propertyMap.get(target.getType());
+		List<String> names = this.selection.getInheritedProperties(target.getType());
+		if (names == null)
+			throw new GraphServiceException("expected selection property names for type, "
+					+ target.getType().getURI() + "#" + target.getType().getName());
 		if (log.isDebugEnabled())
 			log.debug(target.getType().getName() + " names: " + names.toString());
 		
@@ -95,32 +101,27 @@ public class FederatedGraphAssembler extends FederatedAssembler
 			
 			byte[] keyValue = getColumnValue(target, prop, 
 				tableConfig, rowReader);
-			if (keyValue == null)
-				continue;
+			if (keyValue == null || keyValue.length == 0 ) {
+				continue; // zero length can happen on modification or delete as we keep cell history
+			}
 			
-			PlasmaType childType = (PlasmaType)prop.getType();
-			Edge[] edges = rowReader.getGraphState().unmarshalEdges(childType, 
+			Edge[] edges = rowReader.getGraphState().unmarshalEdges( 
 				keyValue);
-						
-			// if target type is not bound to a specific table/root,
-			// derive a child row reader context from its level
-			TableReader externalTableReader = this.federatedReader.getTableReader(childType.getQualifiedName());
-			if (externalTableReader == null) { 
-				RowReader childRowReader = getRowReader(level);
-	        	assembleEdges(target, prop, edges, rowReader, 
-	        		childRowReader.getTableReader(), 
-	        		childRowReader, level);			
-	        }
-			else 
-			{
-				if (log.isDebugEnabled())
-					if (!tableConfig.getName().equals(externalTableReader.getTable().getName()))
-					    log.debug("switching row context from table: '"
-						    + tableConfig.getName() + "' to table: '"
-						    + externalTableReader.getTable().getName() + "'");
-				assembleExternalEdges(target, prop, edges, rowReader, 
-						externalTableReader, level);
-			}			
+			if (edges.length == 0) {
+				continue; // zero length can happen on modification or delete as we keep cell history
+			}
+			
+			boolean external = isExternal(edges, rowReader);			
+			if (!external) {
+				assembleEdges(target, prop, edges, rowReader, 
+						tableReader, rowReader, level);
+			}
+			else {
+				String childTable = rowReader.getGraphState().getRowKeyTable(edges[0].getUuid());
+				TableReader externalTableReader = federatedReader.getTableReader(childTable);
+				assembleExternalEdges(target, prop, edges, rowReader,
+						externalTableReader, level);			
+			}
 		}
     }
 	
@@ -144,11 +145,7 @@ public class FederatedGraphAssembler extends FederatedAssembler
 			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
 			
         	// create a child object
-			PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop);
-			CoreNode childDataNode = (CoreNode)child;
-			childDataNode.setValue(CoreConstants.PROPERTY_NAME_UUID, 
-				UUID.fromString(edge.getUuid()));
-			
+			PlasmaDataObject child = createChild(target, prop, edge, rowReader);
             childRowReader.addDataObject(child);
             
 			assembleEdge(target, prop, edge, 
@@ -180,15 +177,19 @@ public class FederatedGraphAssembler extends FederatedAssembler
 			        + target.getType().getURI() + "#" +target.getType().getName()
 			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
         	
-			PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop);
-			CoreNode childDataNode = (CoreNode)child;
-			childDataNode.setValue(CoreConstants.PROPERTY_NAME_UUID, 
-				UUID.fromString(edge.getUuid()));
+			byte[] childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid());
 			
+			Result childResult = fetchGraph(childRowKey, childTableReader, edge.getType());
+	    	if (childResult.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
+	    			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
+	    		log.warn("ignoring toubstone result row '" + 
+		    			Bytes.toString(childRowKey) + "'");
+				continue; // ignore toumbstone edge
+	    	}
+        	// create a child object
+			PlasmaDataObject child = createChild(target, prop, edge, rowReader);
 			
 			// create a row reader for every external edge
-			byte[] childRowKey = rowReader.getGraphState().getRowKey(child);
-			Result childResult = fetchGraph(childRowKey, childTableReader, child);
 			childRowReader = childTableReader.createRowReader(
 				child, childResult);
 			
@@ -196,5 +197,6 @@ public class FederatedGraphAssembler extends FederatedAssembler
 		        child, childRowReader, level);
 		}
 	}
+	
 	
 }

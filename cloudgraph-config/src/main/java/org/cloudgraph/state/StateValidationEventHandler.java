@@ -1,4 +1,4 @@
-package org.cloudgraph.state.model;
+package org.cloudgraph.state;
 
 import javax.xml.bind.ValidationEvent;
 import javax.xml.bind.ValidationEventLocator;
@@ -13,9 +13,9 @@ import org.plasma.config.ConfigurationException;
  * @author Scott Cinnamond
  * @since 0.5
  */
-public class StateModelValidationEventHandler implements BindingValidationEventHandler {
+public class StateValidationEventHandler implements BindingValidationEventHandler {
 	
-    private static Log log = LogFactory.getLog(StateModelValidationEventHandler.class);
+    private static Log log = LogFactory.getLog(StateValidationEventHandler.class);
     private int errorCount;
     private boolean cumulative = true;
 	
@@ -23,8 +23,8 @@ public class StateModelValidationEventHandler implements BindingValidationEventH
 		return errorCount;
 	}
 
-	public StateModelValidationEventHandler() {}	
-	public StateModelValidationEventHandler(boolean cumulative) {
+	public StateValidationEventHandler() {}	
+	public StateValidationEventHandler(boolean cumulative) {
 		this.cumulative = cumulative;
 	}	
 	

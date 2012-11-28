@@ -51,5 +51,5 @@ public interface GraphStatefullColumnKeyFactory {
 	 * @return the column key bytes
 	 */
 	public byte[] createColumnKey(PlasmaType type, 
-			Long dataObjectSeqNum, PlasmaProperty property);
+			Integer dataObjectSeqNum, PlasmaProperty property);
 }

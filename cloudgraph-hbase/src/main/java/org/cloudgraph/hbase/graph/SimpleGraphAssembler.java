@@ -13,13 +13,12 @@ import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState.Edge;
-import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.collector.PropertySelection;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
-import org.plasma.sdo.core.TraversalDirection;
 
 /**
  * Constructs a data graph starting with a given root SDO type based on
@@ -27,7 +26,7 @@ import org.plasma.sdo.core.TraversalDirection;
  * selected types required in the result graph.
  * <p>
  * The assembly is triggered by calling the 
- * {@link GraphAssembler#assemble(Result resultRow)} method which
+ * {@link SimpleGraphAssembler#assemble(Result resultRow)} method which
  * recursively reads HBase keys and values re-constituting the
  * data graph. The assembly traversal is driven by HBase column 
  * values representing the original edges or containment structure 
@@ -47,20 +46,20 @@ import org.plasma.sdo.core.TraversalDirection;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public class GraphAssembler extends DefaultAssembler
+public class SimpleGraphAssembler extends DefaultAssembler
     implements HBaseGraphAssembler {
 
 	protected TableConfig tableConfig;
 	protected RowReader rowReader;
-    public GraphAssembler(PlasmaType rootType,
-			PropertySelectionCollector collector, 
+    public SimpleGraphAssembler(PlasmaType rootType,
+    		PropertySelection collector, 
 			TableReader tableReader,
 			Timestamp snapshotDate) {
 		super(rootType, collector, tableReader, snapshotDate);
 		this.tableConfig = this.rootTableReader.getTable();
 	}
 
-	private static Log log = LogFactory.getLog(GraphAssembler.class);
+	private static Log log = LogFactory.getLog(SimpleGraphAssembler.class);
 
 	@Override
 	public void assemble(Result resultRow) {
@@ -86,7 +85,7 @@ public class GraphAssembler extends DefaultAssembler
 					+ target.getType().getURI() + "#" 
 					+ target.getType().getName());
 		
-		List<String> names = this.propertyMap.get(target.getType());
+		List<String> names = this.selection.getProperties(target.getType());
 		if (log.isDebugEnabled())
 			log.debug(target.getType().getName() + " names: " + names.toString());
 		
@@ -103,7 +102,7 @@ public class GraphAssembler extends DefaultAssembler
 			if (keyValue == null)
 				continue;
 			
-			Edge[] edges = this.rowReader.getGraphState().unmarshalEdges(prop.getType(), 
+			Edge[] edges = this.rowReader.getGraphState().unmarshalEdges(  
 				keyValue);
 			
 			assembleEdges(target, prop, edges, this.rowReader, level);
@@ -131,9 +130,7 @@ public class GraphAssembler extends DefaultAssembler
 			
 			rowReader.addDataObject(child);			
             
-			// FIXME: if left, then create a link only??
-			if (edge.getDirection().ordinal() == TraversalDirection.RIGHT.ordinal())
-		        assemble(child, target, prop, level+1);		
+	        assemble(child, target, prop, level+1);		
 		}
 	}
 	

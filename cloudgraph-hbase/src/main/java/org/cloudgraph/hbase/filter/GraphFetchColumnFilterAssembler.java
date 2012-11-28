@@ -1,7 +1,6 @@
 package org.cloudgraph.hbase.filter;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -9,7 +8,6 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.MultipleColumnPrefixFilter;
@@ -21,7 +19,7 @@ import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.cloudgraph.state.GraphState;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
-import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.collector.PropertySelection;
 import org.plasma.query.model.Select;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -47,14 +45,14 @@ public class GraphFetchColumnFilterAssembler extends FilterListAssembler
 
 	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
-    private PropertySelectionCollector collector;
+    private PropertySelection propertySelection;
 	
 	public GraphFetchColumnFilterAssembler( 
-			PropertySelectionCollector collector,
+			PropertySelection selection,
 			PlasmaType rootType) {
 		
 		super(rootType);
-		this.collector = collector;
+		this.propertySelection = selection;
         this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
 		
     	this.rootFilter = new FilterList(
@@ -69,6 +67,10 @@ public class GraphFetchColumnFilterAssembler extends FilterListAssembler
         	CompareFilter.CompareOp.EQUAL,
         	new SubstringComparator(GraphState.STATE_COLUMN_NAME));   
         this.rootFilter.addFilter(stateFilter);
+        QualifierFilter toumbstoneFilter = new QualifierFilter(
+            	CompareFilter.CompareOp.EQUAL,
+            	new SubstringComparator(GraphState.TOUMBSTONE_COLUMN_NAME));   
+        this.rootFilter.addFilter(toumbstoneFilter);
     	
     	collect();
 
@@ -96,19 +98,16 @@ public class GraphFetchColumnFilterAssembler extends FilterListAssembler
 	 * @param select the select clause
 	 */
 	private void collect() {
-        Map<Type, List<String>> selectMap = this.collector.getResult();
-        Iterator<Type> typeIter = selectMap.keySet().iterator();
-        while (typeIter.hasNext()) {
-        	PlasmaType type = (PlasmaType)typeIter.next();
-        	List<String> names = selectMap.get(type);
+		for (Type type : this.propertySelection.getInheritedTypes()) {
+			List<String> names = this.propertySelection.getInheritedProperties(type);
             for (String name : names) {
     			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
                 byte[] colKey = this.columnKeyFac.createColumnKey(
-                    type, prop);
+                    (PlasmaType)type, prop);
                 String colKeyStr = Bytes.toString(colKey);
                 this.prefixMap.put(colKeyStr, colKey);
-    		}        
-        }
+            }
+		}
 	}
 		
     protected void log(Select root)

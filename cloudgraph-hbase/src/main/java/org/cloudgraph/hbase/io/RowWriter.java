@@ -28,12 +28,19 @@ public interface RowWriter extends RowOperation {
 	 * @return the row put mutation.
 	 */
 	public Put getRow();
-	
+
 	/**
-	 * Returns the row delete mutation.
-	 * @return the row delete mutation.
+	 * Returns the existing (or creates a new) row delete mutation.
+	 * @return the existing (or creates a new) row delete mutation.
 	 */
 	public Delete getRowDelete();
+
+	/**
+	 * Returns whether there is an existing row delete mutation.
+	 * @return whether there is an existing row delete mutation.
+	 */
+	public boolean hasRowDelete();
+	
 	
 	/**
 	 * Return the write operations for a row. 

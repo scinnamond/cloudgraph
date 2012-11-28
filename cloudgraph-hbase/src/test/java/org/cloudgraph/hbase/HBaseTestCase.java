@@ -16,7 +16,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.CommonTest;
 import org.plasma.common.bind.DefaultValidationEventHandler;
-import org.plasma.common.test.PlasmaTest;
 import org.plasma.query.Query;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.sdo.access.client.HBasePojoDataAccessClient;

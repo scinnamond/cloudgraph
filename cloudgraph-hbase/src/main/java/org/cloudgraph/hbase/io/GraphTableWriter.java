@@ -33,6 +33,9 @@ public class GraphTableWriter extends GraphTable
     private Map<String, RowWriter> rowContextMap = new HashMap<String, RowWriter>();
     private FederatedOperation federatedOperation;
 
+	public GraphTableWriter(TableConfig table) {
+		super(table);
+	}
 
 	public GraphTableWriter(TableConfig table,
 			FederatedOperation federatedOperation) {
@@ -84,4 +87,15 @@ public class GraphTableWriter extends GraphTable
 	@Override
 	public FederatedOperation getFederatedOperation() {
 		return this.federatedOperation;
-	}}
+	}
+	
+	/**
+	 * Sets the federated context associated with this table
+	 * operation context. 
+	 * @param federatedOperation the operation
+	 */
+	@Override
+	public void setFederatedOperation(FederatedOperation federatedOperation) {
+		this.federatedOperation = federatedOperation;
+	}
+}

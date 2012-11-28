@@ -1,5 +1,6 @@
 package org.cloudgraph.hbase.io;
 
+import java.io.IOException;
 import java.util.List;
 
 import commonj.sdo.DataObject;
@@ -71,6 +72,16 @@ public interface FederatedWriter extends FederatedOperation {
 
     /**
      * Returns the row writer associated with the given data object
+     * or null if no row writer is associated.
+     * @param dataObject the data object
+     * @return the row writer associated with the given data 
+     * object or null if no row writer is associated.
+     */
+    public RowWriter findRowWriter(DataObject dataObject);
+    
+
+    /**
+     * Returns the row writer associated with the given data object
      * @param dataObject the data object
      * @return the row writer associated with the given data object
      * @throws IllegalArgumentException if the given data object
@@ -78,6 +89,18 @@ public interface FederatedWriter extends FederatedOperation {
      */
     public RowWriter getRowWriter(DataObject dataObject);
 
+    /**
+     * Creates and returns a new row writer associated 
+     * with the given data object.
+     * @param dataObject the data object
+     * @return a new row writer associated 
+     * with the given data object.
+     * @throws IllegalArgumentException if the given data object
+     * is already associated with a row writer.
+     */
+    public RowWriter createRowWriter(DataObject dataObject)
+        throws IOException;    
+    
     /**
      * Returns a list of types associated
      * with the given table operation. 

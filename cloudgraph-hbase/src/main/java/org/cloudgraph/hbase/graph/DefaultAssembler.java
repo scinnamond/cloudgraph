@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -15,6 +14,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.common.service.ToumbstoneRowException;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.io.RowReader;
@@ -22,7 +22,7 @@ import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.hbase.service.HBaseDataConverter;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.cloudgraph.state.GraphState;
-import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.collector.PropertySelection;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -33,7 +33,6 @@ import org.plasma.sdo.helper.PlasmaDataFactory;
 
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
-import commonj.sdo.Type;
 
 /**
  * Supports both federated and non-federated graph assemblers by
@@ -48,8 +47,7 @@ public abstract class DefaultAssembler {
     protected PlasmaType rootType;
 	protected PlasmaDataObject root;
 	protected TableReader rootTableReader;
-	protected PropertySelectionCollector collector;
-	protected Map<Type, List<String>> propertyMap;
+	protected PropertySelection selection;
 	protected Timestamp snapshotDate;
 	
 	@SuppressWarnings("unused")
@@ -58,17 +56,16 @@ public abstract class DefaultAssembler {
 	/**
 	 * Constructor.
 	 * @param rootType the SDO root type for the result data graph
-	 * @param collector the selection properties for the graph to assemble.
+	 * @param selection the selection properties for the graph to assemble.
 	 * @param snapshotDate the query snapshot date which is populated
 	 * into every data object in the result data graph. 
 	 */
 	public DefaultAssembler(PlasmaType rootType,
-			PropertySelectionCollector collector,
+			PropertySelection selection,
 			TableReader rootTableReader,
 			Timestamp snapshotDate) {
 		this.rootType = rootType;
-		this.collector = collector;
-		this.propertyMap = collector.getResult();
+		this.selection = selection;
 		this.rootTableReader = rootTableReader;
 		this.snapshotDate = snapshotDate;
 	}
@@ -136,8 +133,9 @@ public abstract class DefaultAssembler {
 			byte[] keyValue = getColumnValue(target, prop, 
 					tableConfig, rowReader);
 			
-			if (keyValue == null)
-				continue;
+			if (keyValue == null || keyValue.length == 0 ) {
+				continue; // zero length can happen on modification or delete as we keep cell history
+			}
 			
 			Object value = HBaseDataConverter.INSTANCE.fromBytes(prop, 
 					keyValue);
@@ -233,8 +231,14 @@ public abstract class DefaultAssembler {
                 		+ target.getType().getURI() + "#" + target.getType().getName()
                 		+ " has no container");
                 }
-                list.add(target);                
+                list.add(target);   
+                // FIXME: HACK
+                try {
                 source.setList(sourceProperty, list); 
+                }
+                catch (IllegalArgumentException e) {
+                	log.warn(e.getMessage());
+                }
             }
         }
         else {
@@ -269,14 +273,14 @@ public abstract class DefaultAssembler {
      * @see GraphFetchColumnFilterAssembler
      */
     protected Result fetchGraph(byte[] rowKey, TableReader tableReader, 
-			PlasmaDataObject dataObject) throws IOException {
+    		PlasmaType type) throws IOException {
         Get row = new Get(rowKey);
         FilterList rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ALL);
         row.setFilter(rootFilter);
 		GraphFetchColumnFilterAssembler columnFilterAssembler = 
     		new GraphFetchColumnFilterAssembler(
-    			this.collector, (PlasmaType)dataObject.getType());
+    			this.selection, type);
         rootFilter.addFilter(columnFilterAssembler.getFilter());
     	long before = System.currentTimeMillis();
         if (log.isDebugEnabled() ) 
@@ -288,7 +292,7 @@ public abstract class DefaultAssembler {
         if (result == null || result.isEmpty())
         	throw new GraphServiceException("expected result from table "
                 + tableReader.getTable().getName() + " for row '"
-        		+ new String(rowKey) + "'");
+        		+ new String(rowKey) + "'");        
     	if (log.isTraceEnabled()) {
   	        log.trace("row: " + new String(result.getRow()));              	  
       	    for (KeyValue keyValue : result.list()) {

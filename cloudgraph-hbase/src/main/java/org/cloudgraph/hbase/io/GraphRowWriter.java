@@ -4,15 +4,27 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Delete;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Row;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
+import org.cloudgraph.common.service.DuplicateRowException;
+import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.common.service.MissingRowException;
+import org.cloudgraph.common.service.ToumbstoneRowException;
+import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.cloudgraph.state.GraphRow;
 import org.cloudgraph.state.GraphState;
 import org.plasma.sdo.PlasmaType;
 
+import commonj.sdo.ChangeSummary;
 import commonj.sdo.DataObject;
 
 /**
@@ -33,6 +45,7 @@ import commonj.sdo.DataObject;
 public class GraphRowWriter extends GraphRow
     implements RowWriter {
 
+    private static Log log = LogFactory.getLog(GraphRowWriter.class);
 	private TableWriter tableWriter;
     private Put row;
     private Delete rowDelete;
@@ -50,9 +63,7 @@ public class GraphRowWriter extends GraphRow
     @Override
 	public GraphState getGraphState() throws IOException {
 		if (this.graphState == null) {
-			OperationHelper helper = new OperationHelper(
-					this.tableWriter.getFederatedOperation());
-			this.graphState = helper.createGraphState(this.rowKey, 
+			this.graphState = createGraphState(this.rowKey, 
 				this.rootDataObject, 
 				this.rootDataObject.getDataGraph().getChangeSummary(), 
 				this.tableWriter.getTable(), 
@@ -75,18 +86,28 @@ public class GraphRowWriter extends GraphRow
 	public Put getRow() {
 		return this.row;
 	}
-
+	
 	/**
-	 * Returns the row delete mutation.
-	 * @return the row delete mutation.
+	 * Returns the existing (or creates a new) row delete mutation.
+	 * @return the existing (or creates a new) row delete mutation.
 	 */
+	@Override
 	public Delete getRowDelete() {
 		if (this.rowDelete == null) {
 			this.rowDelete = new Delete(this.getRowKey());
 			this.operations.add(this.rowDelete);
 		}
 		return this.rowDelete;
-	}	
+	}
+	
+	/**
+	 * Returns whether there is an existing row delete mutation.
+	 * @return whether there is an existing row delete mutation.
+	 */
+	@Override
+	public boolean hasRowDelete() {
+		return this.rowDelete != null;
+	}
 	
 	@Override
 	public TableWriter getTableWriter() {
@@ -121,4 +142,88 @@ public class GraphRowWriter extends GraphRow
 	public List<Row> getWriteOperations() {
 		return this.operations;
 	}
+	
+	/**
+     * Initializes a graph state by querying for a row
+     * based on the given row key and either creating a new (empty)
+     * graph state for an entirely new graph, or otherwise initializing
+     * a graph state based on state or state and management columns in
+     * the existing returned row.   
+     * 
+     * @param rowKey the row key
+     * @param dataGraph the data graph
+     * @param changeSummary the change summary
+     * @return the graph state
+     * @throws IOException
+     * @throws DuplicateRowException for a new graph if a row already exists
+     * for the given row key
+     * @throws GraphServiceException where except for a new graph, if no row
+     * exists for the given row key
+     */
+    protected GraphState createGraphState(byte[] rowKey, 
+    		DataObject dataObject,
+    		ChangeSummary changeSummary,
+    		TableConfig tableConfig,
+    		HTableInterface con) throws IOException
+    {
+    	GraphState graphState;
+		// --ensure row exists unless a new row/graph
+		// --use empty get with only necessary "state" management columns
+		Get existing = new Get(rowKey);
+		existing.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
+				Bytes.toBytes(GraphState.STATE_COLUMN_NAME));
+		existing.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
+				Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME));
+		
+		Result result = con.get(existing);
+		
+		// if entirely new graph for the given 
+		// federated or sub-graph root
+		if (changeSummary.isCreated(dataObject)) {
+    		if (!result.isEmpty()) {
+    			if (!result.containsColumn(
+    					tableConfig.getDataColumnFamilyNameBytes(), 
+    					Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME))) {
+    			    throw new DuplicateRowException("no row for id '"
+    				    + Bytes.toString(rowKey) + "' expected when creating new row for table '"
+    				    + tableConfig.getTable().getName() + "'"); 
+    			}
+    			else {
+    			    throw new ToumbstoneRowException("no toumbstone row for id '"
+        				    + Bytes.toString(rowKey) + "' expected when creating new row for table '"
+        				    + tableConfig.getTable().getName() + "' - cannot overwrite toumbstone row"); 
+    			}
+    		}
+    		graphState = new GraphState(
+    			this.tableWriter.getFederatedOperation().getMarshallingContext());
+        }
+		else {
+    		if (result.isEmpty()) {
+    			throw new MissingRowException(tableConfig.getTable().getName(),
+    				Bytes.toString(rowKey));  
+    		}
+			if (result.containsColumn(
+					tableConfig.getDataColumnFamilyNameBytes(), 
+					Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME))) {
+			    throw new ToumbstoneRowException("no row for id '"
+    				    + Bytes.toString(rowKey) + "' expected when modifying row for table '"
+    				    + tableConfig.getTable().getName() 
+    				    + "' - cannot overwrite toumbstone row"); 
+			}
+    		byte[] state = result.getValue(Bytes.toBytes(tableConfig.getDataColumnFamilyName()), 
+    				Bytes.toBytes(GraphState.STATE_COLUMN_NAME));
+            if (state != null) {
+            	if (log.isDebugEnabled())
+            		log.debug(GraphState.STATE_COLUMN_NAME
+            			+ ": " + Bytes.toString(state));
+            }
+            else
+    			throw new OperationException("expected column '"
+    				+ GraphState.STATE_COLUMN_NAME + " for row " 
+    				+ Bytes.toString(rowKey) + "'"); 
+            graphState = new GraphState(Bytes.toString(state), 
+            		this.tableWriter.getFederatedOperation().getMarshallingContext());
+    	}   		
+    	return graphState;
+    }
 }

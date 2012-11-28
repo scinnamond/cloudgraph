@@ -1,23 +1,23 @@
 package org.cloudgraph.state;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.state.model.SequenceMapping;
-import org.cloudgraph.state.model.StateModeNonValidatinglDataBinding;
-import org.cloudgraph.state.model.StateModel;
-import org.cloudgraph.state.model.URIMap;
+import org.cloudgraph.config.TableConfig;
+import org.cloudgraph.state.RowKey;
+import org.cloudgraph.state.StateModel;
+import org.cloudgraph.state.TypeEntry;
+import org.cloudgraph.state.URI;
+import org.cloudgraph.state.UUID;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaEdge;
 import org.plasma.sdo.PlasmaNode;
@@ -25,27 +25,37 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.TraversalDirection;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
-import org.xml.sax.SAXException;
 
 import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 
 /**
- * Manages a minimal set of "state" information persisted with each 
- * data graph in order to reduce overall storage space. 
- * In general mappings from various space intensive properties 
- * required for graph management, such as UUIDs, are mapped 
- * to integral values and the mapping stored in specific 
- * graph management columns within each row. Federation across
- * tables is enabled by mapping UUID's to row keys for any references
- * to external tables.  
+ * State management and mapping implementation class 
+ * designed to facilitate: 
+ * 1.) Fast XML marshalling and unmarshalling (using JAXB though
+ * StAX is a potential replacement candidate)
+ * 2.) Minimal data footprint using appropriate data groupings, e.g.
+ * types grouped under URI's, to reduce redundancy
+ * 3.) Minimal data footprint using mappings, e.g. types mapped to QName hash codes
+ * and integral sequence numbers, to reduce redundancy 
+ * 4.) Integral sequence number management for all types and data object
+ * instances (represented by UUID)
+ * 5.) Row key mapping and management   
  * 
  * <p>
- * Sequence Numbers. Each sequence number is unique to a Type within
- * the context of a single data graph. Each new sequence number 
- * generated is simply the number of existing elements 
- * already mapped for a particular SDO Type (plus 1).  
+ * In general, mappings within the state structure are 
+ * designed and included for the purpose of consolidation of 
+ * potentially repetitive data which would otherwise be included
+ * within cells as column data or as part of composite column
+ * qualifiers.  
  * </p>
+ * 
+ * @see org.cloudgraph.state.StateModel
+ * @see org.cloudgraph.state.URI
+ * @see org.cloudgraph.state.TypeEntry
+ * @see org.cloudgraph.state.UUID
+ * @see org.cloudgraph.state.RowKey
+ * 
  * 
  * @author Scott Cinnamond
  * @since 0.5
@@ -53,32 +63,76 @@ import commonj.sdo.Type;
 public class GraphState implements State {
 
     private static Log log = LogFactory.getLog(GraphState.class);
+    private static final Charset charset = Charset.forName( CoreConstants.UTF8_ENCODING );
 	
 	/**
      * The name of the table column which stores the UUID for the
      * data object which is the data graph root. 
      */
 	public static final String ROOT_UUID_COLUMN_NAME = "__ROOT__";
+	
+	/**
+     * The name bytes of the table column which stores the UUID for the
+     * data object which is the data graph root. 
+     */
+	public static final byte[] ROOT_UUID_COLUMN_NAME_BYTES = ROOT_UUID_COLUMN_NAME.getBytes(charset);
     
+
 	/**
 	 * The name of the table column containing the mapped row key state
 	 * of a graph.  
 	 */
 	public static final String STATE_COLUMN_NAME = "__STATE__";
+	
+	/**
+	 * The name bytes of the table column containing the mapped row key state
+	 * of a graph.  
+	 */
+	public static final byte[] STATE_COLUMN_NAME_BYTES = STATE_COLUMN_NAME.getBytes(charset);
+
+	/**
+	 * The name of the table column containing the toumbstone
+	 * of a graph.  
+	 */
+	public static final String TOUMBSTONE_COLUMN_NAME = "__TOUMBSTONE__";
+
+	/**
+	 * The name of the table column containing the toumbstone
+	 * of a graph.  
+	 */
+	public static final byte[] TOUMBSTONE_COLUMN_NAME_BYTES = TOUMBSTONE_COLUMN_NAME.getBytes(charset);
 
 	private static final String EDGE_RIGHT = "R";
     private static final String EDGE_LEFT = "L";
     private static final String EDGE_DELIM = ":";
     
     private StringBuilder buf = new StringBuilder();
-    private Charset charset = Charset.forName( CoreConstants.UTF8_ENCODING );
    
-    private StateModel model;
     private StateMarshallingContext context;
+    
+    /** Maps UUID strings to UUID state structures */
+    private Map<String, UUID> uuidMap = new HashMap<String, UUID>();
+    private Map<String, UUID> uuidHistoryMap = new HashMap<String, UUID>();
+    
+    /** 
+     * Maps qualified type names to list of UUIDs (including 
+     * UUID's archived in history) linked to the type 
+     */
+    private Map<QName, Map<Integer, UUID>> uuidTypeMap = new HashMap<QName, Map<Integer, UUID>>();
+    
+    /** Maps UUID strings to row Keys */
+    private Map<String, RowKey> rowKeyMap;
+    private Map<String, RowKey> rowKeyHistoryMap;
+    
+    /** Maps URI strings to URI state structures */
+    private Map<String, URI> uriMap = new HashMap<String, URI>();
+    /** Maps qualified names to types */
+    private Map<QName, TypeEntry> typeNameMap = new HashMap<QName, TypeEntry>();
+    /** Maps sequence identifiers to types */
+    private Map<Integer, TypeEntry> typeIdMap = new HashMap<Integer, TypeEntry>();
     
     public GraphState(StateMarshallingContext context) {    	
     	this.context = context;
-    	this.model = new StateModel();
     }    
      
     public GraphState(String state, StateMarshallingContext context) {
@@ -86,71 +140,210 @@ public class GraphState implements State {
     	this.context = context;
     	
     	if (log.isDebugEnabled())
-    		log.debug("unmarshal: " + state);
-    	
+    		log.debug("unmarshal raw: " + state);
+    	StateModel model = null;
 		try {
-	    	//this.model = (StateModel)this.context.getBinding().validate(state);
-	    	this.model = (StateModel)this.context.getBinding()
+			model = (StateModel)this.context.getBinding()
 	    			.unmarshal(state);
-	    	if (log.isDebugEnabled())
-	    		log.debug("unmarshal: " + this.dump());
-	    	
 		} catch (JAXBException e) {
 			throw new StateException(e);
 		} 
+		
+		for (URI uri : model.getURIS()) {
+			this.uriMap.put(uri.getUri(), uri);
+			for (TypeEntry type : uri.getTypes()) {
+				type.setUri(uri.getUri()); // remove before marshalling
+				QName qname = new QName(uri.getUri(), type.getName());
+				this.typeNameMap.put(qname, type);
+				this.typeIdMap.put(type.getId(), type);
+			}
+		}
+		
+		for (UUID uuid : model.getUUIDS()) {
+			this.uuidMap.put(uuid.getValue(), uuid);
+			TypeEntry type = this.typeIdMap.get(uuid.getTypeId());
+			
+			QName qname = new QName(type.getUri(), type.getName());
+			Map<Integer, UUID> uuids = this.uuidTypeMap.get(qname); 
+			if (uuids == null) {
+				uuids = new HashMap<Integer, UUID>();
+				this.uuidTypeMap.put(qname, uuids);
+			}
+			uuids.put(uuid.getId(), uuid);
+		}
+		
+		History hist = model.getHistory();
+    	if (hist != null && hist.getUUIDS() != null && hist.getUUIDS().size() > 0) {
+    		this.uuidHistoryMap = new HashMap<String, UUID>();
+    		for (UUID uuid : model.getHistory().getUUIDS()) {
+    			this.uuidHistoryMap.put(uuid.getValue(), uuid);
+    			TypeEntry type = this.typeIdMap.get(uuid.getTypeId());
+    			
+    			QName qname = new QName(type.getUri(), type.getName());
+    			Map<Integer, UUID> uuids = this.uuidTypeMap.get(qname); 
+    			if (uuids == null) {
+    				uuids = new HashMap<Integer, UUID>();
+    				this.uuidTypeMap.put(qname, uuids);
+    			}
+    			uuids.put(uuid.getId(), uuid);
+    		}	    	
+    	}		
+		
+    	if (model.getRowKeies() != null && model.getRowKeies().size() > 0) {
+    		this.rowKeyMap = new HashMap<String, RowKey>();
+    		for (RowKey entry : model.getRowKeies())
+    			this.rowKeyMap.put(entry.getUuid(), entry);
+    	}
+    	
+    	if (model.getHistory() != null) {
+	    	if (model.getHistory().getRowKeies() != null && model.getHistory().getRowKeies().size() > 0) {
+	    		this.rowKeyHistoryMap = new HashMap<String, RowKey>();
+	    		for (RowKey entry : model.getHistory().getRowKeies())
+	    			this.rowKeyHistoryMap.put(entry.getUuid(), entry);
+	    	}
+    	}
 	}
         
 	public void close() {
 	}
 	 
 	/**
-	 * Adds a the given number mapped to the UUID within the
-	 * given data object. If an existing sequence exists
-	 * for the given data object, a warning is logged. 
+	 * Creates and adds a sequence number mapped to the UUID within the
+	 * given data object.  
 	 * @param dataObject the data object
-	 * @param value the sequence value
+	 * @return the new sequence number
+	 * @throws IllegalArgumentException if the data object is already mapped
 	 */
-    public void addSequence(DataObject dataObject, Long value) {
+    public Integer addSequence(DataObject dataObject) {
     	
-    	PlasmaType plasmaType = (PlasmaType)dataObject.getType();
-    	SequenceMapping mapping = this.model.getSequenceMap().get(
-    		plasmaType.getQualifiedName());
-    	if (mapping == null) {
-    		mapping = new SequenceMapping(plasmaType.getURI(), 
-    				plasmaType.getName());
-    		this.model.getSequenceMap().put(plasmaType.getQualifiedName(), 
-    				mapping);
+    	PlasmaType type = (PlasmaType)dataObject.getType();
+    	TypeEntry typeEntry = this.typeNameMap.get(type.getQualifiedName());
+    	if (typeEntry == null) { // type not mapped
+    		typeEntry = new TypeEntry();
+    		typeEntry.setName(type.getName());
+    		typeEntry.setId(this.typeNameMap.size() + 1);
+    		typeEntry.setHashCode(type.getQualifiedNameHashCode());
+    		if (log.isDebugEnabled())
+    			log.debug("adding type " + type.getQualifiedName() 
+    				+ " seq: " + typeEntry.getId() + " hash: "
+    				+ typeEntry.getHashCode());
+    		this.typeNameMap.put(type.getQualifiedName(), typeEntry);
+    		if (this.typeIdMap.get(typeEntry.getId()) == null) {
+			    this.typeIdMap.put(typeEntry.getId(), typeEntry);
+    		}
+    		else {
+    			TypeEntry dupEntry = this.typeIdMap.get(typeEntry.getId());
+    			throw new StateException("duplicate type sequence found (type: "
+    			    + dupEntry.getName() + " seq: " + dupEntry.getId() 
+    			    + ") when adding type " + type.getQualifiedName() 
+        			+ " seq: " + typeEntry.getId() + " hash: "
+        			+ typeEntry.getHashCode());    		 
+    		}
+    		URI uri = this.uriMap.get(type.getURI());
+    		if (uri == null) { // uri not mapped
+    			uri = new URI();
+    			uri.setUri(type.getURI());
+    			this.uriMap.put(type.getURI(), uri);
+    		}
+    		typeEntry.setUri(uri.getUri());
+    		uri.getTypes().add(typeEntry);
     	}
+    	
+    	Map<Integer, UUID> uuids = this.uuidTypeMap.get(type.getQualifiedName());
+    	if (uuids == null) {
+    		uuids = new HashMap<Integer, UUID>();
+    		this.uuidTypeMap.put(type.getQualifiedName(), uuids);
+    	}
+    	
 		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
-		Integer existing = mapping.getSequence(uuid);
-    	if (existing == null) {
-    		mapping.put(uuid, value.intValue()); // FIXME truncation
-    	}
-    	else
-			log.warn("found existing mapping for UUID " 
-					+ uuid + " - overwriting");
+		UUID uid = this.uuidMap.get(uuid);
+		if (uid == null) {
+			uid = this.uuidHistoryMap.get(uuid);
+			if (uid == null) {
+				uid = new UUID();
+				uid.setValue(uuid);
+				uid.setTypeId(typeEntry.getId());
+				uid.setId(uuids.size() + 1);
+				this.uuidMap.put(uuid, uid);
+				uuids.put(uid.getId(), uid);
+				return uid.getId();
+			}
+			else { // return it from hist to current
+				this.uuidHistoryMap.remove(uuid);
+				this.uuidMap.put(uuid, uid);
+				return uid.getId();
+			}
+		}
+		else
+		    throw new IllegalArgumentException("found existing mapping for UUID " 
+				+ uuid);
     }
     
     /**
 	 * Removes the sequence number mapped to the UUID within the
-	 * given data object. If an existing sequence exists
-	 * for the given data object, a warning is logged. 
-     * @param dataObject
+	 * given data object. If no existing sequence exists
+	 * for the given data object, a warning is logged and
+	 * null is returned. 
+     * @param dataObject the data object
      * @return the removed sequence if exists
      */
-    public Long removeSequence(DataObject dataObject) {
-    	PlasmaType plasmaType = (PlasmaType)dataObject.getType();
-    	String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
-    	SequenceMapping mapping = this.model.getSequenceMap().get(
-    		plasmaType.getQualifiedName());
-    	if (mapping != null) {
-    		Integer removed =  mapping.remove(uuid); 
-    		if (removed != null)
-    			return removed.longValue(); // FIXME truncation
+    public Integer archiveSequence(DataObject dataObject) {
+    	Integer result = null;
+
+    	PlasmaType type = (PlasmaType)dataObject.getType();
+		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+		UUID uid = this.uuidMap.get(uuid);
+    	if (uid == null) {
+    		log.warn("could not remove UUID - no existing mapping found for UUID " 
+    				+ uuid + " - ignoring");
+            return result;    		
     	}
-		log.warn("no existing sequence mapping found for UUID " 
-				+ uuid + " - ignoring");
-		return null;
+    	else {
+    		this.uuidMap.remove(uuid);
+    		this.uuidHistoryMap.put(uuid, uid);    			
+    		result = uid.getId();
+    	}
+    	
+    	/*
+    	Map<Integer, UUID> uuids = this.uuidTypeMap.get(type.getQualifiedName());
+    	if (uuids == null) {
+    		throw new StateException("expected UUID for type, "
+    			+ type.getQualifiedName());
+    	}
+    	if (uuids.remove(uid.getId()) == null)
+    		throw new StateException("cloud not remove UUID for type, "
+        			+ type.getQualifiedName());
+    	*/
+		
+    	// no more UUIDs mapped for type, remove the type
+    	/*
+    	if (uuids.size() == 0) {
+    		this.uuidTypeMap.remove(type.getQualifiedName());
+    		
+    		TypeEntry typeEntry = this.typeNameMap.remove(type.getQualifiedName());    		
+    		if (typeEntry == null)
+    		    throw new StateException("cloud not remove type "
+        			+ type.getQualifiedName() + " from type mapping");
+    		typeEntry = this.typeIdMap.remove(typeEntry.getId());
+    		if (typeEntry == null)
+		        throw new StateException("cloud not remove type "
+        			+ type.getQualifiedName() + " from type-id mapping");
+    		
+    		URI uri = this.uriMap.get(type.getURI());
+    		if (!uri.getTypes().remove(typeEntry))
+        		throw new StateException("cloud not remove type "
+            			+ type.getQualifiedName() + " from URI mapping");
+    		if (log.isDebugEnabled())
+    			log.debug("removed type " + type.getQualifiedName() 
+    				+ " seq: " + typeEntry.getId() + " hash: "
+    				+ typeEntry.getHashCode());
+    	    // no mode types mapped for URI
+    		if (uri.getTypes().size() == 0)
+    	    	this.uriMap.remove(type.getURI());
+    	}
+    	*/
+    	
+		return result;
     }
      
 	/**
@@ -162,17 +355,14 @@ public class GraphState implements State {
 	 * @return the existing sequence or null if not exists for the given 
 	 * data object
 	 */
-	public Long findSequence(DataObject dataObject) {	
-    	PlasmaType plasmaType = (PlasmaType)dataObject.getType();
-    	String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
-    	SequenceMapping mapping = this.model.getSequenceMap().get(
-    		plasmaType.getQualifiedName());
-    	if (mapping != null) {
-    		Integer result =  mapping.getSequence(uuid); 
-    		if (result != null)
-    			return result.longValue(); // FIXME truncation
+	public Integer findSequence(DataObject dataObject) {	
+		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+		UUID uid = this.uuidMap.get(uuid);
+    	if (uid != null) {
+    		return uid.getId();
     	}
-    	return null;
+    	else
+    		return null;
 	}
 	
 	/**
@@ -186,64 +376,34 @@ public class GraphState implements State {
 	 * @throws IllegalArgumentException if the given data object UUID is not
 	 * already mapped
 	 */
-	public Long getSequence(DataObject dataObject) {	
-    	PlasmaType plasmaType = (PlasmaType)dataObject.getType();
-    	String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
-    	SequenceMapping mapping = this.model.getSequenceMap().get(
-    		plasmaType.getQualifiedName());
-    	if (mapping != null) {
-    		Integer result =  mapping.getSequence(uuid); 
-    		if (result != null)
-    			return result.longValue(); // FIXME truncation
-    	}
-		throw new IllegalArgumentException("no sequence mapped for the given UUID, "
+	public Integer getSequence(DataObject dataObject) {	
+		Integer result = findSequence(dataObject);
+		if (result != null) {
+			return result;
+		}
+		else {
+			String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+		    throw new IllegalArgumentException("no sequence mapped to type "
+				+ dataObject.getType().getURI() + "#" + dataObject.getType().getName() 
+				+ " for the given UUID, "
 				+ String.valueOf(uuid));
+		}
 	}
-
-	/**
-	 * Returns an existing or creates/adds and returns a new sequence  
-	 * number for the given data object. Each sequence number generated is
-     * a simply the number of existing elements for a particular
-     * SDO type (plus 1).
-	 * @param dataObject the data object
-	 * @return the new or existing sequence
-	 */
-	public Long createSequence(DataObject dataObject) {
-    	PlasmaType plasmaType = (PlasmaType)dataObject.getType();
-		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
-		Integer result = null;
-		SequenceMapping mapping = this.model.getSequenceMap().get(
-    		plasmaType.getQualifiedName());
-    	if (mapping == null) {
-    		mapping = new SequenceMapping(plasmaType.getURI(), 
-    				plasmaType.getName());
-    		this.model.getSequenceMap().put(plasmaType.getQualifiedName(), 
-    				mapping);
-    	}
-    	else  {
-    		result = mapping.getSequence(uuid);
-    		if (result != null)
-    			return result.longValue();
-    	}
-    	result = mapping.create(uuid);
-		return result.longValue();
-	}
-	
-	
+		
 	/**
 	 * Returns an existing UUID for the given 
 	 * sequence number, or null if none exists. 
 	 * @return the existing UUID or null if not exists for the given 
 	 * sequence.
 	 */
-	public String findUUID(Type type, Long sequence) {
+	public String findUUID(Type type, Integer sequence) {		
     	PlasmaType plasmaType = (PlasmaType)type;
-    	SequenceMapping mapping = this.model.getSequenceMap().get(
-    		plasmaType.getQualifiedName());
-    	if (mapping != null) {
-    		String result =  mapping.getUUID(sequence.intValue());
-    		return result;
-    	}
+    	Map<Integer, UUID> uuids = this.uuidTypeMap.get(plasmaType.getQualifiedName());
+		if (uuids != null) {
+		    UUID uuid = uuids.get(sequence);
+		    if (uuid != null)
+			    return uuid.getValue();
+		}
     	return null;
 	}	
 	
@@ -258,19 +418,15 @@ public class GraphState implements State {
 	 * @throws IllegalArgumentException if the given sequence is not
 	 * already mapped
 	 */
-	public String getUUID(Type type, Long sequence) {
-    	PlasmaType plasmaType = (PlasmaType)type;
-    	SequenceMapping mapping = this.model.getSequenceMap().get(
-    		plasmaType.getQualifiedName());
-    	if (mapping != null) {
-    		String result =  mapping.getUUID(sequence.intValue());
-    		return result;
-    	}
+	public String getUUID(Type type, Integer sequence) {
+		String result = findUUID(type, sequence);
+		if (result != null)
+		    return result;
 		throw new IllegalArgumentException("no UUID mapped for the given sequence ("
 				+ String.valueOf(sequence) + ") for given type, "
 				+ type.getURI() + "#" + type.getName());
 	}
-
+		
 	/**
 	 * Returns an existing mapped row key for the given data object, 
 	 * or null if none exists. 
@@ -280,7 +436,41 @@ public class GraphState implements State {
 	 */
 	public byte[] findRowKey(DataObject dataObject) {
 		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
-		return this.model.getRowKeyMap().get(uuid);
+		return findRowKey(uuid);
+	}
+	
+	/**
+	 * Returns an existing mapped row key for the given data object uuid, 
+	 * or null if none exists. 
+	 * @param uuid the data object uuid
+	 * @return an existing mapped row key for the given data object uuid, 
+	 * or null if none exists. 
+	 */
+	public byte[] findRowKey(String uuid) {
+		if (this.rowKeyMap != null) {
+			RowKey key = this.rowKeyMap.get(uuid);
+			if (key != null)
+				return key.getValue().getBytes(this.charset);
+		}
+		return null;
+	}	
+
+	/**
+	 * Returns the table name for an existing mapped row key 
+	 * for the given data object uuid. 
+	 * @param uuid the data object uuid
+	 * @return an existing mapped row key for the given data object, 
+	 * or null if none exists. 
+	 * @throws IllegalArgumentException if no row key is mapped for the given data object uuid
+	 */
+	public String getRowKeyTable(String uuid) {
+		if (this.rowKeyMap != null) {
+			RowKey key = this.rowKeyMap.get(uuid);
+			if (key != null)
+				return key.getTable();
+		}
+	    throw new IllegalArgumentException("no row key mapped for the given UUID ("
+			+ String.valueOf(uuid) + ")");
 	}
 	
 	/**
@@ -290,10 +480,10 @@ public class GraphState implements State {
 	 * @throws IllegalArgumentException if no row key is mapped for the given data object 
 	 */
 	public byte[] getRowKey(DataObject dataObject) {
-		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
-		byte[] result = this.model.getRowKeyMap().get(uuid);
+		byte[] result = findRowKey(dataObject);
 		if (result != null)
 			return result;
+		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
 		throw new IllegalArgumentException("no row key mapped for the given UUID ("
 				+ String.valueOf(uuid) + ") for given type, "
 				+ dataObject.getType().getURI() + "#" + dataObject.getType().getName());
@@ -301,12 +491,12 @@ public class GraphState implements State {
 	
 	/**
 	 * Returns an existing mapped row key for the given data object UUID. 
-	 * @param dataObject the data object
-	 * @return an existing mapped row key for the given data object. 
+	 * @param uuid the data object uuid
+	 * @return an existing mapped row key for the given data object uuid. 
 	 * @throws IllegalArgumentException if no row key is mapped for the given data object UUID, the UUID is null or the incorrect length
 	 */
 	public byte[] getRowKey(String uuid) {
-		byte[] result = this.model.getRowKeyMap().get(uuid);
+		byte[] result = findRowKey(uuid);
 		if (result != null) {
 			if (log.isDebugEnabled())
 				log.debug("returning row-key: " 
@@ -323,7 +513,7 @@ public class GraphState implements State {
 	 * @param dataObject the data object
 	 * @param key the row key;
 	 */
-	public void addRowKey(DataObject dataObject, byte[] key) {
+	public void addRowKey(DataObject dataObject, TableConfig table, byte[] key) {
 		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
 		if (uuid == null || uuid.length() == 0)
 			throw new IllegalArgumentException("found null or zero length UUID from data object");
@@ -332,29 +522,45 @@ public class GraphState implements State {
 		if (log.isDebugEnabled())
 			log.debug("adding row-key: " 
 		        + uuid + "->" + new String(key, this.charset));
-		this.model.getRowKeyMap().put(uuid, key);
+		if (this.rowKeyMap == null) {
+			this.rowKeyMap = new HashMap<String, RowKey>();
+		}
+		
+		RowKey rowKey = this.rowKeyMap.get(uuid);
+		if (rowKey == null) {
+			rowKey = new RowKey();
+			rowKey.setUuid(uuid);
+			rowKey.setTable(table.getName());
+			rowKey.setValue(new String(key, this.charset));
+			this.rowKeyMap.put(uuid, rowKey);
+		}
 	}
 
 	/**
 	 * Removes an existing mapping, if exists, for the given data object.
 	 * @param dataObject the data object
-	 * @param key the row key;
+	 * @param key the row key
 	 */
-	public void removeRowKey(DataObject dataObject) {
+	public void archiveRowKey(DataObject dataObject) {
 		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
 		if (uuid == null || uuid.length() == 0)
 			throw new IllegalArgumentException("found null or zero length UUID from data object");
 		if (uuid.length() != 36)
 			throw new IllegalArgumentException("found "+uuid.length()+" rather than 38 char length UUID from data object");
-		byte[] key = this.model.getRowKeyMap().remove(uuid);
-		if (key == null) {
+		RowKey rowKey = this.rowKeyMap.remove(uuid);
+		if (rowKey == null) {
 			log.warn("could not remove key - no row key mapped to UUID, "
 					+ uuid);
 		}
-		else
-		    if (log.isDebugEnabled())
+		else {
+			if (this.rowKeyHistoryMap == null)
+				this.rowKeyHistoryMap = new HashMap<String, RowKey>();
+		    if (this.rowKeyHistoryMap.get(rowKey.getUuid()) == null)
+		    	this.rowKeyHistoryMap.put(rowKey.getUuid(), rowKey);
+			if (log.isDebugEnabled())
 			    log.debug("removed row-key: " 
-		            + uuid + "->" + new String(key, this.charset));
+		            + uuid + "->" + rowKey.getValue());
+		}
 	}
 	
 	/**
@@ -362,14 +568,18 @@ public class GraphState implements State {
 	 * @return a count of the current row keys
 	 */	
 	public int getRowKeyCount() {
-	    return this.model.getRowKeyMap().size();
+		if (this.rowKeyMap != null)
+	        return this.rowKeyMap.size();
+		return 0;
 	}
 
-	public void addEdges(PlasmaNode dataNode, List<PlasmaEdge> edges) {
+	public void addEdges(PlasmaNode dataNode, 
+			List<PlasmaEdge> edges) {
 		if (edges != null) {
 			for (PlasmaEdge edge : edges) {
 	    		PlasmaDataObject opposite = edge.getOpposite(dataNode).getDataObject();
-	    		createSequence(opposite);
+	    		if (findSequence(opposite) == null)	    		
+	    		    addSequence(opposite);
 			}
 		}
     }
@@ -388,22 +598,22 @@ public class GraphState implements State {
 			result = new String[edges.size()];
 			int i = 0;
 			for (PlasmaEdge edge : edges) {
-	    		PlasmaDataObject opposite = edge.getOpposite(dataNode).getDataObject();
-	    		Long seq = getSequence(opposite);
-	    		result[i] = marshalEdge(edge, seq);
+	    		PlasmaDataObject opposite = edge.getOpposite(dataNode).getDataObject();	    		
+	    		result[i] = marshalEdge(edge, opposite);
 	         	i++;
 			}
 		}
+		//NOTE: returns '[]' for zero length array
 		// use Arrays formatting
 		return Arrays.toString(result);
     }
 	
-	public Edge[] unmarshalEdges(Type type, byte[] data) {
+	public Edge[] unmarshalEdges(byte[] data) {
 		String edges = new String(data, this.charset);
-		return unmarshalEdges(type, edges);
+		return unmarshalEdges(edges);
 	}
 	
-	public Edge[] unmarshalEdges(Type type, String data) {
+	public Edge[] unmarshalEdges(String data) {
 		// replace Arrays formatting and whitespace, then split
 		String[] array = data.replaceAll("[\\[\\]\\s]", "").split(",");
 		if (array.length == 1 && array[0].length() == 0)
@@ -411,31 +621,28 @@ public class GraphState implements State {
 		
 		Edge[] result = new Edge[array.length];
 		for (int i = 0; i < result.length; i++) {
-			result[i] = new Edge(type, array[i]);
+			result[i] = new Edge(array[i]);
 		}		
 		return result;
 	}
 
-    private String marshalEdge(PlasmaEdge edge, Long seq)
+    private String marshalEdge(PlasmaEdge edge, DataObject opposite)
     {
-        String dir = formatDirection(edge.getDirection());
+    	PlasmaType type = (PlasmaType)opposite.getType();    	
+    	TypeEntry typeEntry = this.typeNameMap.get(type.getQualifiedName());    	
+    	Integer typeSeq = typeEntry.getId();
+    	Integer seq = this.getSequence(opposite);    	    	
+    	//String dir = formatDirection(edge.getDirection());
+    	
     	this.buf.setLength(0);        	
-        this.buf.append(dir);
+        //this.buf.append(dir);
+        //this.buf.append(EDGE_DELIM);
+        this.buf.append(String.valueOf(typeSeq));        	
         this.buf.append(EDGE_DELIM);
         this.buf.append(String.valueOf(seq));        	
     	return this.buf.toString();   	
     }
     
-    private String marshalEdge(PlasmaEdge edge, byte[] key)
-    {
-        String dir = formatDirection(edge.getDirection());
-    	this.buf.setLength(0);        	
-        this.buf.append(dir);
-        this.buf.append(EDGE_DELIM);        
-        this.buf.append(new String(key, this.charset));        	
-    	return this.buf.toString();   	
-    }
-
     private String formatDirection(TraversalDirection dir) {
 	    if (dir.ordinal() == TraversalDirection.RIGHT.ordinal()) {
 	    	return EDGE_RIGHT;
@@ -448,47 +655,47 @@ public class GraphState implements State {
 	    			+ dir.name());
 	}
     
-    public String dump() {
-    	StateModeNonValidatinglDataBinding binding;
-    	String xml = "";
-		try {
-			binding = new StateModeNonValidatinglDataBinding();
-			xml = binding.marshal(this.model);
-		} catch (JAXBException e1) {
-			log.error(e1);
-		} catch (SAXException e1) {
-			log.error(e1);
-		}
-
-    	return xml;
+    public String marshal() {
+    	return marshal(false);
     }
     
-    public String marshal() {
-    	ByteArrayOutputStream stream = new ByteArrayOutputStream();
-    	
+    public String marshal(boolean formatted) {
     	String xml = "";
 		try {
-			this.context.getBinding().marshal(this.model, stream, false); // no formatting
+			StateModel model = new StateModel();
+	    	if (this.rowKeyMap != null) {
+	    		for (Entry<String, RowKey> entry : this.rowKeyMap.entrySet())
+	    			model.getRowKeies().add(entry.getValue());
+	    	}			
+	    	if (this.rowKeyHistoryMap != null) {
+	    		if (model.getHistory() == null) 	    			
+	    		    model.setHistory(new History());
+	 	    	for (Entry<String, RowKey> entry : this.rowKeyHistoryMap.entrySet())
+	    			model.getHistory().getRowKeies().add(entry.getValue());
+	    	}			
+	    	for (UUID uuid : this.uuidMap.values()) {
+	    		model.getUUIDS().add(uuid);
+	    	}
+	    	if (this.uuidHistoryMap != null) {
+	    		if (model.getHistory() == null) 	    			
+	    		    model.setHistory(new History());
+	 	    	for (Entry<String, UUID> entry : this.uuidHistoryMap.entrySet())
+	    			model.getHistory().getUUIDS().add(entry.getValue());
+	    	}			
+	    	
+	    	for (URI uri : this.uriMap.values()) {
+	    		model.getURIS().add(uri);
+	    	}
+	    	
+	    	// null out URI on individual types as uri
+	    	// found on URI container
+	    	for (TypeEntry entry : this.typeNameMap.values())
+	    		entry.setUri(null);
+	    	
+			xml = this.context.getBinding().marshal(model); // no formatting
 		} catch (JAXBException e1) {
 			throw new StateException(e1);
 		} 
-		byte[] bytes = null;
-		try {
-			stream.flush();
-			bytes = stream.toByteArray();
-		} catch (IOException e) {
-			throw new StateException(e);
-		}
-		finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				log.error(e.getMessage());
-			}
-		}
-		xml = new String(bytes, this.charset);
-    	if (log.isDebugEnabled())
-    		log.debug("marshal: " + xml);
 
     	return xml;
     }
@@ -499,30 +706,45 @@ public class GraphState implements State {
      */ 
     public class Edge {
     	private TraversalDirection direction;
+    	private PlasmaType type;
     	private String uuid;
-    	private Long id;
+    	private Integer typeId;
+    	private Integer id;
     	
     	@SuppressWarnings("unused")
 		private Edge() {}
-    	public Edge(Type type, String data) {
+    	public Edge(String data) {
+    		this.type = (PlasmaType)type;
     	    String[] tokens = data.split(EDGE_DELIM);
-    	    if (EDGE_RIGHT.equals(tokens[0])) {
-    	    	this.direction = TraversalDirection.RIGHT;
-    	    }
-    	    else if (EDGE_LEFT.equals(tokens[0])) {
-    	    	this.direction = TraversalDirection.LEFT;
-    	    }
-    	    else
-    	    	throw new IllegalStateException("could not parse traversal direction token from, '"
-    	    			+ data + "'");
+    	    //if (EDGE_RIGHT.equals(tokens[0])) {
+    	    //	this.direction = TraversalDirection.RIGHT;
+    	    //}
+    	    //else if (EDGE_LEFT.equals(tokens[0])) {
+    	    //	this.direction = TraversalDirection.LEFT;
+    	    //}
+    	    //else
+    	    //	throw new IllegalStateException("could not parse traversal direction token from, '"
+    	    //			+ data + "'");
     	    
-    	    this.id = Long.valueOf(tokens[1]);
+    	    this.typeId = Integer.valueOf(tokens[0]);
+    	    
+    	    TypeEntry typeEntry = typeIdMap.get(this.typeId);
+    	    
+    		this.type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(typeEntry.getUri(), 
+    				typeEntry.getName());
+    	    
+    	    this.id = Integer.valueOf(tokens[1]);    	        	    
     	    this.uuid = getUUID(type, this.id);
     	}
-		public TraversalDirection getDirection() {
-			return direction;
-		}
+    	
+		//public TraversalDirection getDirection() {
+		//	return direction;
+		//}
  		
+		public PlasmaType getType() {
+			return type;
+		}
+		
 		/**
 		 * Returns the UUID string for the target data object
 		 * for this edge. 
@@ -539,7 +761,7 @@ public class GraphState implements State {
 		 * @return the sequence id for the target data object
 		 * for this edge.
 		 */ 
-        public Long getId() {
+        public Integer getId() {
 			return id;
 		}
     }

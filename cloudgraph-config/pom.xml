@@ -39,7 +39,7 @@
 							<staleFile>${project.build.directory}/jaxb2/.xjcStaleFlag-config</staleFile>
 				        </configuration>
 					</execution>
-					<!--  
+					  
 					<execution>
 					    <id>generate-state</id>
 						<phase>generate-sources</phase>
@@ -54,7 +54,7 @@
 							<staleFile>${project.build.directory}/jaxb2/.xjcStaleFlag-state</staleFile>
 				        </configuration>
 					</execution>
-					-->
+					 
 				</executions>
 				<configuration>
 					<outputDirectory>${basedir}/target/generated-sources/java</outputDirectory>

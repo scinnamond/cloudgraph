@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cloudgraph:CloudGraphConfiguration  
     xmlns:cloudgraph="http://www.cloudgraph.org/config">
-    
+    <!--
     <Property name="hbase.zookeeper.quorum">u16361628.onlinehome-server.com</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
-      
-    <!--
+      -->
+    
     <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2181</Property>  
-      -->
+      
      
      <!--
      does not seem to do anything 
@@ -123,6 +123,7 @@
         </DataGraph>
 
     </Table>  
+
          
     <Table name="ACTOR" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
@@ -145,7 +146,6 @@
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
         </DataGraph>
-
     </Table>  
            
     <Table name="MEDIA" dataColumnFamilyName="f1">

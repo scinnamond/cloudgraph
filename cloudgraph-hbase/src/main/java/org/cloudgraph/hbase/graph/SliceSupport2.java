@@ -48,7 +48,7 @@ public class SliceSupport2 {
 	 * @throws IOException 
 	 * @see PredicateColumnFilterAssembler
 	 */
-	public Map<Long, Long> fetchSequences(PlasmaType contextType,
+	public Map<Integer, Integer> fetchSequences(PlasmaType contextType,
 			Where where, RowReader rowReader) throws IOException {
 
         Get get = new Get(rowReader.getRowKey());
@@ -73,7 +73,7 @@ public class SliceSupport2 {
 	 * @return the sequence numbers.
 	 * @throws IOException 
 	 */
-	public Map<Long, Long> fetchSequences(Get get, TableReader tableReader, DataGraphConfig graphConfig) throws IOException
+	public Map<Integer, Integer> fetchSequences(Get get, TableReader tableReader, DataGraphConfig graphConfig) throws IOException
 	{
         if (log.isDebugEnabled() )
 			try {
@@ -91,7 +91,7 @@ public class SliceSupport2 {
                 + tableReader.getTable().getName() + " for row '"
         		+ new String(get.getRow()) + "'");
     	
-		Map<Long, Long> seqMap = new HashMap<Long, Long>();
+		Map<Integer, Integer> seqMap = new HashMap<Integer, Integer>();
   	    if (!result.isEmpty())
 			for (KeyValue keyValue : result.list()) {
 	  	    	// FIXME: no parsing here !!
@@ -100,7 +100,7 @@ public class SliceSupport2 {
 	  	    	    log.debug("\tkey: " + qual
 	  	    	        + "\tvalue: " + Bytes.toString(keyValue.getValue()));
 	  	        String[] sections = qual.split(graphConfig.getColumnKeySectionDelimiter());
-	  	        Long seq = Long.valueOf(sections[1]);
+	  	        Integer seq = Integer.valueOf(sections[1]);
 	  	        seqMap.put(seq, seq);
 	  	    }
         
@@ -170,7 +170,7 @@ public class SliceSupport2 {
         load(get, rowReader);
 	}
 	
-	public void loadBySequenceList(Collection<Long> sequences, List<String> propertyNames,
+	public void loadBySequenceList(Collection<Integer> sequences, List<String> propertyNames,
 			PlasmaType contextType, RowReader rowReader) throws IOException
 	{
         Scan scan = new Scan();

@@ -171,7 +171,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-                        <skip>false</skip>
+                        <skip>true</skip>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
@@ -185,7 +185,7 @@
                         </systemProperties>
                         <includes>               
                             <include>**/*SocialGraphNonFederatedTest*</include>                      
-                             <include>**/*PartialRowKeyScanTest*</include>   
+                             <!--<include>**/*PartialRowKeyScanTest*</include>-->   
                         </includes> 
                     </configuration>
                   </execution>
@@ -218,13 +218,14 @@
                 <configuration>
                     <skip>true</skip>
                     
-                    <!-- debugging -->
-                    <!--  
-                    <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>
-                    -->
-                        
+                    <!-- debugging -->  
+                    <!--                     
+                    <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
+                        -->
                     <!-- profiling  -->
+                    <!--
                     <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  
+                    -->
                     <!--    
                     <argLine>-Xrunhprof:cpu=times,depth=25</argLine>    
                     <argLine>-Xrunhprof:heap=sites,cpu=times,depth=10,monitor=y,thread=y,doe=y</argLine>    

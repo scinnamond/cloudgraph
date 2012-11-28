@@ -1,15 +1,14 @@
 package org.cloudgraph.state;
 
-import org.cloudgraph.state.model.StateModeNonValidatinglDataBinding;
 
 public class StateMarshallingContext {
-    private StateModeNonValidatinglDataBinding binding;
+    private StatelNonValidatinglDataBinding binding;
 	@SuppressWarnings("unused")
 	private StateMarshallingContext() {}
-	public StateMarshallingContext(StateModeNonValidatinglDataBinding binding) {
+	public StateMarshallingContext(StatelNonValidatinglDataBinding binding) {
 		this.binding = binding;
 	}
-	public StateModeNonValidatinglDataBinding getBinding() {
+	public StatelNonValidatinglDataBinding getBinding() {
 		return binding;
 	}
 	

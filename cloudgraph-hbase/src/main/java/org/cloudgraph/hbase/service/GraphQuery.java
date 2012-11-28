@@ -24,8 +24,8 @@ import org.cloudgraph.hbase.filter.InitialFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
 import org.cloudgraph.hbase.graph.FederatedGraphAssembler;
 import org.cloudgraph.hbase.graph.FederatedGraphSliceAssembler;
-import org.cloudgraph.hbase.graph.GraphAssembler;
 import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
+import org.cloudgraph.hbase.graph.SimpleGraphAssembler;
 import org.cloudgraph.hbase.io.FederatedGraphReader;
 import org.cloudgraph.hbase.io.FederatedReader;
 import org.cloudgraph.hbase.io.GraphTableReader;
@@ -80,7 +80,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
  * 
  * @see org.plasma.query.Query
  * @see PredicateRowFilterAssembler
- * @see GraphAssembler
+ * @see SimpleGraphAssembler
  * @see GraphFetchColumnFilterAssembler
  * 
  * @author Scott Cinnamond
@@ -187,6 +187,10 @@ public class GraphQuery
                 log.debug("executing count...");
         	ResultScanner scanner = tableReader.getConnection().getScanner(scan);
             for (Result result : scanner) {
+            	if (result.containsColumn(tableReader.getTable().getDataColumnFamilyNameBytes(), 
+            			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
+            		continue; // ignore toumbstone roots
+            	}
             	count++;
             }       
             long after = System.currentTimeMillis();
@@ -215,7 +219,7 @@ public class GraphQuery
         collector.setOnlyDeclaredProperties(false);
         collector.getResult(); // trigger the traversal
         if (log.isDebugEnabled())
-        	log.debug(collector.dumpProperties());
+        	log.debug(collector.dumpInheritedProperties());
         FederatedGraphReader graphReader = new FederatedGraphReader(
         		type, collector.getTypes(),
         		this.context.getMarshallingContext());
@@ -261,6 +265,10 @@ public class GraphQuery
               	    		+ new String(keyValue.getQualifier())
               	    	    + "\tvalue: " + new String(keyValue.getValue()));
               	    }
+            	}
+            	if (resultRow.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
+            			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
+            		continue; // ignore toumbstone roots
             	}
           	    graphAssembler.assemble(resultRow);
                 result.add(graphAssembler.getDataGraph());

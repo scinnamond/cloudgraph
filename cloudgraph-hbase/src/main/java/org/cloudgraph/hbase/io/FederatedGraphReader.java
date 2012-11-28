@@ -7,6 +7,8 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.state.StateMarshallingContext;
@@ -39,7 +41,9 @@ import commonj.sdo.Type;
  */
 public class FederatedGraphReader implements FederatedReader {
 
-	private TableReader rootReader;
+    private static Log log = LogFactory.getLog(FederatedGraphReader.class);
+	
+    private TableReader rootReader;
 	/** maps table names to table readers */
 	private Map<String, TableReader> tableReaderMap = new HashMap<String, TableReader>();
 	/** maps qualified graph-root type names to table readers */
@@ -207,10 +211,14 @@ public class FederatedGraphReader implements FederatedReader {
     public void mapRowReader(DataObject dataObject, 
     		RowReader rowReader) {
     	RowReader existing = this.rowReaderMap.get(dataObject);
-    	if (existing != null)
-    		throw new IllegalArgumentException("the given data object of type "
+    	if (existing != null) {
+    		//throw new IllegalArgumentException
+    		log.warn("the given data object of type "
     		   + dataObject.getType().getURI() + "#" + dataObject.getType().getName()		
     	       + " is already associated with a row reader");
+    		return;
+    	}
+    	 
     	rowReaderMap.put(dataObject, rowReader);
     }
     

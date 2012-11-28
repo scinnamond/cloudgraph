@@ -14,38 +14,35 @@ import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState.Edge;
-import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.collector.PropertySelection;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
-import org.plasma.sdo.core.TraversalDirection;
 
 /**
  * 
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public class GraphSliceAssembler extends DefaultAssembler
+public class SimpleGraphSliceAssembler extends DefaultAssembler
     implements HBaseGraphAssembler {
 
 	protected TableConfig tableConfig;
 	protected RowReader rowReader;
-	protected Map<commonj.sdo.Property, Where> predicateMap; 
 	private SliceSupport2 sliceSupport = new SliceSupport2();
 	
-    public GraphSliceAssembler(PlasmaType rootType,
-			PropertySelectionCollector collector, 
+    public SimpleGraphSliceAssembler(PlasmaType rootType,
+    		PropertySelection collector, 
 			TableReader tableReader,
 			Timestamp snapshotDate) {
 		super(rootType, collector, tableReader, snapshotDate);
 		this.tableConfig = this.rootTableReader.getTable();
-		this.predicateMap = this.collector.getPredicateMap();
 	}
 
-	private static Log log = LogFactory.getLog(GraphSliceAssembler.class);
+	private static Log log = LogFactory.getLog(SimpleGraphSliceAssembler.class);
 
 	@Override
 	public void assemble(Result resultRow) {
@@ -71,7 +68,7 @@ public class GraphSliceAssembler extends DefaultAssembler
 					+ target.getType().getURI() + "#" 
 					+ target.getType().getName());
 		
-		List<String> names = this.propertyMap.get(target.getType());
+		List<String> names = this.selection.getProperties(target.getType());
 		if (log.isDebugEnabled())
 			log.debug(target.getType().getName() + " names: " + names.toString());
 		
@@ -91,24 +88,24 @@ public class GraphSliceAssembler extends DefaultAssembler
 			PlasmaType childType = (PlasmaType)prop.getType();
 			
 			// NOTE: can we have predicates on singular props? 
-			Where where = this.predicateMap.get(prop);
-			Map<Long, Long> sequences = null;
+			Where where = this.selection.getPredicate(prop);
+			Map<Integer, Integer> sequences = null;
 			if (prop.isMany() && where != null) {
 		    	sequences = this.sliceSupport.fetchSequences(childType, 
 		    		where, this.rowReader);
-				List<String> childPropertyNames = this.propertyMap.get(prop.getType());
+				List<String> childPropertyNames = this.selection.getProperties(prop.getType());
 				this.sliceSupport.loadBySequenceList(
 					sequences.values(), 
 					childPropertyNames, 
 					childType, rowReader);
 			}
 			else {
-			    List<String> childPropertyNames = this.propertyMap.get(prop.getType());
+			    List<String> childPropertyNames = this.selection.getProperties(prop.getType());
 			    this.sliceSupport.load(childPropertyNames,
 		    			childType, rowReader);
 			}						
 			
-			Edge[] edges = this.rowReader.getGraphState().unmarshalEdges(prop.getType(), 
+			Edge[] edges = this.rowReader.getGraphState().unmarshalEdges( 
 				keyValue);
 			
 			assembleEdges(target, prop, edges, sequences, this.rowReader, level);
@@ -116,7 +113,7 @@ public class GraphSliceAssembler extends DefaultAssembler
 	}
 
 	private void assembleEdges(PlasmaDataObject target, PlasmaProperty prop, 
-		Edge[] edges, Map<Long, Long> sequences, RowReader rowReader,
+		Edge[] edges, Map<Integer, Integer> sequences, RowReader rowReader,
 		int level) throws IOException 
 	{
 		for (Edge edge : edges) {	
@@ -138,9 +135,7 @@ public class GraphSliceAssembler extends DefaultAssembler
 			
 			rowReader.addDataObject(child);			
             
-			// FIXME: if left, then create a link only??
-			if (edge.getDirection().ordinal() == TraversalDirection.RIGHT.ordinal())
-		        assemble(child, target, prop, level+1);		
+	        assemble(child, target, prop, level+1);		
 		}
 	}
 	

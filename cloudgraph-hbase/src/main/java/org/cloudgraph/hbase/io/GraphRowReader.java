@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.service.ToumbstoneRowException;
 import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.cloudgraph.hbase.service.ColumnMap;
 import org.cloudgraph.state.GraphRow;
@@ -52,14 +53,16 @@ public class GraphRowReader extends GraphRow
 			throw new OperationException("expected column '"
 				+ GraphState.STATE_COLUMN_NAME + "' for row " 
 				+ Bytes.toString(rowKey) + "'"); 
-        this.graphState = new GraphState(Bytes.toString(state),
+		byte[] toumbstone = this.row.getColumnValue(
+				this.tableReader.getTable().getDataColumnFamilyNameBytes(), 
+				Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME));
+        if (toumbstone  != null)
+        	throw new ToumbstoneRowException("cannot read toumbstone row for root, "
+        			+ rootDataObject.toString());
+        	
+		this.graphState = new GraphState(Bytes.toString(state),
         		this.tableReader.getFederatedOperation().getMarshallingContext());
 
-        if (log.isDebugEnabled()) {
-        	String stateStr = this.graphState.dump();
-        	log.debug("STATE: " + stateStr);
-        }
-        
         this.columnKeyFactory = new StatefullColumnKeyFactory(
         		(PlasmaType)rootDataObject.getType(),
         		graphState);

@@ -35,4 +35,11 @@ public interface TableOperation extends TableState {
 	 * operation context. 
 	 */
 	public FederatedOperation getFederatedOperation();
+	
+	/**
+	 * Sets the federated context associated with this table
+	 * operation context. 
+	 * @param federatedOperation the operation
+	 */
+	public void setFederatedOperation(FederatedOperation federatedOperation);
 }

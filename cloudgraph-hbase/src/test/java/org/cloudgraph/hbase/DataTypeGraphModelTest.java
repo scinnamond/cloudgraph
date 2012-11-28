@@ -47,6 +47,8 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
         	}
     	}
     	
+    	
+    	
     	//addNodes(root, id, now,
     	//		maxLevels, 1, 
     	//		maxRows);    	

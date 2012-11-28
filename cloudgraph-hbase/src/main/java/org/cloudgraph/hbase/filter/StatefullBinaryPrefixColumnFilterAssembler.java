@@ -53,7 +53,7 @@ public class StatefullBinaryPrefixColumnFilterAssembler extends FilterListAssemb
         this.columnKeyFac = new StatefullColumnKeyFactory(rootType, this.graphState);  
 	} 
 	
-	public void assemble(List<String> propertyNames, Collection<Long> sequences,
+	public void assemble(List<String> propertyNames, Collection<Integer> sequences,
 		PlasmaType contextType) 
 	{
     	// Note: using many binary prefix qualifier filters
@@ -61,7 +61,7 @@ public class StatefullBinaryPrefixColumnFilterAssembler extends FilterListAssemb
     	// assumption that the binary compare is more
     	// efficient than the string conversion
     	// required by the MultipleColumnPrefixFilter (?)
-        for (Long seq : sequences) {
+        for (Integer seq : sequences) {
         	for (String name : propertyNames) {
         		PlasmaProperty prop = (PlasmaProperty)contextType.getProperty(name);
         	    byte[] key = this.columnKeyFac.createColumnKey(contextType, 

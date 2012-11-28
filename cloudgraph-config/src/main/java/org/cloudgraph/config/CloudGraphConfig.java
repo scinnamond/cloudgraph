@@ -3,6 +3,7 @@ package org.cloudgraph.config;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,8 +16,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.common.env.EnvProperties;
+import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
+import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.xml.sax.SAXException;
+
+import commonj.sdo.Type;
 
 
 /**
@@ -60,15 +65,41 @@ public class CloudGraphConfig {
             
             for (Table table : config.tables) {
             	TableConfig tableConfig = new TableConfig(table);
+        		if (this.tableNameToTableMap.get(tableConfig.getName()) != null)
+        			throw new CloudGraphConfigurationException("a table definition already exists for table '"
+        					+ table.getName() + "'");
             	this.tableNameToTableMap.put(table.getName(), tableConfig);
             	for (DataGraph graph : table.getDataGraphs()) {
+            		
+            		DataGraphConfig dataGraphConfig = new DataGraphConfig(graph, tableConfig);
+            		
             		QName qname = new QName(graph.getUri(), graph.getType());
+            		PlasmaType configuredType = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(qname.getNamespaceURI(), 
+            				qname.getLocalPart());
+            		//if (configuredType.isAbstract())
+            		//	throw new CloudGraphConfigurationException("a data graph definition within table '"
+            		//			+ table.getName() + "' has an abstract type (uri/name), " 
+            		//			+ graph.getUri() + "#" + graph.getType() + " - use a non abstract type");
             		if (graphURIToTableMap.get(qname) != null)
-            			throw new CloudGraphConfigurationException("a data graph definition already exists within HTable '"
+            			throw new CloudGraphConfigurationException("a data graph definition already exists within table '"
             					+ table.getName() + "' for type (uri/name), " 
             					+ graph.getUri() + "#" + graph.getType());
             		graphURIToTableMap.put(qname, tableConfig);
-            		graphURIToGraphMap.put(qname, new DataGraphConfig(graph, tableConfig));
+            		graphURIToGraphMap.put(qname, dataGraphConfig);
+            		/*
+            		Map<QName, PlasmaType> hierarchy = new HashMap<QName, PlasmaType>();
+            		this.collectTypeHierarchy(configuredType, hierarchy);
+            		
+            		for (PlasmaType type : hierarchy.values()) {
+            			qname = type.getQualifiedName();
+                		if (graphURIToTableMap.get(qname) != null)
+                			throw new CloudGraphConfigurationException("a data graph definition already exists within table '"
+                					+ table.getName() + "' for type (uri/name), " 
+                					+ graph.getUri() + "#" + graph.getType());
+                		graphURIToTableMap.put(qname, tableConfig);
+                		graphURIToGraphMap.put(qname, dataGraphConfig);
+            		}
+            		*/
             	}
             }
         }
@@ -144,10 +175,12 @@ public class CloudGraphConfig {
      * @return the table configuration or null if not found
      */
     public TableConfig findTable(QName typeName) {
-    	TableConfig result = this.graphURIToTableMap.get(typeName);
-    	return result;
+    	PlasmaType type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(typeName.getNamespaceURI(), 
+    			typeName.getLocalPart());
+		return this.graphURIToTableMap.get(
+				type.getQualifiedName());
     }
-
+    
     /**
      * Returns a table configuration for the given qualified SDO 
      * Type name.
@@ -156,13 +189,70 @@ public class CloudGraphConfig {
      * @throws CloudGraphConfigurationException if the given name is not found
      */
     public TableConfig getTable(QName typeName) {
-    	TableConfig result = this.graphURIToTableMap.get(typeName);
+    	TableConfig result = findTable(typeName);
     	if (result == null)
     		throw new CloudGraphConfigurationException("no HTable configured for " +
     				" graph URI '" + typeName.toString() + "'");
     	return result;
     }
 
+    /**
+     * Returns a table configuration for the given SDO 
+     * Type or null if not found.
+     * @param type the SDO Type 
+     * @return the table configuration or null if not found
+     */
+    public TableConfig findTable(Type type) {
+		return this.graphURIToTableMap.get(
+				((PlasmaType)type).getQualifiedName());
+    }
+    
+    /**
+     * Returns a table configuration for the given SDO 
+     * Type.
+     * @param type the SDO Type 
+     * @return the table configuration
+     * @throws CloudGraphConfigurationException if the given type is not found
+     */
+    public TableConfig getTable(Type type) {
+    	TableConfig result = findTable(type);
+    	if (result == null)
+    		throw new CloudGraphConfigurationException("no HTable configured for " +
+    				" graph URI '" + ((PlasmaType)type).getQualifiedName() + "'");
+    	return result;
+    }
+    
+	private void collectTypeHierarchy(PlasmaType type, Map<QName, PlasmaType> map) {
+		map.put(type.getQualifiedName(), type);
+		// get ancestry
+		collectBaseTypes(type, map);
+		Collection<PlasmaType> coll = map.values();
+		PlasmaType[] types = new PlasmaType[coll.size()];
+		coll.toArray(types);
+		
+		// get all derived type for every ancestor
+		for (int i = 0; i < types.length; i++) {
+			PlasmaType baseType = types[i];
+			collectSubTypes(baseType, map);
+		}		
+    }
+	
+	private void collectBaseTypes(PlasmaType type, Map<QName, PlasmaType> map) {
+		for (Type t : type.getBaseTypes()) {
+			PlasmaType baseType = (PlasmaType)t;
+			map.put(baseType.getQualifiedName(), baseType);
+			collectBaseTypes(baseType, map);
+		}
+	}
+	
+	private void collectSubTypes(PlasmaType type, Map<QName, PlasmaType> map) {
+		for (Type t : type.getSubTypes()) {
+			PlasmaType subType = (PlasmaType)t;
+			map.put(subType.getQualifiedName(), subType);
+			collectSubTypes(subType, map);
+		}
+ 	}
+    
     /**
      * Returns a table configuration based on the given table name.
      * @param tableName the table name or null if not found.

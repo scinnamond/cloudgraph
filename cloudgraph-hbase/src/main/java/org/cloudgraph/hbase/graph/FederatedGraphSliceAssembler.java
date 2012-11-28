@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -16,6 +15,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
 import org.cloudgraph.hbase.io.FederatedReader;
@@ -24,16 +24,15 @@ import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.hbase.scan.PartialRowKeyScanAssembler;
 import org.cloudgraph.hbase.scan.ScanContext;
 import org.cloudgraph.hbase.util.FilterUtil;
+import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
-import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.collector.PropertySelection;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
-
-import commonj.sdo.Type;
 
 /**
  * 
@@ -43,19 +42,15 @@ import commonj.sdo.Type;
 public class FederatedGraphSliceAssembler extends FederatedAssembler {
 
     private static Log log = LogFactory.getLog(FederatedGraphSliceAssembler.class);
-	private Map<Type, List<String>> propertyMap;
-	private Map<commonj.sdo.Property, Where> predicateMap; 
 	private int scanCount;
 	private SliceSupport2 sliceSupport = new SliceSupport2();
 	private Charset charset;
 
 	public FederatedGraphSliceAssembler(PlasmaType rootType,
-			PropertySelectionCollector collector,
+			PropertySelection selection,
 			FederatedReader federatedReader, 
 			Timestamp snapshotDate) {
-		super(rootType, collector, federatedReader, snapshotDate);
-		this.propertyMap = this.collector.getResult();
-		this.predicateMap = this.collector.getPredicateMap();
+		super(rootType, selection, federatedReader, snapshotDate);
 		this.charset = Charset.forName( CoreConstants.UTF8_ENCODING );
 	}
 
@@ -72,7 +67,10 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 					+ target.getType().getURI() + "#" 
 					+ target.getType().getName());
 		
-		List<String> names = this.propertyMap.get(target.getType());
+		List<String> names = this.selection.getInheritedProperties(target.getType());
+		if (names == null)
+			throw new GraphServiceException("expected selection property names for type, "
+					+ target.getType().getURI() + "#" + target.getType().getName());
 		if (log.isDebugEnabled())
 			log.debug(target.getType().getName() + " names: " + names.toString());
 		
@@ -90,43 +88,44 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 			
 			byte[] keyValue = getColumnValue(target, prop, 
 				tableConfig, rowReader);
-			if (keyValue == null)
-				continue;
+			if (keyValue == null || keyValue.length == 0 ) {
+				continue; // zero length can happen on modification or delete as we keep cell history
+			}
 			
-			Edge[] edges = rowReader.getGraphState().unmarshalEdges(prop.getType(), 
+			Edge[] edges = rowReader.getGraphState().unmarshalEdges( 
 				keyValue);
 			
 			PlasmaType childType = (PlasmaType)prop.getType();
 			
 			// NOTE: can we have predicates on singular props? 
-			Where where = this.predicateMap.get(prop);
+			Where where = this.selection.getPredicate(prop);
 			
-			// if target type is not bound to a specific table/root,
-			// derive a child row reader context from its level
-			TableReader externalTableReader = this.federatedReader.getTableReader(childType.getQualifiedName());
-			if (externalTableReader == null) { 								
-				RowReader childRowReader = getRowReader(level);
-				Map<Long, Long> sequences = null;
+			boolean external = isExternal(edges, rowReader);			
+			if (!external) { 								
+				Map<Integer, Integer> sequences = null;
 				if (prop.isMany() && where != null) {
 			    	sequences = this.sliceSupport.fetchSequences((PlasmaType)prop.getType(), 
 			    			where, rowReader);
-					List<String> childPropertyNames = this.propertyMap.get(prop.getType());
+					List<String> childPropertyNames = this.selection.getProperties(prop.getType());
 					this.sliceSupport.loadBySequenceList(sequences.values(), 
 						childPropertyNames,
-			    		childType, childRowReader);
+			    		childType, rowReader);
 				}
 				else {
-				    List<String> childPropertyNames = this.propertyMap.get(prop.getType());
+				    List<String> childPropertyNames = this.selection.getProperties(prop.getType());
 				    this.sliceSupport.load(childPropertyNames,
-			    			childType, childRowReader);
+			    			childType, rowReader);
 				}			
 				
 	        	assembleEdges(target, prop, edges, sequences, rowReader, 
-	        		childRowReader.getTableReader(), 
-	        		childRowReader, level);			
+	        			rowReader.getTableReader(), 
+	        			rowReader, level);			
 	        }
 			else 
 			{
+				String childTable = rowReader.getGraphState().getRowKeyTable(edges[0].getUuid());
+				TableReader externalTableReader = federatedReader.getTableReader(childTable);
+				
 				if (log.isDebugEnabled())
 					if (!tableConfig.getName().equals(externalTableReader.getTable().getName()))
 					    log.debug("switching row context from table: '"
@@ -143,7 +142,7 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
     }
 	
 	private void assembleEdges(PlasmaDataObject target, PlasmaProperty prop, 
-			Edge[] edges, Map<Long, Long> sequences, RowReader rowReader, 
+			Edge[] edges, Map<Integer, Integer> sequences, RowReader rowReader, 
 			TableReader childTableReader, RowReader childRowReader,
 			int level) throws IOException 
 	{
@@ -158,19 +157,18 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
         	if (sequences != null && sequences.get(edge.getId()) == null)
 				continue; // screen out edges
 			
-        	// create a child object
-			PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop);
-			CoreNode childDataNode = (CoreNode)child;
-			childDataNode.setValue(CoreConstants.PROPERTY_NAME_UUID, 
-				UUID.fromString(edge.getUuid()));
-			
+			if (log.isDebugEnabled())
+				log.debug("local edge: " 
+			        + target.getType().getURI() + "#" +target.getType().getName()
+			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
+         	// create a child object
+			PlasmaDataObject child = createChild(target, prop, edge, rowReader);			
             childRowReader.addDataObject(child);
             
 			assembleEdge(target, prop, edge, 
 			        child, childRowReader, level);
 		}
-	}
-	
+	}	
 	
 	// Target is a different row, within this table or another.
 	// Since we are assembling a graph, each edge requires
@@ -196,13 +194,21 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 			if (resultRows != null && resultRows.get(childRowKeyStr) == null)
 				continue; //not found in predicate
 			
-			PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop);
-			CoreNode childDataNode = (CoreNode)child;
-			childDataNode.setValue(CoreConstants.PROPERTY_NAME_UUID, 
-				UUID.fromString(edge.getUuid()));
+			if (log.isDebugEnabled())
+				log.debug("external edge: " 
+			        + target.getType().getURI() + "#" +target.getType().getName()
+			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
 			
 			// create a row reader for every external edge
-			Result childResult = fetchGraph(childRowKey, childTableReader, child);
+			Result childResult = fetchGraph(childRowKey, childTableReader, edge.getType());
+	    	if (childResult.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
+	    			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
+	    		log.warn("ignoring toubstone result row '" + 
+	    			Bytes.toString(childRowKey) + "'");
+				continue; // ignore toumbstone edge
+	    	}
+        	// create a child object
+			PlasmaDataObject child = createChild(target, prop, edge, rowReader);
 			childRowReader = childTableReader.createRowReader(
 				child, childResult);
 			
@@ -248,6 +254,10 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
         ResultScanner scanner = tableReader.getConnection().getScanner(scan);
     	int count = 0;
         for (Result resultRow : scanner) {
+        	if (resultRow.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
+        			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
+        		continue;
+        	}
         	if (log.isTraceEnabled()) {
       	        log.trace("row: " + new String(resultRow.getRow()));              	  
           	    for (KeyValue keyValue : resultRow.list()) {

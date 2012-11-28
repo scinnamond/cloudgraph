@@ -1,11 +1,17 @@
 package org.cloudgraph.hbase.io;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.config.CloudGraphConfig;
+import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.state.StateMarshallingContext;
+import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -30,14 +36,16 @@ import commonj.sdo.Type;
  * </p>
  * @see org.cloudgraph.hbase.io.GraphTableWriter
  * @see org.cloudgraph.state.GraphTable
+ * 
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public class FederatedGraphWriter implements FederatedWriter {
+public class FederatedGraphWriter extends FederationSupport
+    implements FederatedWriter {
 
+    private static Log log = LogFactory.getLog(FederatedGraphWriter.class);
 	private TableWriter rootWriter;
 	private Map<String, TableWriter> tableWriterMap = new HashMap<String, TableWriter>();
-	private Map<DataObject, RowWriter> rowWriterMap;
 	/** maps table writers to graph-root types */
 	private Map<TableWriter, List<Type>> tableWriterTypeMap = new HashMap<TableWriter, List<Type>>();
 	private StateMarshallingContext marshallingContext;
@@ -46,12 +54,12 @@ public class FederatedGraphWriter implements FederatedWriter {
 	private FederatedGraphWriter() {}
 	
 	public FederatedGraphWriter(DataGraph dataGraph,
-			StateMarshallingContext marshallingContext) {
+			TableWriterCollector collector,
+			StateMarshallingContext marshallingContext) throws IOException {
 		this.marshallingContext = marshallingContext;
-		TableWriterCollector collector = 
-			new TableWriterCollector(dataGraph, this);
 		this.rootWriter = collector.getRootTableWriter();
 		for (TableWriter tableWriter : collector.getTableWriters()) {
+			tableWriter.setFederatedOperation(this);
 			tableWriterMap.put(tableWriter.getTable().getName(), 
 					tableWriter);
 			List<Type> list = new ArrayList<Type>();
@@ -128,8 +136,7 @@ public class FederatedGraphWriter implements FederatedWriter {
     public void setRootTableWriter(TableWriter writer) {
     	this.rootWriter = writer;
     	this.tableWriterMap.put(rootWriter.getTable().getName(), rootWriter);
-    }
-    
+    }    
     
     /**
      * Returns the row writer associated with the given data object
@@ -138,6 +145,7 @@ public class FederatedGraphWriter implements FederatedWriter {
      * @throws IllegalArgumentException if the given data object
      * is not associated with any row writer.
      */
+    @Override
     public RowWriter getRowWriter(DataObject dataObject) {
     	RowWriter result = rowWriterMap.get(dataObject);
     	if (result == null)
@@ -146,6 +154,76 @@ public class FederatedGraphWriter implements FederatedWriter {
     	       + " is not associated with any row writer");
     	return result;
     }
+    
+    /**
+     * Returns the row writer associated with the given data object
+     * or null if no row writer is associated.
+     * @param dataObject the data object
+     * @return the row writer associated with the given data 
+     * object or null if no row writer is associated.
+     */
+    @Override
+    public RowWriter findRowWriter(DataObject dataObject) {
+    	return rowWriterMap.get(dataObject);
+    }
+    
+    /**
+     * Creates and returns a new row writer associated 
+     * with the given data object.
+     * @param dataObject the data object
+     * @return a new row writer associated 
+     * with the given data object.
+     * @throws IOException 
+     * @throws IllegalArgumentException if the given data object
+     * is already associated with a row writer.
+     */
+    @Override
+    public RowWriter createRowWriter(DataObject dataObject) throws IOException {
+		PlasmaType type = (PlasmaType)dataObject.getType();
+		TableConfig table = CloudGraphConfig.getInstance().findTable(type);
+    	RowWriter rowWriter = this.rowWriterMap.get(dataObject);
+    	if (rowWriter != null)
+    		throw new IllegalArgumentException("the given data object "
+	    			+ dataObject.toString()	
+	    	        + " is already associated with a row writer");
+
+		if (table == null) {
+			if (log.isDebugEnabled())
+	    		log.debug("creating unbound writer for: " + dataObject);
+	    	
+    		rowWriter = getContainerRowWriter(dataObject);
+    		if (log.isDebugEnabled())
+    		    log.debug("associating " 
+    		       + type.toString() + " with table '"
+    		       + rowWriter.getTableWriter().getTable().getName() + "'");
+    		rowWriter.addDataObject(dataObject);
+    	    this.rowWriterMap.put(dataObject, rowWriter);
+		}
+		else {
+	        // a table is configured with this type as root
+			TableWriter tableWriter = (TableWriter)tableWriterMap.get(table.getName());
+			if (tableWriter == null) {
+				tableWriter = new GraphTableWriter(
+		        		table, this);
+				rowWriter = createRowWriter(tableWriter, dataObject);
+		        tableWriter = rowWriter.getTableWriter();
+		        tableWriterMap.put(tableWriter.getTable().getName(), tableWriter);
+			}
+			else { // just add a row writer to existing table writer    			
+				rowWriter = this.addRowWriter(
+						dataObject, tableWriter);
+			}
+			if (log.isDebugEnabled())
+			    log.debug("associating (root) " 
+			       + dataObject.getType().toString() + " with table '"
+			       + rowWriter.getTableWriter().getTable().getName() + "'");
+			
+	    	this.rowWriterMap.put(dataObject, rowWriter);
+			
+		}
+		return rowWriter;
+    }
+    
 
 	/**
 	 * Returns true if only one table operation exists

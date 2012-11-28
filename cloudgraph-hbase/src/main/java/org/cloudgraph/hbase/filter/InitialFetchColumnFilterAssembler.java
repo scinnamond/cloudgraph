@@ -1,7 +1,6 @@
 package org.cloudgraph.hbase.filter;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +19,7 @@ import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.cloudgraph.state.GraphState;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
-import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.collector.PropertySelection;
 import org.plasma.query.model.Select;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -46,13 +45,13 @@ public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
 
 	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
-    private PropertySelectionCollector collector;
+    private PropertySelection selection;
 
 	public InitialFetchColumnFilterAssembler( 
-			PropertySelectionCollector collector,
+			PropertySelection collector,
 			PlasmaType rootType) {
 		super(rootType);
-		this.collector = collector;
+		this.selection = collector;
         this.columnKeyFac = new CompositeColumnKeyFactory(rootType);
 		
     	this.rootFilter = new FilterList(
@@ -67,6 +66,10 @@ public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
         	CompareFilter.CompareOp.EQUAL,
         	new SubstringComparator(GraphState.STATE_COLUMN_NAME));   
         this.rootFilter.addFilter(stateFilter);
+        QualifierFilter toumbstoneFilter = new QualifierFilter(
+            	CompareFilter.CompareOp.EQUAL,
+            	new SubstringComparator(GraphState.TOUMBSTONE_COLUMN_NAME));   
+        this.rootFilter.addFilter(toumbstoneFilter);
     	
     	collect();
     	
@@ -89,14 +92,12 @@ public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
 	 * @param select the select clause
 	 */
 	private void collect() {
-        Map<Type, List<String>> selectMap = this.collector.getResult();
-        Iterator<Type> typeIter = selectMap.keySet().iterator();
-        while (typeIter.hasNext()) {
-        	PlasmaType type = (PlasmaType)typeIter.next();
+		for (Type t : this.selection.getInheritedTypes()) {
+			PlasmaType type = (PlasmaType)t;
         	if (!(rootType.getURI().equals(type.getURI()) &&
-        		rootType.getName().equals(type.getName())))
-        		continue;
-        	List<String> names = selectMap.get(type);
+            	rootType.getName().equals(type.getName())))
+            	continue; // interested in only root for "initial" fetch
+			List<String> names = this.selection.getInheritedProperties(type);
             for (String name : names) {
     			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
     	       	if (log.isDebugEnabled())
@@ -106,8 +107,8 @@ public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
                     type, prop);
                 String colKeyStr = Bytes.toString(colKey);
                 this.prefixMap.put(colKeyStr, colKey);
-    		}        
-        }
+            }
+		}		
 	}
 	
     protected void log(Select root)
