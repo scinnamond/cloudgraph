@@ -5,7 +5,7 @@
 <h:form id="topnav_form">
   <rich:toolBar height="34" itemSeparator="line">
       <rich:toolBarGroup styleClass="#{ControlNavigationBean.datafiltersAction.selected ? 'TopNavActive' : 'TopNav'}"
-          rendered="#{!ControlNavigationBean.datafiltersAction.selected}">
+          rendered="false">
           <h:graphicImage value="#{ControlNavigationBean.datafiltersAction.icon}" />
           <a4j:commandLink
               reRender="body_panel"
@@ -14,16 +14,32 @@
               value="#{ControlNavigationBean.datafiltersAction.label}" 
               title="#{ControlNavigationBean.datafiltersAction.tooltip}"/>
       </rich:toolBarGroup>
-      <rich:toolBarGroup styleClass="#{NavigationBean.dataAction.selected ? 'TopNavActive' : 'TopNav'}">
-          <h:graphicImage value="#{NavigationBean.dataAction.icon}" />
+      <rich:toolBarGroup styleClass="#{NavigationBean.documentationAction.selected ? 'TopNavActive' : 'TopNav'}">
+          <h:graphicImage value="#{NavigationBean.documentationAction.icon}" />
           <h:commandLink
-              action="#{NavigationBean.dataAction.onAction}"
-              styleClass="#{NavigationBean.dataAction.selected ? 'TopNavActive' : 'TopNav'}"
-              value="#{NavigationBean.dataAction.label}" 
-              title="#{NavigationBean.dataAction.tooltip}"/>
+              action="#{NavigationBean.documentationAction.onAction}"
+              styleClass="#{NavigationBean.documentationAction.selected ? 'TopNavActive' : 'TopNav'}"
+              value="#{NavigationBean.documentationAction.label}" 
+              title="#{NavigationBean.documentationAction.tooltip}"/>
+      </rich:toolBarGroup>
+      <rich:toolBarGroup styleClass="#{NavigationBean.demoAction.selected ? 'TopNavActive' : 'TopNav'}">
+          <h:graphicImage value="#{NavigationBean.demoAction.icon}" />
+          <h:commandLink
+              action="#{NavigationBean.demoAction.onAction}"
+              styleClass="#{NavigationBean.demoAction.selected ? 'TopNavActive' : 'TopNav'}"
+              value="#{NavigationBean.demoAction.label}" 
+              title="#{NavigationBean.demoAction.tooltip}"/>
+      </rich:toolBarGroup>
+      <rich:toolBarGroup styleClass="#{NavigationBean.downloadAction.selected ? 'TopNavActive' : 'TopNav'}">
+          <h:graphicImage value="#{NavigationBean.downloadAction.icon}" />
+          <h:commandLink
+              action="#{NavigationBean.downloadAction.onAction}"
+              styleClass="#{NavigationBean.downloadAction.selected ? 'TopNavActive' : 'TopNav'}"
+              value="#{NavigationBean.downloadAction.label}" 
+              title="#{NavigationBean.downloadAction.tooltip}"/>
       </rich:toolBarGroup>
       <rich:toolBarGroup styleClass="#{NavigationBean.workspaceAction.selected ? 'TopNavActive' : 'TopNav'}"
-          rendered="true">
+          rendered="#{NavigationBean.workspaceAction.selected}">
           <h:graphicImage value="#{NavigationBean.workspaceAction.icon}" />
           <h:commandLink
               action="#{NavigationBean.workspaceAction.onAction}"
@@ -31,23 +47,6 @@
               value="#{NavigationBean.workspaceAction.label}" 
               title="#{NavigationBean.workspaceAction.tooltip}"/>
       </rich:toolBarGroup>
-      <rich:toolBarGroup styleClass="#{NavigationBean.campaignAction.selected ? 'TopNavActive' : 'TopNav'}">
-          <h:graphicImage value="#{NavigationBean.campaignAction.icon}" />
-          <h:commandLink
-              action="#{NavigationBean.campaignAction.onAction}"
-              styleClass="#{NavigationBean.campaignAction.selected ? 'TopNavActive' : 'TopNav'}"
-              value="#{NavigationBean.campaignAction.label}" 
-              title="#{NavigationBean.campaignAction.tooltip}"/>
-      </rich:toolBarGroup>
-      <rich:toolBarGroup styleClass="#{NavigationBean.configurationAction.selected ? 'TopNavActive' : 'TopNav'}">
-          <h:graphicImage value="#{NavigationBean.configurationAction.icon}" />
-          <h:commandLink
-              action="#{NavigationBean.configurationAction.onAction}"
-              styleClass="#{NavigationBean.configurationAction.selected ? 'TopNavActive' : 'TopNav'}"
-              value="#{NavigationBean.configurationAction.label}" 
-              title="#{NavigationBean.configurationAction.tooltip}"/>
-      </rich:toolBarGroup>
-
       <rich:toolBarGroup styleClass="#{NavigationBean.administrationAction.selected ? 'TopNavActive' : 'TopNav'}"
           rendered="#{UserBean.roleName == 'SUPERUSER'}">
           <h:graphicImage value="#{NavigationBean.administrationAction.icon}" />
@@ -57,7 +56,8 @@
               value="#{NavigationBean.administrationAction.label}" 
               title="#{NavigationBean.administrationAction.tooltip}"/>
       </rich:toolBarGroup>
-  </rich:toolBar>
+
+     </rich:toolBar>
 
 </h:form>
 

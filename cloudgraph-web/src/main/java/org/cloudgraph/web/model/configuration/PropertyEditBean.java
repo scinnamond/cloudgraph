@@ -68,8 +68,7 @@ public class PropertyEditBean extends ModelBean {
 		else
 			return "";
 	}
-
-
+	
 	public String createFromAjax() {
 		create();
 		return null; // maintains AJAX happyness
@@ -113,22 +112,7 @@ public class PropertyEditBean extends ModelBean {
 		    SDODataAccessClient service = new SDODataAccessClient();
 		    DataGraph[] result = service.find(PropertyQuery.createEditQuery(this.propertyId));
 	        this.property = (Property)result[0].getRootObject();
-	        
-	        // determine in datatype classifier is a primitive, enum or class
-	        if (this.property.getDataType() != null) {
-	        	if (this.property.getDataType().getDataTypeCount() > 0) {
-	        	    if (this.property.getDataType().getDataType(0).getPrimitiveTypeCount() > 0)
-	        		    this.type = PropertyType.PRIMITIVE.ordinal();
-	        	    else if (this.property.getDataType().getDataType(0).getEnumerationCount() > 0)
-	        		    this.type = PropertyType.ENUMERATION.ordinal();
-	        	}
-	        	else if (this.property.getDataType().getClazzCount() > 0)
-	        		this.type = PropertyType.CLASS.ordinal();
-	        	else
-	        		this.type = PropertyType.PRIMITIVE.ordinal();
-	        }
-	        else
-	        	this.type = PropertyType.PRIMITIVE.ordinal();
+	        this.initType();
 	        
 	        return AppActions.EDIT.value();
         } catch (Throwable t) {
@@ -139,6 +123,84 @@ public class PropertyEditBean extends ModelBean {
         } finally {
         }       
     }		
+
+	public String deleteConfirm() {
+    	BeanFinder beanFinder = new BeanFinder();
+        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
+        try {
+		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] result = service.find(PropertyQuery.createDeleteQuery(this.propertyId));
+	        this.property = (Property)result[0].getRootObject();
+	        this.initType();
+	        	        
+	        return AppActions.DELETE.value();
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+            errorHandler.setError(t);
+            errorHandler.setRecoverable(false);
+            return AppActions.ERRORHANDLER.value();
+        } finally {
+        }       
+    }		
+
+	public String cancelDelete() {
+    	BeanFinder beanFinder = new BeanFinder();
+        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
+        try {
+        	this.property = null;
+	        clear();
+	        	        
+	        return AppActions.SUCCESS.value();
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+            errorHandler.setError(t);
+            errorHandler.setRecoverable(false);
+            return AppActions.ERRORHANDLER.value();
+        } finally {
+        }       
+    }	
+	
+	public String delete() {
+    	BeanFinder beanFinder = new BeanFinder();
+        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
+        try {
+		    SDODataAccessClient service = new SDODataAccessClient();
+	        this.property.delete();
+	        service.commit(property.getDataGraph(), 
+		    	    beanFinder.findUserBean().getName());
+        	// we changed or created one
+	        beanFinder.findReferenceDataCache().expireProperties(
+        			getOwnerClassId());
+	        clear();
+	        	        
+	        return AppActions.SUCCESS.value();
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+            errorHandler.setError(t);
+            errorHandler.setRecoverable(false);
+            return AppActions.ERRORHANDLER.value();
+        } finally {
+        }       
+    }		
+	
+	private void initType() {
+        // determine in datatype classifier is a primitive, enum or class
+        if (this.property.getDataType() != null) {
+        	if (this.property.getDataType().getDataTypeCount() > 0) {
+        	    if (this.property.getDataType().getDataType(0).getPrimitiveTypeCount() > 0)
+        		    this.type = PropertyType.PRIMITIVE.ordinal();
+        	    else if (this.property.getDataType().getDataType(0).getEnumerationCount() > 0)
+        		    this.type = PropertyType.ENUMERATION.ordinal();
+        	}
+        	else if (this.property.getDataType().getClazzCount() > 0)
+        		this.type = PropertyType.CLASS.ordinal();
+        	else
+        		this.type = PropertyType.PRIMITIVE.ordinal();
+        }
+        else
+        	this.type = PropertyType.PRIMITIVE.ordinal();
+		
+	}
 	
 	public String saveFromAjax() {
 		save();

@@ -57,6 +57,7 @@ public class SlotAdapter implements Serializable {
 	private Slot slot; // can be null if not created yet
 	private Property property;
 	private static Long defaultId = new Long(-1);
+	private static final List<Object> EMPTY_OBJECT_LIST = new ArrayList<Object>();
 	
 	@SuppressWarnings("unused")
 	private SlotAdapter() {}
@@ -296,7 +297,7 @@ public class SlotAdapter implements Serializable {
 	        	InstanceSpecification inst = (InstanceSpecification)results[i].getRootObject();
 	        	inst.setDataGraph(null);
 	        	InstanceSpecificationAdapter adapter = 
-	        		new InstanceSpecificationAdapter(inst, properties);
+	        		new InstanceSpecificationAdapter(inst, properties, 1, 2);
 	        	classInstanceMap.put(adapter.getId(), adapter);
 	        	items[i] = new SelectItem(Long.valueOf(
 		        		inst.getSeqId()),
@@ -320,21 +321,78 @@ public class SlotAdapter implements Serializable {
 		return "*".equals(this.property.getUpperValue());
 	}
 	
+	public boolean getIsSingular() {
+		return !"*".equals(this.property.getUpperValue());
+	}
+	
 	public boolean getIsRequired() {
 		return this.property.getLowerValue() == 1;
 	}
 	
 	public Object getValue() {
-		if (this.slot != null) {
-			return this.getValue(this.slot.getValue(0));
-		}
-		return "";
+		Object result = null;
+	    if (getIsSingular()) {
+			if (this.slot != null) {
+		    	if (this.slot.getValueCount() > 0) {
+		    		if (this.slot.getValueCount() > 1)
+		    			log.warn("found multiple value specs for singular property '"
+		    				+ this.getPropertyName() + "' - ignoring");
+		    		result = this.getSingularValue(this.slot.getValue(0));
+		    	}
+			}
+	    }
+	    else {
+			if (this.slot != null) {
+		    	if (this.slot.getValueCount() > 0) {
+		    		if (this.slot.getValueCount() > 1) {
+		    			log.warn("found multiple value specs for singular property '"
+		    				+ this.getPropertyName() + "' - ignoring");
+		    		}
+		    		result = this.getMultiValue(this.slot.getValue(0));
+		    	}
+				else
+					result = EMPTY_OBJECT_LIST;
+			}
+			else
+				result = EMPTY_OBJECT_LIST;
+	    }
+		return result;
 	}
 	
-	private Object getValue(ValueSpecification vs) {		
+    public void setValue(Object value) {
+    	try {
+    	    if (this.getIsSingular()) {
+    		    setSingularValue(value);
+    	    }
+    	    else {
+		    	if (this.slot != null && this.slot.getValueCount() > 0) {
+		    		if (this.slot.getValueCount() > 1) {
+		    			log.warn("found multiple value specs for singular property '"
+		    				+ this.getPropertyName() + "' - deleting");
+		    			// FIXME: temp data cleanup
+		    			for (int i = 1; i < this.slot.getValueCount(); i++) {
+		    				ValueSpecification toDelete = this.slot.getValue(i);
+		    				for (InstanceValue iv : toDelete.getInstanceValue()) {
+		    					iv.getInstance().detach();
+		    					iv.unsetInstance();
+		    				}
+		    				log.info("deleting extra VS: " + toDelete.dump());
+		    				toDelete.delete();
+		    			}
+		    		}
+		    	}
+    		    setMultiValue(value);
+    	    }
+	    }
+	    catch (Throwable t) {
+	    	log.error(t.getMessage(), t);
+	    }
+    }
+	
+	private Object getSingularValue(ValueSpecification vs) {		
 		if (this.getIsPrimitiveType()) {
 		    PrimitiveType pt = getPrimitiveType();
-			return getPrimitiveValue(vs, pt);
+			return getSingularPrimitiveValue(vs, pt);
 		}
 		else if (this.getIsEnumerationType()) {
 			// for slots/properties with an enumeration datatype
@@ -358,71 +416,196 @@ public class SlotAdapter implements Serializable {
 			log.warn("unexpected data type");
     	
 		return null;
-	}  
+	}
 	
-    public void setValue(Object value) {
-	    try {
-	    	ValueSpecification vs = null;
-	    	if (this.slot == null) { // create it if user setting it
-	    		this.slot = this.root.createSlot();	
-	    		this.slot.setExternalId(UUID.randomUUID().toString());
-	    		Property copy = (Property)PlasmaCopyHelper.INSTANCE.copyShallow(this.property);
-	    		this.slot.setDefiningFeature(copy); // link an orphaned copy
-	    	    vs = this.slot.createValue();
-	    	    vs.setName("value spec for " + this.property.getName());
-	    	}    
-	    	else
-	    		vs = this.slot.getValue(0);
-	    	
-			if (this.getIsPrimitiveType()) {
-			    PrimitiveType pt = getPrimitiveType();
-				   setPrimitiveValue(vs, pt, value);
-			}
-			else if (this.getIsEnumerationType()) {
-				// for slots/properties with an enumeration datatype
-				// the data is stored as a literal string which is
-				// the enumeration literal value(s)
-				LiteralString literal = null;
-				if (vs.getLiteralStringCount() > 0)
-					literal = vs.getLiteralString(0);
-				else
-					literal = vs.createLiteralString();
-				literal.set(LiteralString.PTY_VALUE, value);
-			}
-			else if (this.getIsClassType()) {
-				InstanceValue instValue = null;
-		    	// JSF is sending us String objects from
-		    	// selectOneMenu even though Long objects
-		    	// are being explicitly set into SelectItem, presumably
-		    	// because of the generic getValue/setValue method signature (?)
-		    	// Hence, below hack
-		    	Long id = Long.valueOf(String.valueOf(value));
-		    	
-		    	if (vs.getInstanceValueCount() > 0) 
-		    		instValue = vs.getInstanceValue(0); 
-		    	else if (id.longValue() != -1)
-		    		instValue = vs.createInstanceValue();	
-		    	
-		    	if (instValue != null) {
-		    		if (id.longValue() != -1) {
-		    			InstanceSpecificationAdapter is = this.classInstanceMap.get(id);			    	    
-			    	    InstanceSpecification copy = (InstanceSpecification)PlasmaCopyHelper.INSTANCE.copyShallow(
-			    	    		is.getInstanceSpecification());
-			    	    instValue.setInstance(copy);
-		    		}
+	private List<Object> getMultiValue(ValueSpecification vs) {		
+		List<Object> result = null;
+		
+		if (this.getIsPrimitiveType()) {
+		    PrimitiveType pt = getPrimitiveType();
+		    result = getMultiPrimitiveValue(vs, pt);
+		}
+		else if (this.getIsEnumerationType()) {
+			// for slots/properties with an enumeration datatype
+			// the data is stored as a literal string which is
+			// the enumeration literal value(s)
+	       	if (vs.getLiteralStringCount() > 0) {
+	    		result = new ArrayList<Object>();
+	    		for (LiteralString lit : vs.getLiteralString())
+	    		    result.add(lit.getValue());
+	       	}
+		}
+		else if (this.getIsClassType()) {
+    		result = new ArrayList<Object>();
+	    	if (vs.getInstanceValueCount() > 0) {
+	    		for (InstanceValue iv : vs.getInstanceValue()) {
+		    		InstanceSpecification is = iv.getInstance();
+		    		if (is != null)
+		    			result.add(new Long(is.getSeqId())); 
 		    		else
-		    			instValue.unsetInstance();
-		    	}
-			}
+		    			result.add(defaultId);
+	    		}
+	    	}
+	    	else {
+	    		result.add(defaultId);
+	    	}
+		}
+		else
+			log.warn("unexpected data type");
+    	
+		return result;
+	}	
+	    
+    private void setSingularValue(Object value) {
+    	ValueSpecification vs = null;
+    	if (this.slot == null) { // create it if user setting it
+    		this.slot = this.root.createSlot();	
+    		this.slot.setExternalId(UUID.randomUUID().toString());
+    		Property copy = (Property)PlasmaCopyHelper.INSTANCE.copyShallow(this.property);
+    		this.slot.setDefiningFeature(copy); // link an orphaned copy
+    	    vs = this.slot.createValue();
+    	    vs.setName("value spec for " + this.property.getName());
+    	}    
+    	else
+    		vs = this.slot.getValue(0);
+    	// FIXME: temp data cleanup
+    	deleteDuplicateSlots(this.slot);
+    	
+		if (this.getIsPrimitiveType()) {
+		    PrimitiveType pt = getPrimitiveType();
+			   setSingularPrimitiveValue(vs, pt, value);
+		}
+		else if (this.getIsEnumerationType()) {
+			// for slots/properties with an enumeration datatype
+			// the data is stored as a literal string which is
+			// the enumeration literal value(s)
+			LiteralString literal = null;
+			if (vs.getLiteralStringCount() > 0)
+				literal = vs.getLiteralString(0);
 			else
-				log.warn("unexpected data type");
-	    }
-	    catch (Throwable t) {
-	    	log.error(t.getMessage(), t);
-	    }
+				literal = vs.createLiteralString();
+			literal.set(LiteralString.PTY_VALUE, value);
+		}
+		else if (this.getIsClassType()) {
+			InstanceValue instValue = null;
+	    	// JSF is sending us String objects from
+	    	// selectOneMenu even though Long objects
+	    	// are being explicitly set into SelectItem, presumably
+	    	// because of the generic getValue/setValue method signature (?)
+	    	// Hence, below hack
+	    	Long id = Long.valueOf(String.valueOf(value));
+	    	
+	    	if (vs.getInstanceValueCount() > 0) 
+	    		instValue = vs.getInstanceValue(0); 
+	    	else if (id.longValue() != -1)
+	    		instValue = vs.createInstanceValue();	
+	    	
+	    	if (instValue != null) {
+	    		if (id.longValue() != -1) {
+	    			InstanceSpecificationAdapter is = this.classInstanceMap.get(id);			    	    
+		    	    InstanceSpecification copy = (InstanceSpecification)PlasmaCopyHelper.INSTANCE.copyShallow(
+		    	    		is.getInstanceSpecification());
+		    	    instValue.setInstance(copy);
+	    		}
+	    		else
+	    			instValue.unsetInstance();
+	    	}
+		}
+		else
+			log.warn("unexpected data type");
     }   
 
-	private Object getPrimitiveValue(ValueSpecification vs, 
+	// FIXME: temp data cleanup
+    private void deleteDuplicateSlots(Slot slot)
+    {
+    	if (this.root.getSlot() != null)
+		    for (Slot existing : this.root.getSlot()) {
+		    	if (existing.getSeqId() == slot.getSeqId())
+		    		continue; // skip given slot
+		    	boolean found = false;
+		    	if (existing.getDefiningFeature().getSeqId() == slot.getDefiningFeature().getSeqId()) {
+		    		found = true;
+		    		for (ValueSpecification evs : existing.getValue()) {
+		    			for (InstanceValue eiv : evs.getInstanceValue()) {
+			    			eiv.unsetInstance();
+		    			}
+		    		}
+		    	}
+		    	if (found) {
+		    	    existing.unsetDefiningFeature();
+		    	    existing.delete();
+		    	}
+		    }
+    	
+    }
+    
+    private void setMultiValue(Object value) {
+    	ValueSpecification vs = null;
+    	if (this.slot == null) { // create it if user setting it
+    		if (this.root.getSlot() != null)    		
+    		this.slot = this.root.createSlot();	
+    		this.slot.setExternalId(UUID.randomUUID().toString());
+    		Property copy = (Property)PlasmaCopyHelper.INSTANCE.copyShallow(this.property);
+    		this.slot.setDefiningFeature(copy); // link an orphaned copy
+    	    vs = this.slot.createValue();
+    	    vs.setName("value spec for " + this.property.getName());
+    	}    
+    	else
+    		vs = this.slot.getValue(0);
+    	
+    	// FIXME: temp data cleanup
+    	deleteDuplicateSlots(this.slot);
+    	
+		if (this.getIsClassType()) {
+			List<Object> values = (List<Object>)value;
+			for (Object value2 : values) {
+		    	// JSF hack for selectOne/ManyMenu - see above
+		    	Long id = Long.valueOf(String.valueOf(value2));
+		    	boolean exists = false;
+		    	if (this.slot.getValue() != null)
+			    	for (InstanceValue instVal : vs.getInstanceValue()) {
+			    		if (instVal.getInstance() != null)
+				    		if (instVal.getInstance().getSeqId() == id.longValue())
+				    		{
+				    			exists = true;
+				    			break;
+				    		}
+			    	}
+				InstanceValue instValue = null;
+		    	if (!exists) {
+		    		instValue = vs.createInstanceValue();	
+	    			InstanceSpecificationAdapter is = this.classInstanceMap.get(id);			    	    
+		    	    InstanceSpecification copy = (InstanceSpecification)PlasmaCopyHelper.INSTANCE.copyShallow(
+		    	    		is.getInstanceSpecification());
+		    	    instValue.setInstance(copy);
+		    	}
+			}
+	    	for (InstanceValue instVal : vs.getInstanceValue()) {
+	    		boolean exists = false;
+	    		for (Object value2 : values) {
+			    	// JSF hack for selectOne/ManyMenu - see above
+			    	Long id = Long.valueOf(String.valueOf(value2));
+			    	if (instVal.getInstance() != null)
+	                    if (id.longValue() == instVal.getInstance().getSeqId()) {
+	                    	exists = true;
+	                    	break;
+	                    }
+	    		}
+	    		if (!exists) {
+	    			log.debug("deleting graph: " + instVal.dump());
+	    			InstanceSpecification is = instVal.getInstance();	    			
+	    			instVal.unsetInstance();
+	    			log.debug("unset instance");
+	    			log.debug("deleting updated graph: " + instVal.dump());	
+	    			instVal.delete();
+	    		}
+	    	}
+		}
+		else
+			log.warn("unexpected many data type");
+    }   
+    
+	private Object getSingularPrimitiveValue(ValueSpecification vs, 
 			PrimitiveType pt) {
 
 		String name = pt.getDataType().getClassifier().getName();
@@ -466,8 +649,53 @@ public class SlotAdapter implements Serializable {
 			log.warn("unknown type, " + name);
 		return null;
 	}
+
+	private List<Object> getMultiPrimitiveValue(ValueSpecification vs, 
+			PrimitiveType pt) {
+		List<Object> list = new ArrayList<Object>();
+		String name = pt.getDataType().getClassifier().getName();
+		if (PrimitiveTypeName.STRING.name().equalsIgnoreCase(name)) {
+	       	for (LiteralString lit : vs.getLiteralString())
+	       		list.add(lit.getValue());
+		}
+		else if (PrimitiveTypeName.CLOB.name().equalsIgnoreCase(name)) {
+	       	for (LiteralClob lit : vs.getLiteralClob())
+	       		list.add(lit.getValue());
+		}
+		else if (PrimitiveTypeName.DATE.name().equalsIgnoreCase(name)) {
+	       	for (LiteralDate lit : vs.getLiteralDate())
+	       		list.add(lit.getValue());
+		}
+		else if (PrimitiveTypeName.BOOLEAN.name().equalsIgnoreCase(name)) {
+	       	for (LiteralBoolean lit : vs.getLiteralBoolean())
+	       		list.add(lit.getValue());
+		}
+		else if (PrimitiveTypeName.SHORT.name().equalsIgnoreCase(name)) {
+	       	for (LiteralShort lit : vs.getLiteralShort())
+	       		list.add(lit.getValue());
+		}
+		else if (PrimitiveTypeName.INTEGER.name().equalsIgnoreCase(name)) {
+	       	for (LiteralInteger lit : vs.getLiteralInteger())
+	       		list.add(lit.getValue());
+		}
+		else if (PrimitiveTypeName.LONG.name().equalsIgnoreCase(name)) {
+	       	for (LiteralLong lit : vs.getLiteralLong())
+	       		list.add(lit.getValue());
+		}
+		else if (PrimitiveTypeName.FLOAT.name().equalsIgnoreCase(name)) {
+	       	for (LiteralFloat lit : vs.getLiteralFloat())
+	       		list.add(lit.getValue());
+		}
+		else if (PrimitiveTypeName.DOUBLE.name().equalsIgnoreCase(name)) {
+	       	for (LiteralDouble lit : vs.getLiteralDouble())
+	       		list.add(lit.getValue());
+		}
+		else
+			log.warn("unknown type, " + name);
+		return list;
+	}
 	
-	private void setPrimitiveValue(ValueSpecification vs, 
+	private void setSingularPrimitiveValue(ValueSpecification vs, 
 			PrimitiveType pt, Object value) {
 
 		String name = pt.getDataType().getClassifier().getName();

@@ -50,7 +50,7 @@
 
   <context-param>
     <param-name>org.richfaces.SKIN</param-name>
-    <param-value>DEFAULT</param-value>
+    <param-value>glassX</param-value>
   </context-param>
   <!--
   <context-param>
@@ -176,9 +176,13 @@
 		<session-timeout>30</session-timeout>
 	</session-config>
 	<welcome-file-list>
-		<welcome-file>/projects/Projects.faces</welcome-file>
+		<welcome-file>/documentation/Documentation.faces</welcome-file>
 	</welcome-file-list>
-	<!-- 
+    <error-page>
+        <exception-type>javax.faces.application.ViewExpiredException</exception-type>
+        <location>/documentation/Documentation.faces</location>
+    </error-page>	
+    <!-- 
 	<security-constraint>
 		<web-resource-collection>
 			<web-resource-name>All pages</web-resource-name>

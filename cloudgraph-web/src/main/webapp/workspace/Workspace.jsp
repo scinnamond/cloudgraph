@@ -12,23 +12,16 @@
 <body>
 <a4j:outputPanel id="body_panel">
   <%/* begin boilerplate header */%>  
-  <div class="AppTitleDiv">
-      <h:panelGrid columns="2" border="0"> 
-      <h:graphicImage value="/images/2009-logo-usfs.gif" style="border:0"/>
-      <h:graphicImage value="/images/app_title_mirror.png" style="border:0"/>
-      </h:panelGrid>
-  </div>
   <div class="TopToolbarDiv">
       <jsp:include page="/TopToolbar.jsp" flush="false"/>
   </div>    
-  <a4j:outputPanel id="left_nav_panel"
-      rendered="#{ControlNavigationBean.datafiltersAction.selected && !NavigationBean.workspaceAction.selected}">
+  <a4j:outputPanel id="left_nav_panel">
       <f:verbatim><div class="LeftNavDiv"></f:verbatim>
           <jsp:include page="/LeftTreeNav.jsp" flush="false"/>
       <f:verbatim></div></f:verbatim>
   </a4j:outputPanel>
   <a4j:outputPanel id="top_nav_Panel">
-      <f:verbatim><div class="</f:verbatim><h:outputText value="#{ControlNavigationBean.datafiltersAction.selected && !NavigationBean.workspaceAction.selected ? 'TopNavDiv' : 'TopNavDivLeft'}"/><f:verbatim>"></f:verbatim>
+      <f:verbatim><div class="TopNavDiv"></f:verbatim>
       <jsp:include page="/TopNav.jsp" flush="false"/>
       <f:verbatim></div></f:verbatim>
   </a4j:outputPanel>
@@ -36,7 +29,7 @@
 
   <%@ include file="/ajaxloading.jsp" %>
   <a4j:outputPanel id="dashboard_content_panel">
-  <f:verbatim><div class="</f:verbatim><h:outputText value="#{ControlNavigationBean.datafiltersAction.selected && !NavigationBean.workspaceAction.selected ? 'ContentDiv' : 'ContentDivLeft'}"/><f:verbatim>"></f:verbatim>
+  <f:verbatim><div class="ContentDiv"></f:verbatim>
 
       <h:panelGrid width="100%" columns="1" styleClass="DashboardTable"
           rowClasses="DashboardTable,DashboardTable,DashboardTable,DashboardTable,DashboardTable"

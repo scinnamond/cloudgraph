@@ -36,6 +36,12 @@ public class PropertyAdapter implements Serializable {
 	public Property getProperty() {
 		return this.prop;
 	}
+	
+	public String toString() {
+		return getName() 
+			+ " (required: " + getIsRequired()
+			+ " multiplicity: " + getCardinality() + ")";
+	}
 		
 	public Long getId() {
 		return prop.getSeqId();

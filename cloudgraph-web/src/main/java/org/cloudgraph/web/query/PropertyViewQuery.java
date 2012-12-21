@@ -29,7 +29,7 @@ public class PropertyViewQuery {
 
 	public static Query createQueryByClassName(String className) {
 		QPropertyView query = QPropertyView.newQuery();
-		query.select(query.seqId())
+		query.select(query.wildcard())
 		     .select(query.name()) 
 		     .select(query.classId()) 
 		     .select(query.dataType()) 
@@ -47,20 +47,9 @@ public class PropertyViewQuery {
 	
 	public static Query createQueryByClassId(Long classId) {
 		QPropertyView query = QPropertyView.newQuery();
-		query.select(query.id())
-		     .select(query.seqId()) 
-		     .select(query.name()) 
-		     .select(query.classId()) 
-		     .select(query.dataType()) 
-		     .select(query.lowerValue()) 
-		     .select(query.upperValue());
+		query.select(query.wildcard());
 		query.where(query.classId().eq(classId));
-		query.groupBy(query.id())
-	     .groupBy(query.seqId()) 
-	     .groupBy(query.name()) 
-	     .groupBy(query.classId()) 
-	     .groupBy(query.dataType()) 
-	     .groupBy(query.lowerValue()) 
-	     .groupBy(query.upperValue());
+
         return query;		
-	}}
+	}
+}

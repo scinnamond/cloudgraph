@@ -16,16 +16,19 @@
        <h:graphicImage  url="/images/ajax-loader-32-32.gif"/>
 </rich:modalPanel>
 */%> 
-<rich:modalPanel height="125" width="125" keepVisualState="false" 
-         id="ajaxloading" resizeable="false" style="width:125px;
-              margin:0px auto;
-              text-align:left; 
-              padding:15px;
-              border:5px ridge;
-              background-color:#eee;">
-       <h:panelGrid style="margin-left:auto; margin-right:auto;" columns="1" width="100%" columnClasses="columncenter">
-       <h:graphicImage  url="/images/ajaxloading.gif"/>
-       <h:outputText value="Please Wait..."/>
-       </h:panelGrid>
-</rich:modalPanel>
- 	
+<style> 
+    .rich-mpnl-body { 
+        text-align: center; 
+        padding : 0px; 
+        background-color: #FFFFFF;
+    } 
+</style>
+<rich:modalPanel height="25" width="110" keepVisualState="false" 
+     id="ajaxloading" resizeable="false">
+    <h:panelGrid columns="3" border="0">        
+          <h:graphicImage width="16" height="16" 
+                url="/images/ajax-loader.gif"/>
+          <h:outputText value=""/>
+          <h:outputText value="Loading..."/>
+    </h:panelGrid>
+</rich:modalPanel> 	

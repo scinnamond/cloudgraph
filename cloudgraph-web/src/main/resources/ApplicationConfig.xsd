@@ -281,6 +281,7 @@
 			<xsd:enumeration value="view"/>
 			<xsd:enumeration value="save"/>
 			<xsd:enumeration value="create"/>
+            <xsd:enumeration value="delete"/>
 			<xsd:enumeration value="results"/>
 			<xsd:enumeration value="exit"/>
 		</xsd:restriction>

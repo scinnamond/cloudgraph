@@ -72,7 +72,11 @@ public class PropertyQueueBean extends SerializableDataModel {
         //		searchBean.getDeputyArea(),
         //		searchBean.getBusinessUnit(),
         //		searchBean.getApplicationName());
-        Query query = PropertyViewQuery.createQuery();
+    	Query query = null;
+    	if (searchBean.getClazzId() != null && searchBean.getClazzId().longValue() != -1)
+    		query = PropertyViewQuery.createQueryByClassId(searchBean.getClazzId());
+    	else
+            query = PropertyViewQuery.createQuery();
     	
          return query; 
     }

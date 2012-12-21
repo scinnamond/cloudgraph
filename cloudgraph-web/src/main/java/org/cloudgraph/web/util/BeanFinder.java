@@ -12,6 +12,7 @@ import org.cloudgraph.web.model.CommonSessionBean;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.model.configuration.ClassEditBean;
 import org.cloudgraph.web.model.dashboard.DashboardBean;
+import org.cloudgraph.web.model.demo.DemoBean;
 import org.cloudgraph.web.model.navigation.TreeNavigationBean;
 import org.cloudgraph.web.model.profile.UserBean;
 import org.cloudgraph.web.model.search.SearchBean;
@@ -65,6 +66,10 @@ public class BeanFinder
         return (ReferenceDataCache)findClassBean(ReferenceDataCache.class);    
     }  
     
+    public DemoBean findDemoBean()
+    {
+        return (DemoBean)findClassBean(DemoBean.class);    
+    }  
     
     private Object findClassBean(Class ClassBean) {
     	FacesContext context = FacesContext.getCurrentInstance();                                           

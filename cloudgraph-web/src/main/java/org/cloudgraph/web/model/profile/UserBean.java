@@ -1,5 +1,6 @@
 package org.cloudgraph.web.model.profile;
 
+import java.io.Serializable;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,8 +39,10 @@ import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 
-public class UserBean {
+public class UserBean implements Serializable {
 	 
+	private static final long serialVersionUID = 1L;
+
 	private static Log log = LogFactory.getLog(UserBean.class);
 	
 	private String name = "sbear"; // fallback user for Tomcat or other non-auth testing
@@ -60,20 +63,24 @@ public class UserBean {
     private Map<String, Map<String, Setting>> settings;
 	
 	public UserBean() {
-	    AppMessageUtils.setMessageBundle(this.getBundleName());		
-	    
-	    
-	    FacesContext context = FacesContext.getCurrentInstance();
-	    Principal principal = context.getExternalContext().getUserPrincipal();
-	    
+		
+		try {
+		    AppMessageUtils.setMessageBundle(this.getBundleName());		
+	    } catch (Throwable t) {
+	        log.error(t.getMessage(), t);
+	        throw new RuntimeException("could not load bundle");
+	    }       		    	    
 	    
         try {
+        	FacesContext context = FacesContext.getCurrentInstance();
+        	Principal principal = context.getExternalContext().getUserPrincipal();
         	if (principal != null && 
         		principal.getName() != null && 
         		principal.getName().length() > 0)
         	    name = principal.getName();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
+	        throw new RuntimeException("could not create principal");
         }       		    
 	    
 	    SDODataAccessClient service = new SDODataAccessClient();	

@@ -44,8 +44,8 @@ public class InstanceSpecificationQuery {
              .select(query.instanceCategorization().categorization().category().name())
              .select(query.instanceCategorization().categorization().category().parent().name())
              .select(query.slot().wildcard())
-             .select(query.slot().definingFeature().seqId())
-             .select(query.slot().definingFeature().name())
+             .select(query.slot().definingFeature().wildcard())
+             .select(query.slot().definingFeature().propertyCategorization().categorization().category().seqId())
              .select(query.slot().value().wildcard())  
              .select(query.slot().value().instanceValue().wildcard())  
              .select(query.slot().value().instanceValue().instance().seqId()) // links to another instance
@@ -90,8 +90,10 @@ public class InstanceSpecificationQuery {
              .select(query.slot().value().instanceValue().seqId()) 
              .select(query.slot().value().instanceValue().instance().seqId()) // links to another instance
              .select(query.slot().value().instanceValue().instance().clazz().seqId())
+             .select(query.slot().value().instanceValue().instance().clazz().classifier().name())
              .select(query.slot().value().instanceValue().instance().slot().wildcard())
              .select(query.slot().value().instanceValue().instance().slot().definingFeature().seqId())
+             .select(query.slot().value().instanceValue().instance().slot().definingFeature().name())
              .select(query.slot().value().instanceValue().instance().slot().value().wildcard())  
              .select(query.slot().value().instanceValue().instance().slot().value().literalString().value())
              .select(query.slot().value().instanceValue().instance().slot().value().literalClob().value())

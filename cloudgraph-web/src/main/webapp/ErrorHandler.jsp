@@ -9,23 +9,17 @@
 </head>
 <body>
   <%/* begin boilerplate header */%>  
-  <div class="AppTitleDiv">
-      <h:panelGrid columns="2" border="0"> 
-      <h:graphicImage value="/images/2009-logo-usfs.gif" style="border:0"/>
-      <h:graphicImage value="/images/app_title_mirror.png" style="border:0"/>
-      </h:panelGrid>
-  </div>
   <div class="TopToolbarDiv">
       <jsp:include page="/TopToolbar.jsp" flush="false"/>
   </div>    
   <a4j:outputPanel id="top_nav_Panel">
-      <f:verbatim><div class="TopNavDivLeft"></f:verbatim>
+      <f:verbatim><div class="TopNavDiv"></f:verbatim>
       <jsp:include page="/TopNav.jsp" flush="false"/>
       <f:verbatim></div></f:verbatim>
   </a4j:outputPanel>
   <%/* end boilerplate header */%> 
 
-  <div class="ContentDivLeft">
+  <div class="ContentDiv">
     <h:panelGrid columns="1" headerClass="AlignLeft" rowClasses="AlignCenter" width="100%" border="0">
       <f:verbatim>&nbsp</f:verbatim>
       <f:verbatim>&nbsp</f:verbatim>

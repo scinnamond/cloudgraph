@@ -22,11 +22,12 @@ public class InstanceSpecificationQueueAdapter extends InstanceSpecificationAdap
 implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
-	private Object[] data;
+	//private Object[] data;
     
 	public InstanceSpecificationQueueAdapter(InstanceSpecification ins,
-			List<PropertyAdapter> properties) {
-		super(ins, properties);
+			List<PropertyAdapter> properties, int level, int maxLevel) {
+		super(ins, properties, level, maxLevel);
+		/*
 		this.data = new Object[properties.size()];
 		int i = 0;
 		for (PropertyAdapter prop : properties) {
@@ -37,9 +38,22 @@ implements Serializable {
 			}
 		    i++;
 		}
+		*/
 	}
 	
     public Object[] getData() {
-        return this.data;
+    	
+    	Object[] result = new Object[this.propertyList.size()];
+		int i = 0;
+    	for (PropertyAdapter prop : this.propertyList) {
+    		Object value = values.get(prop.getName());
+			if (value != null) 
+				result[i] = value;
+			else
+	    		result[i] = "";
+		    i++;
+    	}
+    	return result;
+        //return this.data;
     }    
 }

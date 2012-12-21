@@ -19,12 +19,6 @@
 </head>
 <body>
   <%/* begin boilerplate header */%>  
-  <div class="AppTitleDiv">
-      <h:panelGrid columns="2" border="0"> 
-      <h:graphicImage value="/images/2009-logo-usfs.gif" style="border:0"/>
-      <h:graphicImage value="/images/app_title_mirror.png" style="border:0"/>
-      </h:panelGrid>
-  </div>
   <%/*   
   <div class="TopToolbarDiv">
       <jsp:include page="/TopToolbar.jsp" flush="false"/>

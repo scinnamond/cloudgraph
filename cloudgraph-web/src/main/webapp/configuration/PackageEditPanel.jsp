@@ -89,9 +89,8 @@
                 value="#{bundle.aplsPackageEdit_parentPackage_label}:" 
                 title="#{bundle.aplsPackageEdit_parentPackage_tooltip}"/>
 	        <h:selectOneMenu id="aplsPackageEdit_parentPackage"
-	            required="true"
+	            required="false"
 	            value="#{PackageEditBean.parentPackageId}"
-	            validator="#{PackageEditBean.validateParentPackageId}"
 	            disabled="false"
 	            disabledClass="color:gray">
 	            <f:selectItems value="#{PackageEditBean.parentPackageItems}" />

@@ -62,7 +62,9 @@ public class InstanceEditBean extends ModelBean {
 	}
 
 	public String getTitle() {
-		if (this.instance != null)
+		if (this.instance != null && 
+			this.instance.getClazz() != null &&
+			this.instance.getClazz().getClassifier() != null)
 			return "Create/Edit: " + this.instance.getClazz().getClassifier().getName();
 		else
 			return "";

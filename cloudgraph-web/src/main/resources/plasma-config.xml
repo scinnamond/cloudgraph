@@ -43,42 +43,30 @@
             artifact="http://org.cloudgraph/web">
             <Provisioning packageName="org.cloudgraph.web.sdo.core"/>
   		</Namespace>
-  		
-        <!-- export specific namespaces -->
-        <Namespace uri="http://apls/export/package"
-            artifact="http://apls/export/package">
-            <Provisioning packageName="org.cloudgraph.web.export.package_"/>
+             
+        <!-- Example Namespaces -->    
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/rim"
+            artifact="http://org.cloudgraph/examples/hl7/rim"> 
         </Namespace>
-        <Namespace uri="http://apls/export/datatype"
-            artifact="http://apls/export/datatype">
-            <Provisioning packageName="org.cloudgraph.web.export.datatype"/>
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/cmet"
+            artifact="http://org.cloudgraph/examples/hl7/cmet"> 
         </Namespace>
-        <Namespace uri="http://apls/export/clazz"
-            artifact="http://apls/export/clazz">
-            <Provisioning packageName="org.cloudgraph.web.export.clazz"/>
+        <!-- POCD -->      
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/pocd/hd000040"
+            artifact="http://org.cloudgraph/examples/hl7/pocd/hd000040"> 
         </Namespace>
-        <Namespace uri="http://apls/export/property"
-            artifact="http://apls/export/property">
-            <Provisioning packageName="org.cloudgraph.web.export.property"/>
+        <!-- COCT -->      
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/coct/hd010000"
+            artifact="http://org.cloudgraph/examples/hl7/coct/hd010000"> 
         </Namespace>
-        <Namespace uri="http://apls/export/association"
-            artifact="http://apls/export/association">
-            <Provisioning packageName="org.cloudgraph.web.export.association"/>
+        <!-- FICR -->      
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/ficr/hd400200"
+            artifact="http://org.cloudgraph/examples/hl7/ficr/hd400200"> 
         </Namespace>
-        <Namespace uri="http://apls/export/enumeration"
-            artifact="http://apls/export/enumeration">
-            <Provisioning packageName="org.cloudgraph.web.export.enumeration"/>
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/ficr/hd410200"
+            artifact="http://org.cloudgraph/examples/hl7/ficr/hd410200"> 
         </Namespace>
-        <Namespace uri="http://apls/export/instance"
-            artifact="http://apls/export/instance">
-            <Provisioning packageName="org.cloudgraph.web.export.instance"/>
-        </Namespace>
-        <Namespace uri="http://apls/export/slot"
-            artifact="http://apls/export/slot">
-            <Provisioning packageName="org.cloudgraph.web.export.slot"/>
-        </Namespace>
-              
-         <DataAccessService dataStoreType="RDBMS">   
+        <DataAccessService dataStoreType="RDBMS">   
             <DataAccessProvider name="JDBC"                
                 className="org.cloudgraph.rdb.jdbc.JDBCDataAccessProvider">
 
@@ -105,6 +93,29 @@
             </DataAccessProvider>
 
   		    	  
+  	    </DataAccessService>
+  	    	
+        <DataAccessService dataStoreType="NOSQL">   
+
+            <DataAccessProvider name="HBASE"
+                className="org.cloudgraph.hbase.service.HBaseGraphService">
+                
+                <SequenceConfiguration  
+                    generatorClassName="org.hgraph.generator.HBaseSequenceGenerator"/>         
+                <Concurrency 
+                    pessimisticLockTimeoutMillis="300000"/>
+                              
+                <!-- links specific DAS provisioning to SDO namespace configs -->                 
+                <!-- POCD -->      
+                <NamespaceLink uri="http://org.cloudgraph/examples/hl7/pocd/hd000040"/>
+                <!-- FICR -->      
+                <NamespaceLink uri="http://org.cloudgraph/examples/hl7/ficr/hd400200"/>
+                <NamespaceLink uri="http://org.cloudgraph/examples/hl7/ficr/hd410200"/>
+                <!-- COCT -->      
+                <NamespaceLink uri="http://org.cloudgraph/examples/hl7/coct/hd010000"/>
+            </DataAccessProvider>
+
+  		    	  
   	    </DataAccessService>	
     </SDO>
     
@@ -112,6 +123,7 @@
         <Artifact name="Plasma_SDO_Profile.mdxml"
             urn="Plasma_SDO_Profile.mdxml" 
             namespaceUri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"/>        
+
         <Artifact name="cloudgraph-web-common.mdxml"
             urn="cloudgraph-web-common.mdxml" 
             namespaceUri="http://org.cloudgraph/web/common"/>  
@@ -125,34 +137,34 @@
             urn="cloudgraph-web.mdxml" 
             namespaceUri="http://org.cloudgraph/web"/>  
             
-        <!-- export specific artifacts -->  
-            
-        <Artifact name="package.mdxml"
-            urn="package.mdxml" 
-            namespaceUri="http://apls/export/package"/>  
-        <Artifact name="datatype.mdxml"
-            urn="datatype.mdxml" 
-            namespaceUri="http://apls/export/datatype"/>  
-        <Artifact name="clazz.mdxml"
-            urn="clazz.mdxml" 
-            namespaceUri="http://apls/export/clazz"/>  
-        <Artifact name="enumeration.mdxml"
-            urn="enumeration.mdxml" 
-            namespaceUri="http://apls/export/enumeration"/>  
-        <Artifact name="property.mdxml"
-            urn="property.mdxml" 
-            namespaceUri="http://apls/export/property"/>  
-        <Artifact name="association.mdxml"
-            urn="association.mdxml" 
-            namespaceUri="http://apls/export/association"/>  
-        <Artifact name="instance.mdxml"
-            urn="instance.mdxml" 
-            namespaceUri="http://apls/export/instance"/>  
-        <Artifact name="slot.mdxml"
-            urn="slot.mdxml" 
-            namespaceUri="http://apls/export/slot"/>  
-            
-            
+        <!-- Example Artifacts -->    
+        <Artifact name="plasma-hl7-rim.mdxml"
+            urn="plasma-hl7-rim.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/rim"/>  
+        <Artifact name="plasma-hl7-cmet.mdxml"
+            urn="plasma-hl7-cmet.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/cmet"/>
+        <!-- COCT -->      
+        <Artifact name="plasma-hl7-coct-hd010000.mdxml"
+            urn="plasma-hl7-coct-hd010000.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/coct/hd010000"/> 
+        <!-- FICR -->      
+        <Artifact name="plasma-hl7-ficr-hd400200.mdxml"
+            urn="plasma-hl7-ficr-hd400200.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/ficr/hd400200"/> 
+         <Artifact name="plasma-hl7-ficr-hd410200.mdxml"
+            urn="plasma-hl7-ficr-hd410200.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/ficr/hd410200"/> 
+         <!-- POCD -->      
+        <Artifact name="plasma-hl7-pocd-hd000040.mdxml"
+            urn="plasma-hl7-pocd-hd000040.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/pocd/hd000040"/>  
+  
+  <!-- hl7-ficr-hd400100
+hl7-ficr-hd400200
+hl7-ficr-hd410100
+hl7-ficr-hd410200
+hl7-ficr-hd420100 -->          
     </Repository>
     
 </cfg:PlasmaConfiguration>   

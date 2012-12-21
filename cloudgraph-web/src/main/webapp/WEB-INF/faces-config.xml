@@ -136,6 +136,31 @@
 	</managed-bean>
 
   <managed-bean>
+    <managed-bean-name>DataListBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.data.DataListBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>DocumentBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.documentation.DocumentBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>DemoBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.demo.DemoBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>HBaseQueueBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.demo.HBaseQueueBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>GraphEditBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.demo.GraphEditBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <managed-bean-name>InstanceQueueBean</managed-bean-name>
     <managed-bean-class>org.cloudgraph.web.model.data.InstanceQueueBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
@@ -163,8 +188,14 @@
     <!-- anonymous nav actions -->
     <navigation-rule>
       <navigation-case>
-        <from-outcome>topnav_dashboard</from-outcome>
-        <to-view-id>/Dashboard.jsp</to-view-id>
+        <from-outcome>topnav_documentation</from-outcome>
+        <to-view-id>/documentation/Documentation.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>topnav_demo</from-outcome>
+        <to-view-id>/demo/Demo.jsp</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>

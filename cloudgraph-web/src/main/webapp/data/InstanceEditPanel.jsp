@@ -887,7 +887,7 @@
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:selectOneRadio>   
                 <h:selectOneMenu
-                    rendered="#{slot.isClassType}"
+                    rendered="#{slot.isClassType && slot.isSingular}"
                     required="#{slot.isRequired}"
                     value="#{slot.value}"
                     disabled="false"
@@ -896,6 +896,16 @@
                     <f:convertNumber integerOnly="true"/>
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:selectOneMenu>   
+                <h:selectManyMenu
+                    rendered="#{slot.isClassType && slot.isMany}"
+                    required="#{slot.isRequired}"
+                    value="#{slot.value}"
+                    disabled="false"
+                    disabledClass="color:gray">
+                    <f:selectItems value="#{slot.classTypeItems}" />
+                    <f:convertNumber integerOnly="true"/>
+                    <rich:toolTip value="#{slot.propertyDefinition}"/>
+                </h:selectManyMenu>   
 				<rich:panel
 				    rendered="#{slot.isEnumerationType}" 
 				    bodyClass="rich-laguna-panel-no-header">

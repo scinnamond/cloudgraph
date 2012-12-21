@@ -12,10 +12,11 @@ public enum Action {
     //top navigation links
     topnav_datafilters,
     topnav_dashboard,
-    topnav_data,
+    topnav_overview,
     topnav_workspace,
-    topnav_campaign,
-    topnav_configuration,
+    topnav_demo,
+    topnav_download,
+    topnav_documentation,
     topnav_administration,
     
     

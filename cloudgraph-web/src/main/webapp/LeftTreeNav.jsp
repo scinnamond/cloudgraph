@@ -2,49 +2,101 @@
 <%@ taglib uri="http://richfaces.org/rich" prefix="rich"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
 <h:form id="leftnav_form">
 
 
 <h:panelGrid columns="1" border="0">
-    <rich:toolBar height="24" itemSeparator="line">
-         <rich:toolBarGroup location="right">
-	         <a4j:commandLink value="Hide"
-	            action="#{ControlNavigationBean.datafiltersAction.deselect}" 
-	            reRender="body_panel"
-	            title="Hide the data filters" />			        
-          </rich:toolBarGroup>
-    </rich:toolBar>
-
-    <rich:spacer width="230" height="1"/>
-    <h:panelGrid columns="2" border="0">
     
-	<rich:tabPanel switchType="ajax">
-	<rich:tab id="data_filters_tab" title=""
-	    rendered="#{!NavigationBean.administrationAction.selected}">
-	    <f:facet name="label">
-	        <h:panelGroup>
-	            <h:outputText value="Data Filters" />
-	            <h:graphicImage value="/images/find.png"/>
-	        </h:panelGroup>
-	    </f:facet>	       
+    <rich:dataList var="instance" 
+        value="#{DataListBean.dataMap['NewsItem']}" 
+        rows="10" type="square">
+        <h:outputLink value="#{instance.values['URL']}">
+            <h:outputText value="#{instance.caption}"/>            
+        </h:outputLink>        
+    </rich:dataList>
 
+    <rich:separator lineType="beveled" height="8" width="100%" align="center"/> 
+
+    <rich:panelMenu style="width:230px"  mode="ajax" 
+        iconExpandedGroup="disc" iconCollapsedGroup="disc" 
+        iconExpandedTopGroup="chevronUp" iconGroupTopPosition="right" 
+        iconCollapsedTopGroup="chevronDown"
+        rendered="#{NavigationBean.documentationAction.selected}">
+
+        <c:forEach var="document" items="#{DataListBean.dataMap['Document']}">
+        <rich:panelMenuGroup 
+            label="#{document.values['Title']}"
+            expanded="true">
+            <c:forEach var="chap" items="#{document.values['Chapters']}">
+                <rich:panelMenuItem label="#{chap.values['Name']}" 
+		            reRender="documentation_content_panel">                                                                               
+		            <f:setPropertyActionListener value="#{chap.values['URL']}"   
+		                target="#{DocumentBean.url}" />                                             
+                </rich:panelMenuItem>
+            </c:forEach>
+            <c:forEach var="ref" items="#{document.values['References']}">
+                <rich:panelMenuItem label="#{ref.values['Name']}" 
+                    onclick="javascript:window.open('#{ref.values['URL']}', '#{ref.values['Target']}', 'dependent=no, menubar=no, toolbar=no');">
+                </rich:panelMenuItem>
+            </c:forEach>
+        </rich:panelMenuGroup>
+        </c:forEach>
+ 
+    </rich:panelMenu>  
+
+    <rich:panelMenu style="width:230px"  mode="ajax" 
+        iconExpandedGroup="disc" iconCollapsedGroup="disc" 
+        iconExpandedTopGroup="chevronUp" iconGroupTopPosition="right" 
+        iconCollapsedTopGroup="chevronDown"
+        rendered="#{NavigationBean.demoAction.selected}">
+
+        <c:forEach var="modelGroup" items="#{DataListBean.dataMap['ModelGroup']}">
+        <rich:panelMenuGroup 
+            label="#{modelGroup.values['Title']}"
+            expanded="true">
+            <c:forEach var="model" items="#{modelGroup.values['Models']}">
+                <rich:panelMenuItem label="#{model.values['Name']}" 
+                    reRender="demo_content_panel"> 
+                    <f:setPropertyActionListener value="#{model.values['Name']}"   
+                        target="#{DemoBean.modelDisplayName}" />                                             
+                    <f:setPropertyActionListener value="#{model.values['Description']}"   
+                        target="#{DemoBean.modelDescription}" />                                             
+                    <f:setPropertyActionListener value="#{model.values['ModelURL']}"   
+                        target="#{DemoBean.modelUrl}" />                                             
+                    <f:setPropertyActionListener value="#{model.values['JavaDocURL']}"   
+                        target="#{DemoBean.javaDocUrl}" />                                             
+                    <f:setPropertyActionListener value="#{model.values['Type']}"   
+                        target="#{DemoBean.modelRootType}" />                                             
+                    <f:setPropertyActionListener value="#{model.values['Namespace']}"   
+                        target="#{DemoBean.modelRootURI}" />                                             
+                </rich:panelMenuItem>
+            </c:forEach>
+        </rich:panelMenuGroup>
+        </c:forEach>
+ 
+    </rich:panelMenu>  
+        
+    <h:panelGrid columns="1" border="0"
+        rendered="#{NavigationBean.administrationAction.selected || NavigationBean.workspaceAction.selected}">
+        <rich:spacer width="230" height="1"/>
+        
 		<rich:simpleTogglePanel opened="true" switchType="ajax" 
 			label="Catalogs" bodyClass="ParentPannelBody">
 		  <h:panelGrid columns="6" width="100%" 
 		      columnClasses="ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv"
 		      cellpadding="3" cellspacing="3" border="0" > 
 		  	  <a4j:commandLink 
-		          reRender="configuration_tab"
+		          reRender="admin_content_panel"
 		          title="Refresh this component">
 		          <h:graphicImage value="/images/refresh2_16_16.gif"/>
 		          <rich:spacer width="18" height="1"/>
 		      </a4j:commandLink>
 		  	  <a4j:commandLink 
-		          title="" 
-		          rendered="#{NavigationBean.configurationAction.selected}"
+		          title=""         
 		          action="#{PackageEditBean.create}"
-		          reRender="dashboard_content_panel">
+		          reRender="admin_content_panel">
 		          <h:graphicImage value="/images/new_item.gif"/>
 		          <rich:spacer width="18" height="1"/>
                   <f:setPropertyActionListener value="true"   
@@ -58,18 +110,17 @@
 				    <a4j:commandLink value="#{pkg.name}"
 			            styleClass="LeftNavActive"
 			            action="#{InstanceQueueBean.clear}"
-				        reRender="lefnav_classes_panel,dashboard_content_panel,attributes_panel,admin_content_panel"
+				        reRender="lefnav_classes_panel,admin_content_panel"
 				        title="#{pkg.name}">			        
 			            <f:setPropertyActionListener value="#{pkg.seqId}"
 		                    target="#{SearchBean.packageId}" />
 		    	    </a4j:commandLink>
 			    </h:column>
-	            <h:column rendered="#{NavigationBean.configurationAction.selected}">
+	            <h:column rendered="#{NavigationBean.administrationAction.selected || NavigationBean.workspaceAction.selected}">
 				    <a4j:commandLink value="[edit]"
-				        rendered="#{NavigationBean.configurationAction.selected}"
 			            styleClass="LeftNavActive"
 			            action="#{PackageEditBean.edit}" 
-				        reRender="attributes_panel,admin_content_panel"
+				        reRender="admin_content_panel"
 				        title="#{pkg.definition}">			        
 			            <f:setPropertyActionListener value="#{pkg.seqId}"
 		                    target="#{PackageEditBean.packageId}" />
@@ -81,21 +132,21 @@
         </rich:simpleTogglePanel>
 
 		<rich:simpleTogglePanel id="lefnav_classes_panel" opened="true" switchType="ajax" 
-			label="Business Entities" bodyClass="ParentPannelBody">
+			label="Business Entities" bodyClass="ParentPannelBody"
+			rendered="#{NavigationBean.administrationAction.selected || NavigationBean.workspaceAction.selected}">
 		  <h:panelGrid columns="6" width="100%" 
 		      columnClasses="ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv"
 		      cellpadding="3" cellspacing="3" border="0" > 
 		  	  <a4j:commandLink 
-		          reRender="configuration_tab"
+		          reRender="admin_content_panel"
 		          title="Refresh this component">
 		          <h:graphicImage value="/images/refresh2_16_16.gif"/>
 		          <rich:spacer width="18" height="1"/>
 		      </a4j:commandLink>
 		  	  <a4j:commandLink 
-		  	      rendered="#{NavigationBean.configurationAction.selected}"
 		          title="" 
 		          action="#{ClassEditBean.create}"
-		          reRender="attributes_panel,admin_content_panel">
+		          reRender="admin_content_panel">
 		          <h:graphicImage value="/images/new_item.gif"/>
 		          <rich:spacer width="18" height="1"/>
 	              <f:setPropertyActionListener value="true"   
@@ -109,17 +160,17 @@
 				    <a4j:commandLink value="#{clss.classifier.name}"
 			            styleClass="LeftNavActive"
 			            action="#{InstanceQueueBean.clear}"
-				        reRender="dashboard_content_panel,attributes_panel,admin_content_panel"
+				        reRender="admin_content_panel"
 				        title="#{clss.classifier.definition}">			        
 			            <f:setPropertyActionListener value="#{clss.seqId}"
 		                    target="#{SearchBean.clazzId}" />
 		    	    </a4j:commandLink>
 			    </h:column>
-	            <h:column rendered="#{NavigationBean.configurationAction.selected}">
+	            <h:column rendered="#{NavigationBean.administrationAction.selected || NavigationBean.workspaceAction.selected}">
 				    <a4j:commandLink value="[edit]"
 			            styleClass="LeftNavActive"
 			            action="#{ClassEditBean.edit}" 
-				        reRender="attributes_panel,admin_content_panel">			        
+				        reRender="admin_content_panel">			        
 			            <f:setPropertyActionListener value="#{clss.seqId}"
 		                    target="#{ClassEditBean.clazzId}" />
 	                    <f:setPropertyActionListener value="true"   
@@ -128,94 +179,8 @@
 			    </h:column>
             </h:dataTable>
         </rich:simpleTogglePanel>
-
-	    <rich:simpleTogglePanel opened="true" switchType="client" 
-			label="Organizational Filters"
-			bodyClass="ParentPannelBody">  
-	
-			<rich:simpleTogglePanel opened="true" switchType="client" id="org_panel"
-				label="FS Orgs" 
-				headerClass="ChildPannelHeader">
-				<f:verbatim><div class="NavTreeDiv"></f:verbatim>
-				<rich:tree id="leftNavTree2" switchType="ajax"
-					value="#{OrganizationTreeBean.model}" 
-					var="item" 
-					nodeFace="#{item.type}"
-					componentState="#{OrganizationTreeBean.treeState}"
-					nodeSelectListener="#{SearchBean.orgSelectListener}">				
-					<rich:treeNode type="level_any"
-						iconLeaf="/images/organization_16_16.png" icon="/images/organization_16_16.png"
-						changeExpandListener="#{OrganizationTreeBean.processExpansion}">
-						
-		                <h:outputText value="#{item.label}"
-		                    styleClass="LeftNav" 
-		                    title="#{item.tooltip}" 
-		                    rendered="#{!item.enabled}"/>
-						<f:verbatim><div class="LeftNavTreeCellDiv"></f:verbatim>
-					    <a4j:commandLink value="#{item.label}"
-		                    styleClass="LeftNavActive" 		        
-					        reRender="dashboard_content_panel"
-					        title="#{item.tooltip}" 
-					        rendered="#{item.enabled}"/>
-	                    <f:verbatim></div></f:verbatim>				        
-					</rich:treeNode>
-		
-				</rich:tree>
-				<f:verbatim></div></f:verbatim>
-			</rich:simpleTogglePanel>
-		</rich:simpleTogglePanel>	
-	</rich:tab>
-	
-
-
-
-  
-    
-	<rich:tab label="Reference Data" title=""
-	    rendered="#{NavigationBean.administrationAction.selected}">
-	
-		<rich:simpleTogglePanel id="tax_panel" opened="true" switchType="client" 
-			label="Taxonomies">
-	
-	        <h:dataTable id="taxon1_table" value="#{TaxonomyEditBean.taxonomies}" 
-	            var="tax">                                                                                            
-	            <h:column>
-		            <h:graphicImage value="/images/orangedotleaf.gif"/>
-		            <f:verbatim>&nbsp</f:verbatim>
-				    <a4j:commandLink value="#{tax.category.name}"
-			            styleClass="LeftNavActive" 
-				        reRender="admin_content_panel"
-				        title="#{tax.category.definition}">			        
-			                <f:setPropertyActionListener value="#{tax}"
-		                          target="#{TaxonomyEditBean.selectedTaxonomy}" />
-		            </a4j:commandLink>
-			    </h:column>
-	        </h:dataTable>
-		</rich:simpleTogglePanel>
-		<rich:simpleTogglePanel id="maps_panel" opened="true" switchType="client" 
-			label="Taxonomy Maps">
-			
-	        <h:dataTable id="taxmap1_table" value="#{TaxonomyMapEditBean.taxonomyMaps}" 
-	            var="taxmap">                                                                                            
-	            <h:column>
-		            <h:graphicImage value="/images/orangedotleaf.gif"/>
-		            <f:verbatim>&nbsp</f:verbatim>
-				    <a4j:commandLink value="#{taxmap.name}"
-			            styleClass="LeftNavActive" 
-				        reRender="admin_content_panel">			        
-			                <f:setPropertyActionListener value="#{taxmap}"
-		                          target="#{TaxonomyMapEditBean.selectedTaxonomyMap}" />
-		            </a4j:commandLink>
-			    </h:column>
-	        </h:dataTable>
-	
-		</rich:simpleTogglePanel>
-	
-	
-	</rich:tab>
-	
-	</rich:tabPanel>
 	</h:panelGrid>
+	
 </h:panelGrid>
 </h:form>
 

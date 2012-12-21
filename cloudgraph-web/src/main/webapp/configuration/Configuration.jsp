@@ -12,12 +12,6 @@
 <body>
 <a4j:outputPanel id="body_panel">
   <%/* begin boilerplate header */%>  
-  <div class="AppTitleDiv">
-      <h:panelGrid columns="2" border="0"> 
-      <h:graphicImage value="/images/2009-logo-usfs.gif" style="border:0"/>
-      <h:graphicImage value="/images/app_title_mirror.png" style="border:0"/>
-      </h:panelGrid>
-  </div>
   <div class="TopToolbarDiv">
       <jsp:include page="/TopToolbar.jsp" flush="false"/>
   </div>    
@@ -72,6 +66,7 @@
 </a4j:outputPanel>
  
        
+  <jsp:include page="/configuration/PropertyDeleteConfirmModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

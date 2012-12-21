@@ -97,6 +97,7 @@ public class ReferenceDataCache
     private List<Organization> deputyAreaList;
     private List<Organization> businessUnitList;
     private Map<Long, List<Property>> sourceClassSeqIdPropertyMap = new HashMap<Long, List<Property>>();
+    private Map<String, List<Property>> sourceClassNamePropertyMap = new HashMap<String, List<Property>>();
     
     private ReferenceDataCacheMonitor referenceDataCacheMonitor = null; 
     
@@ -570,15 +571,47 @@ public class ReferenceDataCache
     	}
     	return result;	
     }
+
+    public synchronized List<Property> getProperties(String sourceClassName) {
+    	List<Property> result = this.sourceClassNamePropertyMap.get(sourceClassName);
+    	if (result == null) {
+    		result = new ArrayList<Property>();
+    		Query query = PropertyQuery.createQueryBySourceClassifierName(
+    				sourceClassName);	
+ 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] results = service.find(query);
+    		log.debug("Caching properties for source class: " + sourceClassName);
+		    for (int i = 0; i < results.length; i++) {
+		    	Property prop = (Property)results[i].getRootObject();
+		    	result.add(prop);
+		    }
+		    this.sourceClassNamePropertyMap.put(sourceClassName, 
+		    		result);
+    	}
+    	return result;	
+    }
     
     public synchronized void expireProperties(Long sourceClassId) {
+    	
     	List<Property> removed = this.sourceClassSeqIdPropertyMap.remove(sourceClassId);
     	if (removed != null) {
     		if (log.isDebugEnabled())
     		    log.debug("removed " + removed.size() + " properties");
     	}
     	else
-    		log.warn("no oproperties removed for source class: " + sourceClassId);
+    		log.warn("no properties removed for source class: " + sourceClassId);
+    	
+    	Clazz c = this.classSeqIdMap.get(sourceClassId);
+    	if (c != null) {
+        	removed = this.sourceClassNamePropertyMap.remove(c.getClassifier().getName());
+        	if (removed != null) {
+        		if (log.isDebugEnabled())
+        		    log.debug("removed " + removed.size() + " properties");
+        	}
+        	else
+        		log.warn("no properties removed for source class: " + c.getClassifier().getName());
+    		
+    	}
     }
     
     /**

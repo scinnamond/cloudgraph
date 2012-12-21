@@ -3,7 +3,7 @@ BODY
 {
     BACKGROUND-IMAGE: url('/cloudgraph-web/images/page_bg.png');
     background-repeat: no-repeat;
-    background-color: #ccc9b2;
+    background-color: #FFFFFF;
     FONT-SIZE: 8pt;
     font-family: "Verdana";
     margin: 0; 
@@ -71,11 +71,11 @@ img
     border-style: none;
 }
 
-a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b;}
-a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b;}
-a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #ffd700; text-decoration:underline}
-a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b;}
-a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #ffd700;}
+a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080;}
+a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080;}
+a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:underline}
+a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080;}
+a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed;}
 
 .label
 {
@@ -397,20 +397,20 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 
 
 .NavTreeDiv{
-    WIDTH: 260px;
+    WIDTH: 235px;
     word-wrap: yes;
     overflow-y: auto;
 }
 
 .NavTableDiv{
-    WIDTH: 260px;
+    WIDTH: 235px;
     HEIGHT: 120px;
     word-wrap: yes;
     overflow-y: auto;
 }
 
 .NavTableDivAuto{
-    WIDTH: 260px;
+    WIDTH: 235px;
     word-wrap: yes;
 }
 
@@ -424,14 +424,12 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 }
 
 .LeftNavDiv{
-  BACKGROUND-IMAGE: url('/cloudgraph-web/images/left_nav_bg.png');
-  background-repeat: no-repeat;
   POSITION: absolute;
-  LEFT: 20;
-  TOP: 66;
+  LEFT: 38;
+  TOP: 100;
   ALIGN: left;
   text-align: left;
-  WIDTH: 359px;
+  WIDTH: 235px;
   overflow: hidden;
   margin: 0px; 
   padding: 0px;
@@ -556,7 +554,7 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 
 .TopNavDiv{
   POSITION: absolute;
-  LEFT: 356;
+  LEFT: 323;
   TOP: 77;
   ALIGN: left;
   text-align: left;
@@ -581,27 +579,27 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 
 }
 
-.TopNav a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:none}
-.TopNav a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:none}
-.TopNav a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #ffd700; text-decoration:none}
-.TopNav a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:none}
-.TopNav a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #ffd700; text-decoration:none}
+.TopNav a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopNav a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopNav a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
+.TopNav a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopNav a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
 
 
 
 .TopNavActive{
 }
 
-.TopNavActive a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:underline}
-.TopNavActive a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:underline}
-.TopNavActive a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #ffd700; text-decoration:underline}
-.TopNavActive a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:underline}
-.TopNavActive a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #ffd700; text-decoration:underline}
+.TopNavActive a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
+.TopNavActive a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
+.TopNavActive a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:underline}
+.TopNavActive a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
+.TopNavActive a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:underline}
 
     
 .ContentDiv{
   POSITION: absolute;
-  LEFT: 376;
+  LEFT: 310;
   TOP: 120;
   ALIGN: left;
   text-align: left;
@@ -709,12 +707,14 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 }
 
 /* tweaks RF table headers to look like column headers (which are less brash) - use a rich-panel if you want to make your widget stand out more */
+/*
 .rich-table-header{  
     background-image:none;
     background-color:f5deb3; 
 }
+*/
 /* Wheat */
-
+/*
 .rich-table-subheader{  
     background-image:none;
     background-color:f5deb3; 
@@ -725,6 +725,7 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
     color:black; 
     background-color:f5deb3; 
 }
+*/
 /* end table header tweak */
  
 /*  		
@@ -735,7 +736,8 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
     color:black; 
 }  		 		
 */
-  	
+ 
+/*  	
 .ChildPannelHeader{  
     background-image:none;
     background-color:f5deb3; 
@@ -743,7 +745,7 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
     font-weight:bold;
     color:black; 
 }  		
-
+*/
 .ParentPannelBody{  
 	padding : 0px;
 	text-align : left;

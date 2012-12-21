@@ -13,15 +13,17 @@ public class NavigationBean extends ModelBean {
     
     private static Log log = LogFactory.getLog(NavigationBean.class);
     
-    // RichFaces Toolbar cannot be loaded using a data iterator such as dataTable, i.e. dynamically without
+    // RichFaces Toolbar cannot be loaded using a overview iterator such as overviewTable, i.e. dynamically without
     // using the 'binding' attribute which means we have to create all sub-components
     // dynamically as well. Hence declare top-nav items statically. :(
     private TreeNodeAction dashboardAction;
-    private TreeNodeAction dataAction;
     private TreeNodeAction workspaceAction;
-    private TreeNodeAction campaignAction;
-    private TreeNodeAction configurationAction;
-   
+    
+    private TreeNodeAction overviewAction;
+    private TreeNodeAction demoAction;
+    private TreeNodeAction downloadAction;
+    private TreeNodeAction documentationAction;
+    
     private TreeNodeAction administrationAction;
         
     private TreeNodeAction selectedTopAction;
@@ -45,10 +47,11 @@ public class NavigationBean extends ModelBean {
 			@Override
 			public void clearSelection() {
 				dashboardAction.setSelected(false);
-				dataAction.setSelected(false);
+				overviewAction.setSelected(false);
 				workspaceAction.setSelected(false);
-				configurationAction.setSelected(false);
-				campaignAction.setSelected(false);
+				downloadAction.setSelected(false);
+				documentationAction.setSelected(false); 
+				demoAction.setSelected(false);
 				administrationAction.setSelected(false);
 			}
 
@@ -64,15 +67,17 @@ public class NavigationBean extends ModelBean {
 	    		topActionHandler, topSelectionModel);
 	    //dashboardAction.setSelected(true);
 	    //selectedTopAction = dashboardAction;
-	    dataAction = new TreeNodeAction(Action.topnav_data, 
+	    overviewAction = new TreeNodeAction(Action.topnav_overview, 
 	    		topActionHandler, topSelectionModel);
-	    dataAction.setSelected(true);
-	    selectedTopAction = dataAction;
+	    overviewAction.setSelected(true);
+	    selectedTopAction = overviewAction;
 	    workspaceAction = new TreeNodeAction(Action.topnav_workspace, 
 	    		topActionHandler, topSelectionModel);
-	    campaignAction = new TreeNodeAction(Action.topnav_campaign, 
+	    demoAction = new TreeNodeAction(Action.topnav_demo, 
 	    		topActionHandler, topSelectionModel);
-	    configurationAction = new TreeNodeAction(Action.topnav_configuration, 
+	    downloadAction = new TreeNodeAction(Action.topnav_download, 
+	    		topActionHandler, topSelectionModel);
+	    documentationAction = new TreeNodeAction(Action.topnav_documentation, 
 	    		topActionHandler, topSelectionModel);
 	    administrationAction = new TreeNodeAction(Action.topnav_administration, 
 	    		topActionHandler, topSelectionModel);
@@ -86,7 +91,8 @@ public class NavigationBean extends ModelBean {
 			
 		};
 	    
-		
+		// default selection
+		setDocumentationSelected(new Boolean(true));
 	}
 
 	public void setDashboardSelected(Object selected) {
@@ -97,12 +103,12 @@ public class NavigationBean extends ModelBean {
 			this.dashboardAction.setSelected(false);			
 	}
 
-	public void setDataSelected(Object selected) {
+	public void setOverviewSelected(Object selected) {
 		Boolean b = new Boolean(String.valueOf(selected));
 		if (b.booleanValue())
-		    this.topSelectionModel.setSelection(this.dataAction);
+		    this.topSelectionModel.setSelection(this.overviewAction);
 		else
-			this.dataAction.setSelected(false);
+			this.overviewAction.setSelected(false);
 	}
 	
 	public void setWorkspaceSelected(Object selected) {
@@ -113,20 +119,28 @@ public class NavigationBean extends ModelBean {
 			this.workspaceAction.setSelected(false);
 	}
 
-	public void setCampaignSelected(Object selected) {
+	public void setDemoSelected(Object selected) {
 		Boolean b = new Boolean(String.valueOf(selected));
 		if (b.booleanValue())
-		    this.topSelectionModel.setSelection(this.campaignAction);
+		    this.topSelectionModel.setSelection(this.demoAction);
 		else
-			this.campaignAction.setSelected(false);
+			this.demoAction.setSelected(false);
 	}
 	
-	public void setConfigurationSelected(Object selected) {
+	public void setDownloadSelected(Object selected) {
 		Boolean b = new Boolean(String.valueOf(selected));
 		if (b.booleanValue())
-		    this.topSelectionModel.setSelection(this.configurationAction);
+		    this.topSelectionModel.setSelection(this.downloadAction);
 		else
-			this.configurationAction.setSelected(false);
+			this.downloadAction.setSelected(false);
+	}
+	
+	public void setDocumentationSelected(Object selected) {
+		Boolean b = new Boolean(String.valueOf(selected));
+		if (b.booleanValue())
+		    this.topSelectionModel.setSelection(this.documentationAction);
+		else
+			this.documentationAction.setSelected(false);
 	}
 
 	public void setAdminitstrationSelected(Object selected) {
@@ -145,28 +159,36 @@ public class NavigationBean extends ModelBean {
 		this.dashboardAction = dashboardAction;
 	}
 
-	public TreeNodeAction getDataAction() {
-		return dataAction;
+	public TreeNodeAction getOverviewAction() {
+		return overviewAction;
 	}
 
-	public void setDataAction(TreeNodeAction dataAction) {
-		this.dataAction = dataAction;
+	public void setOverviewAction(TreeNodeAction overviewAction) {
+		this.overviewAction = overviewAction;
 	}
 	
-	public TreeNodeAction getConfigurationAction() {
-		return configurationAction;
+	public TreeNodeAction getDownloadAction() {
+		return downloadAction;
 	}
 
-	public void setConfigurationAction(TreeNodeAction configurationAction) {
-		this.configurationAction = configurationAction;
+	public void setDownloadAction(TreeNodeAction downloadAction) {
+		this.downloadAction = downloadAction;
+	}
+	
+	public TreeNodeAction getDocumentationAction() {
+		return documentationAction;
 	}
 
-	public TreeNodeAction getCampaignAction() {
-		return campaignAction;
+	public void setDocumentationAction(TreeNodeAction documentationAction) {
+		this.documentationAction = documentationAction;
 	}
 
-	public void setCampaignAction(TreeNodeAction campaignAction) {
-		this.campaignAction = campaignAction;
+	public TreeNodeAction getDemoAction() {
+		return demoAction;
+	}
+
+	public void setDemoAction(TreeNodeAction demoAction) {
+		this.demoAction = demoAction;
 	}
 	public TreeNodeAction getWorkspaceAction() {
 		return workspaceAction;

@@ -1,6 +1,7 @@
 package org.cloudgraph.web.model.data;
 
 // java imports
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import org.cloudgraph.web.config.web.AppActions;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.model.common.CategorizedPropertySupport;
 import org.cloudgraph.web.model.common.PropertySelector;
+import org.cloudgraph.web.model.common.QueueBean;
 import org.cloudgraph.web.model.configuration.PropertyItem;
 import org.cloudgraph.web.model.search.SearchBean;
 import org.cloudgraph.web.model.taxonomy.TaxonomyConstants;
@@ -32,6 +34,8 @@ import org.cloudgraph.web.sdo.adapter.PropertyViewAdapter;
 import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
+import org.plasma.sdo.helper.PlasmaXMLHelper;
+import org.plasma.sdo.xml.DefaultOptions;
 
 import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.core.PropertyCategorization;
@@ -40,6 +44,7 @@ import org.cloudgraph.web.sdo.meta.InstanceSpecification;
 import org.cloudgraph.web.sdo.meta.Property;
 
 import commonj.sdo.DataGraph;
+import commonj.sdo.helper.XMLDocument;
 
 
 /**
@@ -53,7 +58,7 @@ public class InstanceQueueBean extends QueueBean
 
     private CategorizedPropertySupport propertySupport;
 	
-    private ReferenceDataCache cache;     
+    protected ReferenceDataCache cache;     
 	private String saveActionReRender;
 
     public InstanceQueueBean() {
@@ -188,9 +193,12 @@ public class InstanceQueueBean extends QueueBean
 		    	DataGraph[] results = service.find(qry);
 		    	
 		        for (int i = 0; i < results.length; i++) {
+		        	InstanceSpecification instance = (InstanceSpecification)results[i].getRootObject();
+		        	log.info("queue instance: " + instance.dump());
+		        	String xml = serializeGraph(results[i]);
+		        	log.info("list xml: " + xml); 
 		        	InstanceSpecificationQueueAdapter adapter = new InstanceSpecificationQueueAdapter(
-		        			(InstanceSpecification)results[i].getRootObject(),
-		        			getProperties());
+		        		instance, getProperties(), 1, 2);
 		        	data.add(adapter);
 		        	wrappedData.put(new Integer(i), adapter); // assumes flat results set
 		        }
@@ -201,7 +209,24 @@ public class InstanceQueueBean extends QueueBean
     	}
     	return this.data;
     }
-	
+    
+    protected String serializeGraph(DataGraph graph) throws IOException
+    {
+        DefaultOptions options = new DefaultOptions(
+        		graph.getRootObject().getType().getURI());
+        options.setRootNamespacePrefix("queue");
+        
+        XMLDocument doc = PlasmaXMLHelper.INSTANCE.createDocument(graph.getRootObject(), 
+        		graph.getRootObject().getType().getURI(), 
+        		null);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+	    PlasmaXMLHelper.INSTANCE.save(doc, os, options);        
+        os.flush();
+        os.close(); 
+        String xml = new String(os.toByteArray());
+        return xml;
+    }
+    
     /**
      * This is main part of Visitor pattern. Method called by framework many times
      * during request processing. 
@@ -243,7 +268,7 @@ public class InstanceQueueBean extends QueueBean
 		        for (int i = 0; i < results.length; i++) {
 		        	InstanceSpecificationQueueAdapter adapter = new InstanceSpecificationQueueAdapter(
 		        			(InstanceSpecification)results[i].getRootObject(),
-		        			getProperties());
+		        			getProperties(), 1, 2);
 		        	data.add(adapter);
 		        	wrappedData.put(new Integer(i+firstRow), adapter); // assumes flat results set
 		        }

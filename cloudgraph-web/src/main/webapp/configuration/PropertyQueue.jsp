@@ -79,6 +79,18 @@
 	            <f:setPropertyActionListener value="true"   
 	                    target="#{NavigationBean.workspaceSelected}" />                                             
 	        </a4j:commandLink>                                                                                                                    
+            <f:verbatim>&nbsp</f:verbatim>                   
+            <a4j:commandLink 
+                title="Delete this Property"
+                rendered="#{UserBean.roleName == 'SUPERUSER'}"
+                action="#{PropertyEditBean.deleteConfirm}"
+                oncomplete="#{rich:component('deletePropertyConfirmModalPanel')}.show()"
+                reRender="prop_delete_confirm_panel_form">                                                                               
+                <h:outputText value="delete"                                                                   
+                    title="Delete this Property"/>                                                                         
+                <f:setPropertyActionListener value="#{prop.propertyId}"   
+                        target="#{PropertyEditBean.propertyId}" />                                             
+            </a4j:commandLink>                                                                                                                    
 	    </rich:column>  
 	   <rich:column sortBy="#{prop.definition}">                                                                                                                               
            <f:facet name="header">

@@ -4,12 +4,12 @@
     <parent>
         <groupId>cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.1</version>
+        <version>0.5.2</version>
     </parent>
 	<groupId>cloudgraph</groupId>
 	<artifactId>cloudgraph-web</artifactId>
 	<packaging>war</packaging>
-	<version>0.5.1</version>
+	<version>0.5.2</version>
 	<name>CloudGraph Web</name>
     <repositories>
         <repository>
@@ -44,7 +44,112 @@
         <dependency>
             <groupId>cloudgraph</groupId>
             <artifactId>cloudgraph-rdb</artifactId>
-            <version>0.5.1</version>
+            <version>0.5.2</version>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>jaxb-api</artifactId>
+            		<groupId>javax.xml.bind</groupId>
+            	</exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>cloudgraph</groupId>
+            <artifactId>cloudgraph-hbase</artifactId>
+            <version>0.5.2</version>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>libthrift</artifactId>
+            		<groupId>org.apache.thrift</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jsp-api-2.1</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jasper-compiler</artifactId>
+            		<groupId>tomcat</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jasper-runtime</artifactId>
+            		<groupId>tomcat</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jetty-util</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jsp-2.1</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>core</artifactId>
+            		<groupId>org.eclipse.jdt</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>ant</artifactId>
+            		<groupId>ant</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>avro</artifactId>
+            		<groupId>org.apache.avro</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jackson-mapper-asl</artifactId>
+            		<groupId>org.codehaus.jackson</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>snappy-java</artifactId>
+            		<groupId>org.xerial.snappy</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>avro-ipc</artifactId>
+            		<groupId>org.apache.avro</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jetty</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>netty</artifactId>
+            		<groupId>org.jboss.netty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>velocity</artifactId>
+            		<groupId>org.apache.velocity</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jruby-complete</artifactId>
+            		<groupId>org.jruby</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jamon-runtime</artifactId>
+            		<groupId>org.jamon</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>protobuf-java</artifactId>
+            		<groupId>com.google.protobuf</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jersey-core</artifactId>
+            		<groupId>com.sun.jersey</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jersey-json</artifactId>
+            		<groupId>com.sun.jersey</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jersey-server</artifactId>
+            		<groupId>com.sun.jersey</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jaxb-api</artifactId>
+            		<groupId>javax.xml.bind</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>stax-api</artifactId>
+            		<groupId>stax</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -57,23 +162,92 @@
             <artifactId>commons-io</artifactId>
             <version>1.3.2</version>
         </dependency>
+        <dependency>
+            <groupId>commons-el</groupId>
+            <artifactId>commons-el</artifactId>
+            <version>1.0</version>
+        </dependency>
+	    <dependency>
+	        <groupId>org.jdom</groupId>
+	        <artifactId>jdom</artifactId>
+	        <version>2.0.2</version>
+	    </dependency>
 
         <!-- Plasma Dependencies -->
+	    <dependency>
+	      <groupId>org.modeldriven</groupId>
+	      <artifactId>fuml</artifactId>
+	      <version>1.0</version>
+	      <exclusions>
+	      	<exclusion>
+	      		<artifactId>xerces</artifactId>
+	      		<groupId>xerces</groupId>
+	      	</exclusion>
+	      	<exclusion>
+	      		<artifactId>jaxb-api</artifactId>
+	      		<groupId>javax.xml.bind</groupId>
+	      	</exclusion>
+	      </exclusions>
+	    </dependency>
         <dependency>
             <groupId>plasma</groupId>
             <artifactId>plasma-sdo</artifactId>
             <version>1.1.3</version>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>jdom</artifactId>
+            		<groupId>org.jdom</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>ydoc</artifactId>
+            		<groupId>plasma</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>dom4j</artifactId>
+            		<groupId>dom4j</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>xom</artifactId>
+            		<groupId>xom</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>xercesImpl</artifactId>
+            		<groupId>xerces</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>xalan</artifactId>
+            		<groupId>xalan</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>xml-apis</artifactId>
+            		<groupId>xml-apis</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jdom</artifactId>
+            		<groupId>jdom</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>xerces</artifactId>
+            		<groupId>xerces</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jaxb-api</artifactId>
+            		<groupId>javax.xml.bind</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>plasma</groupId>
             <artifactId>plasma-sdo-jdbc</artifactId>
             <version>1.1.3</version>
         </dependency>
+        <!-- 
         <dependency>
             <groupId>plasma</groupId>
             <artifactId>plasma-sdo-jpa</artifactId>
             <version>1.1.3</version>
         </dependency>
+        -->
         
         <!-- JSF API/Impl -->
         <dependency>
@@ -107,6 +281,25 @@
             <artifactId>richfaces-api</artifactId>
             <version>3.3.2.SR1</version>
         </dependency>
+        <dependency>
+            <groupId>org.richfaces.samples</groupId>
+            <artifactId>glassX</artifactId>
+            <version>3.3.2.SR1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.myfaces.tomahawk</groupId>
+            <artifactId>tomahawk</artifactId>
+            <version>1.1.14</version>
+        </dependency>
+	    <dependency>
+	        <groupId>javax.servlet</groupId>
+	        <artifactId>jstl</artifactId>
+	        <version>1.2</version>
+	        <!-- 
+	        <type>jar</type>
+	        <scope>compile</scope>
+	        -->
+	    </dependency>        
         
 
         <!-- Local Dependencies -->
@@ -126,11 +319,47 @@
         	<artifactId>plasma-maven-plugin</artifactId>
         	<version>1.1.3</version>
         	<scope>provided</scope>
+        	<exclusions>
+        		<exclusion>
+        			<artifactId>ydoc</artifactId>
+        			<groupId>plasma</groupId>
+        		</exclusion>
+        		<exclusion>
+        			<artifactId>jdom</artifactId>
+        			<groupId>jdom</groupId>
+        		</exclusion>
+        		<exclusion>
+        			<artifactId>xml-apis</artifactId>
+        			<groupId>xml-apis</groupId>
+        		</exclusion>
+        	</exclusions>
         </dependency>
     </dependencies>
 	<build>
 		<finalName>cloudgraph-web</finalName>
 		<plugins>
+            <plugin>                                                                    
+              <artifactId>maven-resources-plugin</artifactId>                           
+              <version>2.6</version> 
+              <executions>                                                              
+                <execution>                                                             
+                  <id>copy-resources</id>                                               
+                  <phase>initialize</phase>                                               
+                  <goals>                                                               
+                    <goal>copy-resources</goal>                                         
+                  </goals>                                                              
+                </execution>                                                            
+              </executions> 
+              <configuration>                                                       
+                <outputDirectory>${basedir}/target/classes</outputDirectory>
+                <resources>                                                         
+                  <resource><directory>src/main/resources/models/hl7</directory></resource>                                                       
+                  <resource><directory>src/main/resources/models/hl7/pocd</directory></resource>                                                       
+                  <resource><directory>src/main/resources/models/hl7/coct</directory></resource>                                                       
+                  <resource><directory>src/main/resources/models/hl7/ficr</directory></resource>                                                       
+                </resources>                                                        
+              </configuration>                                                      
+            </plugin>                                                                   
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
@@ -210,7 +439,7 @@
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                                 <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
-                                <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
+                                <property><name>plasma.configuration</name><value>plasma-config-buildtime.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
                                 <param>${basedir}/src/main/resources</param>
@@ -229,7 +458,7 @@
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                                 <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
-                                <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
+                                <property><name>plasma.configuration</name><value>plasma-config-buildtime.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
                                 <param>${basedir}/src/main/resources</param>
@@ -261,6 +490,71 @@
                   </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.12.4</version>
+                <executions>
+                   <execution>
+                    <id>web-tests</id>
+                    <goals>
+                      <goal>test</goal>
+                    </goals>
+                    <configuration>
+                        <skip>false</skip>
+                        <additionalClasspathElements>
+                            <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
+                            <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
+                        </additionalClasspathElements>                  
+                        <forkMode>once</forkMode>
+                        <systemProperties>
+                            <property><name>cloudgraph.configuration</name><value>cloudgraph-config.xml</value></property>
+                            <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
+                            <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
+                            <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                        </systemProperties>
+                        <includes>               
+                            <include>**/*Test*</include>                      
+                        </includes> 
+                    </configuration>
+                  </execution>
+                </executions>                
+                <configuration>
+                    <skip>true</skip>
+                    
+                    <!-- debugging -->  
+                    <!--                     
+                    <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
+                        -->
+                    <!-- profiling  -->
+                    <!--
+                    <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  
+                    -->
+                    <!--    
+                    <argLine>-Xrunhprof:cpu=times,depth=25</argLine>    
+                    <argLine>-Xrunhprof:heap=sites,cpu=times,depth=10,monitor=y,thread=y,doe=y</argLine>    
+                    -->    
+                </configuration>
+            </plugin>
+            <plugin>                                                         
+              <artifactId>maven-antrun-plugin</artifactId>                   
+              <version>1.7</version>                                         
+              <executions>                                                   
+              <execution>    
+                  <id>copy-war</id>                                              
+                  <phase>install</phase>                
+                  <configuration>                                            
+                    <target>  
+                        <delete dir="C:/apache-tomcat-6.0.29/webapps/cloudgraph-web"/> 
+                        <copy file="./target/cloudgraph-web.war" toDir="C:/apache-tomcat-6.0.29/webapps"/> 
+                    </target> 
+                  </configuration> 
+                  <goals>                                                    
+                    <goal>run</goal>                                         
+                  </goals>                                                   
+                </execution>  
+              </executions>                                                  
+            </plugin>   
 		</plugins>
 		<pluginManagement>
 			<plugins>
@@ -303,6 +597,25 @@
 										</versionRange>
 										<goals>
 											<goal>xjc</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.apache.maven.plugins
+										</groupId>
+										<artifactId>
+											maven-antrun-plugin
+										</artifactId>
+										<versionRange>
+											[1.7,)
+										</versionRange>
+										<goals>
+											<goal>run</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>
