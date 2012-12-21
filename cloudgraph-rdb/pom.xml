@@ -46,6 +46,11 @@
 	        <artifactId>commons-dbcp</artifactId>    
 	        <version>1.4</version>                   
         </dependency>                                
+        <dependency>                                 
+            <groupId>com.oracle</groupId>          
+            <artifactId>ojdbc14</artifactId>    
+            <version>10.2.0.3.0</version>                   
+        </dependency>                                
         <!--
         Note: for Oracle JDBC driver use: 
         mvn install:install-file -DgroupId=com.oracle -DartifactId=ojdbc14 \

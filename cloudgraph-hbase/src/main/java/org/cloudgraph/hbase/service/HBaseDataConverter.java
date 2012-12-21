@@ -53,16 +53,20 @@ public class HBaseDataConverter {
 			case YearMonth:
 			case YearMonthDay:
 			case Duration:
-				result = Bytes.toString(value); 
+				String resultStr = Bytes.toString(value); 
+				result = DataConverter.INSTANCE.fromString(targetProperty
+						.getType(), resultStr);
 				break;
 			case Date:
-				String resultStr = Bytes.toString(value); 
+				resultStr = Bytes.toString(value); 
 				result = DataConverter.INSTANCE.fromString(targetProperty
 						.getType(), resultStr);
 				break;
 			case DateTime:
 				// NOTE: remember datetime is a String Java representation in SDO 2.1
-				result = Bytes.toString(value); 
+				resultStr = Bytes.toString(value); 
+				result = DataConverter.INSTANCE.fromString(targetProperty
+						.getType(), resultStr);
 				break;
 			case Decimal:
 				result = Bytes.toBigDecimal(value); 

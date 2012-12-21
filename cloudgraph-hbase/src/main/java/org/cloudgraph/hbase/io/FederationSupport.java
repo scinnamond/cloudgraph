@@ -31,6 +31,18 @@ public abstract class FederationSupport {
 	    	    + String.valueOf(target) + ", or its containment ancestry");
 	}
 
+	protected RowWriter findContainerRowWriter(DataObject target) {		
+		RowWriter result = null;
+		DataObject source = target.getContainer();
+		while (source != null) {
+			result = this.rowWriterMap.get(source);
+			if (result != null)
+				return result;
+			source = source.getContainer();
+		}
+		return null;
+	}
+	
 	protected RowWriter createRowWriter(TableWriter tableWriter, DataObject target) throws IOException
 	{
 		RowWriter rowWriter = null;

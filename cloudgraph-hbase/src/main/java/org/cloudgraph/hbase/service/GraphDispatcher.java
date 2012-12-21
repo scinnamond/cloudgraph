@@ -685,12 +685,14 @@ public class GraphDispatcher
                     if (log.isDebugEnabled()) {
                         log.debug("getting seq-num for " + type.getName());
                     }
-                    pk = rowWriter.getGraphState().addSequence(dataObject); 
+                    pk = rowWriter.getGraphState().findSequence(dataObject);
+                    if (pk == null)
+                        pk = rowWriter.getGraphState().addSequence(dataObject); 
+                    pk = DataConverter.INSTANCE.convert(targetPriKeyProperty.getType(), pk);
                     byte[] pkBytes = HBaseDataConverter.INSTANCE.toBytes(targetPriKeyProperty, pk);
                     this.updateCell(rowWriter, 
                     		rowWriter.getRow(), dataObject, 
                     	targetPriKeyProperty, pkBytes);
-                    //entity.set(targetPriKeyProperty.getName(), pk);                 
                     ((CoreDataObject)dataObject).setValue(targetPriKeyProperty.getName(), pk); // FIXME: bypassing modification detection on pri-key
             		break;
             	default:

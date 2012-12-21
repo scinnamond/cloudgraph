@@ -234,7 +234,7 @@ public abstract class DefaultAssembler {
                 list.add(target);   
                 // FIXME: HACK
                 try {
-                source.setList(sourceProperty, list); 
+                    source.setList(sourceProperty, list); 
                 }
                 catch (IllegalArgumentException e) {
                 	log.warn(e.getMessage());
@@ -244,13 +244,13 @@ public abstract class DefaultAssembler {
         else {
             PlasmaDataObject existing = (PlasmaDataObject)source.get(sourceProperty);
             if (existing == null) {
-                source.set(sourceProperty, target); 
-                if (target.getContainer() != null) {
+                if (target.getContainer() == null) {
                 	throw new IllegalStateException("the given target (" + target.getUUIDAsString() + ") "
                             + "of type " 
                     		+ target.getType().getURI() + "#" + target.getType().getName()
                     		+ " has no container");
                 }
+                source.set(sourceProperty, target); 
             }
             else
                 if (!existing.getUUIDAsString().equals(target.getUUIDAsString()))

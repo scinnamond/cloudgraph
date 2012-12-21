@@ -114,25 +114,39 @@ public abstract class JDBCDispatcher {
 			List<PropertyPair> keyValues) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
-		int i = 0;
+		
+		int count = 0;
+		// always select pk props where not found in given list
+		List<Property> pkProps = type.findProperties(KeyType.primary);
+		for (Property pkProp : pkProps) {
+			if (names.contains(pkProp.getName()))
+				continue;
+			if (count > 0)
+				sql.append(", ");
+			sql.append("t0.");
+			sql.append(((PlasmaProperty)pkProp).getPhysicalName());			
+			count++;
+		}
+		
 		for (String name : names) {
 			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
 			if (prop.isMany() && !prop.getType().isDataType())
 				continue;
-			if (i > 0)
+			if (count > 0)
 				sql.append(", ");
 			sql.append("t0.");
 			sql.append(prop.getPhysicalName());
-			i++;
-		}
+			count++;
+		}		
+		
 		sql.append(" FROM ");
 		sql.append(type.getPhysicalName());
 		sql.append(" t0 ");
 		sql.append(" WHERE ");
-        for (int k = 0; k < keyValues.size(); k++) {
-        	if (k > 0)
+        for (count = 0; count < keyValues.size(); count++) {
+        	if (count > 0)
         		sql.append(" AND ");
-        	PropertyPair propValue = keyValues.get(k);
+        	PropertyPair propValue = keyValues.get(count);
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
         	sql.append(" = "); 
@@ -150,20 +164,31 @@ public abstract class JDBCDispatcher {
 			AliasMap aliasMap) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
-		int i = 0;
+		int count = 0;
+		// always select pk props where not found in given list
+		List<Property> pkProps = type.findProperties(KeyType.primary);
+		for (Property pkProp : pkProps) {
+			if (names.contains(pkProp.getName()))
+				continue;
+			if (count > 0)
+				sql.append(", ");
+			sql.append("t0.");
+			sql.append(((PlasmaProperty)pkProp).getPhysicalName());			
+			count++;
+		}
 		for (String name : names) {
 			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
 			if (prop.isMany() && !prop.getType().isDataType())
 				continue;
-			if (i > 0)
+			if (count > 0)
 				sql.append(", ");
 			sql.append("t0.");
 			sql.append(prop.getPhysicalName());
-			i++;
+			count++;
 		}
 		sql.append(" FROM ");
     	Iterator<PlasmaType> it = aliasMap.getTypes();
-    	int count = 0;
+    	count = 0;
     	while (it.hasNext()) {
     		PlasmaType aliasType = it.next();
     		String alias = aliasMap.getAlias(aliasType); 
@@ -176,15 +201,25 @@ public abstract class JDBCDispatcher {
     	}
     	sql.append(" ");
     	sql.append(filterAssembler.getFilter());
-        for (int k = 0; k < keyValues.size(); k++) {
+        for (count = 0; count < keyValues.size(); count++) {
             sql.append(" AND ");
-        	PropertyPair propValue = keyValues.get(k);
+        	PropertyPair propValue = keyValues.get(count);
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
         	sql.append(" = "); 
         	// FIXME: escape , etc...
         	// FIXME: non integral keys etc...
         	sql.append(propValue.getValue()); // FIXME; use converter
+        }
+        
+        // add default ordering by given keys
+    	sql.append(" ORDER BY ");
+        for (count = 0; count < keyValues.size(); count++) {
+        	if (count > 0)        		
+                sql.append(", ");
+        	PropertyPair propValue = keyValues.get(count);
+        	sql.append("t0.");  
+        	sql.append(propValue.getProp().getPhysicalName());
         }
 		
 		return sql;

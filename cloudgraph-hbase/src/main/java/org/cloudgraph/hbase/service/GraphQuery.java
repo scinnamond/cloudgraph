@@ -109,6 +109,10 @@ public class GraphQuery
     public PlasmaDataGraph[] find(Query query, int requestMax, Timestamp snapshotDate)
     {
         From from = query.getFromClause();
+        if (from.getEntity() == null)
+        	throw new IllegalArgumentException("given query has no root type and/or URI");
+        if (from.getEntity().getName() == null || from.getEntity().getNamespaceURI() == null)
+        	throw new IllegalArgumentException("given query has no root type and/or URI");
         PlasmaType type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(from.getEntity().getNamespaceURI(), 
         		from.getEntity().getName());
         PlasmaDataGraph[] results = new PlasmaDataGraph[0];
@@ -373,6 +377,9 @@ public class GraphQuery
         	}
         }
         else {
+            //FIXME: partial key scans failing here - The Type name where it is the final field
+	        // in the key has incorrect stop-key value. E.g. both start and stop are the same
+	        /*    
     		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(type);
     		scanAssembler.assemble();
             scan.setStartRow(scanAssembler.getStartKey()); // inclusive
@@ -381,6 +388,7 @@ public class GraphQuery
     			log.debug("default graph partial key scan: (" 
       		        + "start: " + Bytes.toString(scan.getStartRow())
       		        + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
+      		*/        
         }    	
     }
        

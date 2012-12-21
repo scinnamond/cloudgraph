@@ -99,6 +99,9 @@ public class TableWriterCollector extends FederationSupport {
 			if (table != null)
 				associate(table, dataObject);
 		}
+		if (result.size() == 0)
+			throw new OperationException("no configured table(s) could be associated with root type "  
+				+ this.root.getType().toString() + " - please add a configuration for this type");
 		
         for (PlasmaDataObject dataObject : this.created.getResult()) {
 			PlasmaType type = (PlasmaType)dataObject.getType();
@@ -132,7 +135,8 @@ public class TableWriterCollector extends FederationSupport {
 	}
 	
 	/**
-	 * Links the given "unbound" data object to a row writer. An unbound
+	 * Links the given "unbound" data object to a row writer. 
+	 * An unbound
 	 * data object is not directly associated with a table but only
 	 * as part of a containment hierarchy within a graph. 
 	 * @param target the data object
@@ -156,8 +160,7 @@ public class TableWriterCollector extends FederationSupport {
     		       + rowWriter.getTableWriter().getTable().getName() + "' by means of another source/parent");
     	}
 	}
-	
-	
+		
 	/**
 	 * Links the given "bound" data object to a row writer. A bound
 	 * data object is directly associated with a table 

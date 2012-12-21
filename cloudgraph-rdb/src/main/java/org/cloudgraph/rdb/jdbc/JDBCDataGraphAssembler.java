@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -43,7 +44,7 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 	private Timestamp snapshotDate;
 	private Connection con;
 	private JDBCDataConverter converter;
-	private Map<String, PlasmaDataObject> dataObjectMap = new HashMap<String, PlasmaDataObject>();
+	private Map<Integer, PlasmaDataObject> dataObjectMap = new HashMap<Integer, PlasmaDataObject>();
 	private Comparator<PropertyPair> nameComparator;
 	
 	@SuppressWarnings("unused")
@@ -87,7 +88,7 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
         // add concurrency fields
         if (snapshotDate != null)
         	rootNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
-		
+		// set data properties
 		for (PropertyPair pair : results) {
 			if (pair.getProp().getType().isDataType()) {
 				rootNode.setValue(pair.getProp().getName(), 
@@ -176,6 +177,12 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 		if (log.isDebugEnabled())
 			log.debug("results: " + result.size());
 	    
+		// first create (or link existing) data objects 
+		// "filling out" the containment hierarchy at this traversal level
+		// BEFORE recursing, as we may "cancel" out an object
+		// at the current level if it is first encountered
+		// within the recursion.
+		Map<PlasmaDataObject, List<PropertyPair>> resultMap = new HashMap<PlasmaDataObject, List<PropertyPair>>();
 		for (List<PropertyPair> row : result) {
 			
 			PlasmaDataObject target = findDataObject(targetType, row);
@@ -183,30 +190,38 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 			if (target == null) {
 			    target = createDataObject(row, source, 
 					sourceProperty);
+			    resultMap.put(target, row);
 			}
 			else { 
 				link(target, source, sourceProperty);
 				continue; 
 				// Assume we traverse no farther given no traversal
-				// direction info other than that we encountered an
-				// existing node. Need more path specific info to construct
+				// direction or containment info. We only know that we 
+				// encountered an existing node. Need more path specific 
+				// info including containment and traversal direction to construct
 				// a directed graph here. 
 				// Since the current selection collector maps any and all
 				// properties selected to a type, for each type/data-object
 				// we will, at this point, have gotten all the properties we expect anyway.
 				// So we create a link from the source to the existing DO, but
 				// traverse no further. 
-			}
-	        
+			}   
+		}	
+		
+		// now traverse
+		Iterator<PlasmaDataObject> iter = resultMap.keySet().iterator();
+		while (iter.hasNext()) {
+			PlasmaDataObject target = iter.next();
+			List<PropertyPair> row = resultMap.get(target);
 			// traverse singular results props
 			for (PropertyPair pair : row) {
 				if (pair.getProp().isMany() || pair.getProp().getType().isDataType()) 
-				    continue;
+				    continue; // only singular reference props
 				List<PropertyPair> nextKeyPairs = new ArrayList<PropertyPair>();
 				List<Property> nextKeyProps = ((PlasmaType)pair.getProp().getType()).findProperties(KeyType.primary);
-			    
+			    			
 				// FIXME: need UML profile link to target PK props 
-				// where there are multiples !!
+				// where there are multiple PKs !!
 				if (nextKeyProps.size() == 1) {
 			    	nextKeyPairs.add(
 			    		new PropertyPair((PlasmaProperty)nextKeyProps.get(0),
@@ -226,11 +241,11 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 			
 			// traverse multi props based, not on the results
 			// row, but on keys within this data object
-			// FIXME: see no singular check above...we never get here !!
 			for (String name : names) {
 				PlasmaProperty prop = (PlasmaProperty)targetType.getProperty(name);
 				if (!prop.isMany() || prop.getType().isDataType())
-				    continue;
+				    continue; // only many reference props
+				
 		    	PlasmaProperty opposite = (PlasmaProperty)prop.getOpposite();
 		    	if (opposite == null)
 			    	throw new DataAccessException("no opposite property found"
@@ -291,8 +306,10 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 		}
         
         // map it
-        String key = createHashKey(
+        int key = createHashKey(
         	(PlasmaType)target.getType(), row);
+        if (log.isDebugEnabled())
+        	log.debug("mapping " + key + "->" + target);
         this.dataObjectMap.put(key, target);        
         
         return target;
@@ -307,8 +324,15 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 	 * @return the data object
 	 */
 	private PlasmaDataObject findDataObject(PlasmaType type, List<PropertyPair> row) {
-        String key = createHashKey(type, row);
-        return this.dataObjectMap.get(key);        
+        int key = createHashKey(type, row);
+        PlasmaDataObject result = this.dataObjectMap.get(key);
+        if (log.isDebugEnabled()) {
+            if (result != null)
+            	log.debug("found existing mapping " + key + "->" + result);
+            else
+            	log.debug("found no existing mapping for key: " + key);
+        }	
+        return result;        
 	}
 	
 	/**
@@ -318,18 +342,24 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
 	 * @param row the data values
 	 * @return the key
 	 */
-	private String createHashKey(PlasmaType type, List<PropertyPair> row) {
+	private int createHashKey(PlasmaType type, List<PropertyPair> row) {
 		PropertyPair[] pairs = new PropertyPair[row.size()];
 		row.toArray(pairs);
 		Arrays.sort(pairs, this.nameComparator);
-		StringBuilder buf = new StringBuilder();
-		buf.append(type.getQualifiedName().toString());
+		int result = type.getQualifiedName().hashCode();
+		
+		int pks = 0;
 		for (int i = 0; i < pairs.length; i++) {
-			buf.append(":");
-			if (pairs[i].getProp().isKey(KeyType.primary))
-				buf.append(pairs[i].getValue());
+			if (pairs[i].getProp().isKey(KeyType.primary)) {
+				Object value = pairs[i].getValue();
+				result = result ^ value.hashCode();
+				pks++;
+			}
 		}
-		return buf.toString();
+		if (pks == 0)
+			throw new IllegalStateException("cannot create hash key - no primary keys found for type, "
+					+ type.toString());
+		return result;
 	}
 	
 	/**
@@ -359,12 +389,12 @@ public class JDBCDataGraphAssembler extends JDBCDispatcher
                 PlasmaDataObject existingOpposite = (PlasmaDataObject)target.get(opposite);
                 if (existingOpposite != null) {
                 	if (log.isDebugEnabled())
-                        log.debug("encountered existing (" + existingOpposite.getType().getName()
+                        log.debug("encountered existing opposite (" + existingOpposite.getType().getName()
                             + ") value found while creating link (" + source.getUUIDAsString() + ") "
                             + source.getType().getURI() + "#" + source.getType().getName() 
                             + "." + sourceProperty.getName() + "->("
                             + target.getUUIDAsString() + ") "
-                            + target.getType().getURI() + "#" + target.getType().getName());
+                            + target.getType().getURI() + "#" + target.getType().getName() + " - no link created");
         		    return;
                 }
         	}
