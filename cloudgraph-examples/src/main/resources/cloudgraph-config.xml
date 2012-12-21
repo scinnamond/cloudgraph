@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cloudgraph:CloudGraphConfiguration  
+    xmlns:cloudgraph="http://www.cloudgraph.org/config">
+    <!--
+    <Property name="hbase.zookeeper.quorum">u16361628.onlinehome-server.com</Property>    
+    <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
+      -->
+    
+    <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
+    <Property name="hbase.zookeeper.property.clientPort">2181</Property>  
+      
+     
+     <!--
+     does not seem to do anything 
+    <Property name="hbase.master">slphetad4002.phe.fs.fed.us:49302</Property>  
+      -->
+    <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
+    <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
+
+    <Table name="COCT" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://plasma.servicelabs.org/platform/hl7/coct/hd010000" type="Encounter">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="statusCode"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="lengthOfStayQuantity"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="effectiveTime"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="admitter[position()=1]/typeCode"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table> 
+    
+    <Table name="FICR" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://plasma.servicelabs.org/platform/hl7/ficr/hd400200" type="PaymentRequest">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="classCode"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="moodCode"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="amt"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="primaryPerformer[position()=1]/typeCode"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="primaryPerformer[position()=1]/contactParty[position()=1]/contactPerson[position()=1]/name"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="primaryPerformer[position()=1]/contactParty[position()=1]/contactPerson[position()=1]/telecom"/>
+                </RowKeyField>
+                
+                
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table>    
+    
+    <Table name="POCD" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://plasma.servicelabs.org/platform/hl7/pocd/hd000040" type="ClinicalDocument">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="classCode"/>
+                </RowKeyField>  
+                <RowKeyField>
+                    <UserDefinedField path="effectiveTime"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="moodCode"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="confidentialityCode"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="recordTarget[position()=1]/patientRole[position()=1]/patient/name"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="recordTarget[position()=1]/patientRole[position()=1]/patient/administrativeGenderCode"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table>    
+       
+</cloudgraph:CloudGraphConfiguration>
