@@ -93,6 +93,7 @@
   <jsp:include page="/configuration/CreateEditEnumerationLiteralPanel.jsp" flush="false"/>
   <jsp:include page="/data/InstanceBrowserQueuePanel.jsp" flush="false"/>
       
+  <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

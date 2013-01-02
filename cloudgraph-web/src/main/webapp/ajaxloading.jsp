@@ -27,7 +27,7 @@
      id="ajaxloading" resizeable="false">
     <h:panelGrid columns="3" border="0">        
           <h:graphicImage width="16" height="16" 
-                url="/images/ajax-loader.gif"/>
+                url="/images/ajax-loader3.gif"/>
           <h:outputText value=""/>
           <h:outputText value="Loading..."/>
     </h:panelGrid>

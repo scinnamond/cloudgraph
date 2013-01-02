@@ -7,6 +7,7 @@
 <f:loadBundle basename="#{UserBean.bundleName}" var="bundle"/>
 <html>
 <head>
+  <title><h:outputText value="#{bundle.aplsWindowTitle}"/></title>
   <link href="/cloudgraph-web/css/cloudgraph-web.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
@@ -76,6 +77,7 @@
   </a4j:outputPanel>
 </a4j:outputPanel>
 
+  <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
   <jsp:include page="/administration/TaxonomyDeleteConfirmModalPanel.jsp" flush="false"/>
   <jsp:include page="/administration/TaxonomyExportModalPanel.jsp" flush="false"/>
   <jsp:include page="/data/PersonalizeQueuePanel.jsp" flush="false"/>

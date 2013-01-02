@@ -18,6 +18,9 @@ public enum Action {
     topnav_download,
     topnav_documentation,
     topnav_administration,
+    topnav_news,
+    topnav_email,
+    topnav_blog,
     
     
     

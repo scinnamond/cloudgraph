@@ -85,8 +85,9 @@ public class GraphEditBean extends ModelBean{
 				this.graphRootURI = uri;
 			}
 		
+		String currTab = this.beanFinder.findDemoBean().getSelectedTab();
 		if (this.reQuery == true && this.graphRootType != null &&
-				this.graphRootURI != null)
+				this.graphRootURI != null && "tab_dataGraphs".equals(currTab)) {
 			try {
 				Select select = new Select(new String[] {
 					"*",	
@@ -108,6 +109,7 @@ public class GraphEditBean extends ModelBean{
 			catch (Throwable t) {
 				log.error(t.getMessage(), t);
 			}
+		}
         return this.graphTree;
 	}
 	

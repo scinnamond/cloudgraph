@@ -8,16 +8,27 @@
 
 
 <h:panelGrid columns="1" border="0">
-    
+    <f:subview id="news_link_sv">
+        <f:verbatim><div class="NewsNav"></f:verbatim>
+	    <a4j:commandLink value="News:" 
+	        style="text-align:left; text-decoration:underline;"
+	        reRender="top_nav_Panel"
+	        action="topnav_news">
+	        <f:setPropertyActionListener value="true"   
+	             target="#{NavigationBean.newsSelected}" /> 
+	    </a4j:commandLink>  
+        <f:verbatim></div></f:verbatim>
+    </f:subview>                                          
     <rich:dataList var="instance" 
         value="#{DataListBean.dataMap['NewsItem']}" 
-        rows="10" type="square">
-        <h:outputLink value="#{instance.values['URL']}">
-            <h:outputText value="#{instance.caption}"/>            
-        </h:outputLink>        
+        rows="10" type="square" styleClass="NewsNav">
+        <a4j:commandLink
+            reRender="top_nav_Panel">
+            <h:outputText value="#{instance.values['EventDate']} - #{instance.values['Title']}"/>            
+            <f:setPropertyActionListener value="true"   
+                 target="#{NavigationBean.newsSelected}" /> 
+        </a4j:commandLink>        
     </rich:dataList>
-
-    <rich:separator lineType="beveled" height="8" width="100%" align="center"/> 
 
     <rich:panelMenu style="width:230px"  mode="ajax" 
         iconExpandedGroup="disc" iconCollapsedGroup="disc" 
@@ -71,6 +82,8 @@
                         target="#{DemoBean.modelRootType}" />                                             
                     <f:setPropertyActionListener value="#{model.values['Namespace']}"   
                         target="#{DemoBean.modelRootURI}" />                                             
+                    <f:setPropertyActionListener value="#{model.values['CreateCodeSamplesURL']}"   
+                        target="#{DemoBean.createCodeSamplesURL}" />                                             
                 </rich:panelMenuItem>
             </c:forEach>
         </rich:panelMenuGroup>

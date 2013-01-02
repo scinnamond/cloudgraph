@@ -23,6 +23,9 @@ public class NavigationBean extends ModelBean {
     private TreeNodeAction demoAction;
     private TreeNodeAction downloadAction;
     private TreeNodeAction documentationAction;
+    private TreeNodeAction newsAction;
+    private TreeNodeAction emailAction;
+    private TreeNodeAction blogAction;
     
     private TreeNodeAction administrationAction;
         
@@ -51,6 +54,9 @@ public class NavigationBean extends ModelBean {
 				workspaceAction.setSelected(false);
 				downloadAction.setSelected(false);
 				documentationAction.setSelected(false); 
+				newsAction.setSelected(false); 
+				emailAction.setSelected(false); 
+				blogAction.setSelected(false); 
 				demoAction.setSelected(false);
 				administrationAction.setSelected(false);
 			}
@@ -78,6 +84,12 @@ public class NavigationBean extends ModelBean {
 	    downloadAction = new TreeNodeAction(Action.topnav_download, 
 	    		topActionHandler, topSelectionModel);
 	    documentationAction = new TreeNodeAction(Action.topnav_documentation, 
+	    		topActionHandler, topSelectionModel);
+	    newsAction = new TreeNodeAction(Action.topnav_news, 
+	    		topActionHandler, topSelectionModel);
+	    emailAction = new TreeNodeAction(Action.topnav_email, 
+	    		topActionHandler, topSelectionModel);
+	    blogAction = new TreeNodeAction(Action.topnav_blog, 
 	    		topActionHandler, topSelectionModel);
 	    administrationAction = new TreeNodeAction(Action.topnav_administration, 
 	    		topActionHandler, topSelectionModel);
@@ -143,6 +155,30 @@ public class NavigationBean extends ModelBean {
 			this.documentationAction.setSelected(false);
 	}
 
+	public void setNewsSelected(Object selected) {
+		Boolean b = new Boolean(String.valueOf(selected));
+		if (b.booleanValue())
+		    this.topSelectionModel.setSelection(this.newsAction);
+		else
+			this.newsAction.setSelected(false);
+	}
+	
+	public void setEmailSelected(Object selected) {
+		Boolean b = new Boolean(String.valueOf(selected));
+		if (b.booleanValue())
+		    this.topSelectionModel.setSelection(this.emailAction);
+		else
+			this.emailAction.setSelected(false);
+	}
+	
+	public void setBlogSelected(Object selected) {
+		Boolean b = new Boolean(String.valueOf(selected));
+		if (b.booleanValue())
+		    this.topSelectionModel.setSelection(this.blogAction);
+		else
+			this.blogAction.setSelected(false);
+	}
+	
 	public void setAdminitstrationSelected(Object selected) {
 		Boolean b = new Boolean(String.valueOf(selected));
 		if (b.booleanValue())
@@ -183,6 +219,30 @@ public class NavigationBean extends ModelBean {
 		this.documentationAction = documentationAction;
 	}
 
+	public TreeNodeAction getNewsAction() {
+		return newsAction;
+	}
+
+	public void setNewsAction(TreeNodeAction newsAction) {
+		this.newsAction = newsAction;
+	}
+	
+	public TreeNodeAction getEmailAction() {
+		return emailAction;
+	}
+
+	public void setEmailAction(TreeNodeAction emailAction) {
+		this.emailAction = emailAction;
+	}
+	
+	public TreeNodeAction getBlogAction() {
+		return blogAction;
+	}
+
+	public void setBlogAction(TreeNodeAction blogAction) {
+		this.blogAction = blogAction;
+	}
+	
 	public TreeNodeAction getDemoAction() {
 		return demoAction;
 	}

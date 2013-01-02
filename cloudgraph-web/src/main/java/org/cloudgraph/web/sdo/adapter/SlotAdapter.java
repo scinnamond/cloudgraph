@@ -56,7 +56,7 @@ public class SlotAdapter implements Serializable {
 	private Clazz rootClass;
 	private Slot slot; // can be null if not created yet
 	private Property property;
-	private static Long defaultId = new Long(-1);
+	private static Long DEFAULT_ID = new Long(-1);
 	private static final List<Object> EMPTY_OBJECT_LIST = new ArrayList<Object>();
 	
 	@SuppressWarnings("unused")
@@ -274,9 +274,11 @@ public class SlotAdapter implements Serializable {
 		List<SelectItem> result = new ArrayList<SelectItem>();
 		Clazz clzz = getClassType();
 		if (clzz != null) {
-			SelectItem defaultItem = new SelectItem(defaultId, 
+			if (!this.getIsMany()) {
+			    SelectItem defaultItem = new SelectItem(DEFAULT_ID, 
 					WebConstants.DEFAULT_SELECTION);
-			result.add(defaultItem);
+			    result.add(defaultItem);
+			}
 			if (classInstanceMap == null)
 				classInstanceMap = new HashMap<Long, InstanceSpecificationAdapter>();
 			
@@ -407,10 +409,10 @@ public class SlotAdapter implements Serializable {
 	    		if (is != null)
 	    		    return is.getSeqId(); 
 	    		else
-	    			return defaultId;
+	    			return DEFAULT_ID;
 	    	}
 	    	else
-	    		return defaultId;
+	    		return DEFAULT_ID;
 		}
 		else
 			log.warn("unexpected data type");
@@ -443,11 +445,11 @@ public class SlotAdapter implements Serializable {
 		    		if (is != null)
 		    			result.add(new Long(is.getSeqId())); 
 		    		else
-		    			result.add(defaultId);
+		    			result.add(DEFAULT_ID);
 	    		}
 	    	}
 	    	else {
-	    		result.add(defaultId);
+	    		result.add(DEFAULT_ID);
 	    	}
 		}
 		else
@@ -561,6 +563,8 @@ public class SlotAdapter implements Serializable {
 			for (Object value2 : values) {
 		    	// JSF hack for selectOne/ManyMenu - see above
 		    	Long id = Long.valueOf(String.valueOf(value2));
+		    	if (DEFAULT_ID.equals(id))
+		    		continue;
 		    	boolean exists = false;
 		    	if (this.slot.getValue() != null)
 			    	for (InstanceValue instVal : vs.getInstanceValue()) {

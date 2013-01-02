@@ -71,11 +71,11 @@ img
     border-style: none;
 }
 
-a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080;}
-a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080;}
-a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:underline}
-a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080;}
-a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed;}
+a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
+a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
 
 .label
 {
@@ -96,61 +96,6 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
   FONT-SIZE: 12pt
   font-family: "Verdana";
   FONT-WEIGHT: bold
-}
-
-.tableoncell{
-	background-color: #EEEEEE;
-}
-
-.tableoffcell{
-	background-color: #ffffff;
-}
-
-.tableselectedcell{
-	background-color: #DDDDDD;
-}
-
-.tableHeader
-{
-  background-color:f5deb3; 
-  COLOR: #000000;
-  padding: 4;
-  FONT-SIZE: 8pt;
-  font-family: "Verdana";
-}
-
-.subTableHeader
-{
-  COLOR: #000000;
-  padding: 4;
-  FONT-SIZE: 8pt;
-  font-family: "Verdana";
-	   border-top:1px solid #6b8dcd;	
-	   border-left:1px solid #6b8dcd;
-	   border-right:1px solid #6b8dcd;	
-  	   border-bottom:1px solid #6b8dcd;
-  	   background-color: #e5e5e5;
-}
-
-.workQueueTable
-{
-  border-style: groove;
-  border-color: #333333;
-  border-width: 1px;
-  width:100%px;
-}
-
-.tableHeader a { color:#CCFFFF; text-decoration:none;}
-.tableHeader a:visited { color:#CCFFFF; text-decoration:none; }
-.tableHeader a:hover { color:#FFFFCC; text-decoration:underline;}
-.tableHeader a:active { color:#CCFFFF; text-decoration:none; }
-
-.layoutTable
-{
-  margin: 0px; 
-  padding: 0px;
-  border: 0px;
-  border-width: 0px;
 }
 
 .AlignCenter{
@@ -343,7 +288,7 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
   text-align: left;
 }
 
-.TopToolbarDiv{
+.TopToolbarDiv {
   POSITION: absolute;
   LEFT: 200;
   TOP: 5;
@@ -355,6 +300,12 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
   font-weight: bold;
   text-decoration: none;
 }
+
+.TopToolbarDiv a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopToolbarDiv a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopToolbarDiv a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #0000FF; text-decoration:none}
+.TopToolbarDiv a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
+.TopToolbarDiv a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
 
 .CaptionDiv{
 	color: #000000;
@@ -425,8 +376,8 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 
 .LeftNavDiv{
   POSITION: absolute;
-  LEFT: 38;
-  TOP: 100;
+  LEFT: 35;
+  TOP: 80;
   ALIGN: left;
   text-align: left;
   WIDTH: 235px;
@@ -554,7 +505,7 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 
 .TopNavDiv{
   POSITION: absolute;
-  LEFT: 323;
+  LEFT: 308;
   TOP: 77;
   ALIGN: left;
   text-align: left;
@@ -581,10 +532,9 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 
 .TopNav a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
 .TopNav a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
-.TopNav a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
+.TopNav a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #0000FF; text-decoration:none}
 .TopNav a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:none}
 .TopNav a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:none}
-
 
 
 .TopNavActive{
@@ -592,10 +542,22 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
 
 .TopNavActive a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
 .TopNavActive a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
-.TopNavActive a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:underline}
+.TopNavActive a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #0000FF; text-decoration:underline}
 .TopNavActive a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #000080; text-decoration:underline}
 .TopNavActive a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #6495ed; text-decoration:underline}
 
+
+.NewsNav{
+  ALIGN: left;
+  text-align: left;
+}
+    
+.NewsNav a {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:none}
+.NewsNav a:link {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:none}
+.NewsNav a:hover {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #ffd700; text-decoration:none}
+.NewsNav a:visited {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:none}
+.NewsNav a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-size: 12px; font-style: normal; line-height: normal; color: #b8860b; text-decoration:none}
+    
     
 .ContentDiv{
   POSITION: absolute;
@@ -663,21 +625,6 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
     overflow: auto;
 }
 
-.CostTablePopupDiv{
-    border-width: 1px;
-    border-style: inset;
-    WIDTH: 420px;
-    HEIGHT: 340px;
-    overflow-y: auto;
-}
-
-.ProjectListTablePopupDiv{
-    border-width: 1px;
-    border-style: inset;
-    WIDTH: 520px;
-    HEIGHT: 300px;
-    overflow-y: auto;
-}
 
 .ErrorMessage{
     color: red;
@@ -694,11 +641,6 @@ a:active {  font-family: Arial, Helvetica, sans-serif; font-weight:bold; font-si
     text-decoration: underline;
 }
 
-
-.GlobalSearchCritValueDiv{
-  color: E38A00;
-  FONT-WEIGHT: bold;
-}
 
 .rich-toolbar, .rich-toolbar-item {  
     background-image:none;  

@@ -8,7 +8,7 @@
              <h:outputLink id="settingsLink"
                  value="#" 
                  title="">
-                 <h:outputText value="My Settings"/>   
+                 <h:outputText value="Register"/>   
                  <rich:componentControl 
                      for="settingsModalPanel" attachTo="settingsLink" 
                      operation="show" 
@@ -19,7 +19,7 @@
              <h:outputLink
                  value="#"
                  title="">
-                 <h:outputText value="Other Information"/> 
+                 <h:outputText value="Contact"/> 
              </h:outputLink>     
          </rich:toolBarGroup>
     </rich:toolBar>

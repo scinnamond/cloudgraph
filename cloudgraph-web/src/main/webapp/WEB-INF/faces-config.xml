@@ -194,6 +194,12 @@
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
+        <from-outcome>topnav_download</from-outcome>
+        <to-view-id>/download/Download.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+      <navigation-case>
         <from-outcome>topnav_demo</from-outcome>
         <to-view-id>/demo/Demo.jsp</to-view-id>
       </navigation-case>
@@ -218,8 +224,20 @@
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
-        <from-outcome>topnav_campaign</from-outcome>
-        <to-view-id>/campaign/Campaign.jsp</to-view-id>
+        <from-outcome>topnav_news</from-outcome>
+        <to-view-id>/news/News.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>topnav_email</from-outcome>
+        <to-view-id>/email/Email.jsp</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>topnav_blog</from-outcome>
+        <to-view-id>/blog/Blog.jsp</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>

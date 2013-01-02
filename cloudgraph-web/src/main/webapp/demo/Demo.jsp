@@ -3,11 +3,21 @@
 <%@ taglib uri="http://richfaces.org/rich" prefix="rich"%>
 <%@ taglib uri="http://java.sun.com/jsf/core"   prefix="f" %>
 <%@ taglib uri="http://java.sun.com/jsf/html"   prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <f:view>
 <f:loadBundle basename="#{UserBean.bundleName}" var="bundle"/>
 <html>
 <head>
   <link href="/cloudgraph-web/css/cloudgraph-web.css" rel="stylesheet" type="text/css" />
+  <title><h:outputText value="#{bundle.aplsWindowTitle}"/></title>
+  <script type="text/javascript">                                                          
+    function theFrameLoaded(theFrame) {  
+    	theFrame.style.height ="";
+        theFrame.style.height = theFrame.contentWindow.document.body.scrollHeight + 'px';
+        theFrame.style.width = "";
+        theFrame.style.width = theFrame.contentWindow.document.body.scrollWidth + 'px';
+    }                                                                                      
+  </script>                                                                                
 </head>
 <body>
 <a4j:outputPanel id="body_panel">
@@ -48,7 +58,7 @@
         rendered="#{DemoBean.hasModel}"
         selectedTab="#{DemoBean.selectedTab}">
 
-    <rich:tab id="model" title=""
+    <rich:tab id="tab_model" title=""
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
@@ -57,15 +67,15 @@
         </f:facet>
         <f:subview id="model_sv">
         <f:verbatim>        
-        <iframe type="text/html"
-          frameborder="0" width="700" height="12000" scrolling="no"
+        <iframe width="600" height="800" type="text/html"
+          id="modelFrame" onload="theFrameLoaded(this)"
+          frameborder="0" scrolling="no"
           src="</f:verbatim><h:outputText value="#{DemoBean.modelUrl}"/><f:verbatim>"/>
-          <p>content not found</p>
         </iframe>
         </f:verbatim>
         </f:subview>
     </rich:tab>
-    <rich:tab id="javaDocs" title=""
+    <rich:tab id="tab_javaDocs" title=""
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
@@ -75,14 +85,14 @@
         <f:subview id="jd_sv">
         <f:verbatim>        
         <iframe type="text/html"
-          frameborder="0" width="700" height="900" scrolling="no"
+          id="javadocFrame" onload="theFrameLoaded(this)"
+          frameborder="0" width="600" height="800" scrolling="no"
           src="</f:verbatim><h:outputText value="#{DemoBean.javaDocUrl}"/><f:verbatim>"/>
-          <p>content not found</p>
         </iframe>
         </f:verbatim>
         </f:subview>    
     </rich:tab>
-    <rich:tab id="dataGraphs" title=""
+    <rich:tab id="tab_dataGraphs" title=""
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
@@ -90,7 +100,7 @@
             </h:panelGroup>
         </f:facet>
         <rich:tree id="graphTree" 
-            rendered="#{DemoBean.selectedTab == 'dataGraphs'}"
+            rendered="#{DemoBean.selectedTab == 'tab_dataGraphs'}"
             componentState="#{GraphEditBean.graphTree.treeState}"
             switchType="ajax"
             value="#{GraphEditBean.graphTree.model}" 
@@ -106,11 +116,11 @@
             </rich:treeNode>
         </rich:tree>
     </rich:tab>
-    <rich:tab id="hbase" title=""
+    <rich:tab id="tab_hbase" title=""
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
-                <h:outputText value="HBase" />
+                <h:outputText value="HBase (raw data)" />
             </h:panelGroup>
         </f:facet>
 		<h:panelGrid id="hbase_dtbl_pnl" rowClasses="AlignCenter" columns="1" border="0">                                                            
@@ -143,29 +153,101 @@
 		                                                                                                                                            
 		</h:panelGrid> 
       </rich:tab>
-    <rich:tab id="cassandra" title=""
+    <rich:tab id="tab_cassandra" title=""
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
-                <h:outputText value="Cassandra" />
+                <h:outputText value="Cassandra (raw data)" />
             </h:panelGroup>
         </f:facet>
     </rich:tab>
-    <rich:tab id="codeSamples" title=""
+    <rich:tab id="tab_codeSamples" title=""
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
                 <h:outputText value="Code Samples" />
             </h:panelGroup>
         </f:facet>
+	    <rich:tabPanel switchType="server">
+		
+		    <rich:tab id="tab_sample_create" title="Code samples for inserting a new data graph">
+		        <f:facet name="label">
+		            <h:panelGroup>
+		                <h:outputText value="Create" />
+		            </h:panelGroup>
+		        </f:facet>	
+		        <f:subview id="sample_create_sv">
+		        <f:verbatim>
+		        <pre>        
+		        <iframe width="600" height="800" type="text/html"
+		          id="frm_sample_create" onload="theFrameLoaded(this)"
+		          frameborder="0" scrolling="no"
+		          src="</f:verbatim><h:outputText value="#{DemoBean.createCodeSamplesURL}"/><f:verbatim>"/>
+		        </iframe>
+		        </pre>
+		        </f:verbatim>
+		        </f:subview>
+		    </rich:tab>
+	        <rich:tab id="tab_sample_query" title="Code samples for querying for existing data graphs and data graph slices">
+	            <f:facet name="label">
+	                <h:panelGroup>
+	                    <h:outputText value="Query" />
+	                </h:panelGroup>
+	            </f:facet>      
+                <f:subview id="sample_query_sv">
+                <f:verbatim>
+                <pre>        
+                <iframe width="600" height="800" type="text/html"
+                  id="frm_sample_create" onload="theFrameLoaded(this)"
+                  frameborder="0" scrolling="no"
+                  src="</f:verbatim><h:outputText value="#{DemoBean.queryCodeSamplesURL}"/><f:verbatim>"/>
+                </iframe>
+                </pre>
+                </f:verbatim>
+                </f:subview>
+	        </rich:tab>
+	        <rich:tab id="tab_sample_update" title="Code samples for updating an existing data graph">
+	            <f:facet name="label">
+	                <h:panelGroup>
+	                    <h:outputText value="Update" />
+	                </h:panelGroup>
+	            </f:facet>      
+                <f:subview id="sample_update_sv">
+                <f:verbatim>
+                <pre>        
+                <iframe width="600" height="800" type="text/html"
+                  id="frm_sample_update" onload="theFrameLoaded(this)"
+                  frameborder="0" scrolling="no"
+                  src="</f:verbatim><h:outputText value="#{DemoBean.updateCodeSamplesURL}"/><f:verbatim>"/>
+                </iframe>
+                </pre>
+                </f:verbatim>
+                </f:subview>
+	        </rich:tab>
+	    </rich:tabPanel>
     </rich:tab>
-    <rich:tab id="config"  title=""
+    
+    <rich:tab id="tab_config"  title=""
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
                 <h:outputText value="Configuration" />
             </h:panelGroup>
         </f:facet>
+        <rich:tabPanel switchType="server">  
+            <c:forEach var="tableInfo" items="#{DemoBean.tables}">
+            <rich:tab title="The configuration XML for table #{tableInfo.config.table.name}">
+                <f:facet name="label">
+                    <h:panelGroup>
+                        <h:outputText value="#{tableInfo.config.table.name}" />
+                    </h:panelGroup>
+                </f:facet> 
+                <f:verbatim><pre></f:verbatim>
+                <h:outputText value="#{tableInfo.xml}" />
+                <f:verbatim></pre></f:verbatim>
+            </rich:tab>
+            </c:forEach>
+        </rich:tabPanel>
     </rich:tab>
     </rich:tabPanel>
   </h:panelGrid>
@@ -175,6 +257,7 @@
 </a4j:outputPanel>
 
        
+  <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

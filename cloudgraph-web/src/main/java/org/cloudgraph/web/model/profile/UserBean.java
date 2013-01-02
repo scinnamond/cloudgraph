@@ -27,6 +27,7 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
 
 import org.cloudgraph.web.sdo.personalization.Element;
 import org.cloudgraph.web.sdo.personalization.ElementType;
+import org.cloudgraph.web.sdo.personalization.Person;
 import org.cloudgraph.web.sdo.personalization.Profile;
 import org.cloudgraph.web.sdo.personalization.ProfileElementSetting;
 import org.cloudgraph.web.sdo.personalization.Role;
@@ -141,6 +142,9 @@ public class UserBean implements Serializable {
 	    if (results == null || results.length == 0)
 	        throw new IllegalStateException("cannot find person information for username, "
 			    + this.getName());
+	    if (results.length == 0)
+	        throw new IllegalStateException("no person information found for username, "
+			    + this.getName());
 	    if (results.length > 1)
 	        throw new IllegalStateException("multiple person information found for username, "
 			    + this.getName());
@@ -225,6 +229,10 @@ public class UserBean implements Serializable {
 		return this.user;
 	}
 	
+	public Person getPerson() {
+		return this.user.getPerson(0);
+	}
+	
 	public Profile initializeProfile() {
 		
 		if (this.profile != null)
@@ -240,9 +248,9 @@ public class UserBean implements Serializable {
 	}
 	
 	public String commitProfile() {
-		if (this.profile == null)
-			throw new IllegalStateException("no profile found");
         try {
+    		if (this.profile == null)
+    			throw new IllegalStateException("no profile found");
 		    SDODataAccessClient service = new SDODataAccessClient();
 		    service.commit(profile.getDataGraph(), this.name);
         } catch (Throwable t) {

@@ -33,7 +33,10 @@
         value="#{bundle.aplsClassEdit_exit_label}"
         title="#{bundle.aplsClassEdit_exit_tooltip}" 
         action="#{InstanceEditBean.exit}"
-        reRender="dashboard_content_panel"/>
+        reRender="dashboard_content_panel,topnav_form">
+        <f:setPropertyActionListener value="true"   
+            target="#{NavigationBean.administrationSelected}" />
+      </a4j:commandLink>                                             
    </h:panelGrid>   
 	
 	<a4j:outputPanel ajaxRendered="true" id="inst_errors">

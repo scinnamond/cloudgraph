@@ -38,6 +38,30 @@
               value="#{NavigationBean.downloadAction.label}" 
               title="#{NavigationBean.downloadAction.tooltip}"/>
       </rich:toolBarGroup>
+      <rich:toolBarGroup styleClass="#{NavigationBean.emailAction.selected ? 'TopNavActive' : 'TopNav'}">
+          <h:graphicImage value="#{NavigationBean.emailAction.icon}" />
+          <h:commandLink
+              action="#{NavigationBean.emailAction.onAction}"
+              styleClass="#{NavigationBean.emailAction.selected ? 'TopNavActive' : 'TopNav'}"
+              value="#{NavigationBean.emailAction.label}" 
+              title="#{NavigationBean.emailAction.tooltip}"/>
+      </rich:toolBarGroup>
+      <rich:toolBarGroup styleClass="#{NavigationBean.blogAction.selected ? 'TopNavActive' : 'TopNav'}">
+          <h:graphicImage value="#{NavigationBean.blogAction.icon}" />
+          <h:commandLink
+              action="#{NavigationBean.blogAction.onAction}"
+              styleClass="#{NavigationBean.blogAction.selected ? 'TopNavActive' : 'TopNav'}"
+              value="#{NavigationBean.blogAction.label}" 
+              title="#{NavigationBean.blogAction.tooltip}"/>
+      </rich:toolBarGroup>
+      <rich:toolBarGroup styleClass="#{NavigationBean.newsAction.selected ? 'TopNavActive' : 'TopNav'}">
+          <h:graphicImage value="#{NavigationBean.newsAction.icon}" />
+          <h:commandLink
+              action="#{NavigationBean.newsAction.onAction}"
+              styleClass="#{NavigationBean.newsAction.selected ? 'TopNavActive' : 'TopNav'}"
+              value="#{NavigationBean.newsAction.label}" 
+              title="#{NavigationBean.newsAction.tooltip}"/>
+      </rich:toolBarGroup>
       <rich:toolBarGroup styleClass="#{NavigationBean.workspaceAction.selected ? 'TopNavActive' : 'TopNav'}"
           rendered="#{NavigationBean.workspaceAction.selected}">
           <h:graphicImage value="#{NavigationBean.workspaceAction.icon}" />

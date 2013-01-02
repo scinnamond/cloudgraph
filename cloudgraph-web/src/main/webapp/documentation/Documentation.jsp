@@ -8,6 +8,7 @@
 <html>
 <head>
   <link href="/cloudgraph-web/css/cloudgraph-web.css" rel="stylesheet" type="text/css" />
+  <title><h:outputText value="#{bundle.aplsWindowTitle}"/></title>
 </head>
 <body>
 <a4j:outputPanel id="body_panel">
@@ -45,6 +46,7 @@
 </a4j:outputPanel>
 
        
+  <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>
