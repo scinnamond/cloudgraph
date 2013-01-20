@@ -38,16 +38,27 @@
     </repositories>
     <dependencies>
         <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.2</version>
+            <!--  <scope>test</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.8</version>
+        </dependency>
+        <dependency>
             <groupId>cloudgraph</groupId>
             <artifactId>cloudgraph-common</artifactId>
             <version>0.5.2</version>
-            <scope>provided</scope>
+            <!--  <scope>provided</scope>-->
         </dependency>       
         <dependency>
             <groupId>cloudgraph</groupId>
             <artifactId>cloudgraph-hbase</artifactId>
             <version>0.5.2</version>
-            <scope>provided</scope>
+            <!-- <scope>provided</scope>-->
         </dependency>       
 
         <dependency>
@@ -93,6 +104,7 @@
                   <resource><directory>src/main/resources/models/hl7/pocd</directory></resource>                                                       
                   <resource><directory>src/main/resources/models/hl7/coct</directory></resource>                                                       
                   <resource><directory>src/main/resources/models/hl7/ficr</directory></resource>                                                       
+                  <resource><directory>src/main/resources/models/cml</directory></resource>                                                       
                 </resources>                                                        
               </configuration>                                                      
             </plugin>                                                                   
@@ -106,11 +118,94 @@
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
+			<!-- 
+            <plugin>                                                         
+              <artifactId>maven-antrun-plugin</artifactId>                   
+              <version>1.7</version>                                         
+              <executions>                                                   
+                <execution>    
+                  <id>create_javadocs</id>                                              
+                  <phase>generate-sources</phase>                
+                  <configuration>                                            
+                    <target>                                                 
+                      <property name="compile_classpath" refid="maven.compile.classpath"/>
+                      <property name="release_suffix" value="0.5.2"/>
+                      <path id="cp">                                                                                                                                                                                                                             
+                         <pathelement path="${compile_classpath}"/>                                                                                                                                                                                                  
+                      </path>                                                                                                                                                                                                                                          
+                      <java failonerror="yes"                                                          
+                          fork="yes"                                                                   
+                          classname="org.plasma.provisioning.cli.XSDTool">                                
+                          <classpath refid="cp"/>                                                      
+                          <jvmarg value="-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=y"/>
+                          <arg value="-convert" />                         
+                          <arg value="${basedir}/src/main/resources/models/cml/cml_3.xsd" />                          
+                          <arg value="${basedir}/src/main/resources/models/cml/cml_3.xmi" />               
+                          <arg value="xmi" />                 
+                          <arg value="http://org.cloudgraph/examples/cml" />                 
+                          <arg value="tns" />                 
+                      </java>                                                                          
+                    </target>                                                
+                  </configuration>                                           
+                  <goals>                                                    
+                    <goal>run</goal>                                         
+                  </goals>                                                   
+                </execution>                                                 
+
+              </executions>                                                  
+            </plugin> 
+             -->  
             <plugin>
                 <groupId>plasma</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
                 <version>1.1.3</version>
                 <executions>
+                        
+                    <execution>
+                        <id>xsd-convert-cml_2_4</id>
+                        <configuration>
+                            <action>convert</action>
+                            <sourceFile>${basedir}/src/main/resources/models/cml/cml_2_4.xsd</sourceFile>
+                            <destFile>${basedir}/src/main/resources/models/cml/cml_2_4.xmi</destFile>
+                            <destFileType>xmi</destFileType>
+                            <destNamespaceURI>http://org.cloudgraph/examples/cml</destNamespaceURI>
+                            <systemProperties>
+                                <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                                <property><name>log4j.debug</name><value>false</value></property>
+                            </systemProperties>
+                            <additionalClasspathElements>
+                                <param>${basedir}/src/main/resources</param>
+                                <param>${basedir}/target/classes</param>
+                            </additionalClasspathElements>
+                        </configuration>
+                        <goals>
+                            <goal>xsd</goal>
+                        </goals>
+                    </execution>
+                    <!--  
+                    <execution>
+                        <id>xsd-convert-cml_3</id>
+                        <configuration>
+                            <action>convert</action>
+                            <sourceFile>${basedir}/src/main/resources/models/cml/cml_3.xsd</sourceFile>
+                            <destFile>${basedir}/src/main/resources/models/cml/cml_3.xmi</destFile>
+                            <destFileType>xmi</destFileType>
+                            <destNamespaceURI>http://org.cloudgraph/examples/cml</destNamespaceURI>
+                            <systemProperties>
+                                <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                                <property><name>log4j.debug</name><value>false</value></property>
+                            </systemProperties>
+                            <additionalClasspathElements>
+                                <param>${basedir}/src/main/resources</param>
+                                <param>${basedir}/target/classes</param>
+                            </additionalClasspathElements>
+                        </configuration>
+                        <goals>
+                            <goal>xsd</goal>
+                        </goals>
+                    </execution>
+                      -->
+
                     <execution>
                         <id>sdo-create</id>
                         <configuration>
@@ -196,7 +291,7 @@
                             <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                         </systemProperties>
                         <includes>               
-                            <include>**/*HL7POCD*Test*</include>                      
+                            <include>**/ReactionExample**</include>                      
                         </includes> 
                     </configuration>
                   </execution>
@@ -205,9 +300,9 @@
                     <skip>true</skip>
                     
                     <!-- debugging -->  
-                       <!--              
+                        <!--         
                     <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
-                         -->
+                             -->
                     <!-- profiling  -->
                     <!--
                     <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  
@@ -222,6 +317,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.6.1</version>
                 <configuration>
+                  <skip>false</skip>
                   <!-- output into WAR dir for mavem-war-plugin -->
                   <reportOutputDirectory>${project.build.directory}/cloudgraph-examples</reportOutputDirectory>
                   <destDir>apidocs</destDir>                  
@@ -257,10 +353,14 @@
 				<!-- <configuration> <webXml>target/web.xml</webXml> </configuration> -->
 		        <configuration>
 		          <webResources>
-		            <resource>
-		              <!-- this is relative to the pom.xml directory -->
-		              <directory>src/main/resources/bundles</directory>
-		            </resource>
+                    <resource>
+                      <directory>src/test/java</directory>
+                      <targetPath>test</targetPath>
+                    </resource>
+                    <resource>
+                      <directory>target/generated-sources/java</directory>
+                      <targetPath>generated-sources</targetPath>
+                    </resource>
 		          </webResources>
 		        </configuration>
 			</plugin>
@@ -287,6 +387,7 @@
 										<goals>
 											<goal>sdo</goal>
 											<goal>dsl</goal>
+											<goal>xsd</goal>
 										</goals>
 									</pluginExecutionFilter>
 									<action>

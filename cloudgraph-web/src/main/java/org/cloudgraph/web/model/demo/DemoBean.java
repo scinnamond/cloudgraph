@@ -47,6 +47,7 @@ public class DemoBean extends ModelBean
 	private int height = 1000;
 	
 	private String selectedTab;
+	private String selectedTable;
 		
 	public DemoBean() {
 		log.debug("created");
@@ -64,6 +65,14 @@ public class DemoBean extends ModelBean
 	public String view() {
        return null;
     }	
+
+	public String getSelectedTable() {
+		return selectedTable;
+	}
+
+	public void setSelectedTable(String selectedTable) {
+		this.selectedTable = selectedTable;
+	}
 
 	public String getCreateCodeSamplesURL() {
 		return createCodeSamplesURL;

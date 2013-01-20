@@ -94,6 +94,37 @@
         </DataGraph>
     </Table>  
 
+    <Table name="REAL" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        
+        <DataGraph uri="http://cloudgraph.org/test/datatypes" type="FloatNode">
+            <RowKeyModel>
+                <!--  
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                -->
+                <RowKeyField>
+                    <UserDefinedField path="floatField"/>
+                </RowKeyField>
+                 
+                <RowKeyField>
+                    <PredefinedField name="uuid"/>
+                </RowKeyField>
+                
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table>  
+
     <Table name="STRING" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="StringNode">

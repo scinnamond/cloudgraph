@@ -1,9 +1,14 @@
 package org.cloudgraph.hbase.scan;
 
+import java.math.BigDecimal;
+
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.sdo.PlasmaType;
+import org.plasma.sdo.DataType;
+
+import commonj.sdo.Type;
 
 /**
  * A real data "flavor" specific literal class used to abstract 
@@ -20,7 +25,9 @@ import org.plasma.sdo.PlasmaType;
  */
 public class RealLiteral extends ScanLiteral {
 
-	protected final double INCREMENT = Double.MIN_VALUE;
+	protected final float INCREMENT_FLOAT = Float.MIN_VALUE;
+	protected final double INCREMENT_DOUBLE = Double.MIN_VALUE;
+	protected final BigDecimal INCREMENT_DECIMAL = BigDecimal.valueOf(Double.MIN_VALUE);
 
 	public RealLiteral(String literal,
 			PlasmaType rootType,
@@ -44,8 +51,7 @@ public class RealLiteral extends ScanLiteral {
 	 */
 	protected byte[] getEqualsStartBytes() {
 		byte[] startBytes = null;
-		Object value = this.dataConverter.convert(property.getType(), this.literal);
-		Double startValue = this.dataConverter.toDouble(property.getType(), value);
+		Object startValue = this.dataConverter.convert(property.getType(), this.literal);
 		if (this.fieldConfig.isHash()) {
 			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
 			int startHashValue = hash.hash(startValueStr.getBytes());
@@ -74,26 +80,17 @@ public class RealLiteral extends ScanLiteral {
 	protected byte[] getEqualsStopBytes() {
 		byte[] stopBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
-		Double startValue = this.dataConverter.toDouble(property.getType(), value);
-		
 		if (this.fieldConfig.isHash()) {
-			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
-			int startHashValue = hash.hash(startValueStr.getBytes());
-			
-			// Note only increment/decrement the hashed value
-			// for hashed fields
-			Double stopValue = Double.valueOf(startHashValue + INCREMENT);
-			String stopValueStr = String.valueOf(stopValue);
+			String stopValueStr = incrementHash(property.getType(), value);
 			stopBytes = stopValueStr.getBytes(this.charset);
 		}
 		else {
-			Double stopValue = startValue + INCREMENT;
-			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
+			String stopValueStr = increment(property.getType(), value);
 			stopBytes = stopValueStr.getBytes(this.charset);
 		}
 		return stopBytes;
 	}	
-
+	
 	/**
 	 * Returns the "start row" bytes 
 	 * used to represent "greater than" relational operator 
@@ -109,19 +106,12 @@ public class RealLiteral extends ScanLiteral {
 	protected byte[] getGreaterThanStartBytes() {
 		byte[] startBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
-		Double startValue = this.dataConverter.toDouble(property.getType(), value);
-		if (fieldConfig.isHash()) {
-			String startValueStr = String.valueOf(startValue);
-			int startHashValue = hash.hash(startValueStr.getBytes());
-			// Note only increment/decrement the hashed value
-			// for hashed fields
-			startHashValue = startHashValue + HASH_INCREMENT;
-			startValueStr = String.valueOf(startHashValue);
+		if (this.fieldConfig.isHash()) {
+			String startValueStr = incrementHash(property.getType(), value);
 			startBytes = startValueStr.getBytes(this.charset);
 		}
 		else {
-			startValue = startValue + INCREMENT;
-			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
+			String startValueStr = increment(property.getType(), value);
 			startBytes = startValueStr.getBytes(this.charset);
 		}
 		return startBytes;
@@ -157,8 +147,7 @@ public class RealLiteral extends ScanLiteral {
 	 */
 	protected byte[] getGreaterThanEqualStartBytes() {
 		byte[] startBytes = null;
-		Object value = this.dataConverter.convert(property.getType(), this.literal);
-		Double startValue = this.dataConverter.toDouble(property.getType(), value);
+		Object startValue = this.dataConverter.convert(property.getType(), this.literal);
 		String startValueStr = this.dataConverter.toString(property.getType(), startValue);
 		if (fieldConfig.isHash()) {
 			int startHashValue = hash.hash(startValueStr.getBytes());
@@ -217,8 +206,7 @@ public class RealLiteral extends ScanLiteral {
 	 */	
 	protected byte[] getLessThanStopBytes() {
 		byte[] stopBytes = null;
-		Object value = this.dataConverter.convert(property.getType(), this.literal);
-		Double stopValue = this.dataConverter.toDouble(property.getType(), value);
+		Object stopValue = this.dataConverter.convert(property.getType(), this.literal);
 		// Note: in HBase the stop row is exclusive, so just use
 		// the literal value, no need to decrement it
 		String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
@@ -264,21 +252,57 @@ public class RealLiteral extends ScanLiteral {
 	protected byte[] getLessThanEqualStopBytes() {
 		byte[] stopBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
-		Double stopValue = this.dataConverter.toDouble(property.getType(), value);
-		// Note: in HBase the stop row is exclusive, so increment
-		// stop value to get this row for this field/literal
-		if (fieldConfig.isHash()) {
-			String stopValueStr = String.valueOf(stopValue);
-			int stopHashValue = hash.hash(stopValueStr.getBytes());
-			stopHashValue++;
-			stopValueStr = String.valueOf(stopHashValue);
+		if (this.fieldConfig.isHash()) {
+			String stopValueStr = incrementHash(property.getType(), value);
 			stopBytes = stopValueStr.getBytes(this.charset);
 		}
 		else {
-			stopValue++;
-			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
+			String stopValueStr = increment(property.getType(), value);
 			stopBytes = stopValueStr.getBytes(this.charset);
 		}
 		return stopBytes;
 	}
+	
+	private String incrementHash(Type type, Object value) {
+		String valueStr = this.dataConverter.toString(property.getType(), value);
+		int hashValue = hash.hash(valueStr.getBytes());
+		int resultHash = hashValue + HASH_INCREMENT;
+		String result = String.valueOf(resultHash);
+		return result;
+	}
+	
+	private String increment(Type type, Object value) {
+		String result = "";
+        DataType sourceDataType = DataType.valueOf(type.getName());
+        switch (sourceDataType) {
+        case Float:
+    		Float floatValue = this.dataConverter.toFloat(property.getType(), value);
+		    int intBits = Float.floatToRawIntBits(floatValue.floatValue());
+		    intBits++;
+		    Float floatResult = Float.valueOf(Float.intBitsToFloat(intBits));
+		    result = this.dataConverter.toString(type, floatResult);
+    		break;
+        case Double:
+    		Double doubleValue = this.dataConverter.toDouble(property.getType(), value);
+		    long longBits = Double.doubleToRawLongBits(doubleValue.doubleValue());
+		    longBits++;
+		    Double doubleResult = Double.valueOf(Double.longBitsToDouble(longBits));
+		    result = this.dataConverter.toString(type, doubleResult);
+    		break;
+        case Decimal:        	        	
+    		BigDecimal decimalValue = this.dataConverter.toDecimal(property.getType(), value);
+    		//FIXME: loss of precision
+    		double temp = decimalValue.doubleValue();
+		    longBits = Double.doubleToRawLongBits(temp);
+		    longBits++;
+		    doubleResult = Double.valueOf(Double.longBitsToDouble(longBits));
+		    result = this.dataConverter.toString(type, doubleResult);
+    		break;
+        default:
+        	throw new ScanException("expected real (Float, Double, Decinal)datatype not, "
+        			+ sourceDataType.name());
+        }
+        return result;
+	}
+
 }

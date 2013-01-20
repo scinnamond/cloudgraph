@@ -8,6 +8,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -26,8 +27,8 @@ import commonj.sdo.Property;
 public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     private static Log log = LogFactory.getLog(DataTypeGraphModelTest.class);
 
-    protected int maxLevels = 3;
-    protected int maxRows = 5;        
+    protected int maxLevels = 1;
+    protected int maxRows = 4;  // Some tests slice for name on third child, so keep at least 3 rows      
         
     protected void fillGraph(Node root,
     		long id, Date now, String namePrefix)
@@ -46,9 +47,6 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
             	}
         	}
     	}
-    	
-    	
-    	
     	//addNodes(root, id, now,
     	//		maxLevels, 1, 
     	//		maxRows);    	
@@ -75,9 +73,23 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     		Date now, String namePrefix,
     		long level, long sequence) {
     	String name = namePrefix + "_" +level + "_" + sequence;
-    	String floatIdStr = level + "." + sequence;
-    	float floatId = Float.parseFloat(floatIdStr); 
-    	node.setRootId(id);	
+    	
+    	long temp = id - (long)1357000000000L;
+    	//log.info("id: " + id);
+    	//log.info("reduced id: " + temp);
+    	
+    	double doubleId = (double)temp * (double)0.001;
+    	float floatId = Double.valueOf(doubleId).floatValue();
+    	//log.info("doubleId: " + Double.valueOf(doubleId).toString());
+    	//log.info("floatId: " + Float.valueOf(floatId).toString());
+    	//BigDecimal bdTemp = BigDecimal.valueOf(temp);
+    	//bdTemp = bdTemp.movePointLeft(3);
+    	//doubleId = bdTemp.doubleValue();
+    	//floatId = bdTemp.floatValue();
+    	//log.info("doubleId2: " + Double.valueOf(doubleId).toString());
+    	//log.info("floatId2: " + Float.valueOf(floatId).toString());
+    	
+	    node.setRootId(id);	
     	node.setLevelNum(level);
     	node.setSequenceNum(sequence);
     	
@@ -112,8 +124,8 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     	prop = node.getType().getProperty(Node.PTY_TIME_FIELD);
     	node.setTimeField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));       
     	
-    	node.setDecimalField(new BigDecimal(floatId));    
-    	node.setDoubleField(floatId);     
+    	node.setDecimalField(new BigDecimal(doubleId));    
+    	node.setDoubleField(doubleId);     
     	//node.setDurationField();   
     	node.setFloatField(floatId); 
     	
@@ -130,8 +142,7 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     	node.setStringsField(list);    
     	node.setUriField(name);        
     	return node;
-    }
-    
+    }    
     
     protected Node fetchGraphFull(long id) {    	
     	QNode query = createGraphQueryFull(id);

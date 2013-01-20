@@ -123,35 +123,41 @@
                 <h:outputText value="HBase (raw data)" />
             </h:panelGroup>
         </f:facet>
-		<h:panelGrid id="hbase_dtbl_pnl" rowClasses="AlignCenter" columns="1" border="0">                                                            
-		    <rich:dataTable id="hbase_dtbl" 
-		        var="item" 
-		        value="#{HBaseQueueBean.data}">    
-		                                                                             
-              <f:facet name="header">
-                  <h:outputText value="#{DemoBean.modelDisplayName}" 
-                      title="#{DemoBean.modelDescription}"/>
-              </f:facet>   
-		                                                                                                                                                                 
-		      <rich:columns value="#{HBaseQueueBean.columns}" 
-		          var="col" index="ind" 
-		          sortBy="#{item.data[ind]}" sortOrder="#{col.queueColumnSortOrder}">        
-		          <f:facet name="header">
-		              <h:outputText value="#{col.displayName}" 
-		                  title="#{col.description}"/>
-		          </f:facet>   
-		          <h:outputText value="#{item.data[ind]} " />
-		      </rich:columns>
-		       
-		    </rich:dataTable>                                                                                                                          
-		    <rich:datascroller id="hbase_dtbl_data_scrlr"
-		          align="center"
-		          for="hbase_dtbl"
-		          maxPages="20"
-		          page="#{HBaseQueueBean.scrollerPage}"
-		          reRender="dashboard_content_panel"/>
-		                                                                                                                                            
-		</h:panelGrid> 
+        <rich:tabPanel switchType="ajax" selectedTab="#{DemoBean.selectedTable}">  
+            <c:forEach var="tableInfo" items="#{DemoBean.tables}">
+            <rich:tab name="#{tableInfo.config.table.name}" title="HBase raw data for table #{tableInfo.config.table.name}">
+                <f:facet name="label">
+                    <h:panelGroup>
+                        <h:outputText value="#{tableInfo.config.table.name}" />
+                    </h:panelGroup>
+                </f:facet> 
+		        <h:panelGrid rowClasses="AlignCenter" columns="1" border="0">                                                            
+		            <rich:dataTable id="hbase_dtbl_data" 
+		                var="item" 
+		                value="#{HBaseQueueBean.data}">    		                                                                                     
+		              <rich:columns value="#{HBaseQueueBean.columns}" 
+		                  var="col" index="ind" 
+		                  sortBy="#{item.data[ind]}" sortOrder="#{col.queueColumnSortOrder}">        
+		                  <f:facet name="header">
+		                      <h:outputText value="#{col.displayName}" 
+		                          title="#{col.description}"/>
+		                  </f:facet>   
+		                  <h:outputText value="#{item.data[ind]} " />
+		              </rich:columns>
+		               
+		            </rich:dataTable>                                                                                                                          
+		            <rich:datascroller  
+		                  align="center"
+		                  for="hbase_dtbl_data"
+		                  maxPages="20"
+		                  page="#{HBaseQueueBean.scrollerPage}"
+		                  reRender="dashboard_content_panel"/>
+		                                                                                                                                                    
+		        </h:panelGrid>                 
+
+            </rich:tab>
+            </c:forEach>
+        </rich:tabPanel>
       </rich:tab>
     <rich:tab id="tab_cassandra" title=""
         rendered="true">
@@ -162,69 +168,21 @@
         </f:facet>
     </rich:tab>
     <rich:tab id="tab_codeSamples" title=""
-        rendered="true">
+        rendered="true" >
         <f:facet name="label">
             <h:panelGroup>
-                <h:outputText value="Code Samples" />
+                <h:outputText value="Code Sample" />
             </h:panelGroup>
         </f:facet>
-	    <rich:tabPanel switchType="server">
-		
-		    <rich:tab id="tab_sample_create" title="Code samples for inserting a new data graph">
-		        <f:facet name="label">
-		            <h:panelGroup>
-		                <h:outputText value="Create" />
-		            </h:panelGroup>
-		        </f:facet>	
-		        <f:subview id="sample_create_sv">
-		        <f:verbatim>
-		        <pre>        
-		        <iframe width="600" height="800" type="text/html"
-		          id="frm_sample_create" onload="theFrameLoaded(this)"
-		          frameborder="0" scrolling="no"
-		          src="</f:verbatim><h:outputText value="#{DemoBean.createCodeSamplesURL}"/><f:verbatim>"/>
-		        </iframe>
-		        </pre>
-		        </f:verbatim>
-		        </f:subview>
-		    </rich:tab>
-	        <rich:tab id="tab_sample_query" title="Code samples for querying for existing data graphs and data graph slices">
-	            <f:facet name="label">
-	                <h:panelGroup>
-	                    <h:outputText value="Query" />
-	                </h:panelGroup>
-	            </f:facet>      
-                <f:subview id="sample_query_sv">
-                <f:verbatim>
-                <pre>        
-                <iframe width="600" height="800" type="text/html"
-                  id="frm_sample_create" onload="theFrameLoaded(this)"
-                  frameborder="0" scrolling="no"
-                  src="</f:verbatim><h:outputText value="#{DemoBean.queryCodeSamplesURL}"/><f:verbatim>"/>
-                </iframe>
-                </pre>
-                </f:verbatim>
-                </f:subview>
-	        </rich:tab>
-	        <rich:tab id="tab_sample_update" title="Code samples for updating an existing data graph">
-	            <f:facet name="label">
-	                <h:panelGroup>
-	                    <h:outputText value="Update" />
-	                </h:panelGroup>
-	            </f:facet>      
-                <f:subview id="sample_update_sv">
-                <f:verbatim>
-                <pre>        
-                <iframe width="600" height="800" type="text/html"
-                  id="frm_sample_update" onload="theFrameLoaded(this)"
-                  frameborder="0" scrolling="no"
-                  src="</f:verbatim><h:outputText value="#{DemoBean.updateCodeSamplesURL}"/><f:verbatim>"/>
-                </iframe>
-                </pre>
-                </f:verbatim>
-                </f:subview>
-	        </rich:tab>
-	    </rich:tabPanel>
+        <f:subview id="sample_sv">    
+        <f:verbatim>
+        <iframe width="600" height="800" type="text/plain"
+          onload="theFrameLoaded(this)"
+          frameborder="0" scrolling="no"
+          src="</f:verbatim><h:outputText value="#{DemoBean.createCodeSamplesURL}"/><f:verbatim>"/>
+        </iframe>
+        </f:verbatim>
+        </f:subview>
     </rich:tab>
     
     <rich:tab id="tab_config"  title=""

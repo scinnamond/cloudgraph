@@ -184,8 +184,8 @@
                             <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                         </systemProperties>
                         <includes>               
-                            <include>**/*SocialGraphNonFederatedTest*</include>                      
-                             <!--<include>**/*PartialRowKeyScanTest*</include>-->   
+                            <!--<include>**/*SocialGraphNonFederatedTest*</include> -->                     
+                            <include>**/*FloatPartialRowKeyScanTest*</include>   
                         </includes> 
                     </configuration>
                   </execution>
@@ -196,7 +196,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-	                    <skip>false</skip>
+	                    <skip>true</skip>
 	                    <additionalClasspathElements>
 	                        <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
 	                        <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
@@ -217,6 +217,7 @@
                 </executions>                
                 <configuration>
                     <skip>true</skip>
+                    <argLine>-Xms128M -Xmx500M</argLine>                      
                     
                     <!-- debugging -->  
                     <!--                     

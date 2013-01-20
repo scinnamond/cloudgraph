@@ -64,7 +64,7 @@ public abstract class HBaseTestCase extends CommonTest {
         String xml = serializeGraph(dataGraph);
         //log.info("GRAPH: " + xml);    	
     }  
-    protected Query marshal(Query query, long id) {
+    protected Query marshal(Query query, float id) {
     	return marshal(query, String.valueOf(id));
     }   
     

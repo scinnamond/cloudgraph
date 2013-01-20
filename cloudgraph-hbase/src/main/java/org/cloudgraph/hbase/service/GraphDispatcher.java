@@ -461,6 +461,8 @@ public class GraphDispatcher
             		+ " - this property is configured as a row-key field for table '"
             		+ dataGraphConfig.getTable().getName() + "'");
             }
+            //FIXME: what if an entire entity is deleted which is part
+            // of the row key. Detect this. Or added for that matter. 
         }    
     }
      

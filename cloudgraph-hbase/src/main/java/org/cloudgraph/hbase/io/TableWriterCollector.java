@@ -54,6 +54,7 @@ public class TableWriterCollector extends FederationSupport {
 	private CreatedObjectCollector created;   	
 	private ModifiedObjectCollector modified;
 	private DeletedObjectCollector deleted;
+	private CloudGraphConfig config = CloudGraphConfig.getInstance();
 
 	public TableWriterCollector(DataGraph dataGraph,
 	        CreatedObjectCollector created,   	
@@ -91,11 +92,19 @@ public class TableWriterCollector extends FederationSupport {
 		// FIXME: how do we detect this condition? Can we create
 		// a row reader here instead of a writer??
 		
-		// collect all "bound" data objects up front
+		// Collect all "bound" data objects up front
+		// Note: The root may NOT be part of the change summary, but regardless
+		// it must be associated with a table in order to
+		// associate any linked un-bound types
+		TableConfig rootTable = this.config.findTable(this.root.getType());
+		if (rootTable != null)
+			associate(rootTable, this.root);	
+		
+		// Collect all "bound" data objects associated w/the change summary
 		for (DataObject dataObject : this.changeSummary.getChangedDataObjects())
 		{
 			PlasmaType type = (PlasmaType)dataObject.getType();
-			TableConfig table = CloudGraphConfig.getInstance().findTable(type);
+			TableConfig table = this.config.findTable(type);
 			if (table != null)
 				associate(table, dataObject);
 		}
@@ -105,7 +114,7 @@ public class TableWriterCollector extends FederationSupport {
 		
         for (PlasmaDataObject dataObject : this.created.getResult()) {
 			PlasmaType type = (PlasmaType)dataObject.getType();
-			TableConfig table = CloudGraphConfig.getInstance().findTable(type);
+			TableConfig table = this.config.findTable(type);
         	if (log.isDebugEnabled())
         		log.debug("collecting unbound created: " + dataObject);
 			if (table == null)
@@ -114,7 +123,7 @@ public class TableWriterCollector extends FederationSupport {
         
         for (PlasmaDataObject dataObject : this.modified.getResult()) {
 			PlasmaType type = (PlasmaType)dataObject.getType();
-			TableConfig table = CloudGraphConfig.getInstance().findTable(type);
+			TableConfig table = this.config.findTable(type);
         	if (log.isDebugEnabled())
         		log.debug("collecting unbound modified: " + dataObject);
 			if (table == null)
@@ -126,7 +135,7 @@ public class TableWriterCollector extends FederationSupport {
         for (int i = deletedResult.size()-1; i >= 0; i--) {
         	PlasmaDataObject dataObject = deletedResult.get(i);
 			PlasmaType type = (PlasmaType)dataObject.getType();
-			TableConfig table = CloudGraphConfig.getInstance().findTable(type);
+			TableConfig table = this.config.findTable(type);
         	if (log.isDebugEnabled())
         		log.debug("collecting unbound deleted: " + dataObject);
 			if (table == null)

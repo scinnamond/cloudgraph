@@ -2,7 +2,7 @@
 <!-- This xmi file is optimized for MagicDraw UML. Some references are not saved. -->
 <!-- Change MagicDraw UML environment options property General->.Save Rich XMI -->
 
-<xmi:XMI xmi:version='2.1' xmlns:uml='http://schema.omg.org/spec/UML/2.1.2' xmlns:xmi='http://schema.omg.org/spec/XMI/2.1' xmlns:DSL_Customization='http://www.magicdraw.com/schemas/DSL_Customization.xmi' xmlns:Plasma_SDO_Profile='http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi' xmlns:Validation_Profile='http://www.magicdraw.com/schemas/Validation_Profile.xmi' xmlns:MagicDraw_Profile='http://www.magicdraw.com/schemas/MagicDraw_Profile.xmi' xmlns:UML_Standard_Profile='http://www.magicdraw.com/schemas/UML_Standard_Profile.xmi'>
+<xmi:XMI xmi:version='2.1' xmlns:uml='http://www.omg.org/spec/UML/20110701' xmlns:xmi='http://schema.omg.org/spec/XMI/2.1' xmlns:DSL_Customization='http://www.magicdraw.com/schemas/DSL_Customization.xmi' xmlns:Plasma_SDO_Profile='http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi' xmlns:Validation_Profile='http://www.magicdraw.com/schemas/Validation_Profile.xmi' xmlns:MagicDraw_Profile='http://www.magicdraw.com/schemas/MagicDraw_Profile.xmi' xmlns:UML_Standard_Profile='http://www.magicdraw.com/schemas/UML_Standard_Profile.xmi'>
 	<xmi:Documentation exporter='MagicDraw UML' exporterVersion='16.0'/>
 	<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 		<shareTable>

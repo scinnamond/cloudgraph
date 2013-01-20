@@ -1,0 +1,121 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+
+<fragment id = "cl_nsp2_methyl" convention = "cml:PML-complete" xmlns = "http://www.xml-cml.org/schema webcite" xmlns:g = "http://www.xml-cml.org/mols/geom1 webcite">
+
+<molecule role = "fragment" id = "benzene_1">
+
+<atomArray>
+
+<atom elementType = "C" x3 = "9.526706134000763" y3 = "3.869733600000001" z3 = "5.213518402229052" id = "benzene_1_a1">
+
+<label dictRef = "cml:torsionEnd"> r6 </label>
+
+</atom>
+
+<atom elementType = "C" x3 = "10.243299413197152" y3 = "3.932398500000001" z3 = "6.439022942911609" id = "benzene_1_a2">
+
+<label dictRef = "cml:torsionEnd"> r1 </label>
+
+</atom>
+
+<atom elementType = "C" x3 = "8.713504556428543" y3 = "2.7185301000000006" z3 = "5.01720505576243" id = "benzene_1_a6">
+
+<label dictRef = "cml:torsionEnd"> r5 </label>
+
+</atom>
+
+<atom elementType = "R" x3 = "8.385888936961882" y3 = "2.655387420737078" z3 = "4.323244676535362" id = "benzene_1_r6"/>
+
+<atom elementType = "C" x3 = "10.119474056141831" y3 = "2.9008920000000007" z3 = "7.3834992125284815" id = "benzene_1_a3">
+
+<label dictRef = "cml:torsionEnd"> r2 </label>
+
+<label dictRef = "cml:torsionEnd"> r2 </label>
+
+<label dictRef = "cml:torsionEnd"> r3 </label>
+
+</atom>
+
+<atom elementType = "C" x3 = "9.320371405363035" y3 = "1.8151698000000005" z3 = "7.151684115065878" id = "benzene_1_a4">
+
+<label dictRef = "cml:torsionEnd"> r3 </label>
+
+</atom>
+
+<atom elementType = "R" x3 = "9.280916015724046" y3 = "1.2657016684721403" z3 = "7.6896692864820775" id = "benzene_1_r4"/>
+
+<atom elementType = "C" x3 = "8.610030693701125" y3 = "1.7243409000000007" z3 = "5.934289686115539" id = "benzene_1_a5">
+
+<label dictRef = "cml:torsionEnd"> r4 </label>
+
+</atom>
+
+<atom elementType = "R" x3 = "10.697234803620145" y3 = "4.543958438540135" z3 = "6.552323882423661" id = "benzene_1_r2"/>
+
+<atom elementType = "Cl" formalCharge = "0" hydrogenCount = "0" id = "cl_2_a1" x3 = "9.692011995771473" y3 = "5.151468187879777" z3 = "4.018767207085518"/>
+
+<atom elementType = "N" formalCharge = "0" hydrogenCount = "0" id = "nsp2_3_n1" x3 = "10.889175042006798" y3 = "2.9930090553818314" z3 = "8.690968080404991"/>
+
+<atom elementType = "R" formalCharge = "0" hydrogenCount = "0" id = "nsp2_3_r3" x3 = "10.937618525919527" y3 = "3.6140787328234207" z3 = "9.108611091395234"> </atom>
+
+<atom elementType = "R" formalCharge = "0" hydrogenCount = "0" id = "nsp2_3_r2" x3 = "11.21097670608745" y3 = "2.3333885683637092" z3 = "8.845384731388283">
+
+<label dictRef = "cml:torsionEnd"> r1 </label>
+
+</atom>
+
+<atom elementType = "C" id = "me_4_a1" x3 = "7.720415546204135" y3 = "0.5004327093517826" z3 = "5.6475256189660525"/>
+
+<atom elementType = "H" id = "me_4_a6" x3 = "7.8973212132921615" y3 = "0.15287314794224827" z3 = "4.629221766363621">
+
+<label dictRef = "cml:torsionEnd"> r1 </label>
+
+</atom>
+
+<atom elementType = "H" id = "me_4_a7" x3 = "7.962448186970064" y3 = "-0.2976542125451189" z3 = "6.350030754819878"/>
+
+<atom elementType = "H" id = "me_4_a8" x3 = "6.673285676722817" y3 = "0.7788619666709824" z3 = "5.760051994135236"/>
+
+</atomArray>
+
+<bondArray>
+
+<bond order = "2" id = "benzene_1_a1_benzene_1_a2" atomRefs2 = "benzene_1_a1 benzene_1_a2"/>
+
+<bond order = "1" id = "benzene_1_a1_benzene_1_a6" atomRefs2 = "benzene_1_a1 benzene_1_a6"/>
+
+<bond order = "1" id = "benzene_1_a3_benzene_1_a2" atomRefs2 = "benzene_1_a3 benzene_1_a2"/>
+
+<bond order = "1" id = "benzene_1_a2_benzene_1_r2" atomRefs2 = "benzene_1_a2 benzene_1_r2"/>
+
+<bond order = "1" id = "benzene_1_r6_benzene_1_a6" atomRefs2 = "benzene_1_r6 benzene_1_a6"/>
+
+<bond order = "2" id = "benzene_1_a5_benzene_1_a6" atomRefs2 = "benzene_1_a5 benzene_1_a6"/>
+
+<bond order = "2" id = "benzene_1_a3_benzene_1_a4" atomRefs2 = "benzene_1_a3 benzene_1_a4"/>
+
+<bond order = "1" id = "benzene_1_a5_benzene_1_a4" atomRefs2 = "benzene_1_a5 benzene_1_a4"/>
+
+<bond order = "1" id = "benzene_1_a4_benzene_1_r4" atomRefs2 = "benzene_1_a4 benzene_1_r4"/>
+
+<bond atomRefs2 = "benzene_1_a1 cl_2_a1" order = "S" id = "benzene_1_a1_cl_2_a1"/>
+
+<bond order = "S" atomRefs2 = "nsp2_3_n1 nsp2_3_r2" id = "nsp2_3_n1_nsp2_3_r2"/>
+
+<bond order = "S" atomRefs2 = "nsp2_3_n1 nsp2_3_r3" id = "nsp2_3_n1_nsp2_3_r3"/>
+
+<bond atomRefs2 = "benzene_1_a3 nsp2_3_n1" order = "S" id = "benzene_1_a3_nsp2_3_n1"/>
+
+<bond order = "1" atomRefs2 = "me_4_a1 me_4_a6" id = "me_4_a1_me_4_a6"/>
+
+<bond order = "1" atomRefs2 = "me_4_a1 me_4_a7" id = "me_4_a1_me_4_a7"/>
+
+<bond order = "1" atomRefs2 = "me_4_a1 me_4_a8" id = "me_4_a1_me_4_a8"/>
+
+<bond atomRefs2 = "benzene_1_a5 me_4_a1" order = "S" id = "benzene_1_a5_me_4_a1"/>
+
+</bondArray>
+
+</molecule>
+
+</fragment>

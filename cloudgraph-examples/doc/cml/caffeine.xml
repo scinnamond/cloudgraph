@@ -1,0 +1,312 @@
+<cml xmlns="x-schema:cml_schema_ie_02.xml" title="caffeine" id="cml_caffeine_karne">
+<molecule title="caffeine" id="mol_caffeine_karne">
+<formula>C8 H10 N4 O2</formula>
+<string title="CAS">58-08-2</string>
+<string title="ACX">I1001269</string>
+<string title="DOT">UN 1544</string>
+<string title="RTECS">EV6475000</string>
+<float title="molecule weight">194.19</float>
+<float title="melting point" units="degC">238</float>
+<float title="specific gravity">1.23</float>
+<string title="water solubility" units="g/100 mL" convention="g per 100 mL at 23 degC">1-5</string>
+<string title="comments">
+White powder or white glistening needles usually melted together. LIGHT SENSITIVE
+</string>
+<list title="alternate names">
+<string title="name">1,3,7-Trimethylxanthine</string>
+<string title="name">3,7-dihydro-1,3,7-trimethyl-1H-Purine-2,6-dione</string>
+<string title="name">1,3,7-Trimethyl-2,6-dioxopurine</string>
+<string title="name">7-Methyltheophylline</string>
+<string title="name">Alert-Pep</string>
+<string title="name">Cafeina</string>
+<string title="name">Cafipel</string>
+<string title="name">Guaranine</string>
+<string title="name">Koffein</string>
+<string title="name">Mateina</string>
+<string title="name">Methyltheobromine</string>
+<string title="name">No-Doz</string>
+<string title="name">Refresh'n</string>
+<string title="name">Stim</string>
+<string title="name">Theine</string>
+<string title="name">1-methyltheobromine</string>
+<string title="name">methyltheobromide</string>
+<string title="name">eldiatric c</string>
+<string title="name">organex</string>
+<string title="name">1,3,7-trimethyl-2,6-dioxo-1,2,3,6-tetrahydropurine</string>
+<string title="name">caffenium</string>
+</list>
+<atomArray>
+<atom id="caffeine_karne_a_1">
+<float builtin="x3" units="A">-2.8709</float>
+<float builtin="y3" units="A">-1.0499</float>
+<float builtin="z3" units="A">0.1718</float>
+<string builtin="elementType">C</string>
+</atom>
+<atom id="caffeine_karne_a_2">
+<float builtin="x3" units="A">-2.9099</float>
+<float builtin="y3" units="A">0.2747</float>
+<float builtin="z3" units="A">0.1062</float>
+<string builtin="elementType">N</string>
+</atom>
+<atom id="caffeine_karne_a_3">
+<float builtin="x3" units="A">-1.8026</float>
+<float builtin="y3" units="A">0.9662</float>
+<float builtin="z3" units="A">-0.1184</float>
+<string builtin="elementType">C</string>
+</atom>
+<atom id="caffeine_karne_a_4">
+<float builtin="x3" units="A">-0.6411</float>
+<float builtin="y3" units="A">0.2954</float>
+<float builtin="z3" units="A">-0.2316</float>
+<string builtin="elementType">C</string>
+</atom>
+<atom id="caffeine_karne_a_5">
+<float builtin="x3" units="A">-0.6549</float>
+<float builtin="y3" units="A">-1.0889</float>
+<float builtin="z3" units="A">-0.1279</float>
+<string builtin="elementType">C</string>
+</atom>
+<atom id="caffeine_karne_a_6">
+<float builtin="x3" units="A">-1.7352</float>
+<float builtin="y3" units="A">-1.7187</float>
+<float builtin="z3" units="A">0.0624</float>
+<string builtin="elementType">N</string>
+</atom>
+<atom id="caffeine_karne_a_7">
+<float builtin="x3" units="A">0.6052</float>
+<float builtin="y3" units="A">0.7432</float>
+<float builtin="z3" units="A">-0.4434</float>
+<string builtin="elementType">N</string>
+</atom>
+<atom id="caffeine_karne_a_8">
+<float builtin="x3" units="A">1.2863</float>
+<float builtin="y3" units="A">-0.4175</float>
+<float builtin="z3" units="A">-0.4514</float>
+<string builtin="elementType">C</string>
+</atom>
+<atom id="caffeine_karne_a_9">
+<float builtin="x3" units="A">0.5994</float>
+<float builtin="y3" units="A">-1.5633</float>
+<float builtin="z3" units="A">-0.2698</float>
+<string builtin="elementType">N</string>
+</atom>
+<atom id="caffeine_karne_a_10">
+<float builtin="x3" units="A">1.0875</float>
+<float builtin="y3" units="A">2.0867</float>
+<float builtin="z3" units="A">-0.6139</float>
+<string builtin="elementType">C</string>
+</atom>
+<atom id="caffeine_karne_a_11">
+<float builtin="x3" units="A">-1.8349</float>
+<float builtin="y3" units="A">2.1699</float>
+<float builtin="z3" units="A">-0.2205</float>
+<string builtin="elementType">O</string>
+</atom>
+<atom id="caffeine_karne_a_12">
+<float builtin="x3" units="A">-4.2178</float>
+<float builtin="y3" units="A">0.9810</float>
+<float builtin="z3" units="A">0.2003</float>
+<string builtin="elementType">C</string>
+</atom>
+<atom id="caffeine_karne_a_13">
+<float builtin="x3" units="A">-3.8944</float>
+<float builtin="y3" units="A">-1.6746</float>
+<float builtin="z3" units="A">0.3323</float>
+<string builtin="elementType">O</string>
+</atom>
+<atom id="caffeine_karne_a_14">
+<float builtin="x3" units="A">-1.6764</float>
+<float builtin="y3" units="A">-3.1997</float>
+<float builtin="z3" units="A">0.1458</float>
+<string builtin="elementType">C</string>
+</atom>
+<atom id="caffeine_karne_a_15">
+<float builtin="x3" units="A">2.3776</float>
+<float builtin="y3" units="A">-0.4481</float>
+<float builtin="z3" units="A">-0.6036</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_16">
+<float builtin="x3" units="A">2.1902</float>
+<float builtin="y3" units="A">2.0944</float>
+<float builtin="z3" units="A">-0.7699</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_17">
+<float builtin="x3" units="A">0.6074</float>
+<float builtin="y3" units="A">2.5547</float>
+<float builtin="z3" units="A">-1.5032</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_18">
+<float builtin="x3" units="A">0.8606</float>
+<float builtin="y3" units="A">2.6915</float>
+<float builtin="z3" units="A">0.2934</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_19">
+<float builtin="x3" units="A">-4.0942</float>
+<float builtin="y3" units="A">2.0097</float>
+<float builtin="z3" units="A">0.6091</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_20">
+<float builtin="x3" units="A">-4.6699</float>
+<float builtin="y3" units="A">1.0338</float>
+<float builtin="z3" units="A">-0.8167</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_21">
+<float builtin="x3" units="A">-4.9101</float>
+<float builtin="y3" units="A">0.4518</float>
+<float builtin="z3" units="A">0.8943</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_22">
+<float builtin="x3" units="A">-2.3049</float>
+<float builtin="y3" units="A">-3.6334</float>
+<float builtin="z3" units="A">-0.6659</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_23">
+<float builtin="x3" units="A">-0.6444</float>
+<float builtin="y3" units="A">-3.6030</float>
+<float builtin="z3" units="A">0.0359</float>
+<string builtin="elementType">H</string>
+</atom>
+<atom id="caffeine_karne_a_24">
+<float builtin="x3" units="A">-2.0682</float>
+<float builtin="y3" units="A">-3.5218</float>
+<float builtin="z3" units="A">1.1381</float>
+<string builtin="elementType">H</string>
+</atom>
+</atomArray>
+<bondArray>
+<bond id="caffeine_karne_b_1">
+<string builtin="atomRef">caffeine_karne_a_1</string>
+<string builtin="atomRef">caffeine_karne_a_2</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_2">
+<string builtin="atomRef">caffeine_karne_a_1</string>
+<string builtin="atomRef">caffeine_karne_a_6</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_3">
+<string builtin="atomRef">caffeine_karne_a_1</string>
+<string builtin="atomRef">caffeine_karne_a_13</string>
+<string builtin="order" convention="MDL">2</string>
+</bond>
+<bond id="caffeine_karne_b_4">
+<string builtin="atomRef">caffeine_karne_a_2</string>
+<string builtin="atomRef">caffeine_karne_a_3</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_5">
+<string builtin="atomRef">caffeine_karne_a_2</string>
+<string builtin="atomRef">caffeine_karne_a_12</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_6">
+<string builtin="atomRef">caffeine_karne_a_3</string>
+<string builtin="atomRef">caffeine_karne_a_4</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_7">
+<string builtin="atomRef">caffeine_karne_a_3</string>
+<string builtin="atomRef">caffeine_karne_a_11</string>
+<string builtin="order" convention="MDL">2</string>
+</bond>
+<bond id="caffeine_karne_b_8">
+<string builtin="atomRef">caffeine_karne_a_4</string>
+<string builtin="atomRef">caffeine_karne_a_5</string>
+<string builtin="order" convention="MDL">2</string>
+</bond>
+<bond id="caffeine_karne_b_9">
+<string builtin="atomRef">caffeine_karne_a_4</string>
+<string builtin="atomRef">caffeine_karne_a_7</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_10">
+<string builtin="atomRef">caffeine_karne_a_5</string>
+<string builtin="atomRef">caffeine_karne_a_6</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_11">
+<string builtin="atomRef">caffeine_karne_a_5</string>
+<string builtin="atomRef">caffeine_karne_a_9</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_12">
+<string builtin="atomRef">caffeine_karne_a_6</string>
+<string builtin="atomRef">caffeine_karne_a_14</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_13">
+<string builtin="atomRef">caffeine_karne_a_7</string>
+<string builtin="atomRef">caffeine_karne_a_8</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_14">
+<string builtin="atomRef">caffeine_karne_a_7</string>
+<string builtin="atomRef">caffeine_karne_a_10</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_15">
+<string builtin="atomRef">caffeine_karne_a_8</string>
+<string builtin="atomRef">caffeine_karne_a_9</string>
+<string builtin="order" convention="MDL">2</string>
+</bond>
+<bond id="caffeine_karne_b_16">
+<string builtin="atomRef">caffeine_karne_a_8</string>
+<string builtin="atomRef">caffeine_karne_a_15</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_17">
+<string builtin="atomRef">caffeine_karne_a_10</string>
+<string builtin="atomRef">caffeine_karne_a_16</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_18">
+<string builtin="atomRef">caffeine_karne_a_10</string>
+<string builtin="atomRef">caffeine_karne_a_17</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_19">
+<string builtin="atomRef">caffeine_karne_a_10</string>
+<string builtin="atomRef">caffeine_karne_a_18</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_20">
+<string builtin="atomRef">caffeine_karne_a_12</string>
+<string builtin="atomRef">caffeine_karne_a_19</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_21">
+<string builtin="atomRef">caffeine_karne_a_12</string>
+<string builtin="atomRef">caffeine_karne_a_20</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_22">
+<string builtin="atomRef">caffeine_karne_a_12</string>
+<string builtin="atomRef">caffeine_karne_a_21</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_23">
+<string builtin="atomRef">caffeine_karne_a_14</string>
+<string builtin="atomRef">caffeine_karne_a_22</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_24">
+<string builtin="atomRef">caffeine_karne_a_14</string>
+<string builtin="atomRef">caffeine_karne_a_23</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+<bond id="caffeine_karne_b_25">
+<string builtin="atomRef">caffeine_karne_a_14</string>
+<string builtin="atomRef">caffeine_karne_a_24</string>
+<string builtin="order" convention="MDL">1</string>
+</bond>
+</bondArray>
+</molecule>
+</cml>

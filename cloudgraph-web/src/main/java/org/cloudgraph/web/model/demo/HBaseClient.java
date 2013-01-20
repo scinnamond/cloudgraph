@@ -34,6 +34,15 @@ public class HBaseClient {
 		
 		QName name = new QName(modelRootURI, modelRootType);
 		TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(name);
+		return get(tableConfig);
+	}
+	
+	public Map<String, Map<String, String>> get(String tableName) throws IOException {
+		TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(tableName);
+		return get(tableConfig);
+	}	
+	
+	public Map<String, Map<String, String>> get(TableConfig tableConfig) throws IOException {
 		
 		Map<String, Map<String, String>> result = new HashMap<String, Map<String, String>>();
 		

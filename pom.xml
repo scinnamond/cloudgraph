@@ -11,9 +11,7 @@
         <module>cloudgraph-config</module>
         <module>cloudgraph-hbase</module>
         <module>cloudgraph-rdb</module>
-        <!--
-        <module>cloudgraph-test</module>
-        -->
+        <!-- <module>cloudgraph-examples</module>-->
         <module>cloudgraph-docs</module>
     </modules>
 	<properties>

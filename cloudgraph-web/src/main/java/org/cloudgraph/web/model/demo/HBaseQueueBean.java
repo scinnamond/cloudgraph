@@ -58,6 +58,7 @@ public class HBaseQueueBean extends CloudQueueBean
 	private static Log log =LogFactory.getLog(HBaseQueueBean.class);
 	private String modelRootURI;
 	private String modelRootType;
+	private String modelTableName;
 
     public HBaseQueueBean() {
     }
@@ -74,6 +75,7 @@ public class HBaseQueueBean extends CloudQueueBean
     public List<CloudRow> getData() {
 		String type = this.beanFinder.findDemoBean().getModelRootType();
 		String uri = this.beanFinder.findDemoBean().getModelRootURI();
+		String tableName = this.beanFinder.findDemoBean().getSelectedTable();
 		if (type != null)
 			if (this.modelRootType == null || !this.modelRootType.equals(type)) {
 				this.modelRootType = type;
@@ -84,12 +86,23 @@ public class HBaseQueueBean extends CloudQueueBean
 				this.modelRootURI = uri;
 				this.reQuery = true;
 			}
+		if (tableName != null)
+			if (this.modelTableName == null || !this.modelTableName.equals(tableName)) {
+				this.modelTableName = tableName;
+				this.reQuery = true;
+			}
 
     	if (this.reQuery && this.modelRootType != null && this.modelRootURI != null) {
 			this.data = new ArrayList<CloudRow>();
 		    try {
 				HBaseClient client = new HBaseClient();
-				Map<String, Map<String, String>> results = client.get(this.modelRootType, this.modelRootURI);
+				Map<String, Map<String, String>> results = null;
+				if (this.modelTableName != null) {
+					results = client.get(tableName);
+				}
+				else {
+					results = client.get(this.modelRootType, this.modelRootURI);
+				}
 				HashSet<String> uniqueQuals = new HashSet<String>();
 				for (Map<String, String> row : results.values()) {
 					uniqueQuals.addAll(row.keySet());
