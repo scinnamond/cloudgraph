@@ -147,14 +147,14 @@ public class PackageEditBean extends ModelBean {
         }       
     }    
    
-	public int getNameMaxLength() {
+	public long getNameMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.package_.getType().getProperty(
 					Package.PTY_NAME);
 		return nameProp.getMaxLength();
 	}
 	
-	public int getDefinitionMaxLength() {
+	public long getDefinitionMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.package_.getType().getProperty(
 					Package.PTY_DEFINITION);
@@ -171,7 +171,7 @@ public class PackageEditBean extends ModelBean {
     	else
     		text = ((String)value).trim();
 
-    	int max = this.getDefinitionMaxLength();
+    	long max = this.getDefinitionMaxLength();
     	if (text.length() > max) {
             String msg = label + " is longer than allowed maximum "
                 + String.valueOf(max) + " characters";

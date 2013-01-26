@@ -45,21 +45,43 @@
   		</Namespace>
              
         <!-- Example Namespaces -->    
+        <!-- Chemical Markup Language 2.4 -->      
+        <Namespace uri="http://org.cloudgraph/examples/cml"
+            artifact="http://www.xml-cml.org/schema"> 
+            <Provisioning packageName="org.cloudgraph.examples.cml"/>
+            <TypeBinding type="List" logicalName="CmlList"/>
+            <TypeBinding type="String" logicalName="CmlString"/>
+            <TypeBinding type="Float" logicalName="CmlFloat"/>
+            <TypeBinding type="Enumeration" logicalName="CmlEnumeration">
+                <PropertyBinding property="default" logicalName="default_"/>
+            </TypeBinding>
+            <TypeBinding type="Expression" logicalName="CmlExpression"/>            
+            <TypeBinding type="ArrayList" logicalName="CmlArrayList"/>            
+            
+        </Namespace>
+        
+        <!-- BIO XSD -->      
+        <Namespace uri="http://org.cloudgraph/examples/bioxsd"
+            artifact="http://bioxsd.org/BioXSD-1.1"> 
+            <Provisioning packageName="org.cloudgraph.examples.bioxsd"/>
+        </Namespace>
+        
+        <!-- HL7 Common -->   
         <Namespace uri="http://plasma.servicelabs.org/platform/hl7/rim"
             artifact="http://org.cloudgraph/examples/hl7/rim"> 
         </Namespace>
         <Namespace uri="http://plasma.servicelabs.org/platform/hl7/cmet"
             artifact="http://org.cloudgraph/examples/hl7/cmet"> 
         </Namespace>
-        <!-- POCD -->      
+        <!-- HL7 POCD -->      
         <Namespace uri="http://plasma.servicelabs.org/platform/hl7/pocd/hd000040"
             artifact="http://org.cloudgraph/examples/hl7/pocd/hd000040"> 
         </Namespace>
-        <!-- COCT -->      
+        <!-- HL7 COCT -->      
         <Namespace uri="http://plasma.servicelabs.org/platform/hl7/coct/hd010000"
             artifact="http://org.cloudgraph/examples/hl7/coct/hd010000"> 
         </Namespace>
-        <!-- FICR -->      
+        <!-- HL7 FICR -->      
         <Namespace uri="http://plasma.servicelabs.org/platform/hl7/ficr/hd400200"
             artifact="http://org.cloudgraph/examples/hl7/ficr/hd400200"> 
         </Namespace>
@@ -105,7 +127,9 @@
                 <Concurrency 
                     pessimisticLockTimeoutMillis="300000"/>
                               
-                <!-- links specific DAS provisioning to SDO namespace configs -->                 
+                <!-- links specific DAS provisioning to SDO namespace configs -->                                 
+                <NamespaceLink uri="http://org.cloudgraph/examples/cml"/>
+                
                 <!-- POCD -->      
                 <NamespaceLink uri="http://org.cloudgraph/examples/hl7/pocd/hd000040"/>
                 <!-- FICR -->      
@@ -138,6 +162,12 @@
             namespaceUri="http://org.cloudgraph/web"/>  
             
         <!-- Example Artifacts -->    
+        <Artifact name="cml_3.xmi"
+            urn="cml_2_4.mdxml" 
+            namespaceUri="http://www.xml-cml.org/schema"/>  
+        <Artifact name="BioXSD-1_1.xmi"
+            urn="BioXSD-1_1.mdxml" 
+            namespaceUri="http://bioxsd.org/BioXSD-1.1"/>  
         <Artifact name="plasma-hl7-rim.mdxml"
             urn="plasma-hl7-rim.mdxml" 
             namespaceUri="http://org.cloudgraph/examples/hl7/rim"/>  

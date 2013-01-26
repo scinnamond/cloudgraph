@@ -24,7 +24,6 @@ import org.cloudgraph.examples.cml.Reaction;
 import org.cloudgraph.examples.cml.Scalar;
 import org.cloudgraph.examples.cml.Substance;
 import org.cloudgraph.examples.cml.SubstanceList;
-import org.cloudgraph.examples.cml.query.QMolecule;
 import org.cloudgraph.examples.cml.query.QReactant;
 import org.cloudgraph.examples.cml.query.QReaction;
 import org.cloudgraph.test.CMLTest;

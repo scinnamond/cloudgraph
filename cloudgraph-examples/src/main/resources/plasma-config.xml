@@ -35,6 +35,12 @@
  			
         </Namespace>
 
+        <!-- BIO XSD -->      
+        <Namespace uri="http://org.cloudgraph/examples/bioxsd"
+            artifact="http://bioxsd.org/BioXSD-1.1"> 
+            <Provisioning packageName="org.cloudgraph.examples.bioxsd"/>
+        </Namespace>
+
         <!-- HL7 common -->      
         <Namespace uri="http://plasma.servicelabs.org/platform/hl7/rim"
             artifact="http://org.cloudgraph/examples/hl7/rim"> 
@@ -97,6 +103,10 @@
         <Artifact name="cml_3.xmi"
             urn="cml_2_4.mdxml" 
             namespaceUri="http://www.xml-cml.org/schema"/>  
+
+        <Artifact name="BioXSD-1_1.xmi"
+            urn="BioXSD-1_1.mdxml" 
+            namespaceUri="http://bioxsd.org/BioXSD-1.1"/>  
 
         <!-- HL7 common -->      
         <Artifact name="plasma-hl7-rim.mdxml"

@@ -157,14 +157,14 @@ public class CampaignEditBean extends ModelBean
         }       
     }
        
-	public int getNameMaxLength() {
+	public long getNameMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.campaign.getType().getProperty(
 					Campaign.PTY_NAME);
 		return nameProp.getMaxLength();
 	}
 	
-	public int getDescriptionMaxLength() {
+	public long getDescriptionMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.campaign.getType().getProperty(
 					Campaign.PTY_DESCRIPTION);
@@ -181,7 +181,7 @@ public class CampaignEditBean extends ModelBean
     	else
     		text = ((String)value).trim();
 
-    	int max = this.getDescriptionMaxLength();
+    	long max = this.getDescriptionMaxLength();
     	if (text.length() > max) {
             String msg = label + " is longer than allowed maximum "
                 + String.valueOf(max) + " characters";
@@ -280,7 +280,7 @@ public class CampaignEditBean extends ModelBean
     	return dispersalMethodItems;
     }
     
-	public int getNotesMaxLength() {
+	public long getNotesMaxLength() {
 		PlasmaProperty prop = 
 			(PlasmaProperty)this.campaign.getType().getProperty(
 					Campaign.PTY_NOTES);
@@ -297,7 +297,7 @@ public class CampaignEditBean extends ModelBean
     	else
     		text = ((String)value).trim();
 
-    	int max = this.getNotesMaxLength();
+    	long max = this.getNotesMaxLength();
     	if (text.length() > max) {
             String msg = label + " is longer than allowed maximum "
                 + String.valueOf(max) + " characters";

@@ -357,6 +357,8 @@
                   <resource><directory>src/main/resources/models/hl7/pocd</directory></resource>                                                       
                   <resource><directory>src/main/resources/models/hl7/coct</directory></resource>                                                       
                   <resource><directory>src/main/resources/models/hl7/ficr</directory></resource>                                                       
+                  <resource><directory>src/main/resources/models/cml</directory></resource>                                                       
+                  <resource><directory>src/main/resources/models/bio</directory></resource>                                                       
                 </resources>                                                        
               </configuration>                                                      
             </plugin>                                                                   

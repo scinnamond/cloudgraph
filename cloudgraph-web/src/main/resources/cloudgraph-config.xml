@@ -142,4 +142,108 @@
         </DataGraph>
     </Table>    
 
+    <Table name="MOLECULE" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://org.cloudgraph/examples/cml" type="Molecule">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="id"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="formula"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="idgen"/>
+                </RowKeyField>                
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table> 
+
+    <Table name="REACTION" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://org.cloudgraph/examples/cml" type="Reaction">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="identifier[position()=1]/value"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="id"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table> 
+    
+    <Table name="ACID" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://org.cloudgraph/examples/bioxsd" type="AminoacidSequenceRecord">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="reference/dbName"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="reference/accession"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table> 
+    
+    <Table name="NUCLEOTIDE" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://org.cloudgraph/examples/bioxsd" type="NucleotideSequenceRecord">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="reference/dbName"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="reference/accession"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+
+    </Table> 
 </cloudgraph:CloudGraphConfiguration>

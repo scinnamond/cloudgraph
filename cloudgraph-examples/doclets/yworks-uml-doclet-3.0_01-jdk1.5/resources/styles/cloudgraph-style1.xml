@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-
 <StyleDefinition
  xmlns="http://www.yworks.com/xml/ydocstyle"
  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
  xsi:schemaLocation="http://www.yworks.com/xml/ydocstyle http://www.yworks.com/xml/schema/ydoc/1.0/ydocstyle.xsd">
-
 <!--
-LightGray   X   211;211;211 D3D3D3
-SlateGray3  X   159;182;205 9FB6CD
-LightSteelBlue1 202;225;255 CAE1FF
-SlateGray3  X   159;182;205 9FB6CD - the gradient class/enum name areas
+Light Steel Blue	176-196-222	b0c4de
+Lavender	230-230-250	e6e6fa
 -->
   <NodeStyle
    constraint.label.font="Dialog-plain-12"
@@ -58,28 +54,28 @@ SlateGray3  X   159;182;205 9FB6CD - the gradient class/enum name areas
    styleId="classifier"
    styleRef="node-type"/>
   <NodeStyle
-   header.fill.color="#9FB6CD"
+   header.fill.color="#eedd82"
    header.style="span_section"
    line.color="#C8CDDE"
-   section.fill.color="#D3D3D3"
+   section.fill.color="#b0c4de"
    styleId="group"
    styleRef="node-type"/>
   <NodeStyle
-   header.fill.color="#CAE1FF"
+   header.fill.color="#e6e6fa"
    header.style="left_tab"
    line.color="#C8CDDE"
    name.label.font="Dialog-bold-14"
-   section.fill.color="#D3D3D3"
+   section.fill.color="#b0c4de"
    shape="rectangle"
    styleId="package"
    styleRef="node-type"/>
   <NodeStyle
    constraint.label.font="Dialog-plain-12"
-   constructors.fill.color="#CAE1FF"
-   fields.fill.color="#CAE1FF"
-   header.fill.color="#9FB6CD"
+   constructors.fill.color="#e6e6fa"
+   fields.fill.color="#e6e6fa"
+   header.fill.color="#e6e6fa"
    line.color="#D3D377"
-   methods.fill.color="#CAE1FF"
+   methods.fill.color="#e6e6fa"
    separator.fill.color="#D3D377"
    shape="rectangle"
    styleId="annotation"
@@ -88,28 +84,28 @@ SlateGray3  X   159;182;205 9FB6CD - the gradient class/enum name areas
    styleId="annotation.compact"
    styleRef="annotation"/>
   <NodeStyle
-   constructors.fill.color="#CAE1FF"
-   fields.fill.color="#CAE1FF"
-   header.fill.color="#9FB6CD"
-   methods.fill.color="#CAE1FF"
+   constructors.fill.color="#e6e6fa"
+   fields.fill.color="#e6e6fa"
+   header.fill.color="#e6e6fa"
+   methods.fill.color="#e6e6fa"
    separator.fill.color="#E5E7E9"
    styleId="class"
    styleRef="classifier"/>
   <NodeStyle
-   constructors.fill.color="#CAE1FF"
-   fields.fill.color="#CAE1FF"
-   header.fill.color="#9FB6CD"
-   methods.fill.color="#CAE1FF"
+   constructors.fill.color="#e6e6fa"
+   fields.fill.color="#e6e6fa"
+   header.fill.color="#e6e6fa"
+   methods.fill.color="#e6e6fa"
    separator.fill.color="#DFDEE3"
    shape="rectangle"
    styleId="enum"
    styleRef="classifier"/>
   <NodeStyle
-   constructors.fill.color="#CAE1FF"
-   fields.fill.color="#CAE1FF"
+   constructors.fill.color="#e6e6fa"
+   fields.fill.color="#e6e6fa"
    fields.font="Dialog-italic-12"
-   header.fill.color="#9FB6CD"
-   methods.fill.color="#CAE1FF"
+   header.fill.color="#e6e6fa"
+   methods.fill.color="#e6e6fa"
    methods.font="Dialog-italic-12"
    separator.fill.color="#EBEBEB"
    styleId="interface"
@@ -168,21 +164,19 @@ SlateGray3  X   159;182;205 9FB6CD - the gradient class/enum name areas
    styleId="error.detailed"
    styleRef="error"/>
   <EdgeStyle
-   bend.style="smooth"
+   bend.style="angled"
    line.color="#9A9A9A"
    line.stroke="line_1"
    source.arrow="none"
    styleId="relationship"
    target.arrow="none"/>
   <EdgeStyle
-   bend.style="smooth"
    line.stroke="dashed_1"
    source.arrow="none"
    styleId="dependency"
    styleRef="relationship"
    target.arrow="UML:Wedge"/>
   <EdgeStyle
-   bend.style="smooth"
    line.stroke="dashed_1"
    styleId="realization"
    styleRef="relationship"
@@ -191,7 +185,6 @@ SlateGray3  X   159;182;205 9FB6CD - the gradient class/enum name areas
    styleId="association"
    styleRef="relationship"/>
   <EdgeStyle
-   bend.style="smooth"
    styleId="generalization"
    styleRef="relationship"
    target.arrow="white_delta"/>

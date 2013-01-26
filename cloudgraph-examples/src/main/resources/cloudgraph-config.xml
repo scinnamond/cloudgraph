@@ -192,5 +192,58 @@
             </ColumnKeyModel>
         </DataGraph>
     </Table> 
+    
+    <Table name="ACID" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://org.cloudgraph/examples/bioxsd" type="AminoacidSequenceRecord">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="reference/dbName"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="reference/accession"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table> 
+    
+    <Table name="NUCLEOTIDE" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://org.cloudgraph/examples/bioxsd" type="NucleotideSequenceRecord">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="reference/dbName"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="reference/accession"/>
+                </RowKeyField>                
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
 
+    </Table> 
 </cloudgraph:CloudGraphConfiguration>

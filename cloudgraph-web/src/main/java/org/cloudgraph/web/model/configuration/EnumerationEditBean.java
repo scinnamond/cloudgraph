@@ -209,7 +209,7 @@ public class EnumerationEditBean extends ModelBean {
 	    return result;
     }    
    
-	public int getNameMaxLength() {
+	public long getNameMaxLength() {
 		Type type = PlasmaTypeHelper.INSTANCE.getType(Classifier.class);
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)type.getProperty(
@@ -217,7 +217,7 @@ public class EnumerationEditBean extends ModelBean {
 		return nameProp.getMaxLength();
 	}
 	
-	public int getDefinitionMaxLength() {
+	public long getDefinitionMaxLength() {
 		Type type = PlasmaTypeHelper.INSTANCE.getType(Classifier.class);
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)type.getProperty(
@@ -225,7 +225,7 @@ public class EnumerationEditBean extends ModelBean {
 		return nameProp.getMaxLength();
 	}
 	
-	public int getLiteralNameMaxLength() {
+	public long getLiteralNameMaxLength() {
 		
 		Type type = PlasmaTypeHelper.INSTANCE.getType(EnumerationLiteral.class);
 		PlasmaProperty nameProp = 
@@ -244,7 +244,7 @@ public class EnumerationEditBean extends ModelBean {
     	else
     		text = ((String)value).trim();
 
-    	int max = this.getNameMaxLength();
+    	long max = this.getNameMaxLength();
     	if (text.length() > max) {
             String msg = label + " is longer than allowed maximum "
                 + String.valueOf(max) + " characters";
@@ -262,7 +262,7 @@ public class EnumerationEditBean extends ModelBean {
     	else
     		text = ((String)value).trim();
 
-    	int max = this.getDefinitionMaxLength();
+    	long max = this.getDefinitionMaxLength();
     	if (text.length() > max) {
             String msg = label + " is longer than allowed maximum "
                 + String.valueOf(max) + " characters";
@@ -280,7 +280,7 @@ public class EnumerationEditBean extends ModelBean {
     	else
     		text = ((String)value).trim();
 
-    	int max = this.getLiteralNameMaxLength();
+    	long max = this.getLiteralNameMaxLength();
     	if (text.length() > max) {
             String msg = label + " is longer than allowed maximum "
                 + String.valueOf(max) + " characters";

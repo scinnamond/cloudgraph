@@ -30,9 +30,7 @@
                     <f:verbatim>&nbsp</f:verbatim>
                     <f:verbatim>&nbsp</f:verbatim>
                     <h:outputText value="First Name:" />
-                    <h:outputText value="#{UserBean.person.firstName}" />
                     <h:outputText value="Last Name:" />
-                    <h:outputText value="#{UserBean.person.lastName}" />
                     <f:verbatim>&nbsp</f:verbatim>
                     <f:verbatim>&nbsp</f:verbatim>
                     

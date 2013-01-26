@@ -243,14 +243,14 @@ public class ClassEditBean extends ModelBean {
 	    return result;
 	}
    
-	public int getNameMaxLength() {
+	public long getNameMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.clazz.getClassifier().getType().getProperty(
 					Classifier.PTY_NAME);
 		return nameProp.getMaxLength();
 	}
 	
-	public int getDefinitionMaxLength() {
+	public long getDefinitionMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.clazz.getClassifier().getType().getProperty(
 					Classifier.PTY_DEFINITION);
@@ -267,7 +267,7 @@ public class ClassEditBean extends ModelBean {
     	else
     		text = ((String)value).trim();
 
-    	int max = this.getDefinitionMaxLength();
+    	long max = this.getDefinitionMaxLength();
     	if (text.length() > max) {
             String msg = label + " is longer than allowed maximum "
                 + String.valueOf(max) + " characters";
