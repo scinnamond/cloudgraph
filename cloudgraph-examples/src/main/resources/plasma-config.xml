@@ -4,7 +4,7 @@
   
     <SDO>
         <GlobalProvisioning>            
-           <Interface constants="true"/>          
+           <Interface propertyNameStyle="none"/>          
            <Implementation classNameSuffix="Impl"
                childPackageName="impl"/>  
            <QueryDSL>
