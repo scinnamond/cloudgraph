@@ -46,6 +46,7 @@ import org.plasma.sdo.core.CoreNode;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
+@Deprecated
 public class SimpleGraphAssembler extends DefaultAssembler
     implements HBaseGraphAssembler {
 

@@ -184,8 +184,10 @@
                             <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                         </systemProperties>
                         <includes>               
-                            <!--<include>**/*SocialGraphNonFederatedTest*</include> -->                     
-                            <include>**/*FloatPartialRowKeyScanTest*</include>   
+<!--                             <include>**/*SocialGraphNonFederatedTest*</include>                       -->
+<!--                             <include>**/*PartialRowKeyScanTest*</include>    -->
+                            <include>**/*DatePredicateSliceTest*</include>   
+                            
                         </includes> 
                     </configuration>
                   </execution>
@@ -217,12 +219,13 @@
                 </executions>                
                 <configuration>
                     <skip>true</skip>
+                     <!--
                     <argLine>-Xms128M -Xmx500M</argLine>                      
-                    
+                      --> 
                     <!-- debugging -->  
-                    <!--                     
+                           <!--               
                     <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
-                        -->
+                          --> 
                     <!-- profiling  -->
                     <!--
                     <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  

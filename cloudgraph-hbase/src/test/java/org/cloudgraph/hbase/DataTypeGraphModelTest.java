@@ -6,6 +6,7 @@ package org.cloudgraph.hbase;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -28,7 +29,7 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     private static Log log = LogFactory.getLog(DataTypeGraphModelTest.class);
 
     protected int maxLevels = 1;
-    protected int maxRows = 4;  // Some tests slice for name on third child, so keep at least 3 rows      
+    protected int maxRows = 6;  // Some tests slice for name on third child, so keep at least 3 rows      
         
     protected void fillGraph(Node root,
     		long id, Date now, String namePrefix)
@@ -37,7 +38,7 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     	for (int i = 0; i < maxRows; i++) {
     		Node child = parent.createChild();
         	fillNode(child, id, now, namePrefix, 1, i);  
-        	 
+        	/* 
         	for (int j = 0; j < maxRows; j++) {
         		Node child2 = child.createChild();
             	fillNode(child2, id, now, namePrefix, 2, j);        	
@@ -46,6 +47,7 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
                 	fillNode(child3, id, now, namePrefix, 3, k);        	
             	}
         	}
+        	*/
     	}
     	//addNodes(root, id, now,
     	//		maxLevels, 1, 
@@ -80,14 +82,6 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     	
     	double doubleId = (double)temp * (double)0.001;
     	float floatId = Double.valueOf(doubleId).floatValue();
-    	//log.info("doubleId: " + Double.valueOf(doubleId).toString());
-    	//log.info("floatId: " + Float.valueOf(floatId).toString());
-    	//BigDecimal bdTemp = BigDecimal.valueOf(temp);
-    	//bdTemp = bdTemp.movePointLeft(3);
-    	//doubleId = bdTemp.doubleValue();
-    	//floatId = bdTemp.floatValue();
-    	//log.info("doubleId2: " + Double.valueOf(doubleId).toString());
-    	//log.info("floatId2: " + Float.valueOf(floatId).toString());
     	
 	    node.setRootId(id);	
     	node.setLevelNum(level);
@@ -97,32 +91,37 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     	node.setBooleanField(true);    
     	node.setByteField((byte)1);       
     	node.setBytesField(name.getBytes());      
-    	node.setCharacterField('c');  
-    	node.setDateField(now);      	
-       	
-    	Property prop = node.getType().getProperty(Node.PTY_DATE_TIME_FIELD);
-    	node.setDateTimeField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));   
+    	node.setCharacterField('c'); 
     	
-    	prop = node.getType().getProperty(Node.PTY_DAY_FIELD);
-    	node.setDayField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));        
+    	Calendar cal = Calendar.getInstance();
+    	cal.setTime(now);
+    	cal.add(Calendar.DAY_OF_YEAR, (int)sequence);
     	
-    	prop = node.getType().getProperty(Node.PTY_MONTH_FIELD);
-    	node.setMonthField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));      
+    	node.setDateField(cal.getTime());      	       	
     	
-    	prop = node.getType().getProperty(Node.PTY_MONTH_DAY_FIELD);
-    	node.setMonthDayField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));   
+    	Property prop = node.getType().getProperty(Node.DATE_TIME_FIELD);
+    	node.setDateTimeField((String)DataConverter.INSTANCE.fromDate(prop.getType(), cal.getTime()));   
     	
-    	prop = node.getType().getProperty(Node.PTY_YEAR_FIELD);
-    	node.setYearField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));       
+    	prop = node.getType().getProperty(Node.DAY_FIELD);
+    	node.setDayField((String)DataConverter.INSTANCE.fromDate(prop.getType(), cal.getTime()));        
     	
-    	prop = node.getType().getProperty(Node.PTY_YEAR_MONTH_FIELD);
-    	node.setYearMonthField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));  
+    	prop = node.getType().getProperty(Node.MONTH_FIELD);
+    	node.setMonthField((String)DataConverter.INSTANCE.fromDate(prop.getType(), cal.getTime()));      
     	
-    	prop = node.getType().getProperty(Node.PTY_YEAR_MONTH_DAY_FIELD);
-    	node.setYearMonthDayField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));
+    	prop = node.getType().getProperty(Node.MONTH_DAY_FIELD);
+    	node.setMonthDayField((String)DataConverter.INSTANCE.fromDate(prop.getType(), cal.getTime()));   
     	
-    	prop = node.getType().getProperty(Node.PTY_TIME_FIELD);
-    	node.setTimeField((String)DataConverter.INSTANCE.fromDate(prop.getType(), now));       
+    	prop = node.getType().getProperty(Node.YEAR_FIELD);
+    	node.setYearField((String)DataConverter.INSTANCE.fromDate(prop.getType(), cal.getTime()));       
+    	
+    	prop = node.getType().getProperty(Node.YEAR_MONTH_FIELD);
+    	node.setYearMonthField((String)DataConverter.INSTANCE.fromDate(prop.getType(), cal.getTime()));  
+    	
+    	prop = node.getType().getProperty(Node.YEAR_MONTH_DAY_FIELD);
+    	node.setYearMonthDayField((String)DataConverter.INSTANCE.fromDate(prop.getType(), cal.getTime()));
+    	
+    	prop = node.getType().getProperty(Node.TIME_FIELD);
+    	node.setTimeField((String)DataConverter.INSTANCE.fromDate(prop.getType(), cal.getTime()));       
     	
     	node.setDecimalField(new BigDecimal(doubleId));    
     	node.setDoubleField(doubleId);     

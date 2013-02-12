@@ -7,7 +7,7 @@
         <GlobalProvisioning 
             packageName="org.plasma.platform.sdo">
             
-           <Interface classNamePrefix="I" constants="true"/>          
+           <Interface classNamePrefix="I" propertyNameStyle="constants"/>          
            <Implementation classNameSuffix="SDO"
                childPackageName="impl"/>  
            <QueryDSL>

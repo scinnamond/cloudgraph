@@ -138,7 +138,7 @@ public class RowPredicateVisitor extends PredicateVisitor {
 	public void start(WildcardOperator operator) {
 		switch (operator.getValue()) {
 		case LIKE:
-			this.contextOp = CompareFilter.CompareOp.EQUAL;
+			this.contextHBaseCompareOp = CompareFilter.CompareOp.EQUAL;
 			this.contextOpWildcard = true;
 			break;
 		default:
@@ -168,7 +168,7 @@ public class RowPredicateVisitor extends PredicateVisitor {
 			throw new IllegalStateException("expected context type for literal");
 		if (this.rootType == null)
 			throw new IllegalStateException("expected context type for literal");
-		if (this.contextOp == null)
+		if (this.contextHBaseCompareOp == null)
 			throw new IllegalStateException("expected context operator for literal");
 		
 		// Match the current property to a user defined 
@@ -192,14 +192,14 @@ public class RowPredicateVisitor extends PredicateVisitor {
 	        WritableByteArrayComparable exprComp = 
 	        	new RegexStringComparator(rowKeyExpr);
 	        
-	        Filter rowFilter = new RowFilter(this.contextOp,
+	        Filter rowFilter = new RowFilter(this.contextHBaseCompareOp,
 					exprComp);			
 			FilterList top = this.filterStack.peek();
 			top.addFilter(rowFilter);
 			
 			if (log.isDebugEnabled())
 				log.debug("created row filter: " 
-					+ rowKeyExpr + " operator: " + this.contextOp);
+					+ rowKeyExpr + " operator: " + this.contextHBaseCompareOp);
 		}
 		else
 	        throw new GraphFilterException("no user defined row-key token for query path '"

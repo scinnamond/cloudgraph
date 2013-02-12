@@ -27,12 +27,13 @@ import org.plasma.sdo.core.CoreNode;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
+@Deprecated
 public class SimpleGraphSliceAssembler extends DefaultAssembler
     implements HBaseGraphAssembler {
 
 	protected TableConfig tableConfig;
 	protected RowReader rowReader;
-	private SliceSupport2 sliceSupport = new SliceSupport2();
+	private GraphSliceSupport sliceSupport = new GraphSliceSupport();
 	
     public SimpleGraphSliceAssembler(PlasmaType rootType,
     		PropertySelection collector, 

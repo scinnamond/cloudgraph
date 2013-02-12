@@ -62,8 +62,9 @@ public abstract class HBaseTestCase extends CommonTest {
     protected void logGraph(DataGraph dataGraph) throws IOException 
     {
         String xml = serializeGraph(dataGraph);
-        //log.info("GRAPH: " + xml);    	
-    }  
+        log.info("GRAPH: " + xml);    	
+    }
+    
     protected Query marshal(Query query, float id) {
     	return marshal(query, String.valueOf(id));
     }   

@@ -23,18 +23,20 @@ import org.cloudgraph.hbase.filter.PredicateColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.StatefullBinaryPrefixColumnFilterAssembler;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
+import org.cloudgraph.hbase.recogniser.ColumnEntityRecogniser;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaType;
 
 /**
- * Delegates fetch operations for graph slice assemblers and
+ * Delegate class for various graph slice fetch and post processing
+ * relations operations. Supports graph assemblers and
  * other clients. 
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public class SliceSupport2 {
-    private static Log log = LogFactory.getLog(SliceSupport2.class);
+public class GraphSliceSupport {
+    private static Log log = LogFactory.getLog(GraphSliceSupport.class);
 	
 	/**
 	 * Creates a column qualifier/value filter hierarchy based on the given path
@@ -51,19 +53,86 @@ public class SliceSupport2 {
 	public Map<Integer, Integer> fetchSequences(PlasmaType contextType,
 			Where where, RowReader rowReader) throws IOException {
 
+        PlasmaType rootType = (PlasmaType)rowReader.getRootType();
+		DataGraphConfig graphConfig = CloudGraphConfig.getInstance().getDataGraph(
+				rootType.getQualifiedName());
         Get get = new Get(rowReader.getRowKey());
         PredicateColumnFilterAssembler columnFilterAssembler = 
         	new PredicateColumnFilterAssembler(rowReader.getGraphState(), 
-        			(PlasmaType)rowReader.getRootType());
+        			rootType);
         columnFilterAssembler.assemble(where, contextType);
         Filter filter = columnFilterAssembler.getFilter();
         get.setFilter(filter);
 
-        PlasmaType rootType = (PlasmaType)rowReader.getRootType();
-		DataGraphConfig graphConfig = CloudGraphConfig.getInstance().getDataGraph(
-				rootType.getQualifiedName());
+		Result result = fetchResult(get, rowReader.getTableReader(), graphConfig);
+		Map<Integer, Map<String, KeyValue>> buckets = buketizeResult(result, graphConfig);
+		
+		Map<Integer, Integer> sequences = new HashMap<Integer, Integer>();
+		ColumnEntityRecogniser recogniser = 
+				new ColumnEntityRecogniser(where, graphConfig, 
+						rootType, buckets);
+		for (Integer seq : buckets.keySet())
+		{
+			if (recogniser.recognise(seq))
+				sequences.put(seq, seq);
+			recogniser.clear();
+		}
+        return sequences;
+	}
+	
+	/**
+	 * Runs the given get and returns the result.  
+	 * @param get the row get
+	 * @return the result.
+	 * @throws IOException 
+	 */
+	public Result fetchResult(Get get, TableReader tableReader, DataGraphConfig graphConfig) throws IOException
+	{
+        if (log.isDebugEnabled() )
+			try {
+				log.debug("get filter: " + FilterUtil.printFilterTree(get.getFilter()));
+			} catch (IOException e1) {
+			}
         
-        return fetchSequences(get, rowReader.getTableReader(), graphConfig);
+    	long before = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("executing get...");
+        
+        Result result = tableReader.getConnection().get(get);
+        if (result == null) // Note: may not have any key-values
+        	throw new GraphServiceException("expected result from table "
+                + tableReader.getTable().getName() + " for row '"
+        		+ new String(get.getRow()) + "'");
+    	
+        long after = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("returned 1 results ("
+        	    + String.valueOf(after - before) + ")");
+        
+        return result;
+	}
+	
+	public Map<Integer, Map<String, KeyValue>> buketizeResult(Result result, DataGraphConfig graphConfig) {
+		Map<Integer, Map<String, KeyValue>> resultMap = new HashMap<Integer, Map<String, KeyValue>>();
+  	    
+		if (!result.isEmpty())
+			for (KeyValue keyValue : result.list()) {
+	  	    	// FIXME: no parsing here !!
+	            String qual = Bytes.toString(keyValue.getQualifier());
+	  	    	if (log.isDebugEnabled()) 
+	  	    	    log.debug("\tkey: " + qual
+	  	    	        + "\tvalue: " + Bytes.toString(keyValue.getValue()));
+	  	        String[] sections = qual.split(graphConfig.getColumnKeySectionDelimiter());
+	  	        Integer seq = Integer.valueOf(sections[1]);
+	  	        Map<String, KeyValue> subMap = resultMap.get(seq);
+	  	        if (subMap == null) {
+	  	        	subMap = new HashMap<String, KeyValue>();
+	  	        	resultMap.put(seq, subMap);
+	  	        }
+	  	        subMap.put(qual, keyValue);	  	         
+	  	    }
+		
+		return resultMap;
 	}
 
 	/**

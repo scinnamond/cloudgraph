@@ -10,7 +10,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.plasma.query.model.NullLiteral;
-import org.plasma.query.visitor.DefaultQueryVisitor;
 import org.plasma.sdo.PlasmaType;
 
 
@@ -29,7 +28,7 @@ import org.plasma.sdo.PlasmaType;
  * @author Scott Cinnamond
  * @since 0.5
  */
-public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor 
+public abstract class FilterHierarchyAssembler extends ExpresionVisitorSupport 
     implements HBaseFilterAssembler
 {
     private static Log log = LogFactory.getLog(FilterHierarchyAssembler.class);
@@ -43,19 +42,12 @@ public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor
 	private FilterHierarchyAssembler() {}
 	protected FilterHierarchyAssembler(PlasmaType rootType) {
 		this.rootType = rootType;
-		
-    	this.rootFilter = new FilterList(
-    		FilterList.Operator.MUST_PASS_ALL);
-    	 
-    	this.filterStack.push(this.rootFilter);  
 	}
 	
 	public void clear() {
     	if (this.params != null)
     		params.clear();
-    	this.rootFilter.getFilters().clear();
 		this.filterStack.clear();
-		this.filterStack.push(this.rootFilter);  
 	}
 
     /**
@@ -63,7 +55,7 @@ public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor
      * @return the assembled filter, filter list or  or filter hierarchy root.
      */
 	public Filter getFilter() {
-		return rootFilter;
+		return this.rootFilter;
 	}
 	
 	public Object[] getParams() {
@@ -77,13 +69,22 @@ public abstract class FilterHierarchyAssembler extends DefaultQueryVisitor
 				result[i] = null;
 		}
 		return result;
-	}		
+	}
 	
 	protected void pushFilter() {
-        FilterList top = this.filterStack.peek();
-        FilterList next = new FilterList(FilterList.Operator.MUST_PASS_ALL);
-        top.addFilter(next);
-        this.filterStack.push(next);  		
+		pushFilter(FilterList.Operator.MUST_PASS_ALL);
+	}
+	
+	protected void pushFilter(FilterList.Operator oper) {
+        FilterList filter = new FilterList(oper);
+        FilterList top = null;
+        if (this.filterStack.size() > 0) {
+        	top = this.filterStack.peek();
+            top.addFilter(filter);
+	    }
+        else
+        	this.rootFilter = filter;
+        this.filterStack.push(filter);  		
 	}
 	
 	protected void popFilter() {

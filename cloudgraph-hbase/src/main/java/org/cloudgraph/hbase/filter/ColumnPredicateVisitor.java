@@ -9,10 +9,13 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.FilterList.Operator;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
+import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.ValueFilter;
-import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.filter.WritableByteArrayComparable;
 import org.cloudgraph.common.filter.GraphFilterException;
+import org.cloudgraph.common.filter.InvalidOperatorException;
 import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
+import org.cloudgraph.hbase.service.HBaseDataConverter;
 import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.Expression;
 import org.plasma.query.model.Literal;
@@ -21,12 +24,15 @@ import org.plasma.query.model.NullLiteral;
 import org.plasma.query.model.Path;
 import org.plasma.query.model.PathElement;
 import org.plasma.query.model.Property;
+import org.plasma.query.model.QueryConstants;
 import org.plasma.query.model.Term;
 import org.plasma.query.model.WildcardOperator;
 import org.plasma.query.model.WildcardPathElement;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
+import org.plasma.sdo.helper.DataConverter;
 
 /**
  * Creates an HBase column filter hierarchy using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
@@ -53,6 +59,7 @@ public class ColumnPredicateVisitor extends PredicateVisitor {
     private static Log log = LogFactory.getLog(ColumnPredicateVisitor.class);
 	protected CompositeColumnKeyFactory columnKeyFac;
 	protected String contextPropertyPath;
+	protected Property contextQueryProperty;
 
     public ColumnPredicateVisitor(PlasmaType rootType) {
 		super(rootType);
@@ -69,18 +76,34 @@ public class ColumnPredicateVisitor extends PredicateVisitor {
 	 */
 	@Override
 	public void start(Expression expression)
-    {
-        if (hasChildExpressions(expression)) {
-            if (log.isDebugEnabled())
-    			log.debug("pushing expression filter");
-            this.pushFilter(); 
+    {		
+		int childExprCount = getChildExpressionCount(expression);
+        if (childExprCount > 0) {
+        	// same property named in one or more expressions
+        	if (!hasHeterogeneousDescendantProperties(expression)) {
+                
+        		if (log.isDebugEnabled())
+    			    log.debug("pushing AND expression filter");
+                
+                this.pushFilter(FilterList.Operator.MUST_PASS_ALL); 
+        	}
+        	else {
+        		// Just get all the cells involved in the expression
+        		// these need to be post processed.
+                if (log.isDebugEnabled())
+    			    log.debug("pushing OR expression filter");            
+                this.pushFilter(FilterList.Operator.MUST_PASS_ONE); 
+                //FIXME; need a way to synthetically group wildcard or other operators
+                //for s single property even though the expression
+                // may contain heterogeneous child properties
+                // Currently explicit group operators are required
+        	}
         }
 
         for (Term term : expression.getTerms())
         	if (term.getSubqueryOperator() != null)
                 throw new GraphFilterException("subqueries for row filters not yet supported");
-    }                               
- 
+    }                                
 	
 	/**
 	 * Process the traversal end event for a query {@link org.plasma.query.model.Expression expression}
@@ -121,8 +144,9 @@ public class ColumnPredicateVisitor extends PredicateVisitor {
             	AbstractPathElement pathElem = path.getPathNodes().get(i).getPathElement();
                 if (pathElem instanceof WildcardPathElement)
                     throw new DataAccessException("wildcard path elements applicable for 'Select' clause paths only, not 'Where' clause paths");
-                String elem = ((PathElement)pathElem).getValue();
-                PlasmaProperty prop = (PlasmaProperty)targetType.getProperty(elem);                
+                PathElement namedPathElem = ((PathElement)pathElem);
+                PlasmaProperty prop = (PlasmaProperty)targetType.getProperty(namedPathElem.getValue());                
+                namedPathElem.setPhysicalNameBytes(prop.getPhysicalNameBytes());                
                 targetType = (PlasmaType)prop.getType(); // traverse
             }
         }
@@ -130,6 +154,10 @@ public class ColumnPredicateVisitor extends PredicateVisitor {
         this.contextProperty = endpointProp;
         this.contextType = targetType;
         this.contextPropertyPath = property.asPathString();
+        this.contextQueryProperty = property;
+        byte[] colKey = this.columnKeyFac.createColumnKey(
+                this.contextType, this.contextProperty);
+        this.contextQueryProperty.setPhysicalNameBytes(colKey);
         
         super.start(property);
     }     
@@ -137,8 +165,9 @@ public class ColumnPredicateVisitor extends PredicateVisitor {
 	public void start(WildcardOperator operator) {
 		switch (operator.getValue()) {
 		case LIKE:
-			this.contextOp = CompareFilter.CompareOp.EQUAL;
+			this.contextHBaseCompareOp = CompareFilter.CompareOp.EQUAL;
 			this.contextOpWildcard = true;
+			this.contextWildcardOperator = operator;
 			break;
 		default:
 			throw new GraphFilterException("unknown operator '"
@@ -146,8 +175,7 @@ public class ColumnPredicateVisitor extends PredicateVisitor {
 		}
 		super.start(operator);
 	}
-	
-	
+		
     /**
      * Process the traversal start event for a query {@link org.plasma.query.model.Literal literal}
      * within an {@link org.plasma.query.model.Expression expression} creating an HBase 
@@ -164,15 +192,16 @@ public class ColumnPredicateVisitor extends PredicateVisitor {
 		String content = literal.getValue();
 		if (this.contextProperty == null)
 			throw new IllegalStateException("expected context property for literal");
+		if (this.contextQueryProperty == null)
+			throw new IllegalStateException("expected context query property for literal");
 		if (this.contextType == null)
 			throw new IllegalStateException("expected context type for literal");
 		if (this.rootType == null)
 			throw new IllegalStateException("expected context type for literal");
-		if (this.contextOp == null)
+		if (this.contextHBaseCompareOp == null)
 			throw new IllegalStateException("expected context operator for literal");
 		
-        byte[] colKey = this.columnKeyFac.createColumnKey(
-                this.contextType, this.contextProperty);
+        byte[] colKey = this.contextQueryProperty.getPhysicalNameBytes();      
 
 		FilterList list = new FilterList(
     			FilterList.Operator.MUST_PASS_ALL);
@@ -180,13 +209,62 @@ public class ColumnPredicateVisitor extends PredicateVisitor {
             	CompareFilter.CompareOp.EQUAL,
             	new BinaryPrefixComparator(colKey)); 
         list.addFilter(qualFilter);
+        
+        WritableByteArrayComparable comparable = null;
+        if (!this.contextOpWildcard) {
+            Object valueObj = DataConverter.INSTANCE.fromString(
+                this.contextProperty.getType(), content);
+            byte[] valueBytes = HBaseDataConverter.INSTANCE.toBytes(
+                this.contextProperty, valueObj);                
+        	comparable = new BinaryComparator(valueBytes);
+        }
+        else {
+        	if (!validateWildcardDataFlavor(this.contextProperty.getDataFlavor()))
+        		throw new InvalidOperatorException(this.contextWildcardOperator.getValue().name(), 
+        				this.contextProperty.getDataFlavor());
+        	String replaceExpr = "\\" + QueryConstants.WILDCARD;
+        	String expr = getDataFlavorRegex(this.contextProperty.getDataFlavor());
+        	String contentExpr = content.replaceAll(replaceExpr, expr);        	
+        	comparable = new RegexStringComparator(contentExpr);        	
+        }
+        
         ValueFilter valueFilter = new ValueFilter(
-        		this.contextOp,
-            	new BinaryComparator(Bytes.toBytes(content)));
-        list.addFilter(valueFilter);		
-    	this.filterStack.peek().addFilter(list);
+    		this.contextHBaseCompareOp,
+    		comparable);
+        list.addFilter(valueFilter);	
+        
+        if (this.filterStack.size() > 0) {
+    	    this.filterStack.peek().addFilter(list);
+        }
+        else {
+        	this.rootFilter = list;
+        }
 		
 		super.start(literal);
+	}
+	
+	private boolean validateWildcardDataFlavor(DataFlavor dataFlavor) {
+		switch (dataFlavor) {
+		case string: 
+			return true;
+		case temporal:
+		case integral:
+		case real:
+		case other:
+		default:
+			return false;
+		}
+	}
+	
+	private String getDataFlavorRegex(DataFlavor dataFlavor) {
+		switch (dataFlavor) {
+		case integral:
+			return "[0-9\\-]+?";
+		case real:
+			return "[0-9\\-\\.]+?";
+		default:
+			return ".*?"; // any character zero or more times
+		}
 	}
 
 	/**

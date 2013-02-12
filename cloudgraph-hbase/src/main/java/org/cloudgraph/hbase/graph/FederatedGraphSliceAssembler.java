@@ -43,7 +43,7 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 
     private static Log log = LogFactory.getLog(FederatedGraphSliceAssembler.class);
 	private int scanCount;
-	private SliceSupport2 sliceSupport = new SliceSupport2();
+	private GraphSliceSupport sliceSupport = new GraphSliceSupport();
 	private Charset charset;
 
 	public FederatedGraphSliceAssembler(PlasmaType rootType,
