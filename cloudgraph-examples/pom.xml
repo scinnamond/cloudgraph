@@ -12,7 +12,7 @@
 	<version>0.5.2</version>
 	<name>CloudGraph Examples</name>
     <properties>
-        <yworks.uml.path>${basedir}/doclets/yworks-uml-doclet-3.0_01-jdk1.5</yworks.uml.path>
+        <yworks.uml.path>${basedir}/../doclets/yworks-uml-doclet-3.0_01-jdk1.5</yworks.uml.path>
     </properties>
     <repositories>
         <repository>

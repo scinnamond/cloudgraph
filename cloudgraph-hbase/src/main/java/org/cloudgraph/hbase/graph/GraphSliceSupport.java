@@ -23,7 +23,9 @@ import org.cloudgraph.hbase.filter.PredicateColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.StatefullBinaryPrefixColumnFilterAssembler;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
-import org.cloudgraph.hbase.recogniser.ColumnEntityRecogniser;
+import org.cloudgraph.hbase.query.Expr;
+import org.cloudgraph.hbase.query.RecogniserContext;
+import org.cloudgraph.hbase.query.RecogniserSyntaxTreeAssembler;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaType;
@@ -43,7 +45,7 @@ public class GraphSliceSupport {
 	 * predicate for a single row specified by the given row key, then returns
 	 * the column qualifier sequence numbers which represent the subset
 	 * of total graph edges as restricted by the predicate.   
-	 * @param contextType the current type
+	 * @param contextType the type of the edge property
 	 * @param where the predicate
 	 * @param rowKey the row key
 	 * @return a collection of sequence ids
@@ -67,19 +69,26 @@ public class GraphSliceSupport {
 		Result result = fetchResult(get, rowReader.getTableReader(), graphConfig);
 		Map<Integer, Map<String, KeyValue>> buckets = buketizeResult(result, graphConfig);
 		
+		// assemble a recogniser once for
+		// all results. Then only evaluate each result.
+		RecogniserSyntaxTreeAssembler assembler = new RecogniserSyntaxTreeAssembler(where, 
+			graphConfig, contextType, rootType);	
+		Expr recogniser = assembler.getResult();
+		
 		Map<Integer, Integer> sequences = new HashMap<Integer, Integer>();
-		ColumnEntityRecogniser recogniser = 
-				new ColumnEntityRecogniser(where, graphConfig, 
-						rootType, buckets);
+		RecogniserContext context = new RecogniserContext();
+		
 		for (Integer seq : buckets.keySet())
 		{
-			if (recogniser.recognise(seq))
+			Map<String, KeyValue> seqMap = buckets.get(seq);
+			context.setSequence(seq);
+			context.setKeyMap(seqMap);			
+			if (recogniser.evaluate(context))
 				sequences.put(seq, seq);
-			recogniser.clear();
 		}
         return sequences;
 	}
-	
+
 	/**
 	 * Runs the given get and returns the result.  
 	 * @param get the row get

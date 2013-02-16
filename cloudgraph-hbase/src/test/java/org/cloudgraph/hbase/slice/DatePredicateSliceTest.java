@@ -38,7 +38,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
     public void setUp() throws Exception {
         super.setUp();
     } 
-/*     
+      
     public void testEqual() throws IOException       
     {
         long id = System.currentTimeMillis();
@@ -113,7 +113,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
         assertTrue(fetched.getChild(startIndex-1).getDateField().compareTo(start.getTime()) == 0);
         assertTrue(fetched.getChild(endIndex-1).getDateField().compareTo(end.getTime()) == 0);
     }  
-*/ 
+  
     public void testLike() throws IOException       
     {
         long id = System.currentTimeMillis();

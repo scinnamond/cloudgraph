@@ -33,6 +33,7 @@
   </developers>
   <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <yworks.uml.path>${basedir}/../doclets/yworks-uml-doclet-3.0_01-jdk1.5</yworks.uml.path>
   </properties>
                                 
   
@@ -70,7 +71,7 @@
 			            windowtitle="CloudGraph ${release_suffix}"
 			        	additionalparam="-breakiterator"
 			            doclet="ydoc.doclets.YStandard"
-			            docletpath="C:/yworks-uml-doclet-3.0_01-jdk1.5/lib/ydoc.jar;C:/yworks-uml-doclet-3.0_01-jdk1.5/resources">
+			            docletpath="${yworks.uml.path}/lib/ydoc.jar;${yworks.uml.path}/resources">
 			            <packageset dir="${basedir}/../cloudgraph-common/src/main/java" defaultexcludes="yes">
 			                <include name="org/cloudgraph/**"/>
 			            </packageset>			             
@@ -86,11 +87,11 @@
 			             
 			            <doclet
 			                name="ydoc.doclets.YStandard"
-			                path="C:/yworks-uml-doclet-3.0_01-jdk1.5/lib/lib/ydoc.jar${ps}C:/yworks-uml-doclet-3.0_01-jdk1.5/resources${ps}C:/yworks-uml-doclet-3.0_01-jdk1.5/doc">
+			                path="${yworks.uml.path}/lib/ydoc.jar${ps}${yworks.uml.path}/resources${ps}${yworks.uml.path}/doc">
 			                <param name="-author"/>
 			                <param name="-generic"/>
 			                <param name="-umlautogen"/>
-			                <param name="-filterpath" value="C:/yworks-uml-doclet-3.0_01-jdk1.5/lib/ydoc.jar"/>
+			                <param name="-filterpath" value="${yworks.uml.path}/lib/ydoc.jar"/>
 			                <param name="-filter"     value="ydoc.filters.ExcludeFilter"/>
 			                <param name="-tag" value="y.precondition"/>
 			                <param name="-tag" value="y.postcondition"/>
@@ -104,7 +105,7 @@
 			            <doctitle><![CDATA[<h1>CloudGraph ${release_suffix}</h1>]]></doctitle>
 			            <bottom><![CDATA[<i>CloudGraph&#8482; is a trademark of TerraMeta Software, Inc. Copyright &#169; 2012 - All Rights Reserved.</i>]]></bottom>
 			            <tag name="todo" scope="all" description="To do:"/>
-			            <group title="CloudGraph Packages" packages="org.plasma.*"/>
+			            <group title="CloudGraph Packages" packages="org.cloudgraph.*"/>
 			            <classpath refid="cp"/>
 			          </javadoc>
 			          
@@ -120,7 +121,7 @@
                 </execution>                                                 
 
               </executions>                                                  
-            </plugin>	
+            </plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
