@@ -6,8 +6,7 @@
   
     <!-- supported namespaces -->
     <SupportedNamespace domain="xmi" uri="http://schema.omg.org/spec/XMI/2.1" />
-    <SupportedNamespace domain="xmi" uri="http://www.omg.org/spec/XMI/20110701" /> <!-- new OMG normative namespace URI for XMI 2.4.1. --> 
-    
+    <SupportedNamespace domain="xmi" uri="http://www.omg.org/spec/XMI/20110701" />
     
     <SupportedNamespace domain="uml" uri="http://www.eclipse.org/uml2/2.0.0/UML" />
     <SupportedNamespace domain="uml" uri="http://schema.omg.org/spec/UML/2.1.1" />
@@ -15,8 +14,8 @@
     <SupportedNamespace domain="uml" uri="http://schema.omg.org/spec/UML/2.1.2" /> 
     <SupportedNamespace domain="uml" uri="http://schema.omg.org/spec/UML/2.2" />   
     <SupportedNamespace domain="uml" uri="http://www.omg.org/spec/UML/20090901" /> <!-- new OMG normative namespace URI for UML 2.3. -->    
-    <SupportedNamespace domain="uml" uri="http://www.omg.org/spec/UML/20110701" /> <!-- new OMG normative namespace URI for UML 2.4.1. -->    
-      
+    <SupportedNamespace domain="uml" uri="http://www.omg.org/spec/UML/20110701" />         
+    
     <SupportedNamespace domain="ecore" uri="http://www.eclipse.org/emf/2002/Ecore" />
     <SupportedNamespace domain="magicdraw" uri="http:///schemas/MagicDrawProfile/_eFzsIKxbEd2Kp9hnZinLyQ/0" />
     <SupportedNamespace domain="magicdraw" uri="http:///schemas/MagicDrawProfile/_GIVXUJo8Ed2jetuWwvgiOQ/0" />
@@ -41,7 +40,6 @@
     
     <ExtensionPackage name="org.modeldriven.fuml.repository.ext"/>
     <ExtensionPackage name="org.plasma.sdo.profile"/>
-    
  
   </ImportConfiguration>
   
@@ -71,19 +69,6 @@
     <Exemption type="undefinedProperty" domain="uml" classifierName="JoinNode" propertyName="joinSpec"/>    
     <Exemption type="undefinedProperty" domain="uml" classifierName="ControlFlow" propertyName="weight"/>    
     <Exemption type="undefinedProperty" domain="uml" classifierName="Comment" propertyName="ownedComment"/>    
-
-    <!-- Temporary Exemptions for UML 2.4.1 and NIEM testing --> 
-    <Exemption type="requiredProperty" domain="uml" classifierName="PrimitiveType" propertyName="href"/>    
-    <Exemption type="requiredProperty" domain="uml" classifierName="Stereotype" propertyName="profile"/>    
-    <Exemption type="undefinedProperty" domain="uml" classifierName="Realization" propertyName="name"/>    
-    <Exemption type="undefinedProperty" domain="uml" classifierName="Realization" propertyName="client"/>    
-    <Exemption type="undefinedProperty" domain="uml" classifierName="Realization" propertyName="supplier"/>    
-    <Exemption type="undefinedProperty" domain="uml" classifierName="Usage" propertyName="name"/>    
-    <Exemption type="undefinedProperty" domain="uml" classifierName="Usage" propertyName="client"/>    
-    <Exemption type="undefinedProperty" domain="uml" classifierName="Usage" propertyName="supplier"/>    
-    <Exemption type="undefinedProperty" domain="uml" classifierName="Property" propertyName="subsettedProperty"/>    
-
-
   </ValidationConfiguration>
   
   <MappingConfiguration>

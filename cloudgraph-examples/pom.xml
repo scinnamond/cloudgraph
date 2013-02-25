@@ -282,7 +282,8 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.6.1</version>
                 <configuration>
-                  <skip>false</skip>
+                  <!-- set to false if yuou have time -->
+                  <skip>true</skip>
                   <!-- output into WAR dir for mavem-war-plugin -->
                   <reportOutputDirectory>${project.build.directory}/cloudgraph-examples</reportOutputDirectory>
                   <destDir>apidocs</destDir>                  
