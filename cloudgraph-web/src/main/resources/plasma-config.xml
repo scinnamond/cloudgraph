@@ -4,7 +4,7 @@
   
     <SDO>
         <GlobalProvisioning>            
-           <Interface constants="true"/>          
+           <Interface/>          
            <Implementation classNameSuffix="Impl"
                childPackageName="impl"/>  
            <QueryDSL>
@@ -88,6 +88,8 @@
         <Namespace uri="http://plasma.servicelabs.org/platform/hl7/ficr/hd410200"
             artifact="http://org.cloudgraph/examples/hl7/ficr/hd410200"> 
         </Namespace>
+        
+           
         <DataAccessService dataStoreType="RDBMS">   
             <DataAccessProvider name="JDBC"                
                 className="org.cloudgraph.rdb.jdbc.JDBCDataAccessProvider">
@@ -105,7 +107,6 @@
                 <Concurrency 
                     pessimisticLockTimeoutMillis="300000"/>
                               
-                <!-- links specific DAS provisioning to SDO namespace configs -->                 
                 <NamespaceLink uri="http://org.cloudgraph/web/common"/>
                 <NamespaceLink uri="http://org.cloudgraph/web/categorization"/>
                 <NamespaceLink uri="http://org.cloudgraph/web/personalization"/>
@@ -116,6 +117,7 @@
 
   		    	  
   	    </DataAccessService>
+  	    	 
   	    	
         <DataAccessService dataStoreType="NOSQL">   
 
@@ -137,6 +139,7 @@
                 <NamespaceLink uri="http://org.cloudgraph/examples/hl7/ficr/hd410200"/>
                 <!-- COCT -->      
                 <NamespaceLink uri="http://org.cloudgraph/examples/hl7/coct/hd010000"/>
+
             </DataAccessProvider>
 
   		    	  

@@ -24,14 +24,14 @@ public class OrganizationQuery {
                 "child/child/child/child/child/child/*",
             });    	
 
-    	From from = new From(Organization.ETY_ORGANIZATION,
+    	From from = new From(Organization.TYPE_NAME_ORGANIZATION,
     			Organization.NAMESPACE_URI);        
  		Where where = new Where();
  		where.addExpression(Property.forName(
- 				Organization.PTY_CODE).eq(rootCode));
+ 				Organization.PROPERTY.code.name()).eq(rootCode));
     	
     	OrderBy orderBy = new OrderBy();
-		orderBy.addProperty(Property.forName(Organization.PTY_NAME));
+		orderBy.addProperty(Property.forName(Organization.PROPERTY.name.name()));
         
 		
         Query query = new Query(select, from, where, orderBy);

@@ -127,11 +127,8 @@
          
     <Table name="ACTOR" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
-        <DataGraph uri="http://cloudgraph.org/test/social" type="Actor">
+        <DataGraph uri="http://cloudgraph.org/test/socialgraph/actor" type="Actor">
             <RowKeyModel>
-                <RowKeyField>
-                    <PredefinedField name="uri" hash="true"/>
-                </RowKeyField>
                 <RowKeyField>
                     <PredefinedField name="type" hash="false"/>
                 </RowKeyField>
@@ -146,15 +143,31 @@
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
         </DataGraph>
+        <DataGraph uri="http://cloudgraph.org/test/socialgraph/story" type="Blog">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="uuid" hash="false"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
     </Table>  
            
     <Table name="MEDIA" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
-        <DataGraph uri="http://cloudgraph.org/test/social" type="Photo">
+        <DataGraph uri="http://cloudgraph.org/test/socialgraph/actor" type="Photo">
             <RowKeyModel>
-                <RowKeyField>
-                    <PredefinedField name="uri" hash="true"/>
-                </RowKeyField>
                 <RowKeyField>
                     <PredefinedField name="type" hash="false"/>
                 </RowKeyField>
@@ -177,11 +190,8 @@
 
     <Table name="TOPIC" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
-        <DataGraph uri="http://cloudgraph.org/test/social" type="Topic">
+        <DataGraph uri="http://cloudgraph.org/test/socialgraph/actor" type="Topic">
             <RowKeyModel>
-                <RowKeyField>
-                    <PredefinedField name="uri" hash="true"/>
-                </RowKeyField>
                 <RowKeyField>
                     <PredefinedField name="type" hash="false"/>
                 </RowKeyField>

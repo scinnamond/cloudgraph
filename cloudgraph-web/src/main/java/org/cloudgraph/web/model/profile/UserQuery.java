@@ -16,9 +16,9 @@ public class UserQuery {
                 "*",
             });         
                 
-    	From from = new From(User.ETY_USER, User.NAMESPACE_URI);        
+    	From from = new From(User.TYPE_NAME_USER, User.NAMESPACE_URI);        
         Where where = new Where();
-        where.addExpression(Property.forName(User.PTY_USERNAME).eq(
+        where.addExpression(Property.forName(User.PROPERTY.username.name()).eq(
         						username));
         
         Query query = new Query(select, from, where);

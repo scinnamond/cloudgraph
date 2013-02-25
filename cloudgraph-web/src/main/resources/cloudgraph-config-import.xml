@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cloudgraph:CloudGraphConfiguration  
+    xmlns:cloudgraph="http://www.cloudgraph.org/config">
+    <!--
+    <Property name="hbase.zookeeper.quorum">u16361628.onlinehome-server.com</Property>    
+    <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
+      -->
+    
+    <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
+    <Property name="hbase.zookeeper.property.clientPort">2181</Property>  
+      
+     
+     <!--
+     does not seem to do anything 
+    <Property name="hbase.master">slphetad4002.phe.fs.fed.us:49302</Property>  
+      -->
+    <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
+    <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
+
+    <Table name="META" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://org.cloudgraph/web/meta" type="Package">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        <DataGraph uri="http://org.cloudgraph/web/meta" type="PrimitiveType">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="dataType/classifier/name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        <DataGraph uri="http://org.cloudgraph/web/meta" type="Clazz">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="classifier/name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        <DataGraph uri="http://org.cloudgraph/web/meta" type="Classifier">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        <DataGraph uri="http://org.cloudgraph/web/meta" type="Enumeration">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="dataType/classifier/name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        <DataGraph uri="http://org.cloudgraph/web/meta" type="Property">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table> 
+
+    <Table name="INSTANCE" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+        <DataGraph uri="http://org.cloudgraph/web/meta" type="InstanceSpecification">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        <DataGraph uri="http://org.cloudgraph/web/meta" type="Slot">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table> 
+
+    
+    <Table name="TAXONOMY" dataColumnFamilyName="f1">
+        <HashAlgorithm name="murmur"/>
+         
+        <DataGraph uri="http://org.cloudgraph/web/categorization" type="Taxonomy">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        <DataGraph uri="http://org.cloudgraph/web/categorization" type="Category">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="name"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+        <DataGraph uri="http://org.cloudgraph/web/categorization" type="Categorization">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="externalId"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+    </Table> 
+
+</cloudgraph:CloudGraphConfiguration>

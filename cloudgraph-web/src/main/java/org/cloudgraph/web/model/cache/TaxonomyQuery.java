@@ -21,11 +21,11 @@ public class TaxonomyQuery {
                 "category/*",
             });    	
 
-    	From from = new From(Taxonomy.ETY_TAXONOMY,
+    	From from = new From(Taxonomy.TYPE_NAME_TAXONOMY,
     			Taxonomy.NAMESPACE_URI);        
  		OrderBy orderBy = new OrderBy();
-		orderBy.addProperty(Property.forName(Category.PTY_NAME, 
-				new Path(Taxonomy.PTY_CATEGORY)));
+		orderBy.addProperty(Property.forName(Category.PROPERTY.name.name(), 
+				new Path(Taxonomy.PROPERTY.category.name())));
         
         Query query = new Query(select, from, orderBy);
         return query;
@@ -47,11 +47,11 @@ public class TaxonomyQuery {
                 "category/child/child/child/child/child/child/child/child/*",
             });    	
 
-    	From from = new From(Taxonomy.ETY_TAXONOMY,
+    	From from = new From(Taxonomy.TYPE_NAME_TAXONOMY,
     			Taxonomy.NAMESPACE_URI);        
         Where where = new Where();
-        where.addExpression(Property.forName(Category.PTY_NAME,
-        		new Path(Taxonomy.PTY_CATEGORY)).eq(
+        where.addExpression(Property.forName(Category.PROPERTY.name.name(),
+        		new Path(Taxonomy.PROPERTY.category.name())).eq(
         				name));
         
         Query query = new Query(select, from, where);
@@ -89,11 +89,11 @@ public class TaxonomyQuery {
                 "child/child/child/child/child/child/child/child/*/*", // etc///
             });    	
 
-    	From from = new From(Category.ETY_CATEGORY,
+    	From from = new From(Category.TYPE_NAME_CATEGORY,
     			Category.NAMESPACE_URI);        
         Where where = new Where();
         where.addExpression(
-        	Property.forName(Category.PTY_SEQ_ID).eq(seqId));
+        	Property.forName(Category.PROPERTY.seqId.name()).eq(seqId));
         
         Query query = new Query(select, from, where);
         return query;

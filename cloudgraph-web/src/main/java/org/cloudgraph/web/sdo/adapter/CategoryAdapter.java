@@ -43,7 +43,7 @@ public class CategoryAdapter {
 	
 	public String getNameTooltip() {
 		Property prop = this.cat.getType().getProperty(
-				Category.PTY_NAME);
+				Category.PROPERTY.name.name());
 
 		return ((PlasmaProperty)prop).getDescriptionText();
 	}
@@ -58,7 +58,7 @@ public class CategoryAdapter {
 
 	public String getIdTooltip() {
 		Property prop = this.cat.getType().getProperty(
-				Category.PTY_ID);
+				Category.PROPERTY.id.name());
 		return ((PlasmaProperty)prop).getDescriptionText();
 	}
 	
@@ -72,7 +72,7 @@ public class CategoryAdapter {
 	
 	public String getDefinitionTooltip() {
 		Property prop = this.cat.getType().getProperty(
-				Category.PTY_DEFINITION);
+				Category.PROPERTY.definition.name());
 		return ((PlasmaProperty)prop).getDescriptionText();
 	}
 	

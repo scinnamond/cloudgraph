@@ -20,9 +20,9 @@ public class RoleQuery {
                 "*",
             });         
                 
-    	From from = new From(Role.ETY_ROLE, Role.NAMESPACE_URI);        
+    	From from = new From(Role.TYPE_NAME_ROLE, Role.NAMESPACE_URI);        
         Where where = new Where();
-        where.addExpression(Property.forName(Role.PTY_NAME).eq(
+        where.addExpression(Property.forName(Role.PROPERTY.name.name()).eq(
         		roleName.getInstanceName()));
         
         Query query = new Query(select, from, where);
@@ -34,11 +34,11 @@ public class RoleQuery {
                 "*",
             });         
                 
-    	From from = new From(Role.ETY_ROLE, Role.NAMESPACE_URI);        
+    	From from = new From(Role.TYPE_NAME_ROLE, Role.NAMESPACE_URI);        
         Where where = new Where();
-        where.addExpression(Property.forName(User.PTY_USERNAME,
-        		new Path(Role.PTY_USER_ROLE,
-        				UserRole.PTY_USER)).eq(
+        where.addExpression(Property.forName(User.PROPERTY.username.name(),
+        		new Path(Role.PROPERTY.userRole.name(),
+        				UserRole.PROPERTY.user.name())).eq(
         						username));
         
         Query query = new Query(select, from, where);

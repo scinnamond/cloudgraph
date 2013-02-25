@@ -27,6 +27,8 @@ import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaCopyHelper;
 
 import org.cloudgraph.web.sdo.meta.Clazz;
+import org.cloudgraph.web.sdo.meta.Element;
+import org.cloudgraph.web.sdo.meta.NamedElement;
 import org.cloudgraph.web.sdo.meta.Package;
 import org.cloudgraph.web.sdo.meta.PackageableType;
 
@@ -150,14 +152,14 @@ public class PackageEditBean extends ModelBean {
 	public long getNameMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.package_.getType().getProperty(
-					Package.PTY_NAME);
+					NamedElement.PROPERTY.name.name());
 		return nameProp.getMaxLength();
 	}
 	
 	public long getDefinitionMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.package_.getType().getProperty(
-					Package.PTY_DEFINITION);
+					Element.PROPERTY.definition.name());
 		return nameProp.getMaxLength();
 	}
 	

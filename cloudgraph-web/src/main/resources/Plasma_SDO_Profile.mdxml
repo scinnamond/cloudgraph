@@ -2,7 +2,7 @@
 <!-- This xmi file is optimized for MagicDraw UML. Some references are not saved. -->
 <!-- Change MagicDraw UML environment options property General->.Save Rich XMI -->
 
-<xmi:XMI xmi:version='2.1' xmlns:uml='http://schema.omg.org/spec/UML/2.1.2' xmlns:xmi='http://schema.omg.org/spec/XMI/2.1' xmlns:Validation_Profile='http://www.magicdraw.com/schemas/Validation_Profile.xmi' xmlns:DSL_Customization='http://www.magicdraw.com/schemas/DSL_Customization.xmi' xmlns:Plasma_SDO_Profile='http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi' xmlns:MagicDraw_Profile='http://www.magicdraw.com/schemas/MagicDraw_Profile.xmi' xmlns:UML_Standard_Profile='http://www.magicdraw.com/schemas/UML_Standard_Profile.xmi'>
+<xmi:XMI xmi:version='2.1' xmlns:uml='http://www.omg.org/spec/UML/20110701' xmlns:xmi='http://www.omg.org/spec/XMI/20110701' xmlns:Validation_Profile='http://www.magicdraw.com/schemas/Validation_Profile.xmi' xmlns:DSL_Customization='http://www.magicdraw.com/schemas/DSL_Customization.xmi' xmlns:Plasma_SDO_Profile='http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi' xmlns:MagicDraw_Profile='http://www.magicdraw.com/schemas/MagicDraw_Profile.xmi' xmlns:UML_Standard_Profile='http://www.magicdraw.com/schemas/UML_Standard_Profile.xmi'>
 	<xmi:Documentation exporter='MagicDraw UML' exporterVersion='16.0'/>
 	<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 		<shareTable>
@@ -155,19 +155,19 @@
 					</ownedComment>
 				</packagedElement>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1280958689187_188380_379' name='SDONamespace' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1280958689187_188380_379' name='SDONamespace' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1321718750328_493431_1414' body='This stereotype tags or annotates a UML package as an SDO namespace. '>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1280958689187_188380_379'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1280958956859_120420_247' name='base_Package' visibility='private' association='_16_0_1_1707042b_1280958956859_458887_246'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Package'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Package'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Package' referentType='Class'/>
 						</xmi:Extension>
 					</type>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1280959346546_443393_388' name='uri' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -188,12 +188,12 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1280958956859_558224_249' visibility='public'/>
 				</ownedEnd>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1308310321131_937425_230' name='SDOConcurrent' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1308310321131_937425_230' name='SDOConcurrent' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1308311722810_582370_609' body='Annotates or tags properties as applicable for use within various operations involving concurrency control. Concurrency control deals with handling collisions and other issues which arise when allowing multiple users or processes simultaneous access to shared entities within a data store. Generic SDO Data Access Services (DAS) are faced with the problem of determining at runtime for any data-object within a modified data-graph, which properties are useful for various checks and operations under a particular concurrency control type or strategy. Properties tagged as concurrent at the model level are made available to Data Access Services within the PlasmaSDO™ runtime and build-time environments. &#10;&#10;&#10;'>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1308310321131_937425_230'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1308310377443_798727_237' name='base_Property' visibility='private' association='_16_0_1_1707042b_1308310377443_138524_236'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
@@ -223,12 +223,12 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1308310377443_873534_239' visibility='public'/>
 				</ownedEnd>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320691456885_810913_723' name='SDOValueConstraint' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320691456885_810913_723' name='SDOValueConstraint' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1359046947107_21376_302' body='This stereotype allows a value constraint to be specified for a class attribute. '>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1320691456885_810913_723'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320700152459_739186_1059' name='minInclusive' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -240,14 +240,14 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320778796158_107867_1770' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320777426403_674643_1730' name='base_Property' visibility='private' association='_16_0_1_1707042b_1320777426403_23371_1729'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
 					</type>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320777499947_886169_1741' name='maxInclusive' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -259,7 +259,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320778785252_397320_1766' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320778029857_102208_1747' name='minLength' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -271,7 +271,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320778801173_523212_1772' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320778233708_677367_1750' name='maxLength' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -283,7 +283,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320778792611_555024_1768' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320778468746_847593_1753' name='totalDigits' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -295,7 +295,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320778806204_59252_1774' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320778592820_2593_1756' name='fractionDigits' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -307,7 +307,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320778779736_637581_1764' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320778665053_48397_1759' name='pattern' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -319,7 +319,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320778677896_36375_1761' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1323210962429_171036_428' name='minExclusive' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -331,7 +331,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1323210962429_241122_429' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1323211002915_937844_433' name='maxExclusive' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -344,12 +344,12 @@
 				</ownedAttribute>
 				<icon xmi:type='uml:Image' xmi:id='_16_0_1_1707042b_1320853342654_427454_2085' content='89 50 4e 47 d a 1a a 0 0 0 d 49 48 44 52 0 0 0 10 0 0 0 10 8 6 0 0 0 1f f3 ff 61 0 0 1 29 49 44 41 54 78 da 63 60 18 5 30 c0 75 60 a6 6f ff a3 2d 91 6f df ef 8f fb 77 7b 7d f8 9d a5 cd 76 c9 40 71 46 62 34 33 1e 9b ef bb f5 ff 99 b4 ff c8 f8 cf a9 d4 ff 6b 3a 9c f3 9 ea ee ae b0 71 f8 7b 3a f5 3f ba 1 20 fc 74 47 d4 7 a0 12 36 bc 6 9c 98 1f 58 8a 4d 33 c 17 c5 69 a8 e1 35 60 ef 54 f7 c 74 4d cf 37 7 fc 7f 3c 47 f3 ff d3 e9 b2 ff 8f 94 30 cd cc b1 63 d3 45 f7 36 9c 15 ea 22 29 f7 7a 77 ec 37 98 e6 fb cb ec ff 7f 9e c4 f8 ff ff 4c 6 38 7e dd c5 f0 b5 cb 9f c1 b a7 2b 96 36 3b 25 7e 38 10 fb fb fd de d8 ff af 27 b0 a0 68 86 e1 7 6d c 4f a3 12 13 5d 70 1a 52 9b a0 a1 bb af 45 7d 23 36 cd 30 dc e2 c7 60 82 37 3c f6 e4 31 c4 e3 33 60 6e 14 83 23 5e 3 32 4d 18 d4 3f 4f 64 f8 8b 4d f3 f3 6e 86 6f 6 a c 2 4 d3 c5 ee 3c 86 49 ff 66 a0 6a fe 3d 9d e1 ff fa 34 86 62 62 93 35 d3 fa 74 86 fc 5b cd c d7 1e b4 33 7c be d9 c4 70 76 71 1c 43 8c b1 71 1a 2b 36 c5 0 49 c fa 49 d4 60 2 c5 0 0 0 0 49 45 4e 44 ae 42 60 82 ' location='C:\dev-plasma-servicelabs\storefront\web\images\plasma_sdo_base_16_16.png' format='PNG'/>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320705181475_144209_1064' name='SDOEnumerationConstraint' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320705181475_144209_1064' name='SDOEnumerationConstraint' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1320758885470_984687_1331' body='This stereotype constrains a UML property by means of a given UML enumeration. It enables use of UML Enumerations which are &lt;b&gt;part&lt;/b&gt; of the UML model when specifying a constraint on class properties. UML Enumerations used with this stereotype must be tagged with the SDOEnumeration stereotype.&#10;'>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1320705181475_144209_1064'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320705209378_452359_1092' name='value' visibility='private'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Enumeration'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Enumeration'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Enumeration' referentType='Class'/>
 						</xmi:Extension>
@@ -361,7 +361,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320758934939_315250_1332' visibility='public' value='1'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320757859407_812676_1170' name='base_Property' visibility='private' association='_16_0_1_1707042b_1320757859407_191055_1169'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
@@ -369,19 +369,19 @@
 				</ownedAttribute>
 				<icon xmi:type='uml:Image' xmi:id='_16_0_1_1707042b_1320853137404_559605_2078' content='89 50 4e 47 d a 1a a 0 0 0 d 49 48 44 52 0 0 0 10 0 0 0 10 8 6 0 0 0 1f f3 ff 61 0 0 1 29 49 44 41 54 78 da 63 60 18 5 30 c0 75 60 a6 6f ff a3 2d 91 6f df ef 8f fb 77 7b 7d f8 9d a5 cd 76 c9 40 71 46 62 34 33 1e 9b ef bb f5 ff 99 b4 ff c8 f8 cf a9 d4 ff 6b 3a 9c f3 9 ea ee ae b0 71 f8 7b 3a f5 3f ba 1 20 fc 74 47 d4 7 a0 12 36 bc 6 9c 98 1f 58 8a 4d 33 c 17 c5 69 a8 e1 35 60 ef 54 f7 c 74 4d cf 37 7 fc 7f 3c 47 f3 ff d3 e9 b2 ff 8f 94 30 cd cc b1 63 d3 45 f7 36 9c 15 ea 22 29 f7 7a 77 ec 37 98 e6 fb cb ec ff 7f 9e c4 f8 ff ff 4c 6 38 7e dd c5 f0 b5 cb 9f c1 b a7 2b 96 36 3b 25 7e 38 10 fb fb fd de d8 ff af 27 b0 a0 68 86 e1 7 6d c 4f a3 12 13 5d 70 1a 52 9b a0 a1 bb af 45 7d 23 36 cd 30 dc e2 c7 60 82 37 3c f6 e4 31 c4 e3 33 60 6e 14 83 23 5e 3 32 4d 18 d4 3f 4f 64 f8 8b 4d f3 f3 6e 86 6f 6 a c 2 4 d3 c5 ee 3c 86 49 ff 66 a0 6a fe 3d 9d e1 ff fa 34 86 62 62 93 35 d3 fa 74 86 fc 5b cd c d7 1e b4 33 7c be d9 c4 70 76 71 1c 43 8c b1 71 1a 2b 36 c5 0 49 c fa 49 d4 60 2 c5 0 0 0 0 49 45 4e 44 ae 42 60 82 ' location='C:\dev-plasma-servicelabs\storefront\web\images\plasma_sdo_base_16_16.png' format='PNG'/>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320757723126_853801_1146' name='SDOAlias' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320757723126_853801_1146' name='SDOAlias' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1321646204573_725431_1400' body='This stereotype provides modelling-context specific alternative names for UML named elements within a model. While a UML logical model often differs greatly from a physical model for example, the intent is to provide enough naming and other context specific information to make the physical model entirely reflective or derivitive of the UML logical model. In other words support the generation of multiple context-specific models from a single UML logical model. Modelling context specific names or aliases are particularly important as they often differ greatly between modelling contexts due to various standard naming conventions or technology limitations such as name length. '>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1320757723126_853801_1146'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320758031657_105720_1258' name='base_NamedElement' visibility='private' association='_16_0_1_1707042b_1320758031657_126856_1257'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#NamedElement'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#NamedElement'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::NamedElement' referentType='Class'/>
 						</xmi:Extension>
 					</type>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320695288252_743986_1001' name='physicalName' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -393,7 +393,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320695288252_919832_1004' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320695288252_560829_1002' name='localName' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -405,7 +405,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320695288252_527705_1006' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320758117939_419505_1287' name='businessName' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -434,7 +434,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320758031657_999885_1260' visibility='public'/>
 				</ownedEnd>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320759521469_709399_1370' name='SDOKey' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320759521469_709399_1370' name='SDOKey' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1321554294381_304550_723' body='This stereotype tags or annotates a UML property as representing some type of key within a data store, data transfer or transient storage medium.'>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1320759521469_709399_1370'/>
 				</ownedComment>
@@ -446,7 +446,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320760018456_883564_1479' visibility='public' value='1'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320759548106_765052_1399' name='base_Property' visibility='private' association='_16_0_1_1707042b_1320759548106_170485_1398'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
@@ -530,19 +530,19 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320777426403_263532_1732' visibility='public'/>
 				</ownedEnd>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320779766049_394598_1776' name='SDOValueSetConstraint' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320779766049_394598_1776' name='SDOValueSetConstraint' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1320779806547_971504_1799' body='This stereotype allows a value set constraint to be specified for a class attribute. Attributes that have a coded type may be constrained such that the code value in an instance should be taken from the specified value set. The coding strength determines whether exceptions are allowed.'>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1320779766049_394598_1776'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320779872108_434829_1806' name='base_Property' visibility='private' association='_16_0_1_1707042b_1320779872108_304357_1805'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
 					</type>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320779928637_913780_1835' name='id' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -554,7 +554,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320779938637_803014_1837' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320779958917_585874_1840' name='name' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -566,7 +566,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320779969683_494730_1842' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1321826529171_957725_689' name='versionIdentifier' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -576,7 +576,7 @@
 					</ownedComment>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320779996869_798820_1845' name='versionDate' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -586,7 +586,7 @@
 					</ownedComment>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320780033431_126639_1848' name='versionTime' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -605,7 +605,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320780109288_983343_1856' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320780136490_866423_1858' name='minimumValueSetId' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -617,7 +617,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320780162177_249841_1861' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320780176035_667092_1863' name='ignoredValueSetId' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -629,7 +629,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320780176035_185749_1864' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320780235174_515818_1868' name='rootCode' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -665,12 +665,12 @@
 					</ownedComment>
 				</ownedLiteral>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320784208318_180402_1880' name='SDODocumentation' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320784208318_180402_1880' name='SDODocumentation' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1320784349891_292890_1956' body='This stereotype annotates or tags a UML owned comment for any UML element in a model providing hints as to the nature of the comment and how it might be presented. '>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1320784208318_180402_1880'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320784237426_243983_1909' name='base_Comment' visibility='private' association='_16_0_1_1707042b_1320784237426_707969_1908'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Comment'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Comment'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Comment' referentType='Class'/>
 						</xmi:Extension>
@@ -724,12 +724,12 @@
 					</ownedComment>
 				</ownedLiteral>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320846723674_248787_2019' name='SDOTemporal' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320846723674_248787_2019' name='SDOTemporal' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1324047195615_45276_708' body='Specifies the various notions of time which are relevant for temporal data stores'>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1320846723674_248787_2019'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320846738471_834586_2048' name='base_Property' visibility='private' association='_16_0_1_1707042b_1320846738471_911729_2047'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
@@ -749,12 +749,12 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320846738471_583365_2050' visibility='public'/>
 				</ownedEnd>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320956884815_572958_655' name='SDOSemanticConstraint' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1320956884815_572958_655' name='SDOSemanticConstraint' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1324591461502_446878_294' body='Restricts a property to a single concept or set of concepts within a knowledge domain'>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1320956884815_572958_655'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320758170142_809369_1291' name='conceptName' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -766,7 +766,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320760052238_221597_1481' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320758185423_430813_1293' name='conceptDomain' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -778,7 +778,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320758207423_520894_1295' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1320957025587_950258_719' name='conceptId' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -790,7 +790,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1320957025587_178319_720' visibility='public'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1321826449468_1851_678' name='base_Property' visibility='private' association='_16_0_1_1707042b_1321826449468_644579_677'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
@@ -798,19 +798,19 @@
 				</ownedAttribute>
 				<icon xmi:type='uml:Image' xmi:id='_16_0_1_1707042b_1320957179623_969211_724' content='89 50 4e 47 d a 1a a 0 0 0 d 49 48 44 52 0 0 0 10 0 0 0 10 8 6 0 0 0 1f f3 ff 61 0 0 1 29 49 44 41 54 78 da 63 60 18 5 30 c0 75 60 a6 6f ff a3 2d 91 6f df ef 8f fb 77 7b 7d f8 9d a5 cd 76 c9 40 71 46 62 34 33 1e 9b ef bb f5 ff 99 b4 ff c8 f8 cf a9 d4 ff 6b 3a 9c f3 9 ea ee ae b0 71 f8 7b 3a f5 3f ba 1 20 fc 74 47 d4 7 a0 12 36 bc 6 9c 98 1f 58 8a 4d 33 c 17 c5 69 a8 e1 35 60 ef 54 f7 c 74 4d cf 37 7 fc 7f 3c 47 f3 ff d3 e9 b2 ff 8f 94 30 cd cc b1 63 d3 45 f7 36 9c 15 ea 22 29 f7 7a 77 ec 37 98 e6 fb cb ec ff 7f 9e c4 f8 ff ff 4c 6 38 7e dd c5 f0 b5 cb 9f c1 b a7 2b 96 36 3b 25 7e 38 10 fb fb fd de d8 ff af 27 b0 a0 68 86 e1 7 6d c 4f a3 12 13 5d 70 1a 52 9b a0 a1 bb af 45 7d 23 36 cd 30 dc e2 c7 60 82 37 3c f6 e4 31 c4 e3 33 60 6e 14 83 23 5e 3 32 4d 18 d4 3f 4f 64 f8 8b 4d f3 f3 6e 86 6f 6 a c 2 4 d3 c5 ee 3c 86 49 ff 66 a0 6a fe 3d 9d e1 ff fa 34 86 62 62 93 35 d3 fa 74 86 fc 5b cd c d7 1e b4 33 7c be d9 c4 70 76 71 1c 43 8c b1 71 1a 2b 36 c5 0 49 c fa 49 d4 60 2 c5 0 0 0 0 49 45 4e 44 ae 42 60 82 ' location='C:\dev-plasma-servicelabs\storefront\web\images\plasma_sdo_base_16_16.png' format='PNG'/>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1321557421372_612789_1330' name='SDOUniqueConstraint' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1321557421372_612789_1330' name='SDOUniqueConstraint' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1321557612479_983313_1344' body='This stereotype tags a UML property as unique within its UML class and resulting SDO Type. if the unique constraint &#39;name&#39; is valued, the name is used all or in part as the final physical constraint id within a physical data store. Where multiple properties within a class are tagged with this stereotype, if the unique constraint &#39;name&#39; is valued for more than one UML property, these properties will be used together in the resulting physical constraint.  '>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1321557421372_612789_1330'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1321557421388_449071_1340' name='base_Property' visibility='private' association='_16_0_1_1707042b_1321557421388_244147_1339'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
 					</type>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1321557738306_344320_1345' name='group' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -839,12 +839,12 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1321826449468_586454_680' visibility='public'/>
 				</ownedEnd>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1322078590040_873715_310' name='SDODerivation' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1322078590040_873715_310' name='SDODerivation' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1322078677285_829781_316' body='This UML stereotype is applied to a consumer UML named-element that is computed from the supplier element.'>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1322078590040_873715_310'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1322078937427_395853_318' name='supplier' visibility='private'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#NamedElement'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#NamedElement'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::NamedElement' referentType='Class'/>
 						</xmi:Extension>
@@ -856,7 +856,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1322079870349_56392_485' visibility='public' value='1'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1322079136868_142369_479' name='base_NamedElement' visibility='private' association='_16_0_1_1707042b_1322079136868_36337_478'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#NamedElement'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#NamedElement'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::NamedElement' referentType='Class'/>
 						</xmi:Extension>
@@ -872,19 +872,19 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1322079136868_688458_481' visibility='public'/>
 				</ownedEnd>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1324046621283_616881_300' name='SDOSort' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1324046621283_616881_300' name='SDOSort' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1324046621283_236348_303' body='Assigns ordering and other related information to properties within an entity.'>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1324046621283_616881_300'/>
 				</ownedComment>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1324046662535_153010_313' name='base_Property' visibility='private' association='_16_0_1_1707042b_1324046662535_556425_312'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
 					</type>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1324326333643_6383_295' name='key' visibility='private'>
-					<type xmi:type='uml:PrimitiveType' href='http://schema.omg.org/spec/UML/2.2/uml.xml#String'>
+					<type xmi:type='uml:PrimitiveType' href='http://www.omg.org/spec/UML/20110701/UML.xmi#String'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::AuxiliaryConstructs::PrimitiveTypes::String' referentType='PrimitiveType'/>
 						</xmi:Extension>
@@ -905,7 +905,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1324046662535_693881_315' visibility='public'/>
 				</ownedEnd>
 			</packagedElement>
-			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1324654350320_952152_431' name='SDOXmlProperty' visibility='public'>
+			<packagedElement xmi:type='uml:Stereotype' xmi:id='_16_0_1_1707042b_1324654350320_952152_431' name='SDOXmlProperty' visibility='public' >
 				<ownedComment xmi:type='uml:Comment' xmi:id='_16_0_1_1707042b_1324654350351_624312_436' body='This stereotype provides modelling-context specific alternative names for UML named elements within a model. While a UML logical model often differs greatly from a physical model for example, the intent is to provide enough naming and other context specific information to make the physical model entirely reflective or derivitive of the UML logical model. In other words support the generation of multiple context-specific models from a single UML logical model. Modelling context specific names or aliases are particularly important as they often differ greatly between modelling contexts due to various standard naming conventions or technology limitations such as name length. '>
 					<annotatedElement xmi:idref='_16_0_1_1707042b_1324654350320_952152_431'/>
 				</ownedComment>
@@ -917,7 +917,7 @@
 					<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_16_0_1_1707042b_1324654603124_15656_451' visibility='public' value='1'/>
 				</ownedAttribute>
 				<ownedAttribute xmi:type='uml:Property' xmi:id='_16_0_1_1707042b_1324654637157_44280_477' name='base_Property' visibility='private' association='_16_0_1_1707042b_1324654637157_990191_476'>
-					<type xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+					<type xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 						<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 							<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 						</xmi:Extension>
@@ -984,7 +984,7 @@
 							<geometry>210, 98, 150, 69</geometry>
 						</mdElement>
 						<mdElement elementClass='Class' xmi:id='_16_0_1_1707042b_1321555200572_250308_1256'>
-							<elementID xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Comment'>
+							<elementID xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Comment'>
 								<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 									<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Comment' referentType='Class'/>
 								</xmi:Extension>
@@ -1036,7 +1036,7 @@
 							<geometry>56, 49, 141, 81</geometry>
 						</mdElement>
 						<mdElement elementClass='Class' xmi:id='_16_0_1_1707042b_1321555178948_638148_1209'>
-							<elementID xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Package'>
+							<elementID xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Package'>
 								<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 									<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Package' referentType='Class'/>
 								</xmi:Extension>
@@ -1088,7 +1088,7 @@
 							<geometry>42, 42, 145, 93</geometry>
 						</mdElement>
 						<mdElement elementClass='Class' xmi:id='_16_0_1_1707042b_1321554797687_209226_856'>
-							<elementID xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#NamedElement'>
+							<elementID xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#NamedElement'>
 								<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 									<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::NamedElement' referentType='Class'/>
 								</xmi:Extension>
@@ -1171,7 +1171,7 @@
 							<geometry>21, 147, 176, 69</geometry>
 						</mdElement>
 						<mdElement elementClass='Class' xmi:id='_16_0_1_1707042b_1320757891892_730369_1179'>
-							<elementID xmi:type='uml:Class' href='http://schema.omg.org/spec/UML/2.2/uml.xml#Property'>
+							<elementID xmi:type='uml:Class' href='http://www.omg.org/spec/UML/20110701/UML.xmi#Property'>
 								<xmi:Extension extender='MagicDraw UML 16.0' extenderID='MagicDraw UML 16.0'>
 									<referenceExtension referentPath='UML Standard Profile::UML2 Metamodel::Classes::Kernel::Property' referentType='Class'/>
 								</xmi:Extension>

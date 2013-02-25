@@ -39,15 +39,15 @@ public class ProfileQuery {
                 "child/child/child/defaultElementSetting/setting/*",
             });         
         
-    	From from = new From(Element.ETY_ELEMENT, Element.NAMESPACE_URI);        
+    	From from = new From(Element.TYPE_NAME_ELEMENT, Element.NAMESPACE_URI);        
         Where where = new Where();
-        where.addExpression(Property.forName(Element.PTY_NAME,
-        		new Path(Element.PTY_DEFAULT_ELEMENT_SETTING,
-        				DefaultElementSetting.PTY_ROLE)).eq(
+        where.addExpression(Property.forName(Element.PROPERTY.name.name(),
+        		new Path(Element.PROPERTY.defaultElementSetting.name(),
+        				DefaultElementSetting.PROPERTY.role.name())).eq(
         				role.getInstanceName()));
         where.addExpression(Expression.and());
         where.addExpression(Property.forName(
-        		Element.PTY_PARENT).isNull());
+        		Element.PROPERTY.parent.name()).isNull());
         
         
         Query query = new Query(select, from, where);
@@ -65,10 +65,10 @@ public class ProfileQuery {
                 "profileElementSetting/element/*",
             });         
                 
-    	From from = new From(Profile.ETY_PROFILE, Profile.NAMESPACE_URI);        
+    	From from = new From(Profile.TYPE_NAME_PROFILE, Profile.NAMESPACE_URI);        
         Where where = new Where();
-        where.addExpression(Property.forName(User.PTY_USERNAME,
-        		new Path(Profile.PTY_USER)).eq(
+        where.addExpression(Property.forName(User.PROPERTY.username.name(),
+        		new Path(Profile.PROPERTY.user.name())).eq(
         						username));
         
         Query query = new Query(select, from, where);

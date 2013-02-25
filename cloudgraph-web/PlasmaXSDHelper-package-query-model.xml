@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Model xmlns="http://www.servicelabs.org/plasma/provisioning" uri="http://cloudgraph.org/web/export/package" name="package-query" id="90585db9-7cee-4996-82cd-bcbb6ee69633">
+    <Derivation>
+        <packageSupplier uri="http://org.cloudgraph/web/meta" name="package-query"/>
+    </Derivation>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="PackageableType" id="bbe813c3-46fa-4371-a467-bee935651041">
+        <Alias physicalName="META_PKGBL_TYPE"/>
+        <Documentation type="definition">
+            <Body>A type is a named element that is used as the type for a typed element. A type can be contained in a package.A type constrains the values represented by a typed element.</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="77acbc4b-50c0-475b-a0ad-1443da1e4bc7">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" opposite="packageableType" many="false" nullable="false" visibility="public" name="_package" id="dea64c55-aadf-4ddf-a60a-6ce7bd8b1038">
+            <Alias physicalName="PKG_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="Package"/>
+            <Sort key="3"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Element"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="Package" id="19006c3f-c263-4cd3-9b28-fcecc8fc41d3">
+        <Alias physicalName="META_PKG"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="350749f9-2d9a-40ea-ad61-4806185887c8">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" opposite="_package" many="true" nullable="true" visibility="public" name="packageableType" id="fc6c9c10-7f7e-4b08-a50f-9fa258228763">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="PackageableType"/>
+            <Sort key="6"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="NamedElement"/>
+        <SuperClass uri="http://org.cloudgraph/web/common" name="Externalizable"/>
+    </Class>
+    <Class abstract="true" uri="http://org.cloudgraph/web/meta" name="Element" id="f9ae7f3c-37a2-41f4-ae68-bdb338789116"/>
+    <Class abstract="true" uri="http://org.cloudgraph/web/meta" name="NamedElement" id="5bb05969-f075-4b2a-ab3b-1ebda711c42b">
+        <Documentation type="definition">
+            <Body>An element is a constituent of a model. As such, it has the capability of owning other elements.</Body>
+        </Documentation>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Element"/>
+    </Class>
+    <Class abstract="true" uri="http://org.cloudgraph/web/common" name="Externalizable" id="b39df4df-2e24-4cbc-9bae-06f6734e7111">
+        <Alias businessName="ID"/>
+        <Documentation type="definition">
+            <Body>An entity which can be uniquely identified based on a single ID or set of ID's from an externalized format such as XML</Body>
+        </Documentation>
+        <Property readOnly="false" many="false" nullable="true" visibility="private" name="externalId" id="9acf454b-eaa3-42e4-8ed8-34432eb66999">
+            <Alias physicalName="UUID"/>
+            <Documentation type="definition">
+                <Body>A universally unique identifier</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <Key type="external"/>
+            <ValueConstraint/>
+            <Sort key="0"/>
+        </Property>
+    </Class>
+    <RootClass uri="http://org.cloudgraph/web/meta" name="Package"/>
+</Model>

@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Model xmlns="http://www.servicelabs.org/plasma/provisioning" uri="http://cloudgraph.org/web/export/slot" name="slot-query" id="e7e68912-4295-4e00-b80c-6b5f59e588c2">
+    <Derivation>
+        <packageSupplier uri="http://org.cloudgraph/web/meta" name="slot-query"/>
+    </Derivation>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralShort" id="a82d1a1d-a44f-4673-806e-af1a61be3068">
+        <Alias physicalName="META_LTRL_SHRT"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="5030aafd-04dd-4619-8cf3-234316d50af1">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="09e3f8e3-9e5a-4208-b115-c0d7e5a99fb4">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Short"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalShort" many="false" nullable="false" visibility="private" name="valueSpecification" id="069e2005-60ce-4ac3-bf26-1869ef9061bf">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="InstanceSpecification" id="10daf734-9c6a-4915-b7c2-b29b727a5037">
+        <Alias physicalName="META_INSTNC_SPEC"/>
+        <Documentation type="definition">
+            <Body>An instance specification has the capability of being a deployment target in a deployment relationship, in the case that it is an instance of a node. It is also has the capability of being a deployed artifact, if it is an instance of an artifact.An instance specification is a model element that represents an instance in a modeled system.</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="8dee050a-46d4-408a-bc2f-cfa00d82083f">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/common" name="Externalizable"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="InstanceValue" id="341cbba9-fe46-4b8c-aec9-25872b83577a">
+        <Alias physicalName="META_INSTNC_VALUE"/>
+        <Documentation type="definition">
+            <Body>An instance value is a value specification that identifies an instance.</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="52254d17-8ae7-48e6-9fdf-3a5747a7bef1">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="instance" id="207e0138-4fea-4f34-b382-b43eb090314a">
+            <Alias physicalName="INSTNC_SPFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="InstanceSpecification"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="instanceValue" many="false" nullable="false" visibility="private" name="valueSpecification" id="2c7f0732-6b37-46d7-aeff-4e9d97a65eb5">
+            <Alias physicalName="VALUE_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralInteger" id="39dfe069-d04c-41f6-bc00-18d2d5a60890">
+        <Alias physicalName="META_LTRL_INTGR"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="09535023-d322-4cda-b949-0546b8f0db8e">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="41495627-3221-41fe-b051-90ff948be0cd">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Int"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalInteger" many="false" nullable="false" visibility="private" name="valueSpecification" id="cdbcb0a6-df59-4ead-86ce-5f4347ca52a2">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralDouble" id="b2e12d79-74fb-405e-b6e9-0d54d3103376">
+        <Alias physicalName="META_LTRL_DBL"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="842d44ae-adc0-4b41-98fe-be8c69c91f5f">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="e1cd1bd9-153c-4951-b759-0a720b2835ea">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Double"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalDouble" many="false" nullable="false" visibility="private" name="valueSpecification" id="12fa1f3e-8b41-4be5-9382-0ab7368e32e3">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/categorization" name="Category" id="822d2fc7-9c9f-4e94-9902-d3503c03e7d7">
+        <Alias physicalName="CTGRY"/>
+        <Documentation type="definition">
+            <Body>A single categorical classification term within a taxonomy</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="748a6d38-3b38-4c2e-9be2-c6798a1d3285">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="id" id="7c501b78-5b5e-42e9-84c9-8968453980d8">
+            <Alias physicalName="ID"/>
+            <Documentation type="definition">
+                <Body>The integral rank or id for this category</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Int"/>
+            <ValueConstraint/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="name" id="864a78fc-cb21-42f5-86df-72d3e35110c9">
+            <Alias physicalName="NAME"/>
+            <Documentation type="definition">
+                <Body>The classification or categorical name </Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <ValueConstraint/>
+            <Sort key="2"/>
+            <XmlProperty nodeType="element"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="definition" id="afbff762-5c81-405f-8ba7-294530feba34">
+            <Alias physicalName="DFNTN"/>
+            <Documentation type="definition">
+                <Body>The explanatory comments defining this classification or categorical term</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <ValueConstraint/>
+            <Sort key="3"/>
+            <XmlProperty nodeType="element"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="true" visibility="public" name="typeName" id="ebac9be4-8706-4d97-a371-83895fd0ce4b">
+            <Alias physicalName="TYPE_NM"/>
+            <Documentation type="definition">
+                <Body>A name that indicates or kind of underlying element represented by the category</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <ValueConstraint/>
+            <Sort key="4"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/common" name="Externalizable"/>
+        <SuperClass uri="http://org.cloudgraph/web/common" name="OptimisticConcurrent"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="ValueSpecification" id="32d3da58-cc07-41cd-8ff9-d0aa1d642c94">
+        <Alias physicalName="META_VALU_SPCFCTN"/>
+        <Documentation type="definition">
+            <Body>ValueSpecification specializes ParameterableElement to specify that a value specification can be exposed as a formal template parameter, and provided as an actual parameter in a binding of a template.A value specification is the specification of a (possibly empty) set of instances, including both objects and data values.</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="19da8e82-a965-45df-a23a-de39951910a4">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="instanceValue" id="f96c9276-4ded-4437-90d0-432616840ec3">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="InstanceValue"/>
+            <Sort key="5"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalString" id="68d3a21a-7203-4046-9268-b6c7ec21696e">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralString"/>
+            <Sort key="6"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalInteger" id="6617ac4a-e4ba-4aef-bc6b-89a3a2e6a69d">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralInteger"/>
+            <Sort key="9"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalDate" id="a4f6364f-0f2f-49c0-bf81-8894ae689ae3">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralDate"/>
+            <Sort key="13"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalLong" id="b0444aba-3b73-4230-8f10-c4655a171475">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralLong"/>
+            <Sort key="10"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalBoolean" id="fa335738-ac3e-4302-a506-d40fabb80253">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralBoolean"/>
+            <Sort key="14"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalDouble" id="4372accc-5bec-4b50-bbb8-100b5803e680">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralDouble"/>
+            <Sort key="12"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalShort" id="69311311-1db8-4c33-8cbe-c34bbab7d756">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralShort"/>
+            <Sort key="8"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalClob" id="3c5c62fb-3a49-4ba1-86b4-f86b58714d17">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralClob"/>
+            <Sort key="7"/>
+        </Property>
+        <Property readOnly="false" opposite="valueSpecification" many="true" nullable="true" visibility="public" name="literalFloat" id="58aca03d-4f17-4757-9ae7-247d4f0351ec">
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="LiteralFloat"/>
+            <Sort key="11"/>
+        </Property>
+        <Property readOnly="false" opposite="value" many="false" nullable="false" visibility="private" name="slot" id="ce3d5e81-f6f7-4e1a-a138-257f2defbc07">
+            <Alias physicalName="SLOT_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="Slot"/>
+            <Sort key="11"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="NamedElement"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="Property" id="c2a8d5ee-5aa4-42eb-81f6-949f795d178e">
+        <Alias physicalName="META_PRPTY"/>
+        <Documentation type="definition">
+            <Body>Property represents a declared state of one or more instances in terms of a named relationship to a value or values. When a property is an attribute of a classifier, the value or values are related to the instance of the classifier by being held in slots of the instance. When a property is an association end, the value or values are related to the instance or instances at the other end(s) of the association. The range of valid values represented by the property can be controlled by setting the property's type.A property is a structural feature of a classifier that characterizes instances of the classifier. A property related by ownedAttribute to a classifier (other than an association) represents an attribute and might also represent an association end. It relates an instance of the class to a value or set of values of the type of the attribute. A property related by memberEnd or its specializations to an association represents an end of the association. The type of the property is the type of the end of the association.A property has the capability of being a deployment target in a deployment relationship. This enables modeling the deployment to hierarchical nodes that have properties functioning as internal parts.Property specializes ParameterableElement to specify that a property can be exposed as a formal template parameter, and provided as an actual parameter in a binding of a template.A property represents a set of instances that are owned by a containing classifier instance.</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="2be31910-3168-4d6e-b4e3-8520723d83cd">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="lowerValue" id="603f4fa6-88bd-4bd6-a88c-e6017235b3b8">
+            <Alias physicalName="LOWER_VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Int"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="upperValue" id="bd10f0da-bb24-4499-9534-fdb504eaae04">
+            <Alias physicalName="UPPER_VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="StructuralFeature"/>
+        <SuperClass uri="http://org.cloudgraph/web/common" name="Externalizable"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralDate" id="6723281f-470b-451d-b8e6-6245ba8c3969">
+        <Alias physicalName="META_LTRL_DATE"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="0823fa1f-5972-4cd3-8102-c94c5cd6439c">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="7f4c64dd-77da-49ab-ac34-0eb93e30ee17">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Date"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalDate" many="false" nullable="false" visibility="private" name="valueSpecification" id="d0a4c71c-c974-40ff-91cc-24dde90c14c2">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralLong" id="57788b5f-5550-4e3f-bc1e-4609e2ba6b40">
+        <Alias physicalName="META_LTRL_LONG"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="fab9b6b5-d88c-4d2f-894c-5219e519327a">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="da8bca6c-da39-4909-b5d4-a9ef33c93d9c">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalLong" many="false" nullable="false" visibility="private" name="valueSpecification" id="914bdc4b-dea2-4c76-883b-066ae23676f7">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="Slot" id="48d9886e-0173-48f7-92cc-8036a9c0df65">
+        <Alias physicalName="META_SLOT"/>
+        <Documentation type="definition">
+            <Body>A slot specifies that an entity modeled by an instance specification has a value or values for a specific structural feature.</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="b5476581-3bcc-4c28-b994-314171c3c610">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="owningInstance" id="260c9921-8aea-43d2-acd3-1905b12a8ecf">
+            <Alias physicalName="INSTNC_SPEC_SEQ_ID"/>
+            <Documentation type="definition">
+                <Body>The instance specification that owns this slot.</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="InstanceSpecification"/>
+            <Sort key="4"/>
+        </Property>
+        <Property readOnly="false" opposite="slot" many="true" nullable="true" visibility="public" name="value" id="da9bc863-c893-4515-880f-59e9edb0b51c">
+            <Alias/>
+            <Documentation type="definition">
+                <Body>The value or values corresponding to the defining feature for the owning instance specification.</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="7"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="definingFeature" id="e8f04d82-bbf9-47f5-8ef3-7cc1233b0760">
+            <Alias physicalName="PRPTY_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="Property"/>
+            <Sort key="6"/>
+        </Property>
+        <Property readOnly="false" opposite="slot" many="true" nullable="true" visibility="public" name="slotCategorization" id="83a7cc72-cdf9-4880-b46e-6fab8b10464d">
+            <Alias/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/core" name="SlotCategorization"/>
+            <Sort key="5"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Element"/>
+        <SuperClass uri="http://org.cloudgraph/web/common" name="Externalizable"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/core" name="SlotCategorization" id="6e0fb7df-7b9b-4dfe-9962-ea5aa972c640">
+        <Alias physicalName="SLOT_CTGRZTN"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="507d3c02-42d1-4f33-add6-7ce5bc81bfb5">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="categorization" id="86b14b67-f217-451e-9478-3596435cdb68">
+            <Alias physicalName="CTGRZTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/categorization" name="Categorization"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="slotCategorization" many="false" nullable="false" visibility="private" name="slot" id="3bf1f927-8a86-4ece-83d8-999958da7c6b">
+            <Alias physicalName="SLOT_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="Slot"/>
+            <Sort key="2"/>
+        </Property>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralBoolean" id="2cd39ea3-94d7-42d4-87a5-5dfae92dea0b">
+        <Alias physicalName="META_LTRL_BOOL"/>
+        <Documentation type="definition">
+            <Body>A  specification of a Boolean value.</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="4901ad0c-ed24-47c8-a120-ccad7e63978e">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="fdc7f707-c3ec-4dae-bf36-eb6e03d729b7">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Boolean"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalBoolean" many="false" nullable="false" visibility="private" name="valueSpecification" id="6e1ebc71-7aab-4d35-ac6f-36405a120f71">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralClob" id="819aaa72-2d21-47bc-817e-bda356d98843">
+        <Alias physicalName="META_LTRL_CLOB"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="86d0b9ef-7c9b-4d91-b344-eeaa706b66e9">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="b4633321-e781-40a5-bdc0-4a9a4d274777">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <ValueConstraint/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalClob" many="false" nullable="false" visibility="private" name="valueSpecification" id="794c2bb8-2e9c-4997-8096-3e42fec9efa1">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralFloat" id="69ae99e7-00ce-4602-b732-dec6a7eef3be">
+        <Alias physicalName="META_LTRL_FLOAT"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="4cec876a-1bf3-4de0-b7e1-d3df5e5e1ce8">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="95126dc8-c716-46ac-b754-6262c1665564">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Float"/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalFloat" many="false" nullable="false" visibility="private" name="valueSpecification" id="6fb870c2-b183-4673-b524-0a9bbb7fb9e2">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/meta" name="LiteralString" id="6f896d7c-a8f8-44d3-ba58-0ec066730f95">
+        <Alias physicalName="META_LTRL_STR"/>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="eaa0b57c-6699-4433-b3c2-caea1dfa0dcb">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="value" id="93f0e07b-394b-4daa-8d2b-717f2c1b0928">
+            <Alias physicalName="VALUE"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <ValueConstraint/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="false" opposite="literalString" many="false" nullable="false" visibility="private" name="valueSpecification" id="996da89a-56e0-4fa4-8b36-09c791f445d9">
+            <Alias physicalName="VALU_SPCFCTN_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/meta" name="ValueSpecification"/>
+            <Sort key="2"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Literal"/>
+    </Class>
+    <Class abstract="false" uri="http://org.cloudgraph/web/categorization" name="Categorization" id="e0485846-9647-4c89-95da-167ee0211e59">
+        <Alias physicalName="CTGRTZN"/>
+        <Documentation type="definition">
+            <Body>Contains the link to a Category and represents a &quot;superclass&quot; for other specific categorizations</Body>
+        </Documentation>
+        <Property readOnly="true" many="false" nullable="false" visibility="public" name="seqId" id="b3f62465-cbd1-409c-9f74-3ec2a7357bcb">
+            <Alias physicalName="SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Long"/>
+            <Key type="primary"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="false" many="false" nullable="false" visibility="public" name="category" id="f15bce06-f5d3-4b72-8128-f8aece283399">
+            <Alias physicalName="CTGRY_SEQ_ID"/>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ClassRef" uri="http://org.cloudgraph/web/categorization" name="Category"/>
+            <Sort key="6"/>
+        </Property>
+        <SuperClass uri="http://org.cloudgraph/web/common" name="Externalizable"/>
+        <SuperClass uri="http://org.cloudgraph/web/common" name="OptimisticConcurrent"/>
+    </Class>
+    <Class abstract="true" uri="http://org.cloudgraph/web/meta" name="Literal" id="6b6ac01d-ac83-4379-94c1-23d134da3c8d"/>
+    <Class abstract="true" uri="http://org.cloudgraph/web/common" name="Externalizable" id="6e6a28cf-1766-4562-9efb-83dda35a9c42">
+        <Alias businessName="ID"/>
+        <Documentation type="definition">
+            <Body>An entity which can be uniquely identified based on a single ID or set of ID's from an externalized format such as XML</Body>
+        </Documentation>
+        <Property readOnly="false" many="false" nullable="true" visibility="private" name="externalId" id="7cca03ec-2a77-4f5c-99ee-90e10e490019">
+            <Alias physicalName="UUID"/>
+            <Documentation type="definition">
+                <Body>A universally unique identifier</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <Key type="external"/>
+            <ValueConstraint/>
+            <Sort key="0"/>
+        </Property>
+    </Class>
+    <Class abstract="true" uri="http://org.cloudgraph/web/common" name="OptimisticConcurrent" id="2f629b34-1d46-44d3-bad8-3fa9c1319f54">
+        <Alias businessName="Optimistic Concurrent"/>
+        <Property readOnly="true" many="false" nullable="true" visibility="private" name="createdDate" id="0635323a-3be2-4a96-968b-02645cca3eb3">
+            <Alias physicalName="CRTD_DT"/>
+            <Documentation type="definition">
+                <Body>The date the owning entity was originated</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Date"/>
+            <Concurrent dataFlavor="time" type="origination"/>
+            <Sort key="0"/>
+        </Property>
+        <Property readOnly="true" many="false" nullable="true" visibility="private" name="lastUpdatedByName" id="3b48613e-e8e3-4399-af1e-615f87994d36">
+            <Alias physicalName="LST_UPDT_BY_NM"/>
+            <Documentation type="definition">
+                <Body>The user who last updated the owning entity</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <Concurrent dataFlavor="user" type="optimistic"/>
+            <ValueConstraint/>
+            <Sort key="1"/>
+        </Property>
+        <Property readOnly="true" many="false" nullable="true" visibility="private" name="lastUpdatedDate" id="41abc048-7228-4b9e-bf36-31b48cfeff68">
+            <Alias physicalName="LST_UPDT_DT"/>
+            <Documentation type="definition">
+                <Body>The date the owning entity was last updated</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="Date"/>
+            <Concurrent dataFlavor="time" type="optimistic"/>
+            <Sort key="2"/>
+        </Property>
+        <Property readOnly="true" many="false" nullable="true" visibility="private" name="createdByName" id="f0fa03bf-017e-4492-a24f-6ee425f1311f">
+            <Alias physicalName="CRTD_BY_NM"/>
+            <Documentation type="definition">
+                <Body>The the user who originated the owning entity.</Body>
+            </Documentation>
+            <type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="DataTypeRef" uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi" name="String"/>
+            <Concurrent dataFlavor="user" type="origination"/>
+            <ValueConstraint/>
+            <Sort key="3"/>
+        </Property>
+    </Class>
+    <Class abstract="true" uri="http://org.cloudgraph/web/meta" name="NamedElement" id="01b978fc-46ca-4810-acfd-cfc7d05fcabd">
+        <Documentation type="definition">
+            <Body>An element is a constituent of a model. As such, it has the capability of owning other elements.</Body>
+        </Documentation>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Element"/>
+    </Class>
+    <Class abstract="true" uri="http://org.cloudgraph/web/meta" name="Element" id="4df919cf-2043-40fa-b803-078d77b43e49"/>
+    <Class abstract="true" uri="http://org.cloudgraph/web/meta" name="StructuralFeature" id="d1829acb-0b93-4eff-898c-90ffc40a4ec7">
+        <Documentation type="definition">
+            <Body>A structural feature is a typed feature of a classifier that specifies the structure of instances of the classifier.By specializing multiplicity element, it supports a multiplicity that specifies valid cardinalities for the collection of values associated with an instantiation of the structural feature.</Body>
+        </Documentation>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="Feature"/>
+    </Class>
+    <Class abstract="true" uri="http://org.cloudgraph/web/meta" name="Feature" id="04dd9e13-88da-4c1b-bad8-1c140cd86859">
+        <Documentation type="definition">
+            <Body>A feature declares a behavioral or structural characteristic of instances of classifiers.</Body>
+        </Documentation>
+        <SuperClass uri="http://org.cloudgraph/web/meta" name="NamedElement"/>
+    </Class>
+    <RootClass uri="http://org.cloudgraph/web/meta" name="Slot"/>
+</Model>

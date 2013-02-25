@@ -3,73 +3,92 @@
     xmlns:cfg="urn:org.cloudgraph.web/config">
    
  
-    <DataImport name="core-reference-data">
-        <Transformation template="OrganizationDataToSQL.xsl">
-            <DataEntity source="org/cloudgraph/web/legacydata/Organization.xml" target="Organization.sql"/>
-        </Transformation>
-     
-        <Transformation template="RoleDataToSQL.xsl">
-            <DataEntity source="org/cloudgraph/web/legacydata/Role.xml" target="Role.sql"/>
-        </Transformation>
-       
-        
-        <Transformation template="PersonDataToSQL.xsl">
-            <DataEntity source="org/cloudgraph/web/legacydata/Person.xml" target="Person.sql"/>
-        </Transformation>
-         
-        <Transformation template="ProfileElementDataToSQL.xsl">
-            <DataEntity source="org/cloudgraph/web/legacydata/ProfileElement.xml" target="ProfileElement.sql"/>
-        </Transformation> 
-         <Transformation template="TaxonomyModelToSQL.xsl">
-            <DataEntity source="org/cloudgraph/web/legacydata/BusinessReferenceModel.xml" target="BusinessReferenceModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/ServiceReferenceModel.xml" target="ServiceReferenceModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/PerformanceReferenceModel.xml" target="PerformanceReferenceModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/TechnicalReferenceModel.xml" target="TechnicalReferenceModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/StandardSoftwareModel.xml" target="StandardSoftwareModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/SegmentArchitectureModel.xml" target="SegmentArchitectureModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/BusinessReferenceModelUSFS.xml" target="BusinessReferenceModelUSFS.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/StrategicFrameworkModel.xml" target="StrategicFrameworkModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/InventoryPerspectiveModel.xml" target="InventoryPerspectiveModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/GemsPerspectiveModel.xml" target="GemsPerspectiveModel.sql"/>
-            <DataEntity source="org/cloudgraph/web/legacydata/ICAMPerspectiveModel.xml" target="ICAMPerspectiveModel.sql"/>
-        </Transformation>
-      
-    </DataImport>
-     
     <DataImport name="core-metadata">  
-        <ImportLoader className="org.cloudgraph.web.data.loader.PackageLoader">
-            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+            
+        <!--  
+        <ImportLoader className="org.cloudgraph.web.etl.loader.TaxonomyLoader">
+            <DataEntity sourceDir="import/taxonomyies" 
+                source="taxonomomy*.xml"/>
+        </ImportLoader>
+          
+        <ImportLoader className="org.cloudgraph.web.etl.loader.PackageLoader">
+            <DataEntity sourceDir="import/packages" 
                 source="package*.xml"/>
         </ImportLoader>
-        <ImportLoader className="org.cloudgraph.web.data.loader.DataTypeLoader">
-            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+        <ImportLoader className="org.cloudgraph.web.etl.loader.DataTypeLoader">
+            <DataEntity sourceDir="import/datatypes" 
                 source="datatype*.xml"/>
         </ImportLoader>
-        <ImportLoader className="org.cloudgraph.web.data.loader.ClazzLoader">
-            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+        <ImportLoader className="org.cloudgraph.web.etl.loader.ClazzLoader">
+            <DataEntity sourceDir="import/clazzes" 
                 source="clazz*.xml"/>
         </ImportLoader>
-        <ImportLoader className="org.cloudgraph.web.data.loader.EnumerationLoader">
-            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+        <ImportLoader className="org.cloudgraph.web.etl.loader.EnumerationLoader">
+            <DataEntity sourceDir="import/enumerations" 
                 source="enumeration*.xml"/>
         </ImportLoader>
-        <ImportLoader className="org.cloudgraph.web.data.loader.PropertyLoader">
-            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+        <ImportLoader className="org.cloudgraph.web.etl.loader.PropertyLoader">
+            <DataEntity sourceDir="import/properties" 
                 source="property*.xml"/>
         </ImportLoader>
-        <ImportLoader className="org.cloudgraph.web.data.loader.InstanceLoader">
-            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+        <ImportLoader className="org.cloudgraph.web.etl.loader.InstanceLoader">
+            <DataEntity sourceDir="import/instances" 
                 source="instance*.xml"/>
         </ImportLoader>
-        <ImportLoader className="org.cloudgraph.web.data.loader.SlotLoader">
-            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+        -->
+        <ImportLoader className="org.cloudgraph.web.etl.loader.SlotLoader">
+            <DataEntity sourceDir="import/slots" 
                 source="slot*.xml"/>
-        </ImportLoader>
-         
-         
+        </ImportLoader>         
+        
+          
+        
+        
+        <!--  
+        <ImportLoader className="org.cloudgraph.web.etl.loader.SlotLoader">
+            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
+                source="slots.xml"/>
+        </ImportLoader>         
+         -->
     </DataImport>
 
-    <DataExport targetDir="./target/apls/data">
+    <DataExport name="main" targetDir="./target/cloudgraph-web/data">
+    
+        <DataEntity name="package" 
+            source="data/query/package-query.xml"
+            targetDir="packages"
+            targetNamespaceUri="http://org.cloudgraph/web/meta"/>
+        <DataEntity name="datatype" 
+            source="data/query/datatype-query.xml"
+            targetDir="datatypes"
+            targetNamespaceUri="http://org.cloudgraph/web/meta"/>
+        <DataEntity name="clazz" 
+            source="data/query/clazz-query.xml"
+            targetDir="clazzes"
+            targetNamespaceUri="http://org.cloudgraph/web/meta"/>
+        <DataEntity name="enumeration" 
+            source="data/query/enumeration-query.xml"
+            targetDir="enumerations"
+            targetNamespaceUri="http://org.cloudgraph/web/meta"/>
+        <DataEntity name="property" 
+            source="data/query/property-query.xml"
+            targetDir="properties"
+            targetNamespaceUri="http://org.cloudgraph/web/meta"/>
+        <DataEntity name="instance" 
+            source="data/query/instance-query.xml"
+            targetDir="instances"
+            targetNamespaceUri="http://org.cloudgraph/web/meta"/>
+        <DataEntity name="slot" 
+            source="data/query/slot-query.xml"
+            targetDir="slots"
+            targetNamespaceUri="http://org.cloudgraph/web/meta"/>
+ 
+        <DataEntity name="taxonomomy" 
+            source="data/query/taxonomy-query.xml"
+            targetDir="taxonomyies"
+            targetNamespaceUri="http://org.cloudgraph/web/categorization"/>
+            
+            
     </DataExport>
     
      

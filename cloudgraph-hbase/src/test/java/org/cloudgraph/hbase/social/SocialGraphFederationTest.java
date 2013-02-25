@@ -1,3 +1,24 @@
+/**
+ *        CloudGraph Community Edition (CE) License
+ * 
+ * This is a community release of CloudGraph, a dual-license suite of
+ * Service Data Object (SDO) 2.1 services designed for relational and 
+ * big-table style "cloud" databases, such as HBase and others. 
+ * This particular copy of the software is released under the 
+ * version 2 of the GNU General Public License. CloudGraph was developed by 
+ * TerraMeta Software, Inc.
+ * 
+ * Copyright (c) 2013, TerraMeta Software, Inc. All rights reserved.
+ * 
+ * General License information can be found below.
+ * 
+ * This distribution may include materials developed by third
+ * parties. For license and attribution notices for these
+ * materials, please refer to the documentation that accompanies
+ * this distribution (see the "Licenses for Third-Party Components"
+ * appendix) or view the online documentation at 
+ * <http://cloudgraph.org/licenses/>. 
+ */
 package org.cloudgraph.hbase.social;
 
 import java.io.IOException;
@@ -7,11 +28,11 @@ import junit.framework.Test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.hbase.SocialGraphModelTest;
-import org.cloudgraph.test.social.Actor;
-import org.cloudgraph.test.social.Blog;
-import org.cloudgraph.test.social.Friendship;
-import org.cloudgraph.test.social.Photo;
-import org.cloudgraph.test.social.Topic;
+import org.cloudgraph.test.socialgraph.actor.Actor;
+import org.cloudgraph.test.socialgraph.story.Blog;
+import org.cloudgraph.test.socialgraph.actor.Friendship;
+import org.cloudgraph.test.socialgraph.actor.Photo;
+import org.cloudgraph.test.socialgraph.actor.Topic;
 import org.plasma.common.test.PlasmaTestSetup;
 
 /**
@@ -29,7 +50,7 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     public void setUp() throws Exception {
         super.setUp();
     } 
-       
+/*        
     public void testFederatedInsert() throws IOException       
     {
     	GraphInfo info = createGraph();
@@ -170,8 +191,8 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	assertTrue(fetchedFollower == null);
     
     }   
-    
-    
+     
+     
     public void testTopicInsertAndLink() throws IOException       
     {
     	Topic physics = createRootTopic("Physics");
@@ -227,5 +248,83 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	assertTrue(fetchedTopic.getName().equals(magnetization.getName()));
         
     }    
-      
+*/ 
+    public void testBlogAdd() throws IOException       
+    {
+    	/* 
+    	Topic rocks = createRootTopic("Rocks");
+ 
+    	Topic igneousRocks = rocks.createChild();
+    	igneousRocks.setName("Igneous Rocks");
+    	
+    	Topic metamorphicRocks = rocks.createChild();
+    	metamorphicRocks.setName("Metamorphic Rocks");    	
+
+    	Topic sedementaryRocks = rocks.createChild();
+    	sedementaryRocks.setName("Sedementary Rocks");    	
+    	
+    	// commit some topics we can use
+    	this.service.commit(rocks.getDataGraph(), 
+    			"test1");
+    	*/ 
+    	String name = USERNAME_BASE 
+        	+ String.valueOf(System.currentTimeMillis())
+        	+ "@example.com";	
+    	Actor actor = createRootActor(name);
+    	actor.setName(name);
+    	actor.setDescription("Guy who likes rocks...");
+    	
+    	Blog igneousRocksBlog = actor.createBlog();
+    	igneousRocksBlog.setName("Thoughts on Igneous Rocks");
+    	igneousRocksBlog.setDescription("Igneous rocks are cool because...");
+    	
+    	// separate it from its graph so we can 
+    	// add to another graph
+    	//igneousRocks.detach();
+    	
+    	//igneousRocksBlog.addTopic(igneousRocks);
+    	
+    	// commit the actor and his first blog
+    	this.service.commit(actor.getDataGraph(), 
+    			"test2");
+
+    	// re-fetch the actor w/o his new blog and see if
+    	// adding blogs works as expected
+    	Actor simpleActor = fetchGraph(
+    			createSimpleActorQuery(name));    	
+    	// 
+    	Blog metamorphicRocksBlog = simpleActor.createBlog();
+    	metamorphicRocksBlog.setName("Thoughts on Metamorphic Rocks");
+    	metamorphicRocksBlog.setDescription("Metamorphic rocks are cool because...");
+    	//metamorphicRocks.detach();
+    	//metamorphicRocksBlog.addTopic(metamorphicRocks);
+
+    	this.service.commit(simpleActor.getDataGraph(), 
+    			"test2");
+    	Actor fetchedActor = fetchGraph(
+    			createActorBlogGraphQuery(name));    	
+        String xml = this.serializeGraph(fetchedActor.getDataGraph());
+        log.info(xml);        
+    	assertTrue(fetchedActor.getBlogCount() == 2);
+
+    	Blog sedementaryRocksBlog = simpleActor.createBlog();
+    	sedementaryRocksBlog.setName("Thoughts on Sedementary Rocks");
+    	sedementaryRocksBlog.setDescription("Sedementary rocks are cool because...");
+    	//sedementaryRocks.detach();
+    	//sedementaryRocksBlog.addTopic(sedementaryRocks);
+
+    	this.service.commit(simpleActor.getDataGraph(), 
+    			"test2");
+    	
+    	
+    	fetchedActor = fetchGraph(
+    			createActorBlogGraphQuery(name));    	
+        xml = this.serializeGraph(fetchedActor.getDataGraph());
+        log.info(xml);        
+    	assertTrue(fetchedActor.getBlogCount() == 3);
+        
+    }    
+    
+    
+    
 }

@@ -1,0 +1,519 @@
+22 Feb 2013 09:57:59,133 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 09:58:00,321 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 09:58:00,336 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 09:58:08,289 INFO  [main] config.ImportExportConfig initializing...
+22 Feb 2013 09:58:08,335 INFO  [main] config.ImportExportConfigDataBinding loading schema chain...
+22 Feb 2013 09:58:08,695 INFO  [main] etl.DataImport processing data import: core-metadata
+22 Feb 2013 09:58:08,960 INFO  [main] loader.SlotLoader loading data
+22 Feb 2013 09:58:09,163 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 09:58:09,195 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 09:58:09,210 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 09:58:09,273 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 09:58:09,367 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:21:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 09:58:09,538 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 09:58:09,538 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 09:58:09,742 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 09:58:09,820 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 09:58:09,882 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 09:58:09,898 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 09:58:09,913 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 09:58:09,945 INFO  [main] library.Library initializing...
+22 Feb 2013 09:58:10,257 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 09:58:10,366 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 09:58:10,523 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 09:58:10,695 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 09:58:11,679 INFO  [main] fuml.Fuml loading artifact, package.mdxml
+22 Feb 2013 09:58:11,866 INFO  [main] fuml.Fuml loading artifact, datatype.mdxml
+22 Feb 2013 09:58:12,023 INFO  [main] fuml.Fuml loading artifact, clazz.mdxml
+22 Feb 2013 09:58:12,194 INFO  [main] fuml.Fuml loading artifact, enumeration.mdxml
+22 Feb 2013 09:58:12,335 INFO  [main] fuml.Fuml loading artifact, property.mdxml
+22 Feb 2013 09:58:12,538 INFO  [main] fuml.Fuml loading artifact, association.mdxml
+22 Feb 2013 09:58:12,648 INFO  [main] fuml.Fuml loading artifact, instance.mdxml
+22 Feb 2013 09:58:12,851 INFO  [main] fuml.Fuml loading artifact, slot.mdxml
+22 Feb 2013 09:58:22,381 INFO  [main] client.HConnectionManager$HConnectionImplementation Closed zookeeper sessionid=0x13cb505230903bf
+22 Feb 2013 09:58:25,178 WARN  [main] connect.HBaseConnectionManager table META set to auto-flush
+22 Feb 2013 09:58:25,802 INFO  [main] service.GraphQuery assembled 1 results (11905)
+22 Feb 2013 09:58:27,459 WARN  [main] connect.HBaseConnectionManager table INSTANCE set to auto-flush
+22 Feb 2013 09:58:28,037 INFO  [main] service.GraphQuery assembled 1 results (2219)
+22 Feb 2013 09:58:28,068 WARN  [main] connect.HBaseConnectionManager table INSTANCE set to auto-flush
+22 Feb 2013 09:58:28,224 ERROR [main] loader.SlotLoader org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+org.plasma.sdo.access.DataAccessException: org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+	at org.cloudgraph.hbase.service.HBaseGraphService.commit(HBaseGraphService.java:161)
+	at org.plasma.sdo.access.client.PojoDataAccessClient.commit(PojoDataAccessClient.java:127)
+	at org.plasma.sdo.access.client.SDODataAccessClient.commit(SDODataAccessClient.java:119)
+	at org.cloudgraph.web.etl.loader.SlotLoader.load(SlotLoader.java:93)
+	at org.cloudgraph.web.etl.DataImport.processLoaders(DataImport.java:224)
+	at org.cloudgraph.web.etl.DataImport.main(DataImport.java:97)
+Caused by: org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+	at org.cloudgraph.hbase.io.GraphRowWriter.createGraphState(GraphRowWriter.java:187)
+	at org.cloudgraph.hbase.io.GraphRowWriter.getGraphState(GraphRowWriter.java:66)
+	at org.cloudgraph.hbase.service.GraphDispatcher.create(GraphDispatcher.java:257)
+	at org.cloudgraph.hbase.service.GraphDispatcher.commit(GraphDispatcher.java:143)
+	at org.cloudgraph.hbase.service.HBaseGraphService.commit(HBaseGraphService.java:147)
+	... 5 more
+22 Feb 2013 10:08:37,244 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 10:08:37,619 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 10:08:37,619 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 10:08:38,744 INFO  [main] config.ImportExportConfig initializing...
+22 Feb 2013 10:08:38,744 INFO  [main] config.ImportExportConfigDataBinding loading schema chain...
+22 Feb 2013 10:08:39,009 INFO  [main] etl.DataExport processing data export: main
+22 Feb 2013 10:08:39,040 INFO  [main] bind.PlasmaQueryDataBinding loading schema chain...
+22 Feb 2013 10:08:39,306 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:08:39,525 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 10:08:39,587 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 10:08:39,587 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 10:08:39,634 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 10:08:39,650 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:21:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 10:08:39,728 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 10:08:39,728 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 10:08:39,822 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 10:08:39,900 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 10:08:39,947 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 10:08:39,962 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 10:08:39,994 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 10:08:40,009 INFO  [main] library.Library initializing...
+22 Feb 2013 10:08:40,322 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 10:08:40,415 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 10:08:40,540 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 10:08:40,712 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 10:08:41,384 INFO  [main] fuml.Fuml loading artifact, package.mdxml
+22 Feb 2013 10:08:41,431 INFO  [main] fuml.Fuml loading artifact, datatype.mdxml
+22 Feb 2013 10:08:41,540 INFO  [main] fuml.Fuml loading artifact, clazz.mdxml
+22 Feb 2013 10:08:41,681 INFO  [main] fuml.Fuml loading artifact, enumeration.mdxml
+22 Feb 2013 10:08:41,775 INFO  [main] fuml.Fuml loading artifact, property.mdxml
+22 Feb 2013 10:08:41,931 INFO  [main] fuml.Fuml loading artifact, association.mdxml
+22 Feb 2013 10:08:42,009 INFO  [main] fuml.Fuml loading artifact, instance.mdxml
+22 Feb 2013 10:08:42,150 INFO  [main] fuml.Fuml loading artifact, slot.mdxml
+22 Feb 2013 10:08:42,493 INFO  [main] schema.SchemaDataBinding loading schema chain...
+22 Feb 2013 10:08:42,759 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:08:42,837 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:08:42,837 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:08:42,837 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:08:47,462 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:08:47,477 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:08:47,493 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:08:47,493 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:08:47,493 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:08:50,633 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:08:50,649 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:08:50,649 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:08:50,649 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:08:50,649 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:08:52,977 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:08:52,992 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:08:52,992 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:08:52,992 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:08:52,992 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:08:54,758 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:08:54,758 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:08:54,758 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:08:54,773 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:08:54,773 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:09:00,976 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:09:00,976 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:09:00,976 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:09:00,992 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:09:00,992 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:09:07,960 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:09:07,960 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:09:07,960 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:09:07,975 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:09:07,975 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:09:42,316 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:09:42,316 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:09:42,316 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/categorization
+22 Feb 2013 10:09:42,331 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/categorization' already exists within the configucation
+22 Feb 2013 10:09:42,331 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:13,000 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 10:10:13,375 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 10:10:13,375 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 10:10:14,531 INFO  [main] config.ImportExportConfig initializing...
+22 Feb 2013 10:10:14,531 INFO  [main] config.ImportExportConfigDataBinding loading schema chain...
+22 Feb 2013 10:10:14,797 INFO  [main] etl.DataExport processing data export: main
+22 Feb 2013 10:10:14,797 INFO  [main] bind.PlasmaQueryDataBinding loading schema chain...
+22 Feb 2013 10:10:14,953 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:10:15,125 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 10:10:15,203 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 10:10:15,203 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 10:10:15,250 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 10:10:15,250 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:21:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 10:10:15,328 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 10:10:15,344 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 10:10:15,422 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 10:10:15,500 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 10:10:15,562 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 10:10:15,578 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 10:10:15,594 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 10:10:15,625 INFO  [main] library.Library initializing...
+22 Feb 2013 10:10:15,922 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 10:10:16,031 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 10:10:16,156 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 10:10:16,312 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 10:10:16,984 INFO  [main] fuml.Fuml loading artifact, package.mdxml
+22 Feb 2013 10:10:17,047 INFO  [main] fuml.Fuml loading artifact, datatype.mdxml
+22 Feb 2013 10:10:17,156 INFO  [main] fuml.Fuml loading artifact, clazz.mdxml
+22 Feb 2013 10:10:17,281 INFO  [main] fuml.Fuml loading artifact, enumeration.mdxml
+22 Feb 2013 10:10:17,375 INFO  [main] fuml.Fuml loading artifact, property.mdxml
+22 Feb 2013 10:10:17,531 INFO  [main] fuml.Fuml loading artifact, association.mdxml
+22 Feb 2013 10:10:17,609 INFO  [main] fuml.Fuml loading artifact, instance.mdxml
+22 Feb 2013 10:10:17,750 INFO  [main] fuml.Fuml loading artifact, slot.mdxml
+22 Feb 2013 10:10:18,093 INFO  [main] schema.SchemaDataBinding loading schema chain...
+22 Feb 2013 10:10:18,328 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:10:18,375 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:10:18,375 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:10:18,375 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:20,046 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:10:20,046 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:10:20,046 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:10:20,062 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:10:20,062 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:20,281 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:10:20,296 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:10:20,296 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:10:20,296 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:10:20,296 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:20,546 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:10:20,546 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:10:20,562 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:10:20,562 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:10:20,562 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:20,640 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:10:20,703 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:10:20,703 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:10:20,703 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:10:20,703 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:21,578 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:10:21,593 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:10:21,593 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:10:21,593 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:10:21,593 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:23,031 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:10:23,031 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:10:23,046 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:10:23,046 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:10:23,046 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:29,342 INFO  [main] etl.DataExport generating query XSD
+22 Feb 2013 10:10:29,358 INFO  [main] etl.DataExport defining XSD so new export-specific types are known
+22 Feb 2013 10:10:29,358 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/categorization
+22 Feb 2013 10:10:29,358 WARN  [main] etl.DataExport duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/categorization' already exists within the configucation
+22 Feb 2013 10:10:29,358 INFO  [main] etl.DataExport generating query XMI
+22 Feb 2013 10:10:31,514 INFO  [main] config.ImportExportConfig initializing...
+22 Feb 2013 10:10:31,530 INFO  [main] config.ImportExportConfigDataBinding loading schema chain...
+22 Feb 2013 10:10:31,795 INFO  [main] etl.DataImport processing data import: core-metadata
+22 Feb 2013 10:10:31,920 INFO  [main] loader.SlotLoader loading data
+22 Feb 2013 10:10:31,998 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 10:10:32,014 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 10:10:32,014 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 10:10:32,061 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 10:10:32,077 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:21:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 10:10:32,155 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 10:10:32,155 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 10:10:32,326 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 10:10:32,405 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 10:10:32,451 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 10:10:32,467 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 10:10:32,498 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 10:10:32,514 INFO  [main] library.Library initializing...
+22 Feb 2013 10:10:32,826 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 10:10:32,920 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 10:10:33,045 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 10:10:33,217 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 10:10:33,889 INFO  [main] fuml.Fuml loading artifact, package.mdxml
+22 Feb 2013 10:10:33,936 INFO  [main] fuml.Fuml loading artifact, datatype.mdxml
+22 Feb 2013 10:10:34,045 INFO  [main] fuml.Fuml loading artifact, clazz.mdxml
+22 Feb 2013 10:10:34,186 INFO  [main] fuml.Fuml loading artifact, enumeration.mdxml
+22 Feb 2013 10:10:34,279 INFO  [main] fuml.Fuml loading artifact, property.mdxml
+22 Feb 2013 10:10:34,436 INFO  [main] fuml.Fuml loading artifact, association.mdxml
+22 Feb 2013 10:10:34,514 INFO  [main] fuml.Fuml loading artifact, instance.mdxml
+22 Feb 2013 10:10:34,654 INFO  [main] fuml.Fuml loading artifact, slot.mdxml
+22 Feb 2013 10:10:40,201 INFO  [main] client.HConnectionManager$HConnectionImplementation Closed zookeeper sessionid=0x13cb505230903c2
+22 Feb 2013 10:10:43,404 WARN  [main] connect.HBaseConnectionManager table META set to auto-flush
+22 Feb 2013 10:10:44,216 INFO  [main] service.GraphQuery assembled 1 results (9062)
+22 Feb 2013 10:10:45,247 WARN  [main] connect.HBaseConnectionManager table INSTANCE set to auto-flush
+22 Feb 2013 10:10:46,060 INFO  [main] service.GraphQuery assembled 1 results (1828)
+22 Feb 2013 10:10:46,075 WARN  [main] connect.HBaseConnectionManager table INSTANCE set to auto-flush
+22 Feb 2013 10:10:46,278 ERROR [main] loader.SlotLoader org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+org.plasma.sdo.access.DataAccessException: org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+	at org.cloudgraph.hbase.service.HBaseGraphService.commit(HBaseGraphService.java:161)
+	at org.plasma.sdo.access.client.PojoDataAccessClient.commit(PojoDataAccessClient.java:127)
+	at org.plasma.sdo.access.client.SDODataAccessClient.commit(SDODataAccessClient.java:119)
+	at org.cloudgraph.web.etl.loader.SlotLoader.load(SlotLoader.java:93)
+	at org.cloudgraph.web.etl.DataImport.processLoaders(DataImport.java:203)
+	at org.cloudgraph.web.etl.DataImport.main(DataImport.java:76)
+Caused by: org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+	at org.cloudgraph.hbase.io.GraphRowWriter.createGraphState(GraphRowWriter.java:187)
+	at org.cloudgraph.hbase.io.GraphRowWriter.getGraphState(GraphRowWriter.java:66)
+	at org.cloudgraph.hbase.service.GraphDispatcher.create(GraphDispatcher.java:257)
+	at org.cloudgraph.hbase.service.GraphDispatcher.commit(GraphDispatcher.java:143)
+	at org.cloudgraph.hbase.service.HBaseGraphService.commit(HBaseGraphService.java:147)
+	... 5 more
+22 Feb 2013 10:14:37,131 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 10:14:37,506 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 10:14:37,522 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 10:14:38,506 INFO  [main] config.ImportExportConfig initializing...
+22 Feb 2013 10:14:38,522 INFO  [main] config.ImportExportConfigDataBinding loading schema chain...
+22 Feb 2013 10:14:38,787 INFO  [main] etl.DataExtract processing data export: main
+22 Feb 2013 10:14:38,787 INFO  [main] bind.PlasmaQueryDataBinding loading schema chain...
+22 Feb 2013 10:14:38,943 INFO  [main] etl.DataExtract generating query XSD
+22 Feb 2013 10:14:39,115 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 10:14:39,193 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 10:14:39,193 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 10:14:39,225 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 10:14:39,240 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:21:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 10:14:39,318 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 10:14:39,318 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 10:14:39,412 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 10:14:39,490 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 10:14:39,553 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 10:14:39,568 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 10:14:39,584 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 10:14:39,615 INFO  [main] library.Library initializing...
+22 Feb 2013 10:14:39,912 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 10:14:40,006 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 10:14:40,146 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 10:14:40,303 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 10:14:40,974 INFO  [main] fuml.Fuml loading artifact, package.mdxml
+22 Feb 2013 10:14:41,021 INFO  [main] fuml.Fuml loading artifact, datatype.mdxml
+22 Feb 2013 10:14:41,131 INFO  [main] fuml.Fuml loading artifact, clazz.mdxml
+22 Feb 2013 10:14:41,271 INFO  [main] fuml.Fuml loading artifact, enumeration.mdxml
+22 Feb 2013 10:14:41,365 INFO  [main] fuml.Fuml loading artifact, property.mdxml
+22 Feb 2013 10:14:41,521 INFO  [main] fuml.Fuml loading artifact, association.mdxml
+22 Feb 2013 10:14:41,584 INFO  [main] fuml.Fuml loading artifact, instance.mdxml
+22 Feb 2013 10:14:41,740 INFO  [main] fuml.Fuml loading artifact, slot.mdxml
+22 Feb 2013 10:14:42,068 INFO  [main] schema.SchemaDataBinding loading schema chain...
+22 Feb 2013 10:14:42,318 INFO  [main] etl.DataExtract defining XSD so new export-specific types are known
+22 Feb 2013 10:14:42,349 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:14:42,365 WARN  [main] etl.DataExtract duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:14:42,365 INFO  [main] etl.DataExtract generating query XMI
+22 Feb 2013 10:14:42,943 INFO  [main] etl.DataExtract generating query XSD
+22 Feb 2013 10:14:42,959 INFO  [main] etl.DataExtract defining XSD so new export-specific types are known
+22 Feb 2013 10:14:42,959 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:14:42,959 WARN  [main] etl.DataExtract duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:14:42,959 INFO  [main] etl.DataExtract generating query XMI
+22 Feb 2013 10:14:43,052 INFO  [main] etl.DataExtract generating query XSD
+22 Feb 2013 10:14:43,052 INFO  [main] etl.DataExtract defining XSD so new export-specific types are known
+22 Feb 2013 10:14:43,052 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:14:43,052 WARN  [main] etl.DataExtract duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:14:43,052 INFO  [main] etl.DataExtract generating query XMI
+22 Feb 2013 10:14:43,162 INFO  [main] etl.DataExtract generating query XSD
+22 Feb 2013 10:14:43,162 INFO  [main] etl.DataExtract defining XSD so new export-specific types are known
+22 Feb 2013 10:14:43,162 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:14:43,177 WARN  [main] etl.DataExtract duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:14:43,177 INFO  [main] etl.DataExtract generating query XMI
+22 Feb 2013 10:14:43,240 INFO  [main] etl.DataExtract generating query XSD
+22 Feb 2013 10:14:43,240 INFO  [main] etl.DataExtract defining XSD so new export-specific types are known
+22 Feb 2013 10:14:43,256 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:14:43,256 WARN  [main] etl.DataExtract duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:14:43,256 INFO  [main] etl.DataExtract generating query XMI
+22 Feb 2013 10:14:43,630 INFO  [main] etl.DataExtract generating query XSD
+22 Feb 2013 10:14:43,630 INFO  [main] etl.DataExtract defining XSD so new export-specific types are known
+22 Feb 2013 10:14:43,630 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:14:43,630 WARN  [main] etl.DataExtract duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:14:43,630 INFO  [main] etl.DataExtract generating query XMI
+22 Feb 2013 10:14:44,005 INFO  [main] etl.DataExtract generating query XSD
+22 Feb 2013 10:14:44,005 INFO  [main] etl.DataExtract defining XSD so new export-specific types are known
+22 Feb 2013 10:14:44,005 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/meta
+22 Feb 2013 10:14:44,021 WARN  [main] etl.DataExtract duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/meta' already exists within the configucation
+22 Feb 2013 10:14:44,021 INFO  [main] etl.DataExtract generating query XMI
+22 Feb 2013 10:14:47,646 INFO  [main] etl.DataExtract generating query XSD
+22 Feb 2013 10:14:47,646 INFO  [main] etl.DataExtract defining XSD so new export-specific types are known
+22 Feb 2013 10:14:47,646 INFO  [main] fuml.Fuml loading artifact, http://org.cloudgraph/web/categorization
+22 Feb 2013 10:14:47,646 WARN  [main] etl.DataExtract duplicate SDO namespace configuration - a namespace with URI 'http://org.cloudgraph/web/categorization' already exists within the configucation
+22 Feb 2013 10:14:47,646 INFO  [main] etl.DataExtract generating query XMI
+22 Feb 2013 10:14:49,817 INFO  [main] config.ImportExportConfig initializing...
+22 Feb 2013 10:14:49,817 INFO  [main] config.ImportExportConfigDataBinding loading schema chain...
+22 Feb 2013 10:14:50,099 INFO  [main] etl.DataLoad processing data import: core-metadata
+22 Feb 2013 10:14:50,224 INFO  [main] loader.SlotLoader loading data
+22 Feb 2013 10:14:50,302 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 10:14:50,317 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 10:14:50,317 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 10:14:50,364 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 10:14:50,380 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:21:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 10:14:50,489 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 10:14:50,489 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 10:14:50,645 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 10:14:50,724 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 10:14:50,786 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 10:14:50,802 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 10:14:50,817 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 10:14:50,849 INFO  [main] library.Library initializing...
+22 Feb 2013 10:14:51,161 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 10:14:51,255 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 10:14:51,395 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 10:14:51,567 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 10:14:52,239 INFO  [main] fuml.Fuml loading artifact, package.mdxml
+22 Feb 2013 10:14:52,286 INFO  [main] fuml.Fuml loading artifact, datatype.mdxml
+22 Feb 2013 10:14:52,411 INFO  [main] fuml.Fuml loading artifact, clazz.mdxml
+22 Feb 2013 10:14:52,536 INFO  [main] fuml.Fuml loading artifact, enumeration.mdxml
+22 Feb 2013 10:14:52,645 INFO  [main] fuml.Fuml loading artifact, property.mdxml
+22 Feb 2013 10:14:52,801 INFO  [main] fuml.Fuml loading artifact, association.mdxml
+22 Feb 2013 10:14:52,864 INFO  [main] fuml.Fuml loading artifact, instance.mdxml
+22 Feb 2013 10:14:53,020 INFO  [main] fuml.Fuml loading artifact, slot.mdxml
+22 Feb 2013 10:14:59,738 INFO  [main] client.HConnectionManager$HConnectionImplementation Closed zookeeper sessionid=0x13cb505230903c5
+22 Feb 2013 10:15:02,551 WARN  [main] connect.HBaseConnectionManager table META set to auto-flush
+22 Feb 2013 10:15:03,129 INFO  [main] service.GraphQuery assembled 1 results (9609)
+22 Feb 2013 10:15:03,863 WARN  [main] connect.HBaseConnectionManager table INSTANCE set to auto-flush
+22 Feb 2013 10:15:04,472 INFO  [main] service.GraphQuery assembled 1 results (1343)
+22 Feb 2013 10:15:04,488 WARN  [main] connect.HBaseConnectionManager table INSTANCE set to auto-flush
+22 Feb 2013 10:15:04,644 ERROR [main] loader.SlotLoader org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+org.plasma.sdo.access.DataAccessException: org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+	at org.cloudgraph.hbase.service.HBaseGraphService.commit(HBaseGraphService.java:161)
+	at org.plasma.sdo.access.client.PojoDataAccessClient.commit(PojoDataAccessClient.java:127)
+	at org.plasma.sdo.access.client.SDODataAccessClient.commit(SDODataAccessClient.java:119)
+	at org.cloudgraph.web.etl.loader.SlotLoader.load(SlotLoader.java:93)
+	at org.cloudgraph.web.etl.DataLoad.processLoaders(DataLoad.java:203)
+	at org.cloudgraph.web.etl.DataLoad.main(DataLoad.java:76)
+Caused by: org.cloudgraph.common.service.DuplicateRowException: no row for id 'META_SLOT:7dbb3947-52a1-416b-b028-d037b9b2db9f' expected when creating new row for table 'INSTANCE'
+	at org.cloudgraph.hbase.io.GraphRowWriter.createGraphState(GraphRowWriter.java:187)
+	at org.cloudgraph.hbase.io.GraphRowWriter.getGraphState(GraphRowWriter.java:66)
+	at org.cloudgraph.hbase.service.GraphDispatcher.create(GraphDispatcher.java:257)
+	at org.cloudgraph.hbase.service.GraphDispatcher.commit(GraphDispatcher.java:143)
+	at org.cloudgraph.hbase.service.HBaseGraphService.commit(HBaseGraphService.java:147)
+	... 5 more
+22 Feb 2013 10:21:23,045 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 10:21:23,420 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 10:21:23,420 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 11:10:34,434 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 11:10:35,371 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 11:10:35,418 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 11:27:33,555 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 11:27:33,930 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 11:27:33,930 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 11:40:48,268 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 11:40:48,643 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 11:40:48,659 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 11:40:48,690 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 11:40:48,768 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 11:40:48,768 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 11:40:48,831 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 11:40:48,878 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 11:40:49,003 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 11:40:49,003 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 11:40:50,709 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 11:40:50,803 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 11:40:51,006 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 11:40:51,006 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 11:40:51,022 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 11:40:51,053 INFO  [main] library.Library initializing...
+22 Feb 2013 11:40:51,523 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 11:40:51,695 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 11:40:51,883 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 11:40:52,133 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 11:40:53,025 INFO  [main] fuml.Fuml loading artifact, package.mdxml
+22 Feb 2013 11:40:53,151 INFO  [main] fuml.Fuml loading artifact, datatype.mdxml
+22 Feb 2013 11:40:53,323 INFO  [main] fuml.Fuml loading artifact, clazz.mdxml
+22 Feb 2013 11:40:53,510 INFO  [main] fuml.Fuml loading artifact, enumeration.mdxml
+22 Feb 2013 11:40:53,651 INFO  [main] fuml.Fuml loading artifact, property.mdxml
+22 Feb 2013 11:40:53,980 INFO  [main] fuml.Fuml loading artifact, association.mdxml
+22 Feb 2013 11:40:54,090 INFO  [main] fuml.Fuml loading artifact, instance.mdxml
+22 Feb 2013 11:40:54,293 INFO  [main] fuml.Fuml loading artifact, slot.mdxml
+22 Feb 2013 11:40:54,762 INFO  [main] ddl.DDLModelDataBinding loading schema chain...
+22 Feb 2013 11:48:02,076 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 11:48:02,482 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 11:48:02,545 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 11:48:02,545 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 11:48:02,608 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 11:48:02,623 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 11:48:02,701 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 11:48:02,701 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 11:48:02,873 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 11:48:02,951 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 11:48:03,092 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 11:48:03,092 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 11:48:03,108 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 11:48:03,139 INFO  [main] library.Library initializing...
+22 Feb 2013 11:48:03,530 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 11:48:03,655 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 11:48:03,811 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 11:48:04,030 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 11:48:04,906 INFO  [main] provisioning.ProvisioningModelDataBinding loading schema chain...
+22 Feb 2013 11:48:05,062 DEBUG [main] cli.SDOTool wrote merged model file to: C:\dev-cloudgraph-0.5.2\cloudgraph\cloudgraph-web\target\generated-sources\java\technical-model.xml
+22 Feb 2013 11:48:06,047 INFO  [main] cli.SDOTool generated 69 interfaces to output to directory: C:\dev-cloudgraph-0.5.2\cloudgraph\cloudgraph-web\target\generated-sources\java
+22 Feb 2013 11:48:06,047 INFO  [main] cli.SDOTool generated 69 classes to output to directory: C:\dev-cloudgraph-0.5.2\cloudgraph\cloudgraph-web\target\generated-sources\java
+22 Feb 2013 11:48:06,063 INFO  [main] cli.SDOTool generated 9 enumerations to output to directory: C:\dev-cloudgraph-0.5.2\cloudgraph\cloudgraph-web\target\generated-sources\java
+22 Feb 2013 11:48:06,453 INFO  [main] cli.DSLTool generated 69 classes to output to directory: C:\dev-cloudgraph-0.5.2\cloudgraph\cloudgraph-web\target\generated-sources\java
+22 Feb 2013 11:48:06,469 INFO  [main] ddl.DDLModelDataBinding loading schema chain...
+22 Feb 2013 11:50:18,020 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 11:50:18,379 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 11:50:18,379 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 11:50:18,411 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 11:50:18,489 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 11:50:18,489 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 11:50:18,536 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 11:50:18,551 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 11:50:18,645 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 11:50:18,645 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 11:50:18,817 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 11:50:18,895 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 11:50:19,036 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 11:50:19,036 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 11:50:19,051 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 11:50:19,083 INFO  [main] library.Library initializing...
+22 Feb 2013 11:50:19,473 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 11:50:19,614 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 11:50:19,786 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 11:50:19,989 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 11:50:20,849 INFO  [main] ddl.DDLModelDataBinding loading schema chain...
+22 Feb 2013 11:51:21,279 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 11:51:21,670 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 11:51:21,670 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 11:51:21,685 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 11:51:21,748 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 11:51:21,763 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 11:51:21,810 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 11:51:21,826 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 11:51:21,904 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 11:51:21,920 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 11:51:22,170 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 11:51:22,263 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 11:51:22,388 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 11:51:22,388 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 11:51:22,420 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 11:51:22,435 INFO  [main] library.Library initializing...
+22 Feb 2013 11:51:22,842 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 11:51:22,967 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 11:51:23,123 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 11:51:23,342 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 11:51:24,186 INFO  [main] ddl.DDLModelDataBinding loading schema chain...
+22 Feb 2013 15:19:04,899 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 15:19:05,852 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 15:19:05,884 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 15:19:05,962 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 15:19:06,118 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 15:19:06,118 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 15:19:06,180 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 15:19:06,259 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 15:19:06,415 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 15:19:06,415 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 15:19:08,290 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 15:19:08,383 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 15:19:08,540 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 15:19:08,555 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 15:19:08,571 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 15:19:08,602 INFO  [main] library.Library initializing...
+22 Feb 2013 15:19:09,086 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 15:19:09,258 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 15:19:09,461 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 15:19:09,727 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 15:19:10,618 INFO  [main] ddl.DDLModelDataBinding loading schema chain...
+22 Feb 2013 15:27:50,343 DEBUG [main] cli.SDOTool dest: java
+22 Feb 2013 15:27:50,703 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+22 Feb 2013 15:27:50,718 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+22 Feb 2013 15:27:50,718 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+22 Feb 2013 15:27:50,796 INFO  [main] config.FumlConfiguration initializing...
+22 Feb 2013 15:27:50,796 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+22 Feb 2013 15:27:50,890 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+22 Feb 2013 15:27:50,906 FATAL [main] bind.DefaultValidationEventHandler Line:Col:Offset[131:22:-1] - cvc-complex-type.2.4.b: The content of element 'cfg:Configuration' is not complete. One of '{LibraryConfiguration}' is expected.
+22 Feb 2013 15:27:51,000 INFO  [main] model.InMemoryRepository initializing...
+22 Feb 2013 15:27:51,000 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+22 Feb 2013 15:27:51,156 INFO  [main] model.InfrastructureAssembler initializing...
+22 Feb 2013 15:27:51,250 INFO  [main] model.SuperstructureAssembler initializing...
+22 Feb 2013 15:27:51,375 INFO  [main] model.fUML_SyntaxAssembler initializing...
+22 Feb 2013 15:27:51,390 INFO  [main] model.InMemoryRepository performing package merge...
+22 Feb 2013 15:27:51,406 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+22 Feb 2013 15:27:51,421 INFO  [main] library.Library initializing...
+22 Feb 2013 15:27:51,843 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-common.mdxml
+22 Feb 2013 15:27:51,953 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-categorization.mdxml
+22 Feb 2013 15:27:52,124 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web-personalization.mdxml
+22 Feb 2013 15:27:52,328 INFO  [main] fuml.Fuml loading artifact, cloudgraph-web.mdxml
+22 Feb 2013 15:27:53,187 INFO  [main] ddl.DDLModelDataBinding loading schema chain...

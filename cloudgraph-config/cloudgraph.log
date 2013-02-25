@@ -1,8 +1,8 @@
-03 Jan 2013 11:44:19,642 INFO  [main] state.StateMarshalingTestCase testUnmarshal
-03 Jan 2013 11:44:19,704 INFO  [main] state.StateValidatingDataBinding loading schema chain...(note: this is expensive - cache this binding where possible)
-03 Jan 2013 11:44:20,327 INFO  [main] state.StateMarshalingTestCase validate()
-03 Jan 2013 11:44:20,405 INFO  [main] state.StateMarshalingTestCase marshal()
-03 Jan 2013 11:44:20,421 INFO  [main] state.StateMarshalingTestCase <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+13 Feb 2013 18:42:16,571 INFO  [main] state.StateMarshalingTestCase testUnmarshal
+13 Feb 2013 18:42:16,664 INFO  [main] state.StateValidatingDataBinding loading schema chain...(note: this is expensive - cache this binding where possible)
+13 Feb 2013 18:42:18,506 INFO  [main] state.StateMarshalingTestCase validate()
+13 Feb 2013 18:42:19,271 INFO  [main] state.StateMarshalingTestCase marshal()
+13 Feb 2013 18:42:19,380 INFO  [main] state.StateMarshalingTestCase <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:StateModel xmlns:ns2="http://www.cloudgraph.org/state">
     <URI uri="http://cloudgraph.org/test/social">
         <Type hashCode="1212250473" id="1" name="Actor"/>
@@ -29,8 +29,8 @@
     <RowKey table="TOPIC" uuid="ccb3db2f-abca-4d12-a579-e5c45461a2ac">1913830487:TOPIC:Weather:ccb3db2f-abca-4d12-a579-e5c45461a2ac</RowKey>
 </ns2:StateModel>
 
-03 Jan 2013 11:44:20,437 INFO  [main] state.StateMarshalingTestCase testUnmarshal
-03 Jan 2013 11:44:20,452 INFO  [main] state.StateMarshalingTestCase marshal: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+13 Feb 2013 18:42:19,380 INFO  [main] state.StateMarshalingTestCase testUnmarshal
+13 Feb 2013 18:42:19,396 INFO  [main] state.StateMarshalingTestCase marshal: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ns2:StateModel xmlns:ns2="http://www.cloudgraph.org/state">
     <History/>
 </ns2:StateModel>

@@ -45,6 +45,8 @@ import org.cloudgraph.web.sdo.core.ClassView;
 import org.cloudgraph.web.sdo.core.PropertyView;
 import org.cloudgraph.web.sdo.meta.Classifier;
 import org.cloudgraph.web.sdo.meta.Clazz;
+import org.cloudgraph.web.sdo.meta.Element;
+import org.cloudgraph.web.sdo.meta.NamedElement;
 import org.cloudgraph.web.sdo.meta.Package;
 import org.cloudgraph.web.sdo.meta.PackageableType;
 
@@ -246,14 +248,14 @@ public class ClassEditBean extends ModelBean {
 	public long getNameMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.clazz.getClassifier().getType().getProperty(
-					Classifier.PTY_NAME);
+					NamedElement.PROPERTY.name.name());
 		return nameProp.getMaxLength();
 	}
 	
 	public long getDefinitionMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.clazz.getClassifier().getType().getProperty(
-					Classifier.PTY_DEFINITION);
+					Element.PROPERTY.definition.name());
 		return nameProp.getMaxLength();
 	}
 	

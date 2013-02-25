@@ -1,3 +1,24 @@
+/**
+ *        CloudGraph Community Edition (CE) License
+ * 
+ * This is a community release of CloudGraph, a dual-license suite of
+ * Service Data Object (SDO) 2.1 services designed for relational and 
+ * big-table style "cloud" databases, such as HBase and others. 
+ * This particular copy of the software is released under the 
+ * version 2 of the GNU General Public License. CloudGraph was developed by 
+ * TerraMeta Software, Inc.
+ * 
+ * Copyright (c) 2013, TerraMeta Software, Inc. All rights reserved.
+ * 
+ * General License information can be found below.
+ * 
+ * This distribution may include materials developed by third
+ * parties. For license and attribution notices for these
+ * materials, please refer to the documentation that accompanies
+ * this distribution (see the "Licenses for Third-Party Components"
+ * appendix) or view the online documentation at 
+ * <http://cloudgraph.org/licenses/>. 
+ */
 package org.cloudgraph.hbase.service;
 
 import java.io.IOException;
@@ -350,8 +371,8 @@ public class GraphDispatcher
             Timestamp snapshotDate = (Timestamp)((CoreDataObject)dataObject).getValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP);                                     
             if (snapshotDate == null)                                                                    
                 throw new RequiredPropertyException("instance property '" + CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP                
-                   + "' is required to update entity '" 
-                   + type.getURI() + "#" + type.getName() + "'");
+                   + "' is required to update entity " 
+                   + dataObject);
             //FIXME: check optimistic/pessimistic concurrency
         	this.setOptimistic(dataObject, type, snapshotDate);
         }
@@ -360,6 +381,7 @@ public class GraphDispatcher
         }
     }
     
+    //FIXME: this method is confusing and overloaded
     private List <PlasmaEdge> createEdgeState(
         PlasmaDataObject dataObject,	
     	PlasmaNode dataNode,
@@ -393,11 +415,12 @@ public class GraphDispatcher
 		    }
 	        TableWriter oppositeTableWriter = oppositeRowWriter.getTableWriter();
 
-	        // if the opposite not bound to a table and
-	        // it is already linked within another row, don't write the edge
+	        // If the opposite not bound to a table and
+	        // it is already linked within another row, 
+	        // don't write the edge. This graph does not
+	        // own it. 
 		    if (oppositeTypeBound || oppositeRowWriter.equals(rowWriter)) 
-		    	result.add(edge);
-	        
+		    	result.add(edge);	        
 	        
 	        // maps opposite UUID to its row key
 		    // in the state for this row
@@ -407,8 +430,9 @@ public class GraphDispatcher
 		            oppositeRowWriter.getRowKey());
 	        
 	        // Maps this DO uuid to current row key in opposite row
-	        // If this data object is "unbound" to a
-	        // table, disregard
+	        // If this data object is not "bound" to a
+	        // table, disregard as it will have no opposite row
+	        // but will be contained within this row
 	        if (oppositeProperty != null && thisTypeBound) {
 	            oppositeRowWriter.getGraphState().addRowKey(dataObject,
 	            	tableWriter.getTable(),
@@ -519,6 +543,8 @@ public class GraphDispatcher
         	
     		byte[] valueBytes = null;
         	if (!property.getType().isDataType()) {
+        		
+        		// Move any old values into the graph state history
     			PlasmaSetting setting = (PlasmaSetting)oldValue;
     			Object oldOppositeValue = setting.getValue();
     			if (!(oldOppositeValue instanceof NullValue)) {
@@ -538,16 +564,25 @@ public class GraphDispatcher
         		
         		List <PlasmaEdge> edges = dataNode.getEdges(property);
         		
-        		// modifying this object but add all edges to row graph state
-        		//rowWriter.getGraphState().addEdges(dataNode,  edges);
-        		
+        		// Modifying this property but add all 
+        		// its edges to row graph state
         		List<PlasmaEdge> stateEdges = this.createEdgeState(dataObject, dataNode,
             			property, edges, graphWriter,
             			tableWriter, rowWriter);
         		rowWriter.getGraphState().addEdges(dataNode,  stateEdges);
         		
-        		// create a formatted column value
-        		// for this edge collection
+        		// Create a formatted column value
+        		// for this edge collection. 
+        		// Note; the new
+        		// edge collection value will NOT contain any edges
+        		// NOT part of the commit graph. This is a fundamental
+        		// problem because it forces clients to pull
+        		// the entire existing collection before adding to it.
+        		// The fix involves merging with the existing edge value
+        		// which is not unfortunately available within the graph state
+        		// as this is purely mapping data, and is not available
+        		// within the federated writer hierarchy, as the writers
+        		// do not query for existing vales. 
         		valueBytes = this.createEdgeValueBytes(
         			dataNode, stateEdges,  rowWriter);
          	}
@@ -641,7 +676,10 @@ public class GraphDispatcher
         Property originationUserProperty = type.findProperty(ConcurrencyType.origination, 
             	ConcurrentDataFlavor.user);
         if (originationUserProperty != null) {
-        	dataObject.set(originationUserProperty, username);
+        	if (!originationUserProperty.isReadOnly())
+        	    dataObject.set(originationUserProperty, username);
+        	else
+                ((CoreDataObject)dataObject).setValue(originationUserProperty.getName(), username); // FIXME: bypassing readonly modification detection
         } 
         else
             if (log.isDebugEnabled()) 
@@ -655,8 +693,11 @@ public class GraphDispatcher
         		this.snapshotMap.getSnapshotDate().getTime());
         	Object snapshot = DataConverter.INSTANCE.convert(
         		originationTimestampProperty.getType(), dateSnapshot);
-        	dataObject.set(originationTimestampProperty, 
+        	if (!originationTimestampProperty.isReadOnly())
+        	    dataObject.set(originationTimestampProperty, 
         			snapshot);
+        	else
+                ((CoreDataObject)dataObject).setValue(originationTimestampProperty.getName(), snapshot); // FIXME: bypassing readonly modification detection
         }
         else
             if (log.isDebugEnabled()) 
@@ -724,7 +765,10 @@ public class GraphDispatcher
         Property originationUserProperty = type.findProperty(ConcurrencyType.origination, 
             	ConcurrentDataFlavor.user);
         if (originationUserProperty != null) {
-        	dataObject.set(originationUserProperty, username);
+        	if (!originationUserProperty.isReadOnly())
+        	    dataObject.set(originationUserProperty, username);
+        	else
+                ((CoreDataObject)dataObject).setValue(originationUserProperty.getName(), username); // FIXME: bypassing readonly modification detection
         } 
         else
             if (log.isDebugEnabled()) 
@@ -762,7 +806,10 @@ public class GraphDispatcher
         }
         else
         {
-        	dataObject.set(concurrencyUserProperty, username);	
+        	if (!concurrencyUserProperty.isReadOnly())
+        	    dataObject.set(concurrencyUserProperty, username);
+        	else
+        		((CoreDataObject)dataObject).setValue(concurrencyUserProperty.getName(), username);
         }
         
         PlasmaProperty concurrencyTimestampProperty = (PlasmaProperty)type.findProperty(ConcurrencyType.optimistic, 
@@ -778,7 +825,10 @@ public class GraphDispatcher
             		this.snapshotMap.getSnapshotDate().getTime());
             Object snapshot = DataConverter.INSTANCE.convert(
             	concurrencyTimestampProperty.getType(), dateSnapshot);
-        	dataObject.set(concurrencyTimestampProperty, snapshot);     	
+        	if (!concurrencyTimestampProperty.isReadOnly())
+        	    dataObject.set(concurrencyTimestampProperty, snapshot);
+        	else
+        		((CoreDataObject)dataObject).setValue(concurrencyTimestampProperty.getName(), snapshot);
         }    	
     }
 

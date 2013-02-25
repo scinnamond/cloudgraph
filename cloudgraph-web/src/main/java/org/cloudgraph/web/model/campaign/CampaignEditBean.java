@@ -160,14 +160,14 @@ public class CampaignEditBean extends ModelBean
 	public long getNameMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.campaign.getType().getProperty(
-					Campaign.PTY_NAME);
+					Campaign.PROPERTY.name.name());
 		return nameProp.getMaxLength();
 	}
 	
 	public long getDescriptionMaxLength() {
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)this.campaign.getType().getProperty(
-					Campaign.PTY_DESCRIPTION);
+					Campaign.PROPERTY.description.name());
 		return nameProp.getMaxLength();
 	}
 	
@@ -283,7 +283,7 @@ public class CampaignEditBean extends ModelBean
 	public long getNotesMaxLength() {
 		PlasmaProperty prop = 
 			(PlasmaProperty)this.campaign.getType().getProperty(
-					Campaign.PTY_NOTES);
+					Campaign.PROPERTY.notes.name());
 		return prop.getMaxLength();
 	}
 	

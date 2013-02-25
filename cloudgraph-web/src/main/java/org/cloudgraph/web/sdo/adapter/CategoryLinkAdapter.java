@@ -59,7 +59,7 @@ public class CategoryLinkAdapter {
 	
 	public String getLeftTooltip() {
 		Property prop = this.catLink.getType().getProperty(
-				CategoryLink.PTY_LEFT);
+				CategoryLink.PROPERTY.left.name());
 		return ((PlasmaProperty)prop).getDescriptionText();
 	}
 
@@ -87,7 +87,7 @@ public class CategoryLinkAdapter {
 	
 	public String getRightTooltip() {
 		Property prop = this.catLink.getType().getProperty(
-				CategoryLink.PTY_RIGHT);
+				CategoryLink.PROPERTY.right.name());
 		return ((PlasmaProperty)prop).getDescriptionText();
 	}
 	

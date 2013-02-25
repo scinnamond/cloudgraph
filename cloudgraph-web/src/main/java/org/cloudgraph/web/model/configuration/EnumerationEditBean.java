@@ -30,8 +30,10 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.cloudgraph.web.sdo.core.EnumerationView;
 import org.cloudgraph.web.sdo.meta.Classifier;
 import org.cloudgraph.web.sdo.meta.DataType;
+import org.cloudgraph.web.sdo.meta.Element;
 import org.cloudgraph.web.sdo.meta.Enumeration;
 import org.cloudgraph.web.sdo.meta.EnumerationLiteral;
+import org.cloudgraph.web.sdo.meta.NamedElement;
 import org.cloudgraph.web.sdo.meta.Package;
 import org.cloudgraph.web.sdo.meta.PackageableType;
 
@@ -213,7 +215,7 @@ public class EnumerationEditBean extends ModelBean {
 		Type type = PlasmaTypeHelper.INSTANCE.getType(Classifier.class);
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)type.getProperty(
-					Classifier.PTY_NAME);
+					NamedElement.PROPERTY.name.name());
 		return nameProp.getMaxLength();
 	}
 	
@@ -221,7 +223,7 @@ public class EnumerationEditBean extends ModelBean {
 		Type type = PlasmaTypeHelper.INSTANCE.getType(Classifier.class);
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)type.getProperty(
-					Classifier.PTY_DEFINITION);
+					Element.PROPERTY.definition.name());
 		return nameProp.getMaxLength();
 	}
 	
@@ -230,7 +232,7 @@ public class EnumerationEditBean extends ModelBean {
 		Type type = PlasmaTypeHelper.INSTANCE.getType(EnumerationLiteral.class);
 		PlasmaProperty nameProp = 
 			(PlasmaProperty)type.getProperty(
-					EnumerationLiteral.PTY_NAME);
+					Element.PROPERTY.definition.name());
 		return nameProp.getMaxLength();
 	}
 	

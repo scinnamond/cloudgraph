@@ -157,7 +157,7 @@
          
     <Table name="SOCIAL" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
-        <DataGraph uri="http://cloudgraph.org/test/social" type="Actor">
+        <DataGraph uri="http://cloudgraph.org/test/socialgraph/actor" type="Actor">
             <RowKeyModel>
                 <RowKeyField>
                     <PredefinedField name="uri" hash="true"/>

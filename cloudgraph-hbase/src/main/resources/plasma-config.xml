@@ -30,9 +30,16 @@
             </Provisioning>
         </Namespace>
  
-        <Namespace uri="http://cloudgraph.org/test/social"
+        <Namespace uri="http://cloudgraph.org/test/socialgraph/actor"
             artifact="http://cloudgraph.org/social-graph.mdxml">
-            <Provisioning packageName="org.cloudgraph.test.social">
+            <Provisioning packageName="org.cloudgraph.test.socialgraph.actor">
+                <QueryDSL generate="true"/>
+            </Provisioning>
+        </Namespace>
+        
+        <Namespace uri="http://cloudgraph.org/test/socialgraph/story"
+            artifact="http://cloudgraph.org/social-graph.mdxml">
+            <Provisioning packageName="org.cloudgraph.test.socialgraph.story">
                 <QueryDSL generate="true"/>
             </Provisioning>
         </Namespace>

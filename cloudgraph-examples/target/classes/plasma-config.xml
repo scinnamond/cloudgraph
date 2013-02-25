@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cfg:PlasmaConfiguration  
+    xmlns:cfg="http://www.plasma.org/config">
+  
+    <SDO>
+        <GlobalProvisioning>            
+           <Interface propertyNameStyle="none"/>          
+           <Implementation classNameSuffix="Impl"
+               childPackageName="impl"/>  
+           <QueryDSL>
+               <Implementation classNamePrefix="Q"
+                   childPackageName="query"/>  
+           </QueryDSL>                        
+        </GlobalProvisioning>            
+            
+        <!-- default namespace used for SDO infra itself, such as SDO datatypes -->
+        <DefaultNamespace uri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"
+            artifact="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi">
+            <Provisioning packageName="org.cloudgraph.web.sdo"/>
+  		</DefaultNamespace>
+             
+        <!-- Example Namespaces --> 
+        <!-- Chemical Markup Language 2.4 -->      
+        <Namespace uri="http://org.cloudgraph/examples/cml"
+            artifact="http://www.xml-cml.org/schema"> 
+            <Provisioning packageName="org.cloudgraph.examples.cml"/>
+ 			<TypeBinding type="List" logicalName="CmlList"/>
+ 			<TypeBinding type="String" logicalName="CmlString"/>
+ 			<TypeBinding type="Float" logicalName="CmlFloat"/>
+		    <TypeBinding type="Enumeration" logicalName="CmlEnumeration">
+		        <PropertyBinding property="default" logicalName="default_"/>
+		    </TypeBinding>
+ 			<TypeBinding type="Expression" logicalName="CmlExpression"/> 			
+            <TypeBinding type="ArrayList" logicalName="CmlArrayList"/>            
+ 			
+        </Namespace>
+
+        <!-- BIO XSD -->      
+        <Namespace uri="http://org.cloudgraph/examples/bioxsd"
+            artifact="http://bioxsd.org/BioXSD-1.1"> 
+            <Provisioning packageName="org.cloudgraph.examples.bioxsd"/>
+        </Namespace>
+
+        <!-- HL7 common -->      
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/rim"
+            artifact="http://org.cloudgraph/examples/hl7/rim"> 
+            <Provisioning packageName="org.cloudgraph.examples.hl7.rim"/>
+        </Namespace>
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/cmet"
+            artifact="http://org.cloudgraph/examples/hl7/cmet"> 
+            <Provisioning packageName="org.cloudgraph.examples.hl7.cmet"/>
+        </Namespace>
+        <!-- HL7 POCD -->      
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/pocd/hd000040"
+            artifact="http://org.cloudgraph/examples/hl7/pocd/hd000040"> 
+            <Provisioning packageName="org.cloudgraph.examples.hl7.pocd.hd000040"/>
+        </Namespace>
+        <!-- HL7 COCT -->      
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/coct/hd010000"
+            artifact="http://org.cloudgraph/examples/hl7/coct/hd010000"> 
+            <Provisioning packageName="org.cloudgraph.examples.hl7.coct.hd010000"/>
+        </Namespace>
+        <!-- HL7 FICR -->      
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/ficr/hd400200"
+            artifact="http://org.cloudgraph/examples/hl7/ficr/hd400200"> 
+            <Provisioning packageName="org.cloudgraph.examples.hl7.ficr.hd400200"/>
+        </Namespace>
+        <Namespace uri="http://plasma.servicelabs.org/platform/hl7/ficr/hd410200"
+            artifact="http://org.cloudgraph/examples/hl7/ficr/hd410200"> 
+            <Provisioning packageName="org.cloudgraph.examples.hl7.ficr.hd410200"/>
+        </Namespace>
+        
+        <DataAccessService dataStoreType="NOSQL">   
+
+            <DataAccessProvider name="HBASE"
+                className="org.cloudgraph.hbase.service.HBaseGraphService">
+                
+                <SequenceConfiguration  
+                    generatorClassName="org.hgraph.generator.HBaseSequenceGenerator"/>         
+                <Concurrency 
+                    pessimisticLockTimeoutMillis="300000"/>
+                              
+                <!-- links specific DAS provisioning to SDO namespace configs -->                 
+                <!-- HL7 POCD -->      
+                <NamespaceLink uri="http://org.cloudgraph/examples/hl7/pocd/hd000040"/>
+                <!-- HL7 FICR -->      
+                <NamespaceLink uri="http://org.cloudgraph/examples/hl7/ficr/hd400200"/>
+                <NamespaceLink uri="http://org.cloudgraph/examples/hl7/ficr/hd410200"/>
+                <!-- HL7 COCT -->      
+                <NamespaceLink uri="http://org.cloudgraph/examples/hl7/coct/hd010000"/>
+            </DataAccessProvider>
+
+  		    	  
+  	    </DataAccessService>	
+    </SDO>
+    
+    <Repository> 
+        <Artifact name="Plasma_SDO_Profile.mdxml"
+            urn="Plasma_SDO_Profile.mdxml" 
+            namespaceUri="http://www.magicdraw.com/schemas/Plasma_SDO_Profile.xmi"/>        
+            
+        <!-- Example Artifacts --> 
+        <Artifact name="cml_3.xmi"
+            urn="cml_2_4.mdxml" 
+            namespaceUri="http://www.xml-cml.org/schema"/>  
+
+        <Artifact name="BioXSD-1_1.xmi"
+            urn="BioXSD-1_1.mdxml" 
+            namespaceUri="http://bioxsd.org/BioXSD-1.1"/>  
+
+        <!-- HL7 common -->      
+        <Artifact name="plasma-hl7-rim.mdxml"
+            urn="plasma-hl7-rim.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/rim"/>  
+        <Artifact name="plasma-hl7-cmet.mdxml"
+            urn="plasma-hl7-cmet.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/cmet"/>
+        <!-- HL7 COCT -->      
+        <Artifact name="plasma-hl7-coct-hd010000.mdxml"
+            urn="plasma-hl7-coct-hd010000.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/coct/hd010000"/> 
+        <!-- HL7 FICR -->      
+        <Artifact name="plasma-hl7-ficr-hd400200.mdxml"
+            urn="plasma-hl7-ficr-hd400200.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/ficr/hd400200"/> 
+        <Artifact name="plasma-hl7-ficr-hd410200.mdxml"
+            urn="plasma-hl7-ficr-hd410200.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/ficr/hd410200"/> 
+        <!-- HL7 POCD -->      
+        <Artifact name="plasma-hl7-pocd-hd000040.mdxml"
+            urn="plasma-hl7-pocd-hd000040.mdxml" 
+            namespaceUri="http://org.cloudgraph/examples/hl7/pocd/hd000040"/>  
+  
+  <!-- hl7-ficr-hd400100
+hl7-ficr-hd400200
+hl7-ficr-hd410100
+hl7-ficr-hd410200
+hl7-ficr-hd420100 -->          
+    </Repository>
+    
+</cfg:PlasmaConfiguration>   

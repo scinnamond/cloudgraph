@@ -171,7 +171,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-                        <skip>false</skip>
+                        <skip>true</skip>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
@@ -184,8 +184,8 @@
                             <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                         </systemProperties>
                         <includes>               
-<!--                             <include>**/*SocialGraphNonFederatedTest*</include>                       -->
-<!--                             <include>**/*PartialRowKeyScanTest*</include>    -->
+                            <include>**/*SocialGraphNonFederatedTest*</include>                      
+                            <include>**/*PartialRowKeyScanTest*</include>   
                             <include>**/*DatePredicateSliceTest*</include>   
                             
                         </includes> 
@@ -198,7 +198,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-	                    <skip>true</skip>
+	                    <skip>false</skip>
 	                    <additionalClasspathElements>
 	                        <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
 	                        <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>

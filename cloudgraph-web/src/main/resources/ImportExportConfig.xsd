@@ -164,7 +164,7 @@
                 <xsd:documentation>the target namespace URI used to isolate a projected model into a new namespace</xsd:documentation>       
             </xsd:annotation>                                 
         </xsd:attribute>       
-        <xsd:attribute name="dataBindingClassName" type="xsd:string" use="optional" default="none">
+        <xsd:attribute name="dataBindingClassName" type="xsd:string" use="optional">
             <xsd:annotation>                                  
                 <xsd:documentation>JAXB data binding class used for marshaling</xsd:documentation>       
             </xsd:annotation>                                 

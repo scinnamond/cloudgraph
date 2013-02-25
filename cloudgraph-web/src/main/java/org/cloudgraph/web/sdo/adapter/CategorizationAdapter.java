@@ -112,7 +112,7 @@ public abstract class CategorizationAdapter {
 	
 	public String getCategoryNameTooltip() {
 		Property prop = this.category.getType().getProperty(
-				Category.PTY_NAME);
+				Category.PROPERTY.name.name());
 		return ((PlasmaProperty)prop).getDescriptionText();
 	}
 	
@@ -126,7 +126,7 @@ public abstract class CategorizationAdapter {
 	
 	public String getCategoryDefinitionTooltip() {
 		Property prop = this.category.getType().getProperty(
-				Category.PTY_DEFINITION);
+				Category.PROPERTY.definition.name());
 		return ((PlasmaProperty)prop).getDescriptionText();
 	}
 	

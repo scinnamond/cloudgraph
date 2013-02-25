@@ -4,7 +4,7 @@
   
     <SDO>
         <GlobalProvisioning>            
-           <Interface constants="true"/>          
+           <Interface/>          
            <Implementation classNameSuffix="Impl"
                childPackageName="impl"/>  
            <QueryDSL>
@@ -45,6 +45,7 @@
   		</Namespace>
   		
         <!-- export specific namespaces -->
+        <!-- 
         <Namespace uri="http://apls/export/package"
             artifact="http://apls/export/package">
             <Provisioning packageName="org.cloudgraph.web.export.package_"/>
@@ -77,7 +78,8 @@
             artifact="http://apls/export/slot">
             <Provisioning packageName="org.cloudgraph.web.export.slot"/>
         </Namespace>
-
+          -->
+          
          <DataAccessService dataStoreType="RDBMS">   
             <DataAccessProvider name="JDBC"                
                 className="org.cloudgraph.rdb.jdbc.JDBCDataAccessProvider">
@@ -126,7 +128,7 @@
             namespaceUri="http://org.cloudgraph/web"/>  
             
         <!-- export specific artifacts -->  
-            
+            <!--
         <Artifact name="package.mdxml"
             urn="package.mdxml" 
             namespaceUri="http://apls/export/package"/>  
@@ -151,7 +153,7 @@
         <Artifact name="slot.mdxml"
             urn="slot.mdxml" 
             namespaceUri="http://apls/export/slot"/>  
-            
+            --> 
             
     </Repository>
     

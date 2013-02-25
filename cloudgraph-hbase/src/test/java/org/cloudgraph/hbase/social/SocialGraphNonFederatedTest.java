@@ -1,3 +1,24 @@
+/**
+ *        CloudGraph Community Edition (CE) License
+ * 
+ * This is a community release of CloudGraph, a dual-license suite of
+ * Service Data Object (SDO) 2.1 services designed for relational and 
+ * big-table style "cloud" databases, such as HBase and others. 
+ * This particular copy of the software is released under the 
+ * version 2 of the GNU General Public License. CloudGraph was developed by 
+ * TerraMeta Software, Inc.
+ * 
+ * Copyright (c) 2013, TerraMeta Software, Inc. All rights reserved.
+ * 
+ * General License information can be found below.
+ * 
+ * This distribution may include materials developed by third
+ * parties. For license and attribution notices for these
+ * materials, please refer to the documentation that accompanies
+ * this distribution (see the "Licenses for Third-Party Components"
+ * appendix) or view the online documentation at 
+ * <http://cloudgraph.org/licenses/>. 
+ */
 package org.cloudgraph.hbase.social;
 
 import java.io.IOException;
@@ -7,11 +28,11 @@ import junit.framework.Test;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.hbase.SocialGraphModelTest;
-import org.cloudgraph.test.social.Actor;
-import org.cloudgraph.test.social.Blog;
-import org.cloudgraph.test.social.Friendship;
-import org.cloudgraph.test.social.Photo;
-import org.cloudgraph.test.social.Topic;
+import org.cloudgraph.test.socialgraph.actor.Actor;
+import org.cloudgraph.test.socialgraph.story.Blog;
+import org.cloudgraph.test.socialgraph.actor.Friendship;
+import org.cloudgraph.test.socialgraph.actor.Photo;
+import org.cloudgraph.test.socialgraph.actor.Topic;
 import org.plasma.common.test.PlasmaTestSetup;
 
 /**
