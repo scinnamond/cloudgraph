@@ -1779,212 +1779,6 @@
 							<memberEnd xmi:idref='_17_0_2_1707042b_1332880018640_81245_4375'/>
 							<memberEnd xmi:idref='_17_0_2_1707042b_1332880018640_836791_4376'/>
 						</packagedElement>
-						<packagedElement xmi:type='uml:Class' xmi:id='_17_0_2_1707042b_1332880018625_11548_4341' name='ApplicationView' visibility='public' classifierBehavior='_17_0_2_1707042b_1332880018656_719816_4382'>
-							<ownedBehavior xmi:type='uml:OpaqueBehavior' xmi:id='_17_0_2_1707042b_1332880018656_719816_4382' name='create' visibility='public'>
-								<body>CREATE OR REPLACE VIEW APLS.V_APCLTN
-(ID, INSTNC_SEQ_ID,  
- CLASS_SEQ_ID, CLASS_NAME, 
- PARENT_CAT_ID, PARENT_CAT_NAME, CAT_ID, CAT_NAME,
- PROP_NAME, INSTNC_VAL, STRING_VAL, INT_VAL)
-AS 
-SELECT ROWNUM &quot;ID&quot;, INSTNC_SEQ_ID,  
- CLASS_SEQ_ID, CLASS_NAME, 
- PARENT_CAT_ID, PARENT_CAT_NAME, CAT_ID, CAT_NAME,
- PROP_NAME, INSTNC_VAL, STRING_VAL, INT_VAL
-FROM (  
-SELECT  
- i.SEQ_ID INSTNC_SEQ_ID, 
- clsf.SEQ_ID CLASS_SEQ_ID,
- clsf.NAME CLASS_NAME,
- c2.ID PARENT_CAT_ID,
- c2.NAME PARENT_CAT_NAME,  
- c.ID CAT_ID,
- c.NAME CAT_NAME,
- p.NAME PROP_NAME,
- iv.INSTNC_SPFCTN_SEQ_ID INSTNC_VAL,
- ls.VALUE STRING_VAL,  
- li.VALUE INT_VAL  
-FROM META_INSTNC_SPEC i, INSTNC_CTGRZTN icz, CTGRTZN cz, 
- CTGRY c, CTGRY c2, META_CLASS cl, META_CLSSFR clsf,
- META_PRPTY p, META_SLOT s, META_VALU_SPCFCTN vs, 
- META_INSTNC_VALUE iv, --inherits from value spec
- META_LTRL_STR ls, --inherits from value spec
- META_LTRL_INTGR li --inherits from value spec
-WHERE i.CLAZZ_SEQ_ID = cl.SEQ_ID
-AND cl.CLSSFR_SEQ_ID = clsf.SEQ_ID
-AND clsf.NAME = &#39;Application&#39; -- FIXME: abstract class ID/code that is unchangeable?
-AND i.SEQ_ID = icz.INSTNC_SPCFCTN_SEQ_ID (+)
-AND icz.CTGRZTN_SEQ_ID = cz.SEQ_ID (+)
-AND cz.CTGRY_SEQ_ID = c.SEQ_ID (+)
-AND c.SEQ_ID = c2.PARENT_CTGRY_SEQ_ID (+)
-AND p.SRC_CLSSFR_SEQ_ID = cl.SEQ_ID
-AND s.INSTNC_SPEC_SEQ_ID = i.SEQ_ID (+)
-AND s.PRPTY_SEQ_ID = p.SEQ_ID (+)
-AND vs.SLOT_SEQ_ID = s.SEQ_ID
-AND (vs.SEQ_ID = iv.VALUE_SPCFCTN_SEQ_ID (+)
-    AND (iv.VALUE_SPCFCTN_SEQ_ID = vs.SEQ_ID  
-    OR ls.VALU_SPCFCTN_SEQ_ID = vs.SEQ_ID 
-    OR li.VALU_SPCFCTN_SEQ_ID = vs.SEQ_ID)) 
-)</body>
-								<language>SQL</language>
-							</ownedBehavior>
-							<ownedBehavior xmi:type='uml:OpaqueBehavior' xmi:id='_17_0_2_1707042b_1332951131681_452891_2812' name='drop' visibility='public'>
-								<body>DROP VIEW V_APCLTN</body>
-								<language>SQL</language>
-							</ownedBehavior>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1332880018656_568188_4383' name='id' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Long'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::Long' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_2_1707042b_1332880018656_237138_4420' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_2_1707042b_1332880018656_964397_4421' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083491024_282410_2911' name='instanceSeqId' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Long'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::Long' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_2_1707042b_1334083515275_899437_2917' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_2_1707042b_1334083515275_130278_2916' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083528557_482291_2918' name='classSeqId' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Long'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::Long' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_2_1707042b_1334083544464_930846_2924' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_2_1707042b_1334083544464_724304_2923' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083561136_649871_2925' name='className' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::String' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_2_1707042b_1334083580089_799960_2931' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_2_1707042b_1334083580089_854242_2930' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083592230_736210_2932' name='parentCatId' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Int'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::Int' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083627715_246491_2937' name='parentCatName' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::String' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083654278_266685_2942' name='catId' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Int'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::Int' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083678435_774282_2947' name='catName' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::String' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083700326_702714_2952' name='propertyName' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::String' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_2_1707042b_1334083718529_693233_2958' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_2_1707042b_1334083718529_625725_2957' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083731655_608171_2959' name='instanceValue' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Long'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::Long' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_2_1707042b_1334083752296_497140_2965' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-								<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_2_1707042b_1334083752296_113875_2964' visibility='public'/>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083768499_475445_2966' name='stringValue' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-String'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::String' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_2_1707042b_1334083784874_765596_2972' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-								<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_2_1707042b_1334083784874_716193_2971' visibility='public'/>
-							</ownedAttribute>
-							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1334083794672_127576_2973' name='intValue' visibility='private'>
-								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Int'>
-									<xmi:Extension extender='MagicDraw UML 17.0'>
-										<referenceExtension referentPath='Plasma SDO Profile::datatypes::Int' referentType='DataType'/>
-									</xmi:Extension>
-								</type>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_2_1707042b_1334083812344_210313_2979' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
-								<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_2_1707042b_1334083812344_105937_2978' visibility='public'/>
-							</ownedAttribute>
-						</packagedElement>
 						<packagedElement xmi:type='uml:Class' xmi:id='_17_0_2_1707042b_1332880018625_834545_4342' name='ClassCategorization' visibility='public'>
 							<ownedAttribute xmi:type='uml:Property' xmi:id='_17_0_2_1707042b_1332880018656_641379_4386' name='seqId' visibility='private'>
 								<type xmi:type='uml:DataType' href='Plasma_SDO_Profile.mdxml#plasma-sdo-profile-datatypes-Long'>
@@ -2381,10 +2175,11 @@ AND mdt.CLSSFR_SEQ_ID = mcf.SEQ_ID</body>
 (ID, PRPTY_SEQ_ID, PRPTY_NAME, PRPTY_QNAME, PRPTY_DEFN, DATA_TYPE,
  LOWER_VALUE, UPPER_VALUE,
  CLASS_SEQ_ID, CLASS_NAME, 
- CLASS_QNAME, PARENT_CAT_ID, PARENT_CAT_NAME, CAT_ID, CAT_NAME)
+ CLASS_QNAME, PARENT_CAT_ID, PARENT_CAT_NAME, CAT_ID, CAT_NAME
+)
 AS 
 SELECT 
- ROWNUM &quot;ID&quot;,
+ p.SEQ_ID &quot;ID&quot;,
  p.SEQ_ID PRPTY_SEQ_ID, 
  p.NAME PRPTY_NAME, 
  p.QNAME PRPTY_QNAME,
@@ -2399,16 +2194,15 @@ SELECT
  c2.NAME PARENT_CAT_NAME,  
  c.ID CAT_ID,
  c.NAME CAT_NAME  
-FROM META_PRPTY p, PRPTY_CTGRZTN pcz, CTGRTZN cz, 
- CTGRY c, CTGRY c2, META_CLASS cl, META_CLSSFR mcf,
- META_CLSSFR mcf2
-WHERE p.SRC_CLSSFR_SEQ_ID = cl.SEQ_ID
-AND cl.CLSSFR_SEQ_ID = mcf.SEQ_ID 
-AND p.SEQ_ID = pcz.PRPTY_SEQ_ID  (+)
-AND pcz.CTGRZTN_SEQ_ID = cz.SEQ_ID (+)
-AND cz.CTGRY_SEQ_ID = c.SEQ_ID (+)
-AND c.SEQ_ID = c2.PARENT_CTGRY_SEQ_ID (+)
-AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
+FROM META_PRPTY p
+INNER JOIN META_CLASS cl ON p.SRC_CLSSFR_SEQ_ID = cl.SEQ_ID  
+INNER JOIN META_CLSSFR mcf ON cl.CLSSFR_SEQ_ID = mcf.SEQ_ID  
+INNER JOIN META_CLSSFR mcf2 ON mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID  
+LEFT OUTER JOIN PRPTY_CTGRZTN pcz ON pcz.PRPTY_SEQ_ID = p.SEQ_ID
+LEFT OUTER JOIN CTGRTZN cz ON pcz.CTGRZTN_SEQ_ID = cz.SEQ_ID
+LEFT OUTER JOIN CTGRY c ON cz.CTGRY_SEQ_ID = c.SEQ_ID
+LEFT OUTER JOIN CTGRY c2 ON c.SEQ_ID = c2.PARENT_CTGRY_SEQ_ID
+</body>
 								<language>SQL</language>
 							</ownedBehavior>
 							<ownedBehavior xmi:type='uml:OpaqueBehavior' xmi:id='_17_0_2_1707042b_1334002546377_643425_2280' name='drop' visibility='public'>
@@ -4855,7 +4649,7 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 						<mdElement elementClass='StringProperty'>
 							<propertyID>INFO_PROPERTY</propertyID>
 							<propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-							<value>3 d 70 35 60 72 45 38 13 4d 75 fb 6b fe 13 65 a e1 7f 89 b8 71 16 92 58 f1 6e a1 e5 54 a9 55 2f 8a bf ab 58 3 57 79 14 98 67 60 ea e8 e 3a 9c 4a e0 71 76 84 10 73 b0 c0 1e 5a 5c 10 59 6c 12 ea f4 4a 3d db e </value>
+							<value>3 d 70 35 60 72 45 38 13 4d 75 e2 71 f5 13 65 a e1 7f 89 bb 71 16 91 58 f7 69 a1 e6 5e a9 55 2f 8a bf ab 58 3 57 79 14 98 67 60 ea e8 e 3a 9c 4a e0 71 76 84 10 73 b0 c0 1e 5a 5c 10 59 6c 12 ea f4 4a 3d db e </value>
 						</mdElement>
 						<mdElement elementClass='LIST_PROPERTY'>
 							<propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>
@@ -12420,7 +12214,6 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOKey xmi:id='_17_0_2_1707042b_1332879931968_227857_3830' base_Property='_17_0_2_1707042b_1332879931937_403147_3704' type='primary'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_227857_3830application1' base_NamedElement='_17_0_2_1707042b_1332879931937_403147_3704' physicalName='SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_943280_3812' base_NamedElement='_17_0_2_1707042b_1332879931921_632529_3683' physicalName='META_PKG'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083797172_352195_2975' base_NamedElement='_17_0_2_1707042b_1334083794672_127576_2973' physicalName='INT_VAL'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_501487_3937' base_NamedElement='_17_0_2_1707042b_1332879931952_402499_3775' physicalName='PKJBL_TYPE_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334002546424_672173_2309' base_NamedElement='_17_0_2_1707042b_1334002546408_651197_2286' physicalName='CLASS_QNAME'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335798294708_692789_3194' base_NamedElement='_17_0_2_1707042b_1335798270879_808085_3178' physicalName='INSTNC_SEQ_ID'/>
@@ -12429,8 +12222,6 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOUniqueConstraint xmi:id='_17_0_2_1707042b_1332880018656_364702_4415application2' base_Property='_17_0_2_1707042b_1332880018640_155053_4377'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332881336996_886767_2650' base_NamedElement='_17_0_2_1707042b_1332881313918_151957_2633' physicalName='INSTNC_SPCFCTN_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_26330_3872' base_NamedElement='_17_0_2_1707042b_1332879931937_533253_3724' physicalName='UPPER_VALUE'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332880018656_115621_4385' base_NamedElement='_17_0_2_1707042b_1332880018625_11548_4341' physicalName='V_APCLTN'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083532166_727392_2920' base_NamedElement='_17_0_2_1707042b_1334083528557_482291_2918' physicalName='CLASS_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335797604609_765416_2902' base_NamedElement='_17_0_2_1707042b_1335797580908_4583_2885' physicalName='CMPGN_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_280228_3842' base_NamedElement='_17_0_2_1707042b_1332879931937_643020_3711' physicalName='SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOKey xmi:id='_17_0_2_1707042b_1332879931968_280228_3842application1' base_Property='_17_0_2_1707042b_1332879931937_643020_3711' type='primary'/>
@@ -12450,17 +12241,16 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_93856_3948' base_NamedElement='_17_0_2_1707042b_1332879931952_203557_3781'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335797569496_733378_2873' base_NamedElement='_17_0_2_1707042b_1335797500034_991790_2848' physicalName='ORG_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332880018656_334061_4391' base_NamedElement='_17_0_2_1707042b_1332880018625_188930_4344' physicalName='INSTNC_CTGRZTN'/>
+	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_730571_3821' base_NamedElement='_17_0_2_1707042b_1332879931937_580893_3698' physicalName='META_LTRL_STR'/>
 	<Plasma_SDO_Profile:SDOValueConstraint xmi:id='_17_0_2_1707042b_1336051042226_583026_3220' base_Property='_17_0_2_1707042b_1336051016710_360757_3216' maxLength='50000'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1336051042226_583026_3220application1' base_NamedElement='_17_0_2_1707042b_1336051016710_360757_3216' physicalName='NOTES'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_730571_3821' base_NamedElement='_17_0_2_1707042b_1332879931937_580893_3698' physicalName='META_LTRL_STR'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083703404_127597_2954' base_NamedElement='_17_0_2_1707042b_1334083700326_702714_2952' physicalName='PROP_NAME'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332880018640_123585_4372' base_NamedElement='_17_0_2_1707042b_1332880018625_430232_4337' physicalName='PERS_ORG'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_6202_3968' base_NamedElement='_17_0_2_1707042b_1332879931952_149753_3791' physicalName='SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOKey xmi:id='_17_0_2_1707042b_1332879931984_6202_3968application1' base_Property='_17_0_2_1707042b_1332879931952_149753_3791' type='primary'/>
+	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083038433_706391_2819' base_NamedElement='_17_0_2_1707042b_1334083038433_286559_2815' physicalName='META_LTRL_FLOAT'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335797025306_28054_2648' base_NamedElement='_17_0_2_1707042b_1335796986599_774180_2645' physicalName='TYPE'/>
 	<Plasma_SDO_Profile:SDOValueConstraint xmi:id='_17_0_2_1707042b_1335797025306_28054_2648application1' base_Property='_17_0_2_1707042b_1335796986599_774180_2645' maxLength='7'/>
 	<Plasma_SDO_Profile:SDOEnumerationConstraint xmi:id='_17_0_2_1707042b_1335797025306_28054_2648application2' base_Property='_17_0_2_1707042b_1335796986599_774180_2645' value='_17_0_2_1707042b_1335796462104_969074_2606'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083038433_706391_2819' base_NamedElement='_17_0_2_1707042b_1334083038433_286559_2815' physicalName='META_LTRL_FLOAT'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931937_860470_3725' base_NamedElement='_17_0_2_1707042b_1332879931905_85284_3658' physicalName='META_PRPTY'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1333658891761_659530_2695' base_NamedElement='_17_0_2_1707042b_1333658891761_271084_2687' physicalName='SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOKey xmi:id='_17_0_2_1707042b_1333658891761_659530_2695application1' base_Property='_17_0_2_1707042b_1333658891761_271084_2687' type='primary'/>
@@ -12483,7 +12273,6 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_46474_4001' base_NamedElement='_17_0_2_1707042b_1332879931968_139310_3809' physicalName='PARENT_PKG_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334082737900_659366_2748' base_NamedElement='_17_0_2_1707042b_1334082737900_703018_2740' physicalName='VALUE'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_512004_3925' base_NamedElement='_17_0_2_1707042b_1332879931952_266170_3768' physicalName='TGT_CLZZ_SEQ_ID'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083771296_706746_2968' base_NamedElement='_17_0_2_1707042b_1334083768499_475445_2966' physicalName='STRING_VAL'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334777365078_40484_2763' base_NamedElement='_17_0_2_1707042b_1334777356281_232325_2762' physicalName='Integer'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1336053877872_771223_3241' base_NamedElement='_17_0_2_1707042b_1336053861293_964441_3239' physicalName='DSCR'/>
 	<Plasma_SDO_Profile:SDOValueConstraint xmi:id='_17_0_2_1707042b_1336053877872_771223_3241application1' base_Property='_17_0_2_1707042b_1336053861293_964441_3239' maxLength='255'/>
@@ -12536,8 +12325,6 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1333562792966_122941_2675' base_NamedElement='_17_0_2_1707042b_1333562759247_605647_2672' physicalName='ENUM_NAME'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1333400103481_413435_2623' base_NamedElement='_17_0_2_1707042b_1333400087980_589942_2620' physicalName='DFNTN'/>
 	<Plasma_SDO_Profile:SDOValueConstraint xmi:id='_17_0_2_1707042b_1333400103481_413435_2623application1' base_Property='_17_0_2_1707042b_1333400087980_589942_2620' maxLength='2000'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083680794_371903_2949' base_NamedElement='_17_0_2_1707042b_1334083678435_774282_2947' physicalName='CAT_NAME'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083603449_932486_2934' base_NamedElement='_17_0_2_1707042b_1334083592230_736210_2932' physicalName='PARENT_CAT_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_84278_4006' base_NamedElement='_17_0_2_1707042b_1332879931968_890491_3811' physicalName='SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOKey xmi:id='_17_0_2_1707042b_1332879931984_84278_4006application1' base_Property='_17_0_2_1707042b_1332879931968_890491_3811' type='primary'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083156059_959760_2849' base_NamedElement='_17_0_2_1707042b_1334083156043_617463_2841' physicalName='VALUE'/>
@@ -12560,7 +12347,6 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335798011526_655051_3065' base_NamedElement='_17_0_2_1707042b_1335797999415_868393_3046' physicalName='PRSN_INSTNC'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931952_242718_3784' base_NamedElement='_17_0_2_1707042b_1332879931921_44637_3670' physicalName='META_SLOT'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334002546424_13606_2297' base_NamedElement='_17_0_2_1707042b_1334002546408_526511_2282' physicalName='PRPTY_NAME'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083631340_792094_2939' base_NamedElement='_17_0_2_1707042b_1334083627715_246491_2937' physicalName='PARENT_CAT_NAME'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931952_428212_3753' base_NamedElement='_17_0_2_1707042b_1332879931905_405864_3663' physicalName='VSBLTY_KIND'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335798128882_393303_3099' base_NamedElement='_17_0_2_1707042b_1335798067735_527513_3082' physicalName='PRSN_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332881385497_385628_2679' base_NamedElement='_17_0_2_1707042b_1332881367450_380099_2663'/>
@@ -12569,7 +12355,6 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335797446207_223754_2816' base_NamedElement='_17_0_2_1707042b_1335797421677_909930_2799' physicalName='CMPGN_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_754671_4036' base_NamedElement='_17_0_2_1707042b_1332879931968_960488_3824' physicalName='VALU_SPCFCTN_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931952_351001_3800' base_NamedElement='_17_0_2_1707042b_1332879931921_971841_3675' physicalName='META_PKGBL_TYPE'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083657091_456325_2944' base_NamedElement='_17_0_2_1707042b_1334083654278_266685_2942' physicalName='CAT_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334082860557_173998_2773' base_NamedElement='_17_0_2_1707042b_1334082860557_501616_2765' physicalName='VALUE'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335797700951_648490_2920' base_NamedElement='_17_0_2_1707042b_1335797471643_722957_2824' physicalName='ORG_CMPGN'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_947866_3845' base_NamedElement='_17_0_2_1707042b_1332879931937_144923_3712' physicalName='VALU_SPCFCTN_SEQ_ID'/>
@@ -12580,7 +12365,6 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334002546424_890393_2303' base_NamedElement='_17_0_2_1707042b_1334002546408_445830_2284' physicalName='CLASS_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334777239312_175469_2747' base_NamedElement='_17_0_2_1707042b_1334777226343_803567_2746' physicalName='String'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_372444_3917' base_NamedElement='_17_0_2_1707042b_1332879931952_598583_3763' physicalName='PKGBL_TYPE_SEQ_ID'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083563823_264801_2927' base_NamedElement='_17_0_2_1707042b_1334083561136_649871_2925' physicalName='CLASS_NAME'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_707468_3922' base_NamedElement='_17_0_2_1707042b_1332879931952_883723_3767' physicalName='SRC_CLZZ_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334779655383_874526_3135' base_NamedElement='_17_0_2_1707042b_1334779636367_150858_3118' physicalName='VALU_SPCFCTN_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_981791_3996' base_NamedElement='_17_0_2_1707042b_1332879931968_609109_3807' physicalName='VISIBILITY'/>
@@ -12645,14 +12429,11 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335798036560_864020_3073' base_NamedElement='_17_0_2_1707042b_1335798021808_502779_3069' physicalName='SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOKey xmi:id='_17_0_2_1707042b_1335798036560_864020_3073application1' base_Property='_17_0_2_1707042b_1335798021808_502779_3069' type='primary'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334777406373_707027_2775' base_NamedElement='_17_0_2_1707042b_1334777400655_831592_2774' physicalName='Date'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083494993_200915_2913' base_NamedElement='_17_0_2_1707042b_1334083491024_282410_2911' physicalName='INSTNC_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1333543152307_816184_2641' base_NamedElement='_17_0_2_1707042b_1333543124963_765880_2636' physicalName='ID'/>
 	<Plasma_SDO_Profile:SDOKey xmi:id='_17_0_2_1707042b_1333543152307_816184_2641application1' base_Property='_17_0_2_1707042b_1333543124963_765880_2636' type='primary'/>
 	<Plasma_SDO_Profile:SDONamespace xmi:id='_17_0_2_1707042b_1332879931937_580907_3702' base_Package='_17_0_2_1707042b_1332879931905_387787_3655' uri='http://org.cloudgraph/web/meta'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931937_580907_3702application1' base_NamedElement='_17_0_2_1707042b_1332879931905_387787_3655' physicalName='APLS'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_521811_3902' base_NamedElement='_17_0_2_1707042b_1332879931952_942952_3750' physicalName='PRIVATE'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332880018656_802266_4422' base_NamedElement='_17_0_2_1707042b_1332880018656_568188_4383' physicalName='ID'/>
-	<Plasma_SDO_Profile:SDOKey xmi:id='_17_0_2_1707042b_1332880018656_802266_4422application1' base_Property='_17_0_2_1707042b_1332880018656_568188_4383' type='primary'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1335798185794_677935_3128' base_NamedElement='_17_0_2_1707042b_1335798170199_304982_3110'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931984_36396_3944' base_NamedElement='_17_0_2_1707042b_1332879931952_544554_3780' physicalName='INSTNC_SPEC_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334069661623_582777_2734' base_NamedElement='_17_0_2_1707042b_1334069661623_715596_2731' physicalName='PRPTY_SEQ_ID'/>
@@ -12682,9 +12463,8 @@ AND mcf2.SEQ_ID = p.DATA_TYPE_SEQ_ID </body>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083158121_669207_2867' base_NamedElement='_17_0_2_1707042b_1334083158106_308760_2863' physicalName='META_LTRL_DBL'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931952_373240_3793' base_NamedElement='_17_0_2_1707042b_1332879931921_691660_3674' physicalName='META_ENMRTN'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_828588_3903' base_NamedElement='_17_0_2_1707042b_1332879931952_802126_3751' physicalName='PROTECTED'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1336050990397_996982_3212' base_NamedElement='_17_0_2_1707042b_1336050990397_25418_3209' physicalName='END_DT'/>
-	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1334083734280_465771_2961' base_NamedElement='_17_0_2_1707042b_1334083731655_608171_2959' physicalName='INSTNC_VAL'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1333562098801_225579_2659' base_NamedElement='_17_0_2_1707042b_1333562084332_889231_2658' physicalName='V_ENMRTN'/>
+	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1336050990397_996982_3212' base_NamedElement='_17_0_2_1707042b_1336050990397_25418_3209' physicalName='END_DT'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931937_658924_3738' base_NamedElement='_17_0_2_1707042b_1332879931905_513438_3660' physicalName='AGGRGTN_KIND'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1332879931968_737620_3899' base_NamedElement='_17_0_2_1707042b_1332879931952_801577_3747' physicalName='CLSSFR_SEQ_ID'/>
 	<Plasma_SDO_Profile:SDOAlias xmi:id='_17_0_2_1707042b_1333658891761_631192_2689' base_NamedElement='_17_0_2_1707042b_1333658891761_625628_2684' physicalName='META_PRMTV_TYPE'/>

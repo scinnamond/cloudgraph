@@ -2,17 +2,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-      <groupId>cloudgraph</groupId>
+      <groupId>org.cloudgraph</groupId>
       <artifactId>cloudgraph</artifactId>
       <version>0.5.2</version>
   </parent>
-  <groupId>cloudgraph</groupId>
+  <groupId>org.cloudgraph</groupId>
   <artifactId>cloudgraph-docs</artifactId>
   <version>0.5.2</version>
   <packaging>jar</packaging>
-
   <name>CloudGraph Docs</name>  
-  <description></description>
+  <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
+  <url>http://cloudgraph.org</url>
   <licenses>
       <license>
           <name>Plasma License</name>
@@ -38,13 +38,7 @@
                                 
   
   <dependencies>     
-    
-	<dependency>
-		<groupId>plasma</groupId>
-		<artifactId>ant</artifactId>
-		<version>1.1.8</version>
-	</dependency>
-    
+        
   </dependencies>
 	<build>
 		<finalName>cloudgraph-docs</finalName>

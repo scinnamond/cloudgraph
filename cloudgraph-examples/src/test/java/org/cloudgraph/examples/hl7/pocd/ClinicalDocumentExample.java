@@ -85,7 +85,7 @@ public class ClinicalDocumentExample extends HL7Test {
         super.setUp();
         if (effectiveTime == null) {
         	Type type = PlasmaTypeHelper.INSTANCE.getType(ClinicalDocument.class);
-        	Property effectiveTimeProp = type.getProperty(ClinicalDocument.PTY_EFFECTIVE_TIME);
+        	Property effectiveTimeProp = type.getProperty("effectiveTime");
         	effectiveTime = (String)DataConverter.INSTANCE.convert(effectiveTimeProp.getType(), new Date());
         }
     }        
