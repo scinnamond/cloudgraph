@@ -13,36 +13,27 @@ import org.cloudgraph.web.config.web.AppActions;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.model.common.CategorizedPropertySupport;
-import org.cloudgraph.web.model.search.SearchBean;
 import org.cloudgraph.web.query.ClassQuery;
 import org.cloudgraph.web.query.InstanceSpecificationQuery;
 import org.cloudgraph.web.query.PackageQuery;
-import org.cloudgraph.web.query.PropertyQuery;
-import org.cloudgraph.web.query.PropertyViewQuery;
 import org.cloudgraph.web.sdo.adapter.CategorizationAdapter;
 import org.cloudgraph.web.sdo.adapter.PropertyAdapter;
-import org.cloudgraph.web.sdo.adapter.PropertyViewAdapter;
 import org.cloudgraph.web.sdo.adapter.SlotAdapter;
 import org.cloudgraph.web.sdo.adapter.TaxonomyAdapter;
-import org.cloudgraph.web.sdo.visitor.CategorizationCollector;
-import org.cloudgraph.web.sdo.visitor.ClassCategorizationCollector;
-import org.cloudgraph.web.sdo.visitor.InstanceCategorizationCollector;
-import org.cloudgraph.web.util.BeanFinder;
-import org.plasma.query.Query;
-import org.plasma.sdo.PlasmaDataGraph;
-import org.plasma.sdo.PlasmaDataObject;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.plasma.sdo.helper.PlasmaTypeHelper;
-
 import org.cloudgraph.web.sdo.categorization.Taxonomy;
 import org.cloudgraph.web.sdo.core.InstanceCategorization;
-import org.cloudgraph.web.sdo.core.PropertyView;
 import org.cloudgraph.web.sdo.meta.Clazz;
 import org.cloudgraph.web.sdo.meta.InstanceSpecification;
 import org.cloudgraph.web.sdo.meta.Package;
 import org.cloudgraph.web.sdo.meta.PackageableType;
 import org.cloudgraph.web.sdo.meta.Property;
 import org.cloudgraph.web.sdo.meta.Slot;
+import org.cloudgraph.web.sdo.visitor.CategorizationCollector;
+import org.cloudgraph.web.sdo.visitor.InstanceCategorizationCollector;
+import org.cloudgraph.web.util.BeanFinder;
+import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.access.client.SDODataAccessClient;
+import org.plasma.sdo.helper.PlasmaTypeHelper;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -344,9 +335,6 @@ public class InstanceEditBean extends ModelBean {
     	visitor.setCollectOnlyInitializedTaxonomies(true);
     	// make  sure specific taxonomies are loaded we intend to use
     	// for views rendering this model 
-    	visitor.initializeTaxonomy(cache.getBusinessReferenceModel());
-    	visitor.initializeTaxonomy(cache.getServiceReferenceModel());
-    	visitor.initializeTaxonomy(cache.getTechnicalReferenceModel());   	
      	visitor.initializeTaxonomy(cache.getSegmentArchitectureModel());   	
     	
      	((PlasmaDataObject)this.instance).accept(visitor);

@@ -9,7 +9,6 @@ import org.cloudgraph.web.model.graph.NodeLabelFormat;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
 
 import commonj.sdo.DataGraph;
-import commonj.sdo.DataObject;
 
 public class GraphTreeBean extends DynamicGraphTreeBean {
 

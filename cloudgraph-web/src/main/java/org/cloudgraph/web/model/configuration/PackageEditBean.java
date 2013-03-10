@@ -18,19 +18,16 @@ import org.cloudgraph.web.ResourceManager;
 import org.cloudgraph.web.WebConstants;
 import org.cloudgraph.web.config.web.AppActions;
 import org.cloudgraph.web.model.ModelBean;
-import org.cloudgraph.web.query.ClassQuery;
 import org.cloudgraph.web.query.PackageQuery;
+import org.cloudgraph.web.sdo.meta.Element;
+import org.cloudgraph.web.sdo.meta.NamedElement;
+import org.cloudgraph.web.sdo.meta.Package;
+import org.cloudgraph.web.sdo.meta.PackageableType;
 import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaCopyHelper;
-
-import org.cloudgraph.web.sdo.meta.Clazz;
-import org.cloudgraph.web.sdo.meta.Element;
-import org.cloudgraph.web.sdo.meta.NamedElement;
-import org.cloudgraph.web.sdo.meta.Package;
-import org.cloudgraph.web.sdo.meta.PackageableType;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;

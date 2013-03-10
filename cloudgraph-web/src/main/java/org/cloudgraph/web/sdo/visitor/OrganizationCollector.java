@@ -3,9 +3,8 @@ package org.cloudgraph.web.sdo.visitor;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.plasma.sdo.PlasmaDataGraphVisitor;
-
 import org.cloudgraph.web.sdo.core.Organization;
+import org.plasma.sdo.PlasmaDataGraphVisitor;
 
 import commonj.sdo.DataObject;
 

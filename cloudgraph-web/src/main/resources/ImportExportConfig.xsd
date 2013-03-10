@@ -39,7 +39,13 @@
             <xsd:annotation>                                  
                 <xsd:documentation></xsd:documentation>       
             </xsd:annotation>                                 
-        </xsd:attribute>       
+        </xsd:attribute> 
+        <xsd:attribute name="providerName" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The name of the data provider</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>         
+              
     </xsd:complexType>
 
     <xsd:element name="DataImport" type="cfg:DataImport">
@@ -69,6 +75,11 @@
                 <xsd:documentation></xsd:documentation>       
             </xsd:annotation>                                 
         </xsd:attribute>       
+        <xsd:attribute name="providerName" type="xsd:string" use="required">
+            <xsd:annotation>                                  
+                <xsd:documentation>The name of the data provider</xsd:documentation>       
+            </xsd:annotation>                                 
+        </xsd:attribute>         
     </xsd:complexType>
 
     <xsd:element name="DataExport" type="cfg:DataExport">

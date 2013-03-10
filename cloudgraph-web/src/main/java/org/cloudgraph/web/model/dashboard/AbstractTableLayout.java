@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.cloudgraph.web.config.web.ComponentName;
-
 import org.cloudgraph.web.sdo.personalization.ElementType;
 
 public abstract class AbstractTableLayout extends AbstractLayout 

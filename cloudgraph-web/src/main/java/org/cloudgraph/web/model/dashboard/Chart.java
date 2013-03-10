@@ -17,10 +17,9 @@ import org.cloudgraph.web.config.web.ComponentShape;
 import org.cloudgraph.web.config.web.PropertyName;
 import org.cloudgraph.web.datasource.AbstractDataSource;
 import org.cloudgraph.web.model.profile.UserBean;
-import org.cloudgraph.web.util.BeanFinder;
-
 import org.cloudgraph.web.sdo.personalization.ElementType;
 import org.cloudgraph.web.sdo.personalization.Setting;
+import org.cloudgraph.web.util.BeanFinder;
 
 public class Chart extends AbstractComponent {
 	private static Log log = LogFactory.getLog(Chart.class);

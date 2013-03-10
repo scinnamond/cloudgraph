@@ -5,12 +5,11 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.plasma.sdo.PlasmaDataGraphVisitor;
-
 import org.cloudgraph.web.sdo.personalization.DefaultElementSetting;
 import org.cloudgraph.web.sdo.personalization.Element;
 import org.cloudgraph.web.sdo.personalization.ProfileElementSetting;
 import org.cloudgraph.web.sdo.personalization.Setting;
+import org.plasma.sdo.PlasmaDataGraphVisitor;
 
 import commonj.sdo.DataObject;
 

@@ -3,14 +3,12 @@
     xmlns:cfg="urn:org.cloudgraph.web/config">
    
  
-    <DataImport name="core-metadata">  
-            
-        <!--  
+    <DataImport name="core-metadata" providerName="JDBC">  
+         
         <ImportLoader className="org.cloudgraph.web.etl.loader.TaxonomyLoader">
             <DataEntity sourceDir="import/taxonomyies" 
                 source="taxonomomy*.xml"/>
         </ImportLoader>
-          
         <ImportLoader className="org.cloudgraph.web.etl.loader.PackageLoader">
             <DataEntity sourceDir="import/packages" 
                 source="package*.xml"/>
@@ -30,30 +28,22 @@
         <ImportLoader className="org.cloudgraph.web.etl.loader.PropertyLoader">
             <DataEntity sourceDir="import/properties" 
                 source="property*.xml"/>
-        </ImportLoader>
+        </ImportLoader>         
         <ImportLoader className="org.cloudgraph.web.etl.loader.InstanceLoader">
             <DataEntity sourceDir="import/instances" 
                 source="instance*.xml"/>
         </ImportLoader>
-        -->
+          
         <ImportLoader className="org.cloudgraph.web.etl.loader.SlotLoader">
             <DataEntity sourceDir="import/slots" 
                 source="slot*.xml"/>
-        </ImportLoader>         
-        
-          
-        
-        
-        <!--  
-        <ImportLoader className="org.cloudgraph.web.etl.loader.SlotLoader">
-            <DataEntity sourceDir="org/cloudgraph/web/data/import/" 
-                source="slots.xml"/>
-        </ImportLoader>         
-         -->
+        </ImportLoader>                           
+             
     </DataImport>
 
-    <DataExport name="main" targetDir="./target/cloudgraph-web/data">
-    
+    <DataExport name="main" providerName="JDBC" 
+        targetDir="./target/data">
+        <!--  
         <DataEntity name="package" 
             source="data/query/package-query.xml"
             targetDir="packages"
@@ -87,8 +77,8 @@
             source="data/query/taxonomy-query.xml"
             targetDir="taxonomyies"
             targetNamespaceUri="http://org.cloudgraph/web/categorization"/>
-            
-            
+     -->
+    
     </DataExport>
     
      

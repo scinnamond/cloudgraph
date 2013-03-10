@@ -3,7 +3,6 @@ package org.cloudgraph.web.model.taxonomy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
-
 import org.cloudgraph.web.sdo.categorization.Taxonomy;
 
 public class DefaultDynamicTaxonomyTreeBean extends DynamicTaxonomyTreeBean {

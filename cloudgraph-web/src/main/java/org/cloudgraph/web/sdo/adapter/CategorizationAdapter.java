@@ -1,8 +1,5 @@
 package org.cloudgraph.web.sdo.adapter;
 
-import org.plasma.sdo.PlasmaProperty;
-import org.plasma.sdo.PlasmaType;
-
 import org.cloudgraph.web.sdo.categorization.Categorization;
 import org.cloudgraph.web.sdo.categorization.CategorizationNote;
 import org.cloudgraph.web.sdo.categorization.CategorizationNoteType;
@@ -12,6 +9,8 @@ import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.meta.Clazz;
 import org.cloudgraph.web.sdo.meta.InstanceSpecification;
 import org.cloudgraph.web.sdo.meta.Slot;
+import org.plasma.sdo.PlasmaProperty;
+import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;

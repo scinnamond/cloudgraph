@@ -6,12 +6,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.tree.TreeNodeModel;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
+import org.cloudgraph.web.sdo.categorization.Category;
+import org.cloudgraph.web.sdo.categorization.Taxonomy;
 import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaNode;
-
-import org.cloudgraph.web.sdo.categorization.Category;
-import org.cloudgraph.web.sdo.categorization.Taxonomy;
 
 import commonj.sdo.DataObject;
 

@@ -16,16 +16,12 @@ import org.ajax4jsf.model.SerializableDataModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.search.SearchBean;
-import org.cloudgraph.web.query.ApplicationViewQuery;
 import org.cloudgraph.web.query.PropertyViewQuery;
-import org.cloudgraph.web.sdo.adapter.ApplicationViewAdapter;
 import org.cloudgraph.web.sdo.adapter.PropertyViewAdapter;
+import org.cloudgraph.web.sdo.core.PropertyView;
 import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
-
-import org.cloudgraph.web.sdo.core.ApplicationView;
-import org.cloudgraph.web.sdo.core.PropertyView;
 
 import commonj.sdo.DataGraph;
 

@@ -16,7 +16,6 @@ import org.cloudgraph.web.util.BeanFinder;
 import org.jfree.data.general.Dataset;
 import org.plasma.query.model.Query;
 
-
 import commonj.sdo.DataObject;
 
 

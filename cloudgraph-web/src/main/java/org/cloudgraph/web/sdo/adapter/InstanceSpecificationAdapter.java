@@ -3,6 +3,7 @@ package org.cloudgraph.web.sdo.adapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,10 +12,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
-import org.cloudgraph.web.model.search.SearchBean;
 import org.cloudgraph.web.model.taxonomy.TaxonomyConstants;
-import org.cloudgraph.web.util.BeanFinder;
-
 import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.core.PropertyCategorization;
 import org.cloudgraph.web.sdo.meta.Classifier;
@@ -33,10 +31,11 @@ import org.cloudgraph.web.sdo.meta.LiteralString;
 import org.cloudgraph.web.sdo.meta.Property;
 import org.cloudgraph.web.sdo.meta.Slot;
 import org.cloudgraph.web.sdo.meta.ValueSpecification;
+import org.cloudgraph.web.util.BeanFinder;
 
 /**
  */
-public class InstanceSpecificationAdapter implements Serializable {
+public class InstanceSpecificationAdapter implements Serializable, Comparable<InstanceSpecificationAdapter> {
 	private static Log log = LogFactory.getLog(InstanceSpecificationAdapter.class);
 	private static final List<Object> EMPTY_LIST = new ArrayList<Object>();
 	private static final long serialVersionUID = 1L;
@@ -54,6 +53,7 @@ public class InstanceSpecificationAdapter implements Serializable {
 	private InstanceSpecificationAdapter() {
     	this.cache = (new BeanFinder()).findReferenceDataCache();
     	cache.getInventoryPerspectiveModel(); // cache/load this taxonomy
+    	cache.getOrderingModel(); // cache/load this taxonomy
     }
     
 	public InstanceSpecificationAdapter(
@@ -86,7 +86,23 @@ public class InstanceSpecificationAdapter implements Serializable {
 			List<PropertyAdapter> props,
 			int level, int maxLevel) {
 	    this(null, ins, props, level, maxLevel);	
-	}	
+	}
+	
+	@Override
+	public int compareTo(InstanceSpecificationAdapter other) {
+		
+		Object thisOrderingValue = getPrimaryOrderingValue(this.ins);
+		Object otherOrderingValue = getPrimaryOrderingValue(other.ins);
+		if (thisOrderingValue != null && otherOrderingValue != null) {
+			if (Comparable.class.isAssignableFrom(thisOrderingValue.getClass()))
+			{
+				Comparable thisValueComparable = (Comparable)thisOrderingValue;
+				return thisValueComparable.compareTo(otherOrderingValue);
+			}
+		}
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 	public InstanceSpecificationAdapter getSource() {
 		return source;
@@ -200,6 +216,32 @@ public class InstanceSpecificationAdapter implements Serializable {
     		}
 		return null;
 	}
+	
+	private Object getPrimaryOrderingValue(InstanceSpecification instSpec) {
+		for (PropertyAdapter adpater : this.properyMap.values()) {
+			Object value = getPrimaryOrderingValue(instSpec, adpater.getProperty());
+			if (value != null) {
+				return value;
+			}
+		}
+		return null;
+	}
+	
+	private Object getPrimaryOrderingValue(InstanceSpecification instSpec, Property prop) {
+		if (prop.getPropertyCategorizationCount() > 0)
+    		for (PropertyCategorization pc : prop.getPropertyCategorization()) {
+    			Category cat = pc.getCategorization().getCategory();
+    			
+    			Category cached = this.cache.getCategory(cat.getSeqId());
+    			if (isPrimaryOrderingCat(cached)) {
+    				Slot slot = getSlot(instSpec, prop.getSeqId());
+    				if (slot != null) {
+    					return getValue(instSpec, slot);
+    				}
+    			}
+    		}
+		return null;
+	}
     
     private boolean isIdentifierCat(Category current)
     {   	
@@ -208,6 +250,20 @@ public class InstanceSpecificationAdapter implements Serializable {
 	    		return false; // FIXME; somehow
 	    	while (current != null) {
 				if (ReferenceDataCache.TAXONOMY_NAME_INVPM.equals(current.getName()))
+				    return true;
+				current = current.getParent();
+			}
+    	}
+    	return false;
+    }
+    
+    private boolean isPrimaryOrderingCat(Category current)
+    {   	
+    	if (current != null) {
+	    	if (TaxonomyConstants.SYS_TAXONOMY_ORDERING_CAT_PRIMARY != current.getId())
+	    		return false; // FIXME; somehow
+	    	while (current != null) {
+				if (ReferenceDataCache.TAXONOMY_NAME_ORDERING.equals(current.getName()))
 				    return true;
 				current = current.getParent();
 			}
@@ -319,10 +375,10 @@ public class InstanceSpecificationAdapter implements Serializable {
         return null;
     }
 
-    protected List<Object> getMultiSpecificationValue(InstanceSpecification owner, 
+    protected List<Comparable> getMultiSpecificationValue(InstanceSpecification owner, 
     		Slot slot, ValueSpecification valueSpec) { 
 		List<PropertyAdapter> props = null;
-    	List<Object> list = new ArrayList<Object>();
+    	List<Comparable> list = new ArrayList<Comparable>();
     	if (valueSpec.getInstanceValueCount() > 0) {
 			if (this.level == this.maxLevel)
 				return list; // no more levels				
@@ -385,6 +441,7 @@ public class InstanceSpecificationAdapter implements Serializable {
 	       	for (LiteralDate lit : valueSpec.getLiteralDate())
 	       		list.add(lit.getValue());
     	}
+    	Collections.sort(list);
         return list;
     }
     

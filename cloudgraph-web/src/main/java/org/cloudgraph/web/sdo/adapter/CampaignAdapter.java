@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.cloudgraph.web.sdo.campaign.Campaign;
-import org.cloudgraph.web.sdo.core.EnumerationView;
 
 public class CampaignAdapter implements Serializable {
 	

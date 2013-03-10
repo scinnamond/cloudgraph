@@ -1,8 +1,7 @@
 package org.cloudgraph.web.query;
 
-import org.plasma.query.Query;
-
 import org.cloudgraph.web.sdo.meta.query.QSlot;
+import org.plasma.query.Query;
 
 public class SlotQuery {
 	

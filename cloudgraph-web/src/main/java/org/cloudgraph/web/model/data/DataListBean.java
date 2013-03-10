@@ -3,7 +3,9 @@ package org.cloudgraph.web.model.data;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,24 +14,26 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.ModelBean;
-import org.plasma.query.Query;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.plasma.sdo.helper.PlasmaXMLHelper;
-import org.plasma.sdo.xml.DefaultOptions;
 import org.cloudgraph.web.query.InstanceSpecificationQuery;
 import org.cloudgraph.web.sdo.adapter.InstanceSpecificationAdapter;
 import org.cloudgraph.web.sdo.adapter.PropertyAdapter;
 import org.cloudgraph.web.sdo.meta.InstanceSpecification;
 import org.cloudgraph.web.sdo.meta.Property;
+import org.plasma.query.Query;
+import org.plasma.sdo.access.client.SDODataAccessClient;
+import org.plasma.sdo.helper.PlasmaXMLHelper;
+import org.plasma.sdo.xml.DefaultOptions;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.helper.XMLDocument;
 
 public class DataListBean extends ModelBean{
 
+	private static final long serialVersionUID = 1L;
+
 	private static Log log = LogFactory.getLog(DataListBean.class);
 	
-    protected List<Object> data = new ArrayList<Object>();
+    protected List<InstanceSpecificationAdapter> data = new ArrayList<InstanceSpecificationAdapter>();
 	private InstanceMap dataMap = new InstanceMap();
 	private String classifierName;
 	private String previousClassifierName;
@@ -62,7 +66,7 @@ public class DataListBean extends ModelBean{
     	return properties; 
     }
 	    
-    private List<Object> getData() {
+    private List<InstanceSpecificationAdapter> getData() {
 		// if classifier name change, re-fetch
     	if (this.previousClassifierName != null && 
 		    !this.previousClassifierName.equals(this.classifierName)) {
@@ -73,11 +77,11 @@ public class DataListBean extends ModelBean{
 		}
 		    
     	if (this.data == null)
-    		this.data = new ArrayList<Object>();
+    		this.data = new ArrayList<InstanceSpecificationAdapter>();
     		
     	if (this.data.size() == 0)
     	{
-			this.data = new ArrayList<Object>();
+			this.data = new ArrayList<InstanceSpecificationAdapter>();
 		    try {
 		    	Query qry = getQuery();
 		    			    	
@@ -87,12 +91,14 @@ public class DataListBean extends ModelBean{
 		        for (int i = 0; i < results.length; i++) {
 		        	InstanceSpecification instance = (InstanceSpecification)results[i].getRootObject();
 		        	//log.info("list dump: " + instance.dump());
-		        	//String xml = serializeGraph(results[i]);
+		        	//String xml = serializeGraph(instance.getDataGraph());
 		        	//log.info("list xml: " + xml); 
 		        	InstanceSpecificationAdapter adapter = new InstanceSpecificationAdapter(
     			        instance, this.getProperties(), 1, 2);
 		        	data.add(adapter);
 		        }
+		        
+		        Collections.sort(data);
 		    }   
 		    catch (Throwable t) {
 		    	log.error(t.getMessage(), t);
@@ -147,8 +153,9 @@ public class DataListBean extends ModelBean{
 		public List<Object> get(Object key) {
 			previousClassifierName = classifierName;
 			classifierName = (String)key;
-			List<Object> data = getData();
-			return data;
+			List<Object> result = new ArrayList<Object>();
+			result.addAll(getData());
+			return result;
 		}
 
 		@Override

@@ -13,6 +13,7 @@ import org.cloudgraph.web.model.tree.DynamicTreeNodeModel;
 import org.cloudgraph.web.model.tree.TreeNodeModel;
 import org.cloudgraph.web.sdo.adapter.CategoryAdapter;
 import org.cloudgraph.web.sdo.adapter.DataObjectAdapter;
+import org.cloudgraph.web.sdo.categorization.Taxonomy;
 import org.cloudgraph.web.sdo.finder.CategoryFinder;
 import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.sdo.PlasmaDataGraphVisitor;
@@ -21,8 +22,6 @@ import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.richfaces.component.UITree;
 import org.richfaces.component.html.HtmlTree;
 import org.richfaces.model.ListRowKey;
-
-import org.cloudgraph.web.sdo.categorization.Taxonomy;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;

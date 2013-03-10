@@ -26,7 +26,7 @@
         value="#{bundle.aplsEnumerationEdit_exit_label}"
         title="#{bundle.aplsEnumerationEdit_exit_tooltip}" 
         action="#{EnumerationEditBean.exit}"
-        reRender="dashboard_content_panel"/>
+        reRender="admin_content_panel"/>
    </h:panelGrid>   
 	
 	<a4j:outputPanel ajaxRendered="true" id="enumeration_errors">

@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,16 +14,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.WebConstants;
-import org.cloudgraph.web.model.data.InstanceEditBean;
 import org.cloudgraph.web.query.InstanceSpecificationQuery;
 import org.cloudgraph.web.query.PropertyQuery;
-import org.plasma.query.Query;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.plasma.sdo.helper.DataConverter;
-import org.plasma.sdo.helper.PlasmaCopyHelper;
-
-import commonj.sdo.DataGraph;
-
 import org.cloudgraph.web.sdo.meta.Classifier;
 import org.cloudgraph.web.sdo.meta.Clazz;
 import org.cloudgraph.web.sdo.meta.DataType;
@@ -46,6 +37,10 @@ import org.cloudgraph.web.sdo.meta.PrimitiveTypeName;
 import org.cloudgraph.web.sdo.meta.Property;
 import org.cloudgraph.web.sdo.meta.Slot;
 import org.cloudgraph.web.sdo.meta.ValueSpecification;
+import org.plasma.sdo.access.client.SDODataAccessClient;
+import org.plasma.sdo.helper.PlasmaCopyHelper;
+
+import commonj.sdo.DataGraph;
 
 
 public class SlotAdapter implements Serializable {

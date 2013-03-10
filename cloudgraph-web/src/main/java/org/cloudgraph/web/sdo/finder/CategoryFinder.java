@@ -1,8 +1,7 @@
 package org.cloudgraph.web.sdo.finder;
 
-import org.plasma.sdo.PlasmaDataGraphVisitor;
-
 import org.cloudgraph.web.sdo.categorization.Category;
+import org.plasma.sdo.PlasmaDataGraphVisitor;
 
 import commonj.sdo.DataObject;
 

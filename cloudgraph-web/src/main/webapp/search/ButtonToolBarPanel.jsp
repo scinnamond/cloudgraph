@@ -11,7 +11,7 @@
 	    title="#{bundle.aplsSearch_createProject_tooltip}" 
 	    action="#{ProjectEditBean.create}">
 	    <f:setPropertyActionListener value="true"   
-		    target="#{NavigationBean.workspaceSelected}" />
+		    target="#{NavigationBean.administrationSelected}" />
     </a4j:commandButton>
     <%/* 
 	<h:commandButton id="exit_button" 

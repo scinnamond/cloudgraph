@@ -55,6 +55,11 @@
             </exclusions>
         </dependency>
         <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.23</version>
+        </dependency>
+        <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-hbase</artifactId>
             <version>0.5.2</version>
@@ -201,10 +206,6 @@
             		<groupId>org.jdom</groupId>
             	</exclusion>
             	<exclusion>
-            		<artifactId>ydoc</artifactId>
-            		<groupId>plasma</groupId>
-            	</exclusion>
-            	<exclusion>
             		<artifactId>dom4j</artifactId>
             		<groupId>dom4j</groupId>
             	</exclusion>
@@ -245,7 +246,7 @@
         </dependency>
         <!-- 
         <dependency>
-            <groupId>plasma</groupId>
+            <groupId>org.terrameta</groupId>
             <artifactId>plasma-sdo-jpa</artifactId>
             <version>1.1.3</version>
         </dependency>
@@ -317,15 +318,11 @@
         </dependency>
 
         <dependency>
-        	<groupId>plasma</groupId>
+        	<groupId>org.terrameta</groupId>
         	<artifactId>plasma-maven-plugin</artifactId>
         	<version>1.1.3</version>
         	<scope>provided</scope>
         	<exclusions>
-        		<exclusion>
-        			<artifactId>ydoc</artifactId>
-        			<groupId>plasma</groupId>
-        		</exclusion>
         		<exclusion>
         			<artifactId>jdom</artifactId>
         			<groupId>jdom</groupId>
@@ -431,11 +428,11 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>plasma</groupId>
+                <groupId>org.terrameta</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
                 <version>1.1.3</version>
                 <executions>
-                    <!--  
+                      
                     <execution>
                         <id>sdo-create</id>
                         <configuration>
@@ -494,7 +491,7 @@
                             <goal>ddl</goal>
                         </goals>
                     </execution>
-                    -->
+                     
                    <execution>
                         <id>ddl-create-mysql</id>
                         <configuration>
@@ -510,6 +507,26 @@
                             </additionalClasspathElements>
                             <outputDirectory>${basedir}/target/ddl</outputDirectory>                            
                             <outputFile>mysql-create.ddl</outputFile>                            
+                        </configuration>
+                        <goals>
+                            <goal>ddl</goal>
+                        </goals>
+                    </execution>
+                   <execution>
+                        <id>ddl-truncate-mysql</id>
+                        <configuration>
+                            <action>truncate</action>
+                            <dialect>mysql</dialect>
+                            <systemProperties>
+                                <property><name>log4j.configuration</name><value>log4j.properties</value></property>
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+                                <property><name>plasma.configuration</name><value>plasma-config-buildtime.xml</value></property>
+                            </systemProperties>
+                            <additionalClasspathElements>
+                                <param>${basedir}/src/main/resources</param>
+                            </additionalClasspathElements>
+                            <outputDirectory>${basedir}/target/ddl</outputDirectory>                            
+                            <outputFile>mysql-truncate.ddl</outputFile>                            
                         </configuration>
                         <goals>
                             <goal>ddl</goal>
@@ -547,20 +564,20 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-                        <skip>true</skip>
+                        <skip>false</skip>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
                         </additionalClasspathElements>                  
                         <forkMode>once</forkMode>
                         <systemProperties>
-                            <property><name>cloudgraph.configuration</name><value>cloudgraph-config.xml</value></property>
-                            <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
+                            <property><name>cloudgraph.configuration</name><value>cloudgraph-config-import.xml</value></property>
+                            <property><name>plasma.configuration</name><value>plasma-config-import.xml</value></property>
                             <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
                             <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                         </systemProperties>
                         <includes>               
-                            <include>**/*Test*</include>                      
+                            <include>**/*DataLoadTest*</include>                      
                         </includes> 
                     </configuration>
                   </execution>
@@ -569,9 +586,9 @@
                     <skip>true</skip>
                     
                     <!-- debugging -->  
-                    <!--                     
+                       <!--                
                     <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
-                        -->
+                          -->
                     <!-- profiling  -->
                     <!--
                     <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  
@@ -586,7 +603,7 @@
               <artifactId>maven-antrun-plugin</artifactId>                   
               <version>1.7</version> 
               <executions>  
-                <!--                                                               
+               
                 <execution>    
                   <id>test-export</id>                                              
                   <phase>test</phase>                
@@ -601,7 +618,7 @@
 				        <java failonerror="yes"                                             
 				            fork="yes"                                                      
 				            classname="org.cloudgraph.web.etl.DataExtract">
-				          <jvmarg value="-Dplasma.configuration=plasma-config-buildtime.xml"/>
+				          <jvmarg value="-Dplasma.configuration=plasma-config-export.xml"/>
 				          <jvmarg value="-Dfuml.configuration=fuml-config.xml"/>
 				          <jvmarg value="-Djavax.xml.transform.TransformerFactory=com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImpl"/>
 				          <jvmarg value="-Xmx500M"/>
@@ -616,6 +633,8 @@
                     <goal>run</goal>                                         
                   </goals>                                                   
                 </execution> 
+                 
+                <!--    
                 <execution>    
                   <id>test-import</id>                                              
                   <phase>test</phase>                
@@ -648,7 +667,7 @@
                     <goal>run</goal>                                         
                   </goals>                                                   
                 </execution>  
-                   -->
+                -->
                 <execution>    
                   <id>copy-war</id>                                              
                   <phase>install</phase>                
@@ -677,7 +696,7 @@
 							<pluginExecutions>
 								<pluginExecution>
 									<pluginExecutionFilter>
-										<groupId>plasma</groupId>
+										<groupId>org.terrameta</groupId>
 										<artifactId>
 											plasma-maven-plugin
 										</artifactId>

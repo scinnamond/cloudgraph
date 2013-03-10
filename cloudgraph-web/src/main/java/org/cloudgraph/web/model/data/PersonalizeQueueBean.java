@@ -10,13 +10,12 @@ import org.cloudgraph.web.config.web.AppActions;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.query.PropertyViewQuery;
 import org.cloudgraph.web.sdo.adapter.PropertyViewAdapter;
+import org.cloudgraph.web.sdo.core.PropertyView;
 import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 
 import commonj.sdo.DataGraph;
-
-import org.cloudgraph.web.sdo.core.PropertyView;
 
 public class PersonalizeQueueBean extends ModelBean {
 	private static final long serialVersionUID = 1L;

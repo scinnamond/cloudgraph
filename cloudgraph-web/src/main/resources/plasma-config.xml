@@ -89,21 +89,18 @@
             artifact="http://org.cloudgraph/examples/hl7/ficr/hd410200"> 
         </Namespace>
         
-           
         <DataAccessService dataStoreType="RDBMS">   
             <DataAccessProvider name="JDBC"                
-                className="org.cloudgraph.rdb.jdbc.JDBCDataAccessProvider">
+                className="org.cloudgraph.rdb.service.RDBGraphService">
 
-                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionURL">jdbc:oracle:thin:@localhost:1521:XE</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionURL">jdbc:mysql://localhost:3306/apls</Property>    
                 
-                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPassword">APLS</Property>    
-                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionUserName">APLS</Property>    
-                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionDriverName">oracle.jdbc.driver.OracleDriver</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPassword">mysql</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionUserName">root</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionDriverName">com.mysql.jdbc.Driver</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMinSize">1</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMaxSize">80</Property>    
 
-                <SequenceConfiguration suffix="_SEQ"
-                    generatorClassName="org.cloudgraph.rdb.jdbc.StoredProcSequenceGenerator"/>         
                 <Concurrency 
                     pessimisticLockTimeoutMillis="300000"/>
                               
@@ -114,7 +111,6 @@
                 <NamespaceLink uri="http://org.cloudgraph/web/meta"/>
                 <NamespaceLink uri="http://org.cloudgraph/web/core"/>
             </DataAccessProvider>
-
   		    	  
   	    </DataAccessService>
   	    	 

@@ -15,13 +15,16 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.web.config.ImportExportConfig;
+import org.cloudgraph.web.config.imex.DataEntity;
+import org.cloudgraph.web.config.imex.DataExport;
 import org.jdom2.output.XMLOutputter;
 import org.plasma.common.bind.DataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.config.ConfigurationException;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.Query;
-import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.access.client.PojoDataAccessClient;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.core.CoreXMLDocument;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
@@ -30,9 +33,7 @@ import org.plasma.sdo.xml.DefaultOptions;
 import org.plasma.sdo.xml.XMLOptions;
 import org.plasma.xml.uml.UMLModelAssembler;
 import org.xml.sax.SAXException;
-
-import org.cloudgraph.web.config.ImportExportConfig;
-import org.cloudgraph.web.config.imex.DataEntity;
+import org.plasma.config.DataAccessProviderName;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.helper.XMLDocument;
@@ -50,12 +51,12 @@ public class DataExtract {
 		for (org.cloudgraph.web.config.imex.DataExport dataExport : ImportExportConfig.getInstance().getConfig().getDataExport()) 
 		{
 			log.info("processing data export: " + dataExport.getName());
-			processDataEntities(dataExport.getDataEntity(), 
+			processDataEntities(dataExport, dataExport.getDataEntity(), 
 					dataExport.getTargetDir());
 		}   	    	
     }
     
-    private void processDataEntities(List<DataEntity> list, String targetDir) throws IOException {
+    private void processDataEntities(DataExport export, List<DataEntity> list, String targetDir) throws IOException {
         for (DataEntity dataEntity : list) {
         	File exportDir = defaultExportDir;
         	
@@ -92,7 +93,7 @@ public class DataExtract {
             File exportFile = null;
             if (dataEntity.getTarget() != null && dataEntity.getTarget().length() > 0)
             	exportFile = new File(exportDir, dataEntity.getTarget());
-            processExport(dataEntity, query, 	
+            processExport(export, dataEntity, query, 	
             	binding, exportDir, exportFile);        	
         }
     	
@@ -107,7 +108,7 @@ public class DataExtract {
         return result;
     }  
 
-    private void processExport(DataEntity dataEntity,
+    private void processExport(DataExport export, DataEntity dataEntity,
     		Query query,  
     		DataBinding dataBinding, File exportDir, File exportFile) throws IOException {
         
@@ -161,7 +162,10 @@ public class DataExtract {
 	    xmios.flush();
 	    xmios.close();
 	    assert(query != null);
-        SDODataAccessClient service = new SDODataAccessClient();
+        SDODataAccessClient service = new SDODataAccessClient(
+    			new PojoDataAccessClient(
+    					DataAccessProviderName.valueOf(export.getProviderName())));
+
         DataGraph[] graphs = service.find(query);
         
         XMLOptions options = new DefaultOptions(

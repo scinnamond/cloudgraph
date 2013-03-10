@@ -9,11 +9,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.config.web.ComponentName;
 import org.cloudgraph.web.config.web.ComponentShape;
+import org.cloudgraph.web.sdo.personalization.ElementType;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
-
-import org.cloudgraph.web.sdo.personalization.ElementType;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;

@@ -1,12 +1,11 @@
 package org.cloudgraph.web.model.profile;
 
+import org.cloudgraph.web.sdo.personalization.User;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Property;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.Select;
 import org.plasma.query.model.Where;
-
-import org.cloudgraph.web.sdo.personalization.User;
 
 public class UserQuery {
 

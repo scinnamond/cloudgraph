@@ -3,7 +3,6 @@ package org.cloudgraph.web.model.documentation;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,9 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tools.ant.taskdefs.condition.Os;
-import org.cloudgraph.web.ErrorHandlerBean;
-import org.cloudgraph.web.config.web.AppActions;
 import org.cloudgraph.web.model.ModelBean;
 
 public class DocumentBean extends ModelBean 

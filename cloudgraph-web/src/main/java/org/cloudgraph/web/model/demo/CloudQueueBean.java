@@ -15,19 +15,7 @@ import org.ajax4jsf.model.SequenceRange;
 import org.ajax4jsf.model.SerializableDataModel;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.web.model.search.SearchBean;
-import org.cloudgraph.web.query.InstanceSpecificationQuery;
-import org.cloudgraph.web.query.PropertyViewQuery;
-import org.cloudgraph.web.sdo.adapter.InstanceSpecificationQueueAdapter;
-import org.cloudgraph.web.sdo.adapter.PropertyViewAdapter;
 import org.cloudgraph.web.util.BeanFinder;
-import org.plasma.query.Query;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-
-import org.cloudgraph.web.sdo.core.PropertyView;
-import org.cloudgraph.web.sdo.meta.InstanceSpecification;
-
-import commonj.sdo.DataGraph;
 
 
 /**

@@ -1,7 +1,6 @@
 package org.cloudgraph.web.model.dashboard;
 
 import org.cloudgraph.web.config.web.ComponentName;
-
 import org.cloudgraph.web.sdo.personalization.ElementType;
 
 

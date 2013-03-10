@@ -3,16 +3,14 @@ package org.cloudgraph.web.model.common;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.model.search.SearchBean;
 import org.cloudgraph.web.model.taxonomy.TaxonomyConstants;
 import org.cloudgraph.web.sdo.adapter.PropertyAdapter;
-import org.cloudgraph.web.util.BeanFinder;
-
 import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.core.PropertyCategorization;
 import org.cloudgraph.web.sdo.meta.Property;
+import org.cloudgraph.web.util.BeanFinder;
 
 public class CategorizedPropertySupport {
 	private static final long serialVersionUID = 5241051901785754599L;

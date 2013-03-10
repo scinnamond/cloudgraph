@@ -1,52 +1,19 @@
 package org.cloudgraph.web.model.demo;
 
 // java imports
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.faces.context.FacesContext;
-import javax.faces.model.SelectItem;
 
 import org.ajax4jsf.model.DataVisitor;
 import org.ajax4jsf.model.Range;
-import org.ajax4jsf.model.SequenceRange;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.web.ErrorHandlerBean;
-import org.cloudgraph.web.config.web.AppActions;
-import org.cloudgraph.web.model.cache.ReferenceDataCache;
-import org.cloudgraph.web.model.common.CategorizedPropertySupport;
-import org.cloudgraph.web.model.common.PropertySelector;
-import org.cloudgraph.web.model.common.QueueBean;
-import org.cloudgraph.web.model.configuration.PropertyItem;
-import org.cloudgraph.web.model.search.SearchBean;
-import org.cloudgraph.web.model.taxonomy.TaxonomyConstants;
-import org.cloudgraph.web.query.InstanceSpecificationQuery;
-import org.cloudgraph.web.query.PropertyQuery;
-import org.cloudgraph.web.query.PropertyViewQuery;
-import org.cloudgraph.web.sdo.adapter.InstanceSpecificationQueueAdapter;
-import org.cloudgraph.web.sdo.adapter.PropertyAdapter;
-import org.cloudgraph.web.sdo.adapter.PropertyViewAdapter;
-import org.cloudgraph.web.util.BeanFinder;
-import org.plasma.query.Query;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.plasma.sdo.helper.PlasmaXMLHelper;
-import org.plasma.sdo.xml.DefaultOptions;
-
-import org.cloudgraph.web.sdo.categorization.Category;
-import org.cloudgraph.web.sdo.core.PropertyCategorization;
-import org.cloudgraph.web.sdo.core.PropertyView;
-import org.cloudgraph.web.sdo.meta.InstanceSpecification;
-import org.cloudgraph.web.sdo.meta.Property;
-
-import commonj.sdo.DataGraph;
-import commonj.sdo.helper.XMLDocument;
 
 
 /**

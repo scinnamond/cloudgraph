@@ -5,10 +5,9 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.sdo.adapter.CategorizationAdapter;
 import org.cloudgraph.web.sdo.adapter.PropertyCategorizationAdapter;
-import org.plasma.sdo.PlasmaDataGraphVisitor;
-
 import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.core.PropertyCategorization;
+import org.plasma.sdo.PlasmaDataGraphVisitor;
 
 import commonj.sdo.DataObject;
 import commonj.sdo.Type;

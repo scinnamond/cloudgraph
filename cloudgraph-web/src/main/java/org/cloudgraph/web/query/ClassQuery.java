@@ -1,9 +1,7 @@
 package org.cloudgraph.web.query;
 
-import org.plasma.query.Query;
-
 import org.cloudgraph.web.sdo.meta.query.QClazz;
-import org.cloudgraph.web.sdo.meta.query.QNamedElement;
+import org.plasma.query.Query;
 
 public class ClassQuery {
 

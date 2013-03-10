@@ -18,11 +18,10 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.search.SearchBean;
 import org.cloudgraph.web.query.EnumerationViewQuery;
 import org.cloudgraph.web.sdo.adapter.EnumerationViewAdapter;
+import org.cloudgraph.web.sdo.core.EnumerationView;
 import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
-
-import org.cloudgraph.web.sdo.core.EnumerationView;
 
 import commonj.sdo.DataGraph;
 

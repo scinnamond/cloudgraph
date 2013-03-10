@@ -62,15 +62,6 @@
               value="#{NavigationBean.newsAction.label}" 
               title="#{NavigationBean.newsAction.tooltip}"/>
       </rich:toolBarGroup>
-      <rich:toolBarGroup styleClass="#{NavigationBean.workspaceAction.selected ? 'TopNavActive' : 'TopNav'}"
-          rendered="#{NavigationBean.workspaceAction.selected}">
-          <h:graphicImage value="#{NavigationBean.workspaceAction.icon}" />
-          <h:commandLink
-              action="#{NavigationBean.workspaceAction.onAction}"
-              styleClass="#{NavigationBean.workspaceAction.selected ? 'TopNavActive' : 'TopNav'}"
-              value="#{NavigationBean.workspaceAction.label}" 
-              title="#{NavigationBean.workspaceAction.tooltip}"/>
-      </rich:toolBarGroup>
       <rich:toolBarGroup styleClass="#{NavigationBean.administrationAction.selected ? 'TopNavActive' : 'TopNav'}"
           rendered="#{UserBean.roleName == 'SUPERUSER'}">
           <h:graphicImage value="#{NavigationBean.administrationAction.icon}" />

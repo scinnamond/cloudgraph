@@ -66,6 +66,11 @@ public class NavigationBean extends ModelBean {
 				clearSelection();
 				selectedTopAction = selection;
 				selectedTopAction.setSelected(true);				
+			}
+
+			@Override
+			public TreeNodeAction getSelection() {
+				return selectedTopAction;
 			}			
 		};
 		
@@ -184,7 +189,7 @@ public class NavigationBean extends ModelBean {
 		if (b.booleanValue())
 		    this.topSelectionModel.setSelection(this.administrationAction);
 		else
-			this.administrationAction.setSelected(false);
+			this.blogAction.setSelected(false);
 	}
 
 	public TreeNodeAction getDashboardAction() {

@@ -7,7 +7,6 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.taxonomy.OrganizationLabelFormat;
 import org.cloudgraph.web.model.taxonomy.TaxonomyTreeNodeType;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
-
 import org.cloudgraph.web.sdo.core.Organization;
 
 public class OrganizationTreeBean extends org.cloudgraph.web.model.taxonomy.DynamicOrganizationTreeBean {

@@ -28,7 +28,7 @@
         value="#{bundle.aplsClassEdit_save_label}"
         title="#{bundle.aplsClassEdit_save_tooltip}" 
         action="#{InstanceEditBean.saveFromAjax}"
-        reRender="inst_content_panel,admin_content_panel,configuration_tab"/>
+        reRender="inst_content_panel,admin_content_panel"/>
       <a4j:commandLink 
         value="#{bundle.aplsClassEdit_exit_label}"
         title="#{bundle.aplsClassEdit_exit_tooltip}" 

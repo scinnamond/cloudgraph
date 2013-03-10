@@ -12,19 +12,11 @@ import org.cloudgraph.web.config.web.PropertyDatatype;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.model.tree.TreeNodeModel;
-import org.cloudgraph.web.query.ClassViewQuery;
-import org.cloudgraph.web.sdo.adapter.ClassViewAdapter;
-import org.plasma.sdo.PlasmaDataGraph;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.richfaces.component.html.HtmlTree;
-import org.richfaces.model.ListRowKey;
-
-import commonj.sdo.DataGraph;
-
-import org.cloudgraph.web.sdo.core.ClassView;
 import org.cloudgraph.web.sdo.core.Organization;
 import org.cloudgraph.web.sdo.meta.Clazz;
 import org.cloudgraph.web.sdo.meta.Package;
+import org.richfaces.component.html.HtmlTree;
+import org.richfaces.model.ListRowKey;
 
 public class SearchBean extends ModelBean implements Search {
 	private static final long serialVersionUID = 1L;

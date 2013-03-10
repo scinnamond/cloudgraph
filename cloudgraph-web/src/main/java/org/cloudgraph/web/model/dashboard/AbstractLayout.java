@@ -9,9 +9,8 @@ import org.cloudgraph.web.config.web.ComponentName;
 import org.cloudgraph.web.config.web.ComponentShape;
 import org.cloudgraph.web.config.web.PropertyName;
 import org.cloudgraph.web.model.profile.UserBean;
-import org.cloudgraph.web.util.BeanFinder;
-
 import org.cloudgraph.web.sdo.personalization.ElementType;
+import org.cloudgraph.web.util.BeanFinder;
 
 public abstract class AbstractLayout implements Layout {
 	private static Log log = LogFactory.getLog(AbstractLayout.class);

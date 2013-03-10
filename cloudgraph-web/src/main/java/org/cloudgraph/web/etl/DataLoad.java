@@ -16,10 +16,10 @@ import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.log4j.Logger;
-
 import org.cloudgraph.web.common.xslt.XSLTUtils;
 import org.cloudgraph.web.config.ImportExportConfig;
 import org.cloudgraph.web.config.imex.DataEntity;
+import org.cloudgraph.web.config.imex.DataImport;
 import org.cloudgraph.web.config.imex.ImportLoader;
 import org.cloudgraph.web.config.imex.Transformation;
 import org.cloudgraph.web.etl.loader.Loader;
@@ -74,6 +74,7 @@ public class DataLoad
 					baseTargetDir);
 			
 			processLoaders(
+					dataImport,
 					dataImport.getImportLoader(),
 					command, 
 					baseSourceDir, 
@@ -158,6 +159,7 @@ public class DataLoad
 	}
 
 	private static void processLoaders(
+			DataImport dataImport,
 			List<ImportLoader> loaderList,
 			ETLAction command, 
 			File baseSourceDir, 
@@ -166,7 +168,8 @@ public class DataLoad
 	        IOException, TransformerException, SQLException 
 	{
 	    for (ImportLoader importLoader : loaderList) {
-	    	Loader loader = createLoader(importLoader.getClassName());
+	    	Loader loader = createLoader(importLoader.getClassName(),
+	    			dataImport);
 	    	File queryFile = null;
 	    	if (importLoader.getQueryFileName() != null) {
 	    		queryFile = new File(baseSourceDir, 
@@ -192,7 +195,7 @@ public class DataLoad
 
 		    		    File[] files = sourceFile.getParentFile().listFiles(filter);
 					    if (files == null)
-		    		        throw new IllegalArgumentException("no files found for filter");
+		    		        throw new IllegalArgumentException("no files found for filter '" + entity.getSource() + "'");
 		    		    for (int i = 0; i < files.length; i++) {
 
 		    		    	if (command.ordinal() == ETLAction.transform.ordinal())
@@ -228,13 +231,13 @@ public class DataLoad
 		
 	}
 	
-	private static Loader createLoader(String className) {
+	private static Loader createLoader(String className, DataImport dataImport) {
 		
 		try {
 			Class<?> c = Class.forName(className);
-			Class<?>[] params = new Class[0];
+			Class<?>[] params = { dataImport.getClass() };
 			Constructor<?> constructor = c.getConstructor(params);
-			Object[] args = new Object[0];
+			Object[] args = { dataImport };
 			return (Loader)constructor.newInstance(args);			
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);

@@ -1,5 +1,7 @@
 package org.cloudgraph.web.model.cache;
 
+import org.cloudgraph.web.sdo.categorization.Category;
+import org.cloudgraph.web.sdo.categorization.Taxonomy;
 import org.plasma.query.model.From;
 import org.plasma.query.model.OrderBy;
 import org.plasma.query.model.Path;
@@ -7,9 +9,6 @@ import org.plasma.query.model.Property;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.Select;
 import org.plasma.query.model.Where;
-
-import org.cloudgraph.web.sdo.categorization.Category;
-import org.cloudgraph.web.sdo.categorization.Taxonomy;
 
 
 public class TaxonomyQuery {

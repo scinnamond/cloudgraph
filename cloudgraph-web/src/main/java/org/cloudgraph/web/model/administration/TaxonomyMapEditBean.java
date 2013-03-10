@@ -12,16 +12,15 @@ import org.cloudgraph.web.model.cache.TaxonomyMapQuery;
 import org.cloudgraph.web.model.taxonomy.DefaultDynamicTaxonomyTreeBean;
 import org.cloudgraph.web.model.tree.TreeNodeModel;
 import org.cloudgraph.web.sdo.adapter.CategoryLinkAdapter;
+import org.cloudgraph.web.sdo.categorization.Category;
+import org.cloudgraph.web.sdo.categorization.CategoryLink;
+import org.cloudgraph.web.sdo.categorization.Taxonomy;
+import org.cloudgraph.web.sdo.categorization.TaxonomyMap;
 import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.richfaces.component.html.HtmlTree;
 import org.richfaces.model.ListRowKey;
-
-import org.cloudgraph.web.sdo.categorization.Category;
-import org.cloudgraph.web.sdo.categorization.CategoryLink;
-import org.cloudgraph.web.sdo.categorization.Taxonomy;
-import org.cloudgraph.web.sdo.categorization.TaxonomyMap;
 
 import commonj.sdo.DataGraph;
 

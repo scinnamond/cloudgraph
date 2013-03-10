@@ -25,6 +25,9 @@ import org.cloudgraph.web.datasource.DataSourceManager;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.profile.UserBean;
 import org.cloudgraph.web.model.tree.TreeNodeModel;
+import org.cloudgraph.web.sdo.categorization.Category;
+import org.cloudgraph.web.sdo.personalization.ElementType;
+import org.cloudgraph.web.sdo.personalization.Setting;
 import org.cloudgraph.web.util.BeanFinder;
 import org.cloudgraph.web.util.ResourceCache;
 import org.cloudgraph.web.util.ResourceFinder;
@@ -38,10 +41,6 @@ import org.richfaces.component.html.HtmlTree;
 import org.richfaces.event.DropEvent;
 import org.richfaces.event.DropListener;
 import org.richfaces.model.ListRowKey;
-
-import org.cloudgraph.web.sdo.categorization.Category;
-import org.cloudgraph.web.sdo.personalization.ElementType;
-import org.cloudgraph.web.sdo.personalization.Setting;
 
 /**
  * 

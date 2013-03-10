@@ -28,12 +28,13 @@
         value="#{bundle.aplsPackageEdit_save_label}"
         title="#{bundle.aplsPackageEdit_save_tooltip}" 
         action="#{PackageEditBean.saveFromAjax}"
-        reRender="package_content_panel,admin_content_panel,configuration_tab"/>
+        reRender="package_content_panel,admin_content_panel"/>
       <a4j:commandLink 
         value="#{bundle.aplsPackageEdit_exit_label}"
         title="#{bundle.aplsPackageEdit_exit_tooltip}" 
         action="#{PackageEditBean.exit}"
-        reRender="dashboard_content_panel"/>
+        reRender="admin_content_panel">
+      </a4j:commandLink>  
    </h:panelGrid>   
 	
 	<a4j:outputPanel ajaxRendered="true" id="class_errors">

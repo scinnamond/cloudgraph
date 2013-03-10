@@ -8,32 +8,28 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.web.config.imex.DataImport;
+import org.cloudgraph.web.sdo.categorization.Categorization;
+import org.cloudgraph.web.sdo.categorization.Category;
+import org.cloudgraph.web.sdo.core.PropertyCategorization;
+import org.cloudgraph.web.sdo.meta.Classifier;
+import org.cloudgraph.web.sdo.meta.Clazz;
+import org.cloudgraph.web.sdo.meta.Property;
 import org.plasma.sdo.PlasmaChangeSummary;
-import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
-import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.helper.PlasmaQueryHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 
-
-import org.cloudgraph.web.sdo.categorization.Categorization;
-import org.cloudgraph.web.sdo.categorization.Category;
-import org.cloudgraph.web.sdo.meta.Classifier;
-import org.cloudgraph.web.sdo.meta.Clazz;
-import org.cloudgraph.web.sdo.meta.Property;
-import org.cloudgraph.web.sdo.core.PropertyCategorization;
-import org.cloudgraph.web.sdo.categorization.query.QCategory;
-import org.cloudgraph.web.sdo.meta.query.QClassifier;
-import org.cloudgraph.web.sdo.meta.query.QClazz;
-
-import commonj.sdo.DataGraph;
 import commonj.sdo.helper.XMLDocument;
 
 public class PropertyLoader extends AbstractLoader 
     implements Loader
 {
     private static Log log = LogFactory.getLog(PropertyLoader.class);
+    public PropertyLoader(DataImport dataImport) {
+    	super(dataImport);
+    }
 	
     @Override
 	public void define(File queryFile) {
@@ -97,7 +93,7 @@ public class PropertyLoader extends AbstractLoader
 			changeSummary.clear(clsfrTemp); // remove created info from change summary
 			prop.setDataType(clsfr);
 
-			log.info(prop.dump());
+			//log.info(prop.dump());
 			
 			service.commit(doc.getRootObject().getDataGraph(), 
 					"dataloader");

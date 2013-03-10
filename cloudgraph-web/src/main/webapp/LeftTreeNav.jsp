@@ -92,7 +92,7 @@
     </rich:panelMenu>  
         
     <h:panelGrid columns="1" border="0"
-        rendered="#{NavigationBean.administrationAction.selected || NavigationBean.workspaceAction.selected}">
+        rendered="#{NavigationBean.administrationAction.selected}">
         <rich:spacer width="230" height="1"/>
         
 		<rich:simpleTogglePanel opened="true" switchType="ajax" 
@@ -113,7 +113,7 @@
 		          <h:graphicImage value="/images/new_item.gif"/>
 		          <rich:spacer width="18" height="1"/>
                   <f:setPropertyActionListener value="true"   
-                      target="#{NavigationBean.workspaceSelected}" />                                             
+                      target="#{NavigationBean.administrationSelected}" />                                             
 		      </a4j:commandLink>
 		   </h:panelGrid> 	        
 		   <h:dataTable value="#{SearchBean.packages}" var="pkg">                                                                                            
@@ -129,7 +129,7 @@
 		                    target="#{SearchBean.packageId}" />
 		    	    </a4j:commandLink>
 			    </h:column>
-	            <h:column rendered="#{NavigationBean.administrationAction.selected || NavigationBean.workspaceAction.selected}">
+	            <h:column rendered="#{NavigationBean.administrationAction.selected}">
 				    <a4j:commandLink value="[edit]"
 			            styleClass="LeftNavActive"
 			            action="#{PackageEditBean.edit}" 
@@ -138,7 +138,7 @@
 			            <f:setPropertyActionListener value="#{pkg.seqId}"
 		                    target="#{PackageEditBean.packageId}" />
 	                    <f:setPropertyActionListener value="true"   
-	                        target="#{NavigationBean.workspaceSelected}" />                                             
+	                        target="#{NavigationBean.administrationSelected}" />                                             
 		    	    </a4j:commandLink>
 			    </h:column>
             </h:dataTable>
@@ -146,7 +146,7 @@
 
 		<rich:simpleTogglePanel id="lefnav_classes_panel" opened="true" switchType="ajax" 
 			label="Business Entities" bodyClass="ParentPannelBody"
-			rendered="#{NavigationBean.administrationAction.selected || NavigationBean.workspaceAction.selected}">
+			rendered="#{NavigationBean.administrationAction.selected}">
 		  <h:panelGrid columns="6" width="100%" 
 		      columnClasses="ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv"
 		      cellpadding="3" cellspacing="3" border="0" > 
@@ -163,7 +163,7 @@
 		          <h:graphicImage value="/images/new_item.gif"/>
 		          <rich:spacer width="18" height="1"/>
 	              <f:setPropertyActionListener value="true"   
-	                  target="#{NavigationBean.workspaceSelected}" />                                             
+	                  target="#{NavigationBean.administrationSelected}" />                                             
 		      </a4j:commandLink>
 		   </h:panelGrid> 	        
 		   <h:dataTable value="#{SearchBean.classes}" var="clss">                                                                                            
@@ -179,7 +179,7 @@
 		                    target="#{SearchBean.clazzId}" />
 		    	    </a4j:commandLink>
 			    </h:column>
-	            <h:column rendered="#{NavigationBean.administrationAction.selected || NavigationBean.workspaceAction.selected}">
+	            <h:column rendered="#{NavigationBean.administrationAction.selected}">
 				    <a4j:commandLink value="[edit]"
 			            styleClass="LeftNavActive"
 			            action="#{ClassEditBean.edit}" 
@@ -187,7 +187,7 @@
 			            <f:setPropertyActionListener value="#{clss.seqId}"
 		                    target="#{ClassEditBean.clazzId}" />
 	                    <f:setPropertyActionListener value="true"   
-	                        target="#{NavigationBean.workspaceSelected}" />                                             
+	                        target="#{NavigationBean.administrationSelected}" />                                             
 		    	    </a4j:commandLink>
 			    </h:column>
             </h:dataTable>

@@ -28,14 +28,12 @@
         value="#{bundle.aplsPropertyEdit_save_label}"
         title="#{bundle.aplsPropertyEdit_save_tooltip}" 
         action="#{PropertyEditBean.saveFromAjax}"
-        reRender="property_content_panel,admin_content_panel,configuration_tab"/>
+        reRender="property_content_panel,admin_content_panel"/>
       <a4j:commandLink 
         value="#{bundle.aplsPropertyEdit_exit_label}"
         title="#{bundle.aplsPropertyEdit_exit_tooltip}" 
         action="#{PropertyEditBean.exit}"
-        reRender="dashboard_content_panel,topnav_form">
-        <f:setPropertyActionListener value="true"   
-            target="#{NavigationBean.administrationSelected}" />
+        reRender="admin_content_panel">
       </a4j:commandLink>                                             
    </h:panelGrid>   
 	

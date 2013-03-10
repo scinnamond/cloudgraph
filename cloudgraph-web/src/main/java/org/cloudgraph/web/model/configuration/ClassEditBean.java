@@ -19,16 +19,24 @@ import org.cloudgraph.web.ErrorHandlerBean;
 import org.cloudgraph.web.ResourceManager;
 import org.cloudgraph.web.WebConstants;
 import org.cloudgraph.web.config.web.AppActions;
+import org.cloudgraph.web.model.Action;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.query.ClassQuery;
-import org.cloudgraph.web.query.ClassViewQuery;
 import org.cloudgraph.web.query.PackageQuery;
 import org.cloudgraph.web.query.PropertyViewQuery;
 import org.cloudgraph.web.sdo.adapter.CategorizationAdapter;
-import org.cloudgraph.web.sdo.adapter.ClassViewAdapter;
 import org.cloudgraph.web.sdo.adapter.PropertyViewAdapter;
 import org.cloudgraph.web.sdo.adapter.TaxonomyAdapter;
+import org.cloudgraph.web.sdo.categorization.Taxonomy;
+import org.cloudgraph.web.sdo.core.ClassCategorization;
+import org.cloudgraph.web.sdo.core.PropertyView;
+import org.cloudgraph.web.sdo.meta.Classifier;
+import org.cloudgraph.web.sdo.meta.Clazz;
+import org.cloudgraph.web.sdo.meta.Element;
+import org.cloudgraph.web.sdo.meta.NamedElement;
+import org.cloudgraph.web.sdo.meta.Package;
+import org.cloudgraph.web.sdo.meta.PackageableType;
 import org.cloudgraph.web.sdo.visitor.CategorizationCollector;
 import org.cloudgraph.web.sdo.visitor.ClassCategorizationCollector;
 import org.cloudgraph.web.util.BeanFinder;
@@ -38,17 +46,6 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaCopyHelper;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
-
-import org.cloudgraph.web.sdo.categorization.Taxonomy;
-import org.cloudgraph.web.sdo.core.ClassCategorization;
-import org.cloudgraph.web.sdo.core.ClassView;
-import org.cloudgraph.web.sdo.core.PropertyView;
-import org.cloudgraph.web.sdo.meta.Classifier;
-import org.cloudgraph.web.sdo.meta.Clazz;
-import org.cloudgraph.web.sdo.meta.Element;
-import org.cloudgraph.web.sdo.meta.NamedElement;
-import org.cloudgraph.web.sdo.meta.Package;
-import org.cloudgraph.web.sdo.meta.PackageableType;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -330,9 +327,6 @@ public class ClassEditBean extends ModelBean {
     	// make  sure specific taxonomies are loaded we intend to use
     	// for views rendering this model 
     	visitor.initializeTaxonomy(cache.getInventoryPerspectiveModel());
-    	visitor.initializeTaxonomy(cache.getBusinessReferenceModel());
-    	visitor.initializeTaxonomy(cache.getServiceReferenceModel());
-    	visitor.initializeTaxonomy(cache.getTechnicalReferenceModel());   	
      	visitor.initializeTaxonomy(cache.getSegmentArchitectureModel());   	
     	
      	((PlasmaDataObject)this.clazz).accept(visitor);

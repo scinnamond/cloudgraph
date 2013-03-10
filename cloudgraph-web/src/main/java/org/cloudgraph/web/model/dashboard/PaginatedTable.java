@@ -18,7 +18,6 @@ import org.cloudgraph.web.config.web.ComponentShape;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 
-
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 

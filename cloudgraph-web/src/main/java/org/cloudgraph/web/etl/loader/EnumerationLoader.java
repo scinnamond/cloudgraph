@@ -5,30 +5,29 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.web.config.imex.DataImport;
+import org.cloudgraph.web.sdo.meta.Enumeration;
+import org.cloudgraph.web.sdo.meta.Package;
+import org.cloudgraph.web.sdo.meta.query.QPackage;
 import org.plasma.sdo.PlasmaChangeSummary;
-import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
-import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaQueryHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 
-import org.cloudgraph.web.sdo.meta.Package;
-import org.cloudgraph.web.sdo.meta.query.QPackage;
-import org.cloudgraph.web.sdo.meta.Enumeration;
-
-
 import commonj.sdo.DataGraph;
-import commonj.sdo.DataObject;
 import commonj.sdo.helper.XMLDocument;
 
 public class EnumerationLoader extends AbstractLoader 
     implements Loader
 {
     private static Log log = LogFactory.getLog(EnumerationLoader.class);
+    public EnumerationLoader(DataImport dataImport) {
+    	super(dataImport);
+    }
 	
     @Override
 	public void define(File queryFile) {
@@ -62,12 +61,13 @@ public class EnumerationLoader extends AbstractLoader
 					null, options);
 			
 			Enumeration enm = (Enumeration)doc.getRootObject();
-			PlasmaChangeSummary changeSummary = (PlasmaChangeSummary)enm.getDataGraph().getChangeSummary();
-            Package pkg = enm.getDataType().getClassifier().getPackageableType().get_package();
+			PlasmaChangeSummary changeSummary = (PlasmaChangeSummary)enm.getDataGraph().getChangeSummary();            
+			Package pkg = enm.getDataType().getClassifier().getPackageableType().get_package();
             changeSummary.clear(pkg);
             pkg = this.fetchPackage(pkg.getExternalId());
             enm.getDataType().getClassifier().getPackageableType().set_package(pkg);
 
+            enm.getDataType().setExternalId(UUID.randomUUID().toString()); // not exporting for some reason !!
 			service.commit(doc.getRootObject().getDataGraph(), 
 					"dataloader");
 			
@@ -86,16 +86,4 @@ public class EnumerationLoader extends AbstractLoader
         //		+ " " + prefix + ".xsd");
 	}
 
-   protected Package fetchPackage(String uuid) {
-		
-		QPackage query = QPackage.newQuery();
-		query.select(query.externalId()) 
-	         .select(query.name());
-		query.where(query.externalId().eq(uuid));
-		
-		DataGraph[] results = service.find(query);
-		Package result = (Package)results[0].getRootObject();
-		result.setDataGraph(null); // so can re parent
-		return result;
-	}
 }

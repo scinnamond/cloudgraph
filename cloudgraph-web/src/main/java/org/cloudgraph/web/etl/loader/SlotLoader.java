@@ -5,32 +5,29 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.plasma.sdo.PlasmaChangeSummary;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.plasma.sdo.helper.PlasmaQueryHelper;
-import org.plasma.sdo.helper.PlasmaXMLHelper;
-import org.plasma.sdo.xml.DefaultOptions;
-
+import org.cloudgraph.web.config.imex.DataImport;
 import org.cloudgraph.web.sdo.meta.InstanceSpecification;
 import org.cloudgraph.web.sdo.meta.InstanceValue;
 import org.cloudgraph.web.sdo.meta.Property;
 import org.cloudgraph.web.sdo.meta.Slot;
 import org.cloudgraph.web.sdo.meta.ValueSpecification;
-import org.cloudgraph.web.sdo.meta.query.QInstanceSpecification;
-import org.cloudgraph.web.sdo.meta.query.QProperty;
+import org.plasma.sdo.PlasmaChangeSummary;
+import org.plasma.sdo.helper.PlasmaQueryHelper;
+import org.plasma.sdo.helper.PlasmaXMLHelper;
+import org.plasma.sdo.xml.DefaultOptions;
 
-import commonj.sdo.DataGraph;
-import commonj.sdo.DataObject;
 import commonj.sdo.helper.XMLDocument;
 
 public class SlotLoader extends AbstractLoader 
     implements Loader
 {
     private static Log log = LogFactory.getLog(SlotLoader.class);
+    public SlotLoader(DataImport dataImport) {
+    	super(dataImport);
+    }
 	
     @Override
 	public void define(File queryFile) {
@@ -50,7 +47,7 @@ public class SlotLoader extends AbstractLoader
 	
 	@Override
 	public void load(File file) {
-        log.info("loading data");
+        log.info("loading " + file.getName());
         
         DefaultOptions options = new DefaultOptions("");
         options.setRootNamespacePrefix("xyz");

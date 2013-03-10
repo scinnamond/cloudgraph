@@ -80,6 +80,32 @@
         </Namespace>
         -->
         
+        <DataAccessService dataStoreType="RDBMS">   
+            <DataAccessProvider name="JDBC"                
+                className="org.cloudgraph.rdb.service.RDBGraphService">
+
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionURL">jdbc:mysql://localhost:3306/apls</Property>    
+                
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPassword">mysql</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionUserName">root</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionDriverName">com.mysql.jdbc.Driver</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMinSize">1</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMaxSize">80</Property>    
+
+                <Concurrency 
+                    pessimisticLockTimeoutMillis="300000"/>
+                              
+                <NamespaceLink uri="http://org.cloudgraph/web/common"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/categorization"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/personalization"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/campaign"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/meta"/>
+                <NamespaceLink uri="http://org.cloudgraph/web/core"/>
+            </DataAccessProvider>
+
+  		    	  
+  	    </DataAccessService>
+        
         <DataAccessService dataStoreType="NOSQL">   
 
             <DataAccessProvider name="HBASE"

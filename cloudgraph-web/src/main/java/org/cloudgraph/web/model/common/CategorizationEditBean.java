@@ -15,13 +15,12 @@ import org.cloudgraph.web.model.tree.TreeNodeModel;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
 import org.cloudgraph.web.sdo.adapter.CategorizationAdapter;
 import org.cloudgraph.web.sdo.adapter.TaxonomyAdapter;
+import org.cloudgraph.web.sdo.categorization.Category;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaCopyHelper;
 import org.richfaces.component.html.HtmlTree;
 import org.richfaces.model.ListRowKey;
-
-import org.cloudgraph.web.sdo.categorization.Category;
 
 import commonj.sdo.ChangeSummary;
 import commonj.sdo.DataObject;

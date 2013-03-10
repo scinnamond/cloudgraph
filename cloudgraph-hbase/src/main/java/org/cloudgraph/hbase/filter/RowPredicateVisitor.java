@@ -214,9 +214,18 @@ public class RowPredicateVisitor extends PredicateVisitor {
 	        	new RegexStringComparator(rowKeyExpr);
 	        
 	        Filter rowFilter = new RowFilter(this.contextHBaseCompareOp,
-					exprComp);			
-			FilterList top = this.filterStack.peek();
-			top.addFilter(rowFilter);
+					exprComp);	
+	        if (this.filterStack.size() > 0) {
+			    FilterList top = this.filterStack.peek();
+			    top.addFilter(rowFilter);
+	        }
+	        else {
+	        	FilterList filterList = new FilterList(
+	        			FilterList.Operator.MUST_PASS_ALL);
+	        	filterList.addFilter(rowFilter);
+	        	this.filterStack.push(filterList);
+	        	this.rootFilter = filterList;
+	        }	
 			
 			if (log.isDebugEnabled())
 				log.debug("created row filter: " 
@@ -251,7 +260,14 @@ public class RowPredicateVisitor extends PredicateVisitor {
 		switch (operator.getValue()) {
 		case AND:
 			break; // default filter list oper is must-pass-all (AND)
-		case OR:			
+		case OR:	
+			if (this.filterStack.size() == 0) {
+	        	FilterList filterList = new FilterList(
+	        			FilterList.Operator.MUST_PASS_ALL);
+	        	this.filterStack.push(filterList);				
+	        	this.rootFilter = filterList;
+			}
+			
 			FilterList top = this.filterStack.peek();			
 			if (top.getOperator().ordinal() != FilterList.Operator.MUST_PASS_ONE.ordinal()) {
 				FilterList orList = new FilterList(

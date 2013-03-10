@@ -20,7 +20,7 @@
 	          <h:graphicImage value="/images/new_item.gif"/>
 	          <rich:spacer width="18" height="1"/>
 		      <f:setPropertyActionListener value="true"   
-			      target="#{NavigationBean.workspaceSelected}" />
+			      target="#{NavigationBean.administrationSelected}" />
 	      </a4j:commandLink>
     <a4j:commandButton 
         value="#{bundle.aplsTaxonomyMapEdit_save_label}"

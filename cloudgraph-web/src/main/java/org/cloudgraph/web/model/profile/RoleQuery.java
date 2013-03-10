@@ -1,16 +1,15 @@
 package org.cloudgraph.web.model.profile;
 
+import org.cloudgraph.web.sdo.personalization.Role;
+import org.cloudgraph.web.sdo.personalization.RoleName;
+import org.cloudgraph.web.sdo.personalization.User;
+import org.cloudgraph.web.sdo.personalization.UserRole;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Path;
 import org.plasma.query.model.Property;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.Select;
 import org.plasma.query.model.Where;
-
-import org.cloudgraph.web.sdo.personalization.Role;
-import org.cloudgraph.web.sdo.personalization.RoleName;
-import org.cloudgraph.web.sdo.personalization.User;
-import org.cloudgraph.web.sdo.personalization.UserRole;
 
 
 public class RoleQuery {

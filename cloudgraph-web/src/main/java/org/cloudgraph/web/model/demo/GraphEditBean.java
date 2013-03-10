@@ -1,21 +1,16 @@
 package org.cloudgraph.web.model.demo;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.ErrorHandlerBean;
 import org.cloudgraph.web.config.web.AppActions;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.tree.DynamicTreeNodeModel;
-import org.cloudgraph.web.model.tree.TreeNodeModel;
 import org.cloudgraph.web.sdo.adapter.DataObjectAdapter;
 import org.cloudgraph.web.util.BeanFinder;
-import org.plasma.query.model.Query;
 import org.plasma.query.model.From;
+import org.plasma.query.model.Query;
 import org.plasma.query.model.Select;
-import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
 import org.plasma.sdo.access.client.SDODataAccessClient;
@@ -23,9 +18,7 @@ import org.richfaces.component.UITree;
 import org.richfaces.component.html.HtmlTree;
 import org.richfaces.model.ListRowKey;
 
-
 import commonj.sdo.DataGraph;
-import commonj.sdo.DataObject;
 
 public class GraphEditBean extends ModelBean{
 

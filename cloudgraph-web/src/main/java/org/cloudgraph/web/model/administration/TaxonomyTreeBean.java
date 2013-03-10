@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.taxonomy.CategoryLabelFormat;
 import org.cloudgraph.web.model.taxonomy.DynamicTaxonomyTreeBean;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
-
 import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.categorization.Taxonomy;
 

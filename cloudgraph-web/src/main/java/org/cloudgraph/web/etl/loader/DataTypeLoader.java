@@ -8,12 +8,11 @@ import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.web.config.imex.DataImport;
 import org.cloudgraph.web.sdo.meta.Package;
 import org.cloudgraph.web.sdo.meta.PrimitiveType;
 import org.cloudgraph.web.sdo.meta.query.QPackage;
 import org.plasma.sdo.PlasmaChangeSummary;
-import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
-import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaQueryHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
@@ -25,6 +24,9 @@ public class DataTypeLoader extends AbstractLoader
     implements Loader
 {
     private static Log log = LogFactory.getLog(DataTypeLoader.class);
+    public DataTypeLoader(DataImport dataImport) {
+    	super(dataImport);
+    }
 	
     @Override
 	public void define(File queryFile) {
@@ -44,7 +46,7 @@ public class DataTypeLoader extends AbstractLoader
 	
 	@Override
 	public void load(File file) {
-        log.info("loading data");
+        log.info("loading file " + file.getName());
         
         DefaultOptions options = new DefaultOptions("");
         options.setRootNamespacePrefix("xyz");
@@ -85,8 +87,7 @@ public class DataTypeLoader extends AbstractLoader
     protected Package fetchPackage(String uuid) {
 		
 		QPackage query = QPackage.newQuery();
-		query.select(query.externalId()) 
-	     .select(query.name());
+		query.select(query.wildcard());
 		query.where(query.externalId().eq(uuid));
 		
 		DataGraph[] results = service.find(query);

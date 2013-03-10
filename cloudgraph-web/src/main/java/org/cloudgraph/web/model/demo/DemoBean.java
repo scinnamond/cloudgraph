@@ -4,10 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
@@ -19,7 +16,6 @@ import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.web.model.ModelBean;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.xml.sax.SAXException;
 

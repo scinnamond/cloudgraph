@@ -1,0 +1,8 @@
+
+#make sure GPG can see its config in cygwin home dir
+$ HOME=/cygdrive/c/cygwin/home/scinnamond
+$ echo $HOME
+/cygdrive/c/cygwin/home/scinnamond
+
+#passphrase: phoenix 
+

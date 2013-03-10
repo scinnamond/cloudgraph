@@ -20,7 +20,6 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.plasma.query.model.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 
-
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 

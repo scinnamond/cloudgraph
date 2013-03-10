@@ -5,10 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.web.config.imex.DataImport;
+import org.cloudgraph.web.sdo.categorization.Taxonomy;
 import org.plasma.sdo.PlasmaChangeSummary;
 import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
 import org.plasma.sdo.access.client.SDODataAccessClient;
@@ -16,23 +17,15 @@ import org.plasma.sdo.helper.PlasmaQueryHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 
-import org.cloudgraph.web.sdo.categorization.Taxonomy;
-import org.cloudgraph.web.sdo.meta.Clazz;
-import org.cloudgraph.web.sdo.meta.query.QPackage;
-import org.cloudgraph.web.sdo.meta.Package;
-
-
-import commonj.sdo.DataGraph;
-import commonj.sdo.DataObject;
 import commonj.sdo.helper.XMLDocument;
 
 public class TaxonomyLoader extends AbstractLoader 
     implements Loader
 {
     private static Log log = LogFactory.getLog(TaxonomyLoader.class);
-	protected SDODataAccessClient service = 
-		new SDODataAccessClient(new HBasePojoDataAccessClient());
-	
+    public TaxonomyLoader(DataImport dataImport) {
+    	super(dataImport);
+    }
     @Override
 	public void define(File queryFile) {
     	

@@ -10,13 +10,12 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.tree.DynamicTreeNodeModel;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
+import org.cloudgraph.web.sdo.core.Organization;
 import org.richfaces.component.UITree;
 import org.richfaces.component.html.HtmlTreeNode;
 import org.richfaces.component.state.TreeState;
 import org.richfaces.event.NodeExpandedEvent;
 import org.richfaces.model.TreeRowKey;
-
-import org.cloudgraph.web.sdo.core.Organization;
 
 public abstract class DynamicOrganizationTreeBean extends ModelBean {
 

@@ -1,33 +1,39 @@
 package org.cloudgraph.web.etl.loader;
 
-import org.cloudgraph.web.sdo.meta.InstanceSpecification;
-import org.cloudgraph.web.sdo.meta.Property;
-import org.cloudgraph.web.sdo.meta.query.QInstanceSpecification;
-import org.cloudgraph.web.sdo.meta.query.QProperty;
+import org.cloudgraph.web.config.imex.DataImport;
 import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.categorization.query.QCategory;
 import org.cloudgraph.web.sdo.meta.Classifier;
 import org.cloudgraph.web.sdo.meta.Clazz;
+import org.cloudgraph.web.sdo.meta.InstanceSpecification;
 import org.cloudgraph.web.sdo.meta.Package;
+import org.cloudgraph.web.sdo.meta.Property;
 import org.cloudgraph.web.sdo.meta.query.QClassifier;
 import org.cloudgraph.web.sdo.meta.query.QClazz;
+import org.cloudgraph.web.sdo.meta.query.QInstanceSpecification;
 import org.cloudgraph.web.sdo.meta.query.QPackage;
-import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
+import org.cloudgraph.web.sdo.meta.query.QProperty;
+import org.plasma.config.DataAccessProviderName;
+import org.plasma.sdo.access.client.PojoDataAccessClient;
 import org.plasma.sdo.access.client.SDODataAccessClient;
-
 
 import commonj.sdo.DataGraph;
 
 public abstract class AbstractLoader {
 
-	protected SDODataAccessClient service = 
-			new SDODataAccessClient(new HBasePojoDataAccessClient());
+	protected SDODataAccessClient service;
 
+	protected AbstractLoader(DataImport dataImport) {
+		this.service = new SDODataAccessClient(
+			new PojoDataAccessClient(
+				DataAccessProviderName.valueOf(dataImport.getProviderName())));
+	}
+	
+	
     protected Package fetchPackage(String uuid) {
 		
 		QPackage query = QPackage.newQuery();
-		query.select(query.externalId()) 
-		     .select(query.name());
+		query.select(query.wildcard());
 		query.where(query.externalId().eq(uuid));
 		
 		DataGraph[] results = service.find(query);
@@ -45,8 +51,7 @@ public abstract class AbstractLoader {
     protected Category fetchCat(String uuid) {
 		
 		QCategory query = QCategory.newQuery();
-		query.select(query.externalId())
-		     .select(query.name());
+		query.select(query.wildcard());
 		query.where(query.externalId().eq(uuid));
 		
 		DataGraph[] results = service.find(query);
@@ -64,8 +69,7 @@ public abstract class AbstractLoader {
     protected Clazz fetchClazz(String uuid) {
 		
 		QClazz query = QClazz.newQuery();
-		query.select(query.externalId())
-		     .select(query.classifier().name());
+		query.select(query.wildcard());
 		query.where(query.externalId().eq(uuid));
 		
 		DataGraph[] results = service.find(query);
@@ -83,8 +87,7 @@ public abstract class AbstractLoader {
     protected Classifier fetchClassifier(String uuid) {
 		
 		QClassifier query = QClassifier.newQuery();
-		query.select(query.externalId())
-		     .select(query.name());
+		query.select(query.wildcard());
 		query.where(query.externalId().eq(uuid));
 		
 		DataGraph[] results = service.find(query);
@@ -102,7 +105,7 @@ public abstract class AbstractLoader {
     protected InstanceSpecification fetchInstance(String uuid) {
 		
 		QInstanceSpecification query = QInstanceSpecification.newQuery();
-		query.select(query.externalId()); 
+		query.select(query.wildcard()); 
 		query.where(query.externalId().eq(uuid));
 		
 		DataGraph[] results = service.find(query);
@@ -120,8 +123,7 @@ public abstract class AbstractLoader {
     protected Property fetchProperty(String uuid) {
 		
 		QProperty query = QProperty.newQuery();
-		query.select(query.externalId())
-		     .select(query.name());
+		query.select(query.wildcard());
 		query.where(query.externalId().eq(uuid));
 		
 		DataGraph[] results = service.find(query);

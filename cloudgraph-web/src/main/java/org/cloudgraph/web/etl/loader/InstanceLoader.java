@@ -5,31 +5,30 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.web.config.imex.DataImport;
+import org.cloudgraph.web.sdo.categorization.Categorization;
+import org.cloudgraph.web.sdo.categorization.Category;
+import org.cloudgraph.web.sdo.core.InstanceCategorization;
+import org.cloudgraph.web.sdo.meta.Clazz;
+import org.cloudgraph.web.sdo.meta.InstanceSpecification;
+import org.cloudgraph.web.sdo.meta.Package;
 import org.plasma.sdo.PlasmaChangeSummary;
-import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaQueryHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 
-import org.cloudgraph.web.sdo.categorization.Categorization;
-import org.cloudgraph.web.sdo.categorization.Category;
-import org.cloudgraph.web.sdo.core.InstanceCategorization;
-import org.cloudgraph.web.sdo.meta.InstanceSpecification;
-import org.cloudgraph.web.sdo.meta.Clazz;
-import org.cloudgraph.web.sdo.meta.Package;
-
-import commonj.sdo.DataGraph;
-import commonj.sdo.DataObject;
 import commonj.sdo.helper.XMLDocument;
 
 public class InstanceLoader extends AbstractLoader 
     implements Loader
 {
     private static Log log = LogFactory.getLog(InstanceLoader.class);
+    public InstanceLoader(DataImport dataImport) {
+    	super(dataImport);
+    }
 	
     @Override
 	public void define(File queryFile) {
@@ -49,7 +48,7 @@ public class InstanceLoader extends AbstractLoader
 	
 	@Override
 	public void load(File file) {
-        log.info("loading data");
+        log.info("loading " + file.getName());
         
         DefaultOptions options = new DefaultOptions("");
         options.setRootNamespacePrefix("xyz");

@@ -33,14 +33,6 @@
                     <h:outputText value="Last Name:" />
                     <f:verbatim>&nbsp</f:verbatim>
                     <f:verbatim>&nbsp</f:verbatim>
-                    
-                    <h:outputText value="Chart Type:"/>
-                    <h:selectOneMenu id="chartType" required="false" 
-                        value="#{UserBean.chartType}" 
-                        disabled="false"
-                        title="Chart Type">
-                        <f:selectItems value="#{UserBean.chartTypeItems}"/>
-                    </h:selectOneMenu>
                 </h:panelGrid>          
             <f:verbatim>&nbsp</f:verbatim>
             <f:verbatim>&nbsp</f:verbatim>

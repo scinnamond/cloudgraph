@@ -15,11 +15,19 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.WebConstants;
 import org.cloudgraph.web.query.ClassQuery;
-import org.cloudgraph.web.query.DataTypeQuery;
 import org.cloudgraph.web.query.EnumerationQuery;
 import org.cloudgraph.web.query.PackageQuery;
 import org.cloudgraph.web.query.PrimitiveTypeQuery;
 import org.cloudgraph.web.query.PropertyQuery;
+import org.cloudgraph.web.sdo.categorization.Category;
+import org.cloudgraph.web.sdo.categorization.Taxonomy;
+import org.cloudgraph.web.sdo.categorization.TaxonomyMap;
+import org.cloudgraph.web.sdo.core.Organization;
+import org.cloudgraph.web.sdo.meta.Clazz;
+import org.cloudgraph.web.sdo.meta.Enumeration;
+import org.cloudgraph.web.sdo.meta.Package;
+import org.cloudgraph.web.sdo.meta.PrimitiveType;
+import org.cloudgraph.web.sdo.meta.Property;
 import org.cloudgraph.web.sdo.visitor.OrganizationCollector;
 import org.plasma.query.Query;
 import org.plasma.sdo.PlasmaDataGraph;
@@ -28,17 +36,6 @@ import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
-
-import org.cloudgraph.web.sdo.categorization.Category;
-import org.cloudgraph.web.sdo.categorization.Taxonomy;
-import org.cloudgraph.web.sdo.categorization.TaxonomyMap;
-import org.cloudgraph.web.sdo.core.Organization;
-import org.cloudgraph.web.sdo.meta.Clazz;
-import org.cloudgraph.web.sdo.meta.Package;
-import org.cloudgraph.web.sdo.meta.DataType;
-import org.cloudgraph.web.sdo.meta.Enumeration;
-import org.cloudgraph.web.sdo.meta.PrimitiveType;
-import org.cloudgraph.web.sdo.meta.Property;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -63,34 +60,25 @@ public class ReferenceDataCache
      */
     private Map<Long, Taxonomy> categorySeqIdTaxonomyMap = new HashMap<Long, Taxonomy>();
     
-    public static String TAXONOMY_NAME_BRM = "USFS Business Reference Model";
-    public static String TAXONOMY_NAME_SRM = "FEA Service Reference Model (SRM)";
-    public static String TAXONOMY_NAME_TRM = "FEA Technical Reference Model (TRM)";
     public static String TAXONOMY_NAME_SAM = "Segment Architecture Model";
-    public static String TAXONOMY_NAME_IRSF = "IR Strategic Framework (IRSF)";
     public static String TAXONOMY_NAME_GMSPM = "gEMS Perspective Model";
     public static String TAXONOMY_NAME_INVPM = "Inventory Perspective Model";
     public static String TAXONOMY_NAME_ICAMPM = "ICAM Perspective Model";
+    public static String TAXONOMY_NAME_ORDERING = "Ordering Model";
 
     
     private String[] TAX_NAMES = {
-    	TAXONOMY_NAME_BRM,
-    	TAXONOMY_NAME_SRM,
-    	TAXONOMY_NAME_TRM,
     	TAXONOMY_NAME_SAM,
-    	TAXONOMY_NAME_IRSF, 
     	TAXONOMY_NAME_GMSPM,
     	TAXONOMY_NAME_INVPM,
-    	TAXONOMY_NAME_ICAMPM
+    	TAXONOMY_NAME_ICAMPM,
+    	TAXONOMY_NAME_ORDERING
     };
-    private static int TAXONOMY_BRM = 0;
-    private static int TAXONOMY_SRM = 1;
-    private static int TAXONOMY_TRM = 2;
-    private static int TAXONOMY_SAM = 3;
-    private static int TAXONOMY_IRSF = 4;
-    private static int TAXONOMY_GMSPM = 5;
-    private static int TAXONOMY_INVPM = 6;
-    private static int TAXONOMY_ICAMPM = 7;
+    private static int TAXONOMY_SAM = 0;
+    private static int TAXONOMY_GMSPM = 1;
+    private static int TAXONOMY_INVPM = 2;
+    private static int TAXONOMY_ICAMPM = 3;
+    private static int TAXONOMY_ORDERING = 4;
     
     private List<Taxonomy> taxonomyList;
     private List<TaxonomyMap> taxonomyMapList;
@@ -130,26 +118,9 @@ public class ReferenceDataCache
 		return this.categorySeqIdTaxonomyMap.get(categoryId);
 	}	
 	
-    public synchronized Taxonomy getBusinessReferenceModel() {
-    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_BRM]);
-    }
-
-    public synchronized Taxonomy getServiceReferenceModel() {
-    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_SRM]);
-    }
-    
-    public synchronized Taxonomy getTechnicalReferenceModel() {
-    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_TRM]);
-    }
-    
     public synchronized Taxonomy getSegmentArchitectureModel() {
     	return getTaxonomy(this.TAX_NAMES[TAXONOMY_SAM]);
     }  
-    
-    public synchronized Taxonomy getStrategicFrameworkModel() {
-    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_IRSF]);
-    }  
-    
     
     public synchronized Taxonomy getGemsPerspectiveModel() {
     	return getTaxonomy(this.TAX_NAMES[TAXONOMY_GMSPM]);
@@ -161,6 +132,10 @@ public class ReferenceDataCache
     
     public synchronized Taxonomy getICAMPerspectiveModel() {
     	return getTaxonomy(this.TAX_NAMES[TAXONOMY_ICAMPM]);
+    } 
+    
+    public synchronized Taxonomy getOrderingModel() {
+    	return getTaxonomy(this.TAX_NAMES[TAXONOMY_ORDERING]);
     }  
     
     public synchronized Taxonomy getTaxonomy(String name)

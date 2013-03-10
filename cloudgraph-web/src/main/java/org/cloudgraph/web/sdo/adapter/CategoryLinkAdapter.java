@@ -1,10 +1,9 @@
 package org.cloudgraph.web.sdo.adapter;
 
-import org.plasma.sdo.PlasmaProperty;
-import org.plasma.sdo.PlasmaType;
-
 import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.categorization.CategoryLink;
+import org.plasma.sdo.PlasmaProperty;
+import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.Property;
 

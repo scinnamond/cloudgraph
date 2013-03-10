@@ -3,11 +3,7 @@ package org.cloudgraph.web.sdo.adapter;
 import java.io.Serializable;
 import java.util.List;
 
-import org.cloudgraph.web.sdo.meta.Classifier;
-import org.cloudgraph.web.sdo.meta.Clazz;
 import org.cloudgraph.web.sdo.meta.InstanceSpecification;
-import org.cloudgraph.web.sdo.meta.Slot;
-import org.cloudgraph.web.sdo.meta.ValueSpecification;
 
 /**
  * An adapter for any instance which for use in queues/tables

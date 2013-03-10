@@ -2,7 +2,6 @@ package org.cloudgraph.web.model.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.MissingResourceException;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -12,20 +11,12 @@ import javax.faces.validator.ValidatorException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.ErrorHandlerBean;
-import org.cloudgraph.web.ResourceManager;
 import org.cloudgraph.web.config.web.AppActions;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.query.EnumerationQuery;
 import org.cloudgraph.web.query.EnumerationViewQuery;
 import org.cloudgraph.web.query.PackageQuery;
 import org.cloudgraph.web.sdo.adapter.EnumerationViewAdapter;
-import org.cloudgraph.web.util.BeanFinder;
-import org.plasma.sdo.PlasmaDataGraph;
-import org.plasma.sdo.PlasmaDataObject;
-import org.plasma.sdo.PlasmaProperty;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.plasma.sdo.helper.PlasmaTypeHelper;
-
 import org.cloudgraph.web.sdo.core.EnumerationView;
 import org.cloudgraph.web.sdo.meta.Classifier;
 import org.cloudgraph.web.sdo.meta.DataType;
@@ -35,6 +26,12 @@ import org.cloudgraph.web.sdo.meta.EnumerationLiteral;
 import org.cloudgraph.web.sdo.meta.NamedElement;
 import org.cloudgraph.web.sdo.meta.Package;
 import org.cloudgraph.web.sdo.meta.PackageableType;
+import org.cloudgraph.web.util.BeanFinder;
+import org.plasma.sdo.PlasmaDataGraph;
+import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.PlasmaProperty;
+import org.plasma.sdo.access.client.SDODataAccessClient;
+import org.plasma.sdo.helper.PlasmaTypeHelper;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;

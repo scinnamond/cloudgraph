@@ -27,6 +27,10 @@ import org.cloudgraph.web.model.configuration.PropertyType;
 import org.cloudgraph.web.model.search.SearchBean;
 import org.cloudgraph.web.query.CampaignQuery;
 import org.cloudgraph.web.sdo.adapter.PropertyAdapter;
+import org.cloudgraph.web.sdo.campaign.Campaign;
+import org.cloudgraph.web.sdo.campaign.CampaignType;
+import org.cloudgraph.web.sdo.campaign.DispersalType;
+import org.cloudgraph.web.sdo.meta.Property;
 import org.cloudgraph.web.util.BeanFinder;
 import org.cloudgraph.web.util.ResourceUtils;
 import org.plasma.sdo.PlasmaDataObject;
@@ -34,11 +38,6 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaDataFactory;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
-
-import org.cloudgraph.web.sdo.campaign.Campaign;
-import org.cloudgraph.web.sdo.campaign.CampaignType;
-import org.cloudgraph.web.sdo.campaign.DispersalType;
-import org.cloudgraph.web.sdo.meta.Property;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;

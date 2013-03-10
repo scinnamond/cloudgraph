@@ -23,7 +23,6 @@ import org.plasma.common.env.EnvProperties;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.xml.sax.SAXException;
 
-
 import commonj.sdo.Type;
 
 public class ApplicationConfig {

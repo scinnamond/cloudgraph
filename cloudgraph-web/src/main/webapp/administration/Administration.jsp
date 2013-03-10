@@ -11,7 +11,7 @@
   <link href="/cloudgraph-web/css/cloudgraph-web.css" rel="stylesheet" type="text/css" />
 </head>
 <body>
-<a4j:outputPanel id="body_panel">
+<a4j:outputPanel id="dashboard_content_panel">
   <%/* begin boilerplate header */%>  
   <div class="TopToolbarDiv">
       <jsp:include page="/TopToolbar.jsp" flush="false"/>
@@ -38,7 +38,8 @@
           rowClasses="DashboardTable,DashboardTable,DashboardTable,DashboardTable,DashboardTable"
           cellpadding="0" cellspacing="0"> 
 	          
-        <rich:tabPanel switchType="ajax">
+        <rich:tabPanel switchType="ajax"
+            rendered="#{!(TaxonomyEditBean.hasSelectedTaxonomy || PropertyEditBean.hasProperty || ClassEditBean.hasClazz || PackageEditBean.hasPackage || EnumerationEditBean.hasEnumeration || InstanceEditBean.hasInstance || CampaignEditBean.hasCampaign)}">
 
         <rich:tab title=""
             rendered="true">
@@ -69,6 +70,49 @@
          </rich:tab>
               
          </rich:tabPanel>
+
+	    <rich:simpleTogglePanel label="#{TaxonomyEditBean.title}"
+	        rendered="#{TaxonomyEditBean.hasSelectedTaxonomy}"
+	          switchType="client">          
+	       <jsp:include page="/administration/TaxonomyEditPanel.jsp" flush="false"/>          
+	    </rich:simpleTogglePanel>           
+	
+	    <rich:simpleTogglePanel label="#{PropertyEditBean.title}"
+	        rendered="#{PropertyEditBean.hasProperty}"
+	          switchType="client">          
+	       <jsp:include page="/configuration/PropertyEditPanel.jsp" flush="false"/>       
+	    </rich:simpleTogglePanel>  
+	             
+	    <rich:simpleTogglePanel label="#{ClassEditBean.title}"
+	        rendered="#{ClassEditBean.hasClazz}"
+	          switchType="client">          
+	       <jsp:include page="/configuration/ClassEditPanel.jsp" flush="false"/>          
+	    </rich:simpleTogglePanel> 
+	    
+	    <rich:simpleTogglePanel label="#{PackageEditBean.title}"
+	        rendered="#{PackageEditBean.hasPackage}"
+	          switchType="client">          
+	       <jsp:include page="/configuration/PackageEditPanel.jsp" flush="false"/>        
+	    </rich:simpleTogglePanel> 
+	
+	    <rich:simpleTogglePanel label="#{EnumerationEditBean.title}"
+	        rendered="#{EnumerationEditBean.hasEnumeration}"
+	          switchType="client">          
+	       <jsp:include page="/configuration/EnumerationEditPanel.jsp" flush="false"/>        
+	    </rich:simpleTogglePanel> 
+	    
+	    <rich:simpleTogglePanel label="#{InstanceEditBean.title}"
+	        rendered="#{InstanceEditBean.hasInstance}"
+	          switchType="client">          
+	       <jsp:include page="/data/InstanceEditPanel.jsp" flush="false"/>        
+	    </rich:simpleTogglePanel> 
+	
+	    <rich:simpleTogglePanel label="#{CampaignEditBean.title}"
+	        rendered="#{CampaignEditBean.hasCampaign}"
+	          switchType="client">          
+	       <jsp:include page="/campaign/CampaignEditPanel.jsp" flush="false"/>        
+	    </rich:simpleTogglePanel> 
+
 	
       </h:panelGrid>
   </h:panelGrid>
@@ -82,6 +126,9 @@
   <jsp:include page="/administration/TaxonomyExportModalPanel.jsp" flush="false"/>
   <jsp:include page="/data/PersonalizeQueuePanel.jsp" flush="false"/>
   <jsp:include page="/configuration/PropertyDeleteConfirmModalPanel.jsp" flush="false"/>
+   <jsp:include page="/common/CreateEditCategorizationPanel.jsp" flush="false"/>
+  <jsp:include page="/configuration/CreateEditEnumerationLiteralPanel.jsp" flush="false"/>
+  <jsp:include page="/data/InstanceBrowserQueuePanel.jsp" flush="false"/>      
        
 </body>
 </html>

@@ -17,14 +17,6 @@ import org.cloudgraph.web.WebConstants;
 import org.cloudgraph.web.component.ChartType;
 import org.cloudgraph.web.config.web.ComponentName;
 import org.cloudgraph.web.config.web.PropertyName;
-import org.plasma.sdo.PlasmaDataGraph;
-import org.plasma.sdo.PlasmaDataGraphVisitor;
-import org.plasma.sdo.PlasmaDataObject;
-import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.plasma.sdo.helper.PlasmaCopyHelper;
-import org.plasma.sdo.helper.PlasmaDataFactory;
-import org.plasma.sdo.helper.PlasmaTypeHelper;
-
 import org.cloudgraph.web.sdo.personalization.Element;
 import org.cloudgraph.web.sdo.personalization.ElementType;
 import org.cloudgraph.web.sdo.personalization.Person;
@@ -35,6 +27,13 @@ import org.cloudgraph.web.sdo.personalization.RoleName;
 import org.cloudgraph.web.sdo.personalization.Setting;
 import org.cloudgraph.web.sdo.personalization.User;
 import org.cloudgraph.web.sdo.personalization.UserRole;
+import org.plasma.sdo.PlasmaDataGraph;
+import org.plasma.sdo.PlasmaDataGraphVisitor;
+import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.access.client.SDODataAccessClient;
+import org.plasma.sdo.helper.PlasmaCopyHelper;
+import org.plasma.sdo.helper.PlasmaDataFactory;
+import org.plasma.sdo.helper.PlasmaTypeHelper;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;

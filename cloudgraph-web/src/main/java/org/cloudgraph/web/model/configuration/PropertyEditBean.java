@@ -24,6 +24,16 @@ import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.query.PropertyQuery;
 import org.cloudgraph.web.sdo.adapter.CategorizationAdapter;
 import org.cloudgraph.web.sdo.adapter.TaxonomyAdapter;
+import org.cloudgraph.web.sdo.categorization.Taxonomy;
+import org.cloudgraph.web.sdo.core.PropertyCategorization;
+import org.cloudgraph.web.sdo.meta.Classifier;
+import org.cloudgraph.web.sdo.meta.Clazz;
+import org.cloudgraph.web.sdo.meta.Element;
+import org.cloudgraph.web.sdo.meta.Enumeration;
+import org.cloudgraph.web.sdo.meta.NamedElement;
+import org.cloudgraph.web.sdo.meta.PrimitiveType;
+import org.cloudgraph.web.sdo.meta.Property;
+import org.cloudgraph.web.sdo.meta.VisibilityKind;
 import org.cloudgraph.web.sdo.visitor.CategorizationCollector;
 import org.cloudgraph.web.sdo.visitor.PropertyCategorizationCollector;
 import org.cloudgraph.web.util.BeanFinder;
@@ -34,19 +44,6 @@ import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaCopyHelper;
 import org.plasma.sdo.helper.PlasmaDataFactory;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
-
-import org.cloudgraph.web.sdo.categorization.Taxonomy;
-import org.cloudgraph.web.sdo.core.PropertyCategorization;
-import org.cloudgraph.web.sdo.meta.Classifier;
-import org.cloudgraph.web.sdo.meta.Clazz;
-import org.cloudgraph.web.sdo.meta.DataType;
-import org.cloudgraph.web.sdo.meta.Element;
-import org.cloudgraph.web.sdo.meta.Enumeration;
-import org.cloudgraph.web.sdo.meta.NamedElement;
-import org.cloudgraph.web.sdo.meta.Package;
-import org.cloudgraph.web.sdo.meta.PrimitiveType;
-import org.cloudgraph.web.sdo.meta.Property;
-import org.cloudgraph.web.sdo.meta.VisibilityKind;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -558,10 +555,8 @@ public class PropertyEditBean extends ModelBean {
     	visitor.setCollectOnlyInitializedTaxonomies(true);
     	// make  sure specific taxonomies are loaded we intend to use
     	// for views rendering this model 
-    	visitor.initializeTaxonomy(cache.getBusinessReferenceModel());
-    	visitor.initializeTaxonomy(cache.getServiceReferenceModel());
-    	visitor.initializeTaxonomy(cache.getTechnicalReferenceModel());   	
      	visitor.initializeTaxonomy(cache.getSegmentArchitectureModel());   	
+    	visitor.initializeTaxonomy(cache.getOrderingModel());
     	
      	((PlasmaDataObject)this.property).accept(visitor);
     	Map<Taxonomy, List<CategorizationAdapter>> taxonomyMap = visitor.getResult();

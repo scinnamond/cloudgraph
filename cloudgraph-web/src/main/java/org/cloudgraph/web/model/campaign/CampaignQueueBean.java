@@ -18,11 +18,10 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.search.SearchBean;
 import org.cloudgraph.web.query.CampaignQuery;
 import org.cloudgraph.web.sdo.adapter.CampaignAdapter;
+import org.cloudgraph.web.sdo.campaign.Campaign;
 import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.query.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
-
-import org.cloudgraph.web.sdo.campaign.Campaign;
 
 import commonj.sdo.DataGraph;
 

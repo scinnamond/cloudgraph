@@ -25,7 +25,7 @@
           <h:graphicImage value="/images/new_item.gif"/>
           <rich:spacer width="18" height="1"/>
 	      <f:setPropertyActionListener value="true"   
-		      target="#{NavigationBean.workspaceSelected}" />
+		      target="#{NavigationBean.administrationSelected}" />
       </a4j:commandLink>
       
       
@@ -61,7 +61,7 @@
 	            <f:setPropertyActionListener value="#{campaign.id}"   
 	                    target="#{CampaignEditBean.campaignId}" />                                             
 	            <f:setPropertyActionListener value="true"   
-	                    target="#{NavigationBean.workspaceSelected}" />                                             
+	                    target="#{NavigationBean.administrationSelected}" />                                             
 	        </a4j:commandLink>                                                                                                                    
 	        <f:verbatim>&nbsp</f:verbatim>                   
 	        <a4j:commandLink 
@@ -74,7 +74,7 @@
 	            <f:setPropertyActionListener value="#{campaign.id}"   
 	                    target="#{CampaignEditBean.campaignId}" />                                             
 	            <f:setPropertyActionListener value="true"   
-	                    target="#{NavigationBean.workspaceSelected}" />                                             
+	                    target="#{NavigationBean.administrationSelected}" />                                             
 	        </a4j:commandLink>                                                                                                                    
 	    </rich:column>  
 	    <rich:column sortBy="#{campaign.description}">                                                                                                                               

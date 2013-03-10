@@ -19,11 +19,15 @@
 <style> 
     .rich-mpnl-body { 
         text-align: center; 
-        padding : 0px; 
-        background-color: #FFFFFF;
+        background-color: #EFEFEF;
+        filter: alpha(opacity=60);
+        -moz-opacity: 0.6;
+        opacity: 0.6;
+        padding:6px;
     } 
 </style>
-<rich:modalPanel height="25" width="110" keepVisualState="false" 
+<rich:modalPanel height="30" width="110" 
+     keepVisualState="false" 
      id="ajaxloading" resizeable="false">
     <h:panelGrid columns="3" border="0">        
           <h:graphicImage width="16" height="16" 
