@@ -307,14 +307,14 @@
 
         <!-- Local Dependencies -->
         <dependency>
-            <groupId>org-jfree</groupId>
+            <groupId>org.jfree</groupId>
             <artifactId>jcommon</artifactId>
-            <version>1.0.5</version>
+            <version>1.0.17</version>
         </dependency>
         <dependency>
-            <groupId>org-jfree</groupId>
+            <groupId>org.jfree</groupId>
             <artifactId>jfreechart</artifactId>
-            <version>1.0.2</version>
+            <version>1.0.14</version>
         </dependency>
 
         <dependency>
@@ -564,7 +564,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-                        <skip>false</skip>
+                        <skip>true</skip>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
@@ -603,7 +603,7 @@
               <artifactId>maven-antrun-plugin</artifactId>                   
               <version>1.7</version> 
               <executions>  
-               
+                <!--  
                 <execution>    
                   <id>test-export</id>                                              
                   <phase>test</phase>                
@@ -633,7 +633,7 @@
                     <goal>run</goal>                                         
                   </goals>                                                   
                 </execution> 
-                 
+                 -->
                 <!--    
                 <execution>    
                   <id>test-import</id>                                              
