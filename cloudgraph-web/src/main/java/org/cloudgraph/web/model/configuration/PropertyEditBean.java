@@ -242,6 +242,8 @@ public class PropertyEditBean extends ModelBean {
 
     public void clear() {
     	try {
+    		this.property = null;
+    		this.propertyId = null;
         } catch (Throwable t) {
         } finally {
         }       

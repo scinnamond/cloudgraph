@@ -119,21 +119,8 @@
 	<servlet>
 		<description>Used for the back door login for development purposes only.</description>
 		<servlet-name>LoginServlet</servlet-name>
-		<jsp-file>/BackdoorLogin.jsp</jsp-file>
+		<jsp-file>/Login.jsp</jsp-file>
 	</servlet>    
-  <!--   
-	<servlet>
-		<description>Used for authentication. Either redirects to
-			j_security for JAAS, or redirects to the back door login page.</description>
-		<servlet-name>AuthServlet</servlet-name>
-		<servlet-class>org.cloudgraph.web.security.servlet.AuthServlet</servlet-class>
-	</servlet>
- -->
-  <servlet>
-    <servlet-name>Flex Servlet</servlet-name>
-    <servlet-class>org.cloudgraph.web.security.servlet.FlexServlet</servlet-class>
-    <load-on-startup>100</load-on-startup>
-  </servlet> 
 
   <!-- extension mapping -->
   <servlet-mapping>
@@ -156,21 +143,11 @@
     <servlet-name>ErrorServlet</servlet-name>
     <url-pattern>/error</url-pattern>
   </servlet-mapping>
-<!--  
-	<servlet-mapping>
-		<servlet-name>AuthServlet</servlet-name>
-		<url-pattern>/app-login</url-pattern>
-	</servlet-mapping>
---> 
+   
 	<servlet-mapping>
 		<servlet-name>LoginServlet</servlet-name>
-		<url-pattern>/backdoor-login</url-pattern>
+		<url-pattern>/login</url-pattern>
 	</servlet-mapping>
-
-  <servlet-mapping>
-      <servlet-name>Flex Servlet</servlet-name>
-      <url-pattern>/FlexServlet</url-pattern>
-  </servlet-mapping>
 
 	<session-config>
 		<session-timeout>30</session-timeout>
@@ -182,33 +159,52 @@
         <exception-type>javax.faces.application.ViewExpiredException</exception-type>
         <location>/documentation/Documentation.faces</location>
     </error-page>	
-    <!-- 
+      
 	<security-constraint>
 		<web-resource-collection>
-			<web-resource-name>All pages</web-resource-name>
+			<web-resource-name>Admin Pages</web-resource-name>
 			<description> Makes all web resources within protected to ensure
 				authentication. This also ensures that user is forwarded to the
 				session expired page when appropriate by invoking the LoginServlet
 				which checks for expired sessions. </description>
+			
+			<url-pattern>/administration/*</url-pattern>
+			<!-- 
 			<url-pattern>*.jsp</url-pattern>
 			<url-pattern>*.jsf</url-pattern>
 			<url-pattern>*.faces</url-pattern>
 			<url-pattern>*.html</url-pattern>
+			 -->
 			<http-method>DELETE</http-method>
 			<http-method>GET</http-method>
 			<http-method>POST</http-method>
 			<http-method>PUT</http-method>
 		</web-resource-collection>
 		<auth-constraint>
-			<role-name>*</role-name>
+			<role-name>superuser</role-name>
 		</auth-constraint>
 	</security-constraint>
-	-->
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Login Redirect Page</web-resource-name>
+            <description> Restricts the login redirect page </description>
+            <url-pattern>/LoginRedirect.jsp</url-pattern>
+            <url-pattern>/LoginRedirect.faces</url-pattern>
+            <http-method>DELETE</http-method>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>superuser</role-name>
+            <role-name>user</role-name>
+            <role-name>manager</role-name>
+        </auth-constraint>
+    </security-constraint>	 
 	<login-config>
 		<auth-method>FORM</auth-method>
-		<realm-name>myrealm</realm-name>
 		<form-login-config>
-			<form-login-page>/login</form-login-page>
+			<form-login-page>/login</form-login-page>			 
 			<form-error-page>/fail-login.html</form-error-page>
 		</form-login-config>
 	</login-config>
@@ -216,6 +212,7 @@
   <security-role><role-name>user</role-name></security-role>
   <security-role><role-name>superuser</role-name></security-role>
   <security-role><role-name>manager</role-name></security-role>
+  <security-role><role-name>anonymous</role-name></security-role>
 
  
 </web-app>

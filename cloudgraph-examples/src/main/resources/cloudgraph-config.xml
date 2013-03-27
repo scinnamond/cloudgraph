@@ -6,8 +6,8 @@
     <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
       -->
     
-    <Property name="hbase.zookeeper.quorum">slphetad4002.phe.fs.fed.us</Property>    
-    <Property name="hbase.zookeeper.property.clientPort">2181</Property>  
+    <Property name="hbase.zookeeper.quorum">ip-50-63-153-238.ip.secureserver.net</Property>    
+    <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
       
      
      <!--

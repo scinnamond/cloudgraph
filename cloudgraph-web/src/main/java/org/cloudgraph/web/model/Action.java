@@ -13,7 +13,6 @@ public enum Action {
     topnav_datafilters,
     topnav_dashboard,
     topnav_overview,
-    topnav_workspace,
     topnav_demo,
     topnav_download,
     topnav_documentation,

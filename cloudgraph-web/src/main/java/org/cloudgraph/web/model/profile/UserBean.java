@@ -1,14 +1,23 @@
 package org.cloudgraph.web.model.profile;
 
 import java.io.Serializable;
+import java.security.AccessController;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
+import javax.faces.validator.ValidatorException;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginContext;
+import javax.security.auth.login.LoginException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -17,6 +26,9 @@ import org.cloudgraph.web.WebConstants;
 import org.cloudgraph.web.component.ChartType;
 import org.cloudgraph.web.config.web.ComponentName;
 import org.cloudgraph.web.config.web.PropertyName;
+import org.cloudgraph.web.jaas.LoginCallbackHandler;
+import org.cloudgraph.web.jaas.RolePrincipal;
+import org.cloudgraph.web.jaas.UserPrincipal;
 import org.cloudgraph.web.sdo.personalization.Element;
 import org.cloudgraph.web.sdo.personalization.ElementType;
 import org.cloudgraph.web.sdo.personalization.Person;
@@ -45,13 +57,17 @@ public class UserBean implements Serializable {
 
 	private static Log log = LogFactory.getLog(UserBean.class);
 	
-	private String name = "sbear"; // fallback user for Tomcat or other non-auth testing
-    private RoleName roleName = RoleName.SUPERUSER; // fallback role name in the event we cannot even lookup a Role from DB
+	private String defaultUserName = "sbear"; // fallback user for Tomcat or other non-auth testing	
+	private String name = defaultUserName;
+    private RoleName roleName = RoleName.ANONYMOUS; // fallback role name in the event we cannot even lookup a Role from DB
     private Role role;
     private Profile profile;
     private User user;
     private Element applicationDefaultSettings;
     private Map<String, Element> elements;
+    private String stagingUsername;
+    private String stagingPassword;
+	boolean authenticated = false;
     
     /**
      * Maps elements (component names) to a map of
@@ -69,29 +85,76 @@ public class UserBean implements Serializable {
 	    } catch (Throwable t) {
 	        log.error(t.getMessage(), t);
 	        throw new RuntimeException("could not load bundle");
-	    }       		    	    
+	    }  
+		
+	    SDODataAccessClient service = new SDODataAccessClient();	
 	    
-        try {
-        	FacesContext context = FacesContext.getCurrentInstance();
-        	Principal principal = context.getExternalContext().getUserPrincipal();
-        	if (principal != null && 
-        		principal.getName() != null && 
-        		principal.getName().length() > 0)
-        	    name = principal.getName();
-        } catch (Throwable t) {
-            log.error(t.getMessage(), t);
-	        throw new RuntimeException("could not create principal");
-        }       		    
-	    
+		// if we have an authenticated principal, override default name
+	    FacesContext context = FacesContext.getCurrentInstance();
+    	Principal principal = context.getExternalContext().getUserPrincipal();
+    	if (principal != null && 
+    		principal.getName() != null && 
+    		principal.getName().length() > 0) {
+    	    name = principal.getName();
+    	    this.authenticated = true;
+    	}
+    	
+    	if (this.authenticated) {
+    		loadAuthenticatedUser();
+        }
+    	else {    		
+    		DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
+    		dataGraph.getChangeSummary().beginLogging(); // log changes from this point
+        	Type rootType = PlasmaTypeHelper.INSTANCE.getType(User.class);
+        	this.user = (User)dataGraph.createRootObject(rootType);  	
+    		String ip = getIpAddress();
+    		this.user.setIpAddress(ip);  
+    		this.user.setUsername(this.defaultUserName);
+    		this.user.setPassword(this.defaultUserName);
+        	UserRole userRole = this.user.createUserRole();        	
+        	this.role = getRole(RoleName.ANONYMOUS, service);
+    		userRole.setRole(this.role);
+    		this.profile = user.createProfile();
+    		 
+    		
+    		try {
+    		    service.commit(dataGraph, ip);
+            } catch (Throwable t) {
+                log.error(t.getMessage(), t);
+            }       	
+    	}    	
+	}
+	
+	public boolean getIsAuthenticated() {
+		return authenticated;
+	}
+
+	public String getPrincipalName()
+	{
+	    FacesContext context = FacesContext.getCurrentInstance();
+    	Principal principal = context.getExternalContext().getUserPrincipal();
+    	if (principal != null && 
+    		principal.getName() != null && 
+    		principal.getName().length() > 0) {
+    	    this.name = principal.getName();
+    		loadAuthenticatedUser();
+    	    return this.name;
+    	}
+    	return null;
+	}
+	
+	private void loadAuthenticatedUser() {
 	    SDODataAccessClient service = new SDODataAccessClient();	
         try {
-        	this.profile = findProfile(service);        	
         	this.user = this.getUser(service);
+        	this.profile = this.user.getProfile(0);
         	this.role = this.findRole(service);
         	if (this.role == null)
         		this.role = createDefaultRole(this.user, service);
         	
         	this.roleName = findRoleNameEnum(this.role.getName());
+        	
+        	/*
         	this.applicationDefaultSettings = this.getDefaultSettings(service);        	
         	SettingCollector collector = new SettingCollector(this.role.getName());
         	((PlasmaDataObject)this.applicationDefaultSettings).accept(collector);
@@ -104,10 +167,22 @@ public class UserBean implements Serializable {
         	
            	this.settings = collector.getSettings();
            	this.elements = collector.getElements();
+           	*/
                	
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-        }       	
+        } 		
+	}
+	
+	private String getIpAddress() 
+	{
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		String ipAddress = request.getHeader("X-FORWARDED-FOR");
+		if (ipAddress == null) {
+		    ipAddress = request.getRemoteAddr();
+		    return ipAddress;
+		}
+		return null;
 	}
 	
 	private RoleName findRoleNameEnum(String roleName)
@@ -122,6 +197,65 @@ public class UserBean implements Serializable {
 		return this.roleName.name();
 	}
 	
+	public String getStagingUsername() {
+		return stagingUsername;
+	}
+
+	public void setStagingUsername(String stagingUsername) {
+		this.stagingUsername = stagingUsername;
+	}
+	
+    public void validateStagingUsername(FacesContext facesContext,
+            UIComponent component, Object value) {
+    	String name = null;
+    	if (value == null || ((String)value).trim().length() == 0) {
+    		return;
+    	}
+    	else
+    		name = ((String)value).trim();
+    	
+    	this.stagingUsername = name;
+    	// don't validate, just wait around for the password validator
+    }
+    
+	public String getStagingPassword() {
+		return stagingPassword;
+	}
+
+	public void setStagingPassword(String stagingPassword) {
+		this.stagingPassword = stagingPassword;
+	}
+	
+    public void validateStagingPassword(FacesContext facesContext,
+            UIComponent component, Object value) {
+    	String pwd = null;
+    	if (value == null || ((String)value).trim().length() == 0) {
+    		return;
+    	}
+    	else
+    		pwd = ((String)value).trim();
+    	
+    	this.stagingPassword = pwd;
+    	LoginContext lc = null;
+		try {
+		    lc = new LoginContext("Jaas", 
+                new LoginCallbackHandler(this.stagingUsername, 
+                    this.stagingPassword));
+		} catch (LoginException le) {
+			log.error(le.getMessage(), le);
+		}
+		
+		try {
+		    lc.login();
+		} catch (LoginException le) {
+            String msg = "Invalid username or password";
+            throw new ValidatorException(
+                		new FacesMessage(msg, msg));
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+		}
+    }
+
 	private Profile findProfile(SDODataAccessClient service) {
 	    Profile result = null;
 	    DataGraph[] results = service.find(ProfileQuery.createProfileQuery(this.getName()));           
@@ -137,7 +271,7 @@ public class UserBean implements Serializable {
 	}
 	
 	private User getUser(SDODataAccessClient service) {
-	    DataGraph[] results = service.find(UserQuery.createQuery(this.getName())); 
+	    DataGraph[] results = service.find(UserQuery.createProfileGraphQuery(this.getName())); 
 	    if (results == null || results.length == 0)
 	        throw new IllegalStateException("cannot find person information for username, "
 			    + this.getName());
@@ -227,9 +361,89 @@ public class UserBean implements Serializable {
 	public User getUser() {
 		return this.user;
 	}
+
+	public String getUsername() {
+		return this.user.getUsername();
+	}
+	
+	public void setUsername(String name) {
+		if (name == null) {
+		    if (this.user.isSetUsername())
+		    	this.user.unsetUsername();
+		}
+		else
+		    this.user.setUsername(name);
+	}
+	
+	public String getPassword() {
+		return this.user.getPassword();
+	}
+	
+	public void setPassword(String passwd) {
+		if (passwd == null) {
+		    if (this.user.isSetPassword())
+		    	this.user.unsetPassword();
+		}
+		else
+		    this.user.setPassword(passwd);
+	}	
 	
 	public Person getPerson() {
 		return this.user.getPerson(0);
+	}
+	
+	public String getFirstName() {
+		if (this.user.getPersonCount() > 0)
+		    return this.user.getPerson(0).getFirstName();
+		else
+			return null;
+	}
+	
+	public void setFirstName(String firstName) {
+		if (this.user.getPersonCount() == 0)
+			this.user.createPerson();			
+		if (firstName == null) {
+		    if (this.user.getPerson(0).isSetFirstName())
+		    	this.user.getPerson(0).unsetFirstName();
+		}
+		else
+		    this.user.getPerson(0).setFirstName(firstName);
+	}
+	
+	public String getLastName() {
+		if (this.user.getPersonCount() > 0)
+		    return this.user.getPerson(0).getLastName();
+		else
+			return null;
+	}
+	
+	public void setLastName(String lastName) {
+		if (this.user.getPersonCount() == 0)
+			this.user.createPerson();			
+		if (lastName == null) {
+		    if (this.user.getPerson(0).isSetLastName())
+		    	this.user.getPerson(0).unsetLastName();
+		}
+		else
+		    this.user.getPerson(0).setLastName(lastName);
+	}
+	
+	public String getEmailAddress() {
+		if (this.user.getPersonCount() > 0)
+		    return this.user.getPerson(0).getEmailAddress();
+		else
+			return null;
+	}
+	
+	public void setEmailAddress(String addr) {
+		if (this.user.getPersonCount() == 0)
+			this.user.createPerson();			
+		if (addr == null) {
+		    if (this.user.getPerson(0).isSetEmailAddress())
+		    	this.user.getPerson(0).unsetEmailAddress();
+		}
+		else
+		    this.user.getPerson(0).setEmailAddress(addr);
 	}
 	
 	public Profile initializeProfile() {
@@ -250,14 +464,89 @@ public class UserBean implements Serializable {
         try {
     		if (this.profile == null)
     			throw new IllegalStateException("no profile found");
+        	
 		    SDODataAccessClient service = new SDODataAccessClient();
-		    service.commit(profile.getDataGraph(), this.name);
+    		this.role = getRole(RoleName.USER, service);
+		    this.roleName = RoleName.USER;
+    		this.name = this.user.getUsername();
+    		this.user.getUserRole(0).setRole(this.role);
+    		
+		    service.commit(profile.getDataGraph(), this.name);		    
+		    
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
         }
         return null;
 	}	
+	
+	public String cancelCommitProfile() {
+        return null;
+	}	
 
+	public String login() {
+		if (this.profile == null)
+			throw new IllegalStateException("no profile found");
+
+		// set new subject into session
+		FacesContext context = FacesContext.getCurrentInstance();
+	    HttpServletRequest request = (HttpServletRequest)context.getExternalContext().getRequest();  
+	    HttpSession httpSession = request.getSession(false);  
+	    Subject subject = (Subject)httpSession.getAttribute("javax.security.auth.subject");
+	    
+	    Subject acSubject = Subject.getSubject(AccessController.getContext());
+	    String remoteUser = request.getRemoteUser();
+		
+	    if (subject == null) {
+	    	subject = new Subject();
+	    	httpSession.setAttribute("javax.security.auth.subject", subject);
+	    }
+	    
+		LoginContext lc = null;
+		try {
+		    lc = new LoginContext("Jaas", 
+                new LoginCallbackHandler(this.stagingUsername, 
+                    this.stagingPassword));
+		} catch (LoginException le) {
+			log.error(le.getMessage(), le);
+		}
+		
+		try {
+		    lc.login();
+		} catch (LoginException le) {
+            String msg = "Invalid username or password";
+			log.error(msg);
+		}
+		this.stagingUsername = null;
+		this.stagingPassword = null;    	    		
+
+		try {
+			subject = lc.getSubject();
+		    
+			// set new subject into session
+		    httpSession.setAttribute("javax.security.auth.subject", subject);
+			
+			for (Principal principal : subject.getPrincipals()) {
+				if (principal instanceof UserPrincipal) {
+	        	    this.name = principal.getName();
+	        		loadAuthenticatedUser();
+	    		    SDODataAccessClient service = new SDODataAccessClient();
+	    		    service.commit(profile.getDataGraph(), this.name);
+	    		    this.authenticated = true;
+				}
+				else if (principal instanceof RolePrincipal) {
+					// do something
+				}
+			}
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+        }
+        return null;
+	}	
+	
+	public String cancelLogin() {
+        return null;
+	}		
+	
 	public Element getAppSettings() {
 		return applicationDefaultSettings;
 	}

@@ -8,6 +8,8 @@
 
 
 <h:panelGrid columns="1" border="0">
+    <h:panelGrid columns="1" border="0"
+       rendered="#{NavigationBean.documentationAction.selected || NavigationBean.demoAction.selected}">
     <f:subview id="news_link_sv">
         <f:verbatim><div class="NewsNav"></f:verbatim>
 	    <a4j:commandLink value="News:" 
@@ -18,18 +20,55 @@
 	             target="#{NavigationBean.newsSelected}" /> 
 	    </a4j:commandLink>  
         <f:verbatim></div></f:verbatim>
-    </f:subview>                                          
-    <rich:dataList var="instance" 
-        value="#{DataListBean.dataMap['NewsItem']}" 
-        rows="10" type="square" styleClass="NewsNav">
-        <a4j:commandLink
-            reRender="top_nav_Panel">
-            <h:outputText value="#{instance.values['EventDate']} - #{instance.values['Title']}"/>            
+    </f:subview>
+    <rich:dataList styleClass="NewsNav" var="news" value="#{DataListBean.dataMap['NewsItem']}" rows="3">
+        <h:commandLink
+            action="topnav_news">
+            <h:outputText value="#{news.values['EventDate']}"/>            
+            <h:outputText value=" | #{news.values['Title']}"/>            
             <f:setPropertyActionListener value="true"   
                  target="#{NavigationBean.newsSelected}" /> 
-        </a4j:commandLink>        
-    </rich:dataList>
+            <f:setPropertyActionListener value="#{news.id}"   
+                target="#{NewsBean.id}" />                                             
+        </h:commandLink>        
+    </rich:dataList>                                          
+    </h:panelGrid>
 
+    <h:panelGrid columns="2" border="0"
+       rendered="#{NavigationBean.newsAction.selected}">
+      <h:graphicImage value="/images/news.png"
+        style="text-align:left;" 
+        rendered="#{NavigationBean.newsAction.selected}"/>
+      <h:graphicImage value="/images/caption_news.png"/>
+    </h:panelGrid>
+    <rich:panelMenu style="width:230px"  mode="ajax" 
+        iconExpandedGroup="disc" iconCollapsedGroup="disc" 
+        iconExpandedTopGroup="chevronUp" iconGroupTopPosition="right" 
+        iconCollapsedTopGroup="chevronDown"
+        rendered="#{NavigationBean.newsAction.selected}">
+
+        <rich:panelMenuGroup 
+            label="Recent News"
+            expanded="true">
+            <c:forEach var="news" items="#{DataListBean.dataMap['NewsItem']}">
+                <rich:panelMenuItem label="#{news.values['Title']}" 
+                    reRender="news_content_panel">                                                                               
+                    <f:setPropertyActionListener value="#{news.id}"   
+                        target="#{NewsBean.id}" />                                             
+                </rich:panelMenuItem>
+            </c:forEach>
+        </rich:panelMenuGroup>
+        <rich:panelMenuGroup 
+            label="Upcoming Events"
+            expanded="false">
+        </rich:panelMenuGroup>
+        <rich:panelMenuGroup 
+            label="News Archive"
+            expanded="false">
+        </rich:panelMenuGroup>
+ 
+    </rich:panelMenu>  
+    
     <rich:panelMenu style="width:230px"  mode="ajax" 
         iconExpandedGroup="disc" iconCollapsedGroup="disc" 
         iconExpandedTopGroup="chevronUp" iconGroupTopPosition="right" 
@@ -45,6 +84,10 @@
 		            reRender="documentation_content_panel">                                                                               
 		            <f:setPropertyActionListener value="#{chap.values['URL']}"   
 		                target="#{DocumentBean.url}" />                                             
+                    <f:setPropertyActionListener value="Chapter"   
+                        target="#{DocumentBean.classifierName}" />                                             
+                    <f:setPropertyActionListener value="#{chap.id}"   
+                        target="#{DocumentBean.id}" />                                             
                 </rich:panelMenuItem>
             </c:forEach>
             <c:forEach var="ref" items="#{document.values['References']}">

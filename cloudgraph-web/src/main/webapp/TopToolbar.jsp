@@ -4,13 +4,38 @@
 <%@ taglib uri="http://richfaces.org/rich" prefix="rich"%>
 <h:form id="toptoolbar_form">
     <rich:toolBar height="24" itemSeparator="line">
-         <rich:toolBarGroup location="right">
-             <h:outputLink id="settingsLink"
+         <rich:toolBarGroup location="right"
+             rendered="#{!UserBean.isAuthenticated}">
+             <h:outputLink id="registerLink"
                  value="#" 
                  title="">
                  <h:outputText value="Register"/>   
                  <rich:componentControl 
+                     for="settingsModalPanel" attachTo="registerLink" 
+                     operation="show" 
+                     event="onclick"/>
+             </h:outputLink>     
+         </rich:toolBarGroup>
+         <rich:toolBarGroup location="right"
+             rendered="#{UserBean.isAuthenticated}">
+             <h:outputLink id="settingsLink"
+                 value="#" 
+                 title="">
+                 <h:outputText value="Profile Settings"/>   
+                 <rich:componentControl 
                      for="settingsModalPanel" attachTo="settingsLink" 
+                     operation="show" 
+                     event="onclick"/>
+             </h:outputLink>     
+         </rich:toolBarGroup>
+         <rich:toolBarGroup location="right"
+             rendered="#{!UserBean.isAuthenticated}">
+             <h:outputLink id="loginLink"
+                 value="#" 
+                 title="">
+                 <h:outputText value="Login"/>   
+                 <rich:componentControl 
+                     for="loginModalPanel" attachTo="loginLink" 
                      operation="show" 
                      event="onclick"/>
              </h:outputLink>     

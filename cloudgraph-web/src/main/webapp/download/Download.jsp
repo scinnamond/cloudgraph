@@ -33,6 +33,8 @@
   <a4j:outputPanel id="download_content_panel">
   <f:verbatim><div class="ContentDiv"></f:verbatim>
   <h:panelGrid rowClasses="AlignCenter" columns="1" width="100%" border="0"> 
+    
+      <h:graphicImage value="/images/caption_downloads.png"/>
 	  <h:panelGrid width="100%" columns="1" styleClass="DashboardTable"
           rowClasses="DashboardTable,DashboardTable,DashboardTable,DashboardTable,DashboardTable"
           cellpadding="0" cellspacing="0"> 
@@ -46,6 +48,7 @@
 
        
   <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
+  <jsp:include page="/common/LoginModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

@@ -44,6 +44,11 @@
   <h:form id="demo_form">                                                                                                                
   <h:panelGrid rowClasses="AlignCenter" columns="1" width="100%" border="0"> 
 
+    <h:panelGrid columns="2" styleClass="AlignLeft">
+        <h:graphicImage value="/images/caption_live_demo.png"/>
+        <h:outputText value=" - #{DemoBean.modelDisplayName}" 
+            style="color: 222222; font-family: sans-serif; font-style: italic; font-size:16px;"/>
+    </h:panelGrid>
     <h:panelGrid width="100%" columns="1" 
         styleClass="DashboardTable"
         rowClasses="DashboardTable,DashboardTable,DashboardTable,DashboardTable,DashboardTable"
@@ -216,6 +221,7 @@
 
        
   <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
+  <jsp:include page="/common/LoginModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

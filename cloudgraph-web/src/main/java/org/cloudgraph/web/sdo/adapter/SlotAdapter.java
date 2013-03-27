@@ -704,7 +704,10 @@ public class SlotAdapter implements Serializable {
 				literal = vs.getLiteralString(0);
 			else
 				literal = vs.createLiteralString();
-			literal.set(LiteralString.PROPERTY.value.name(), value);
+			if (value != null)
+			    literal.set(LiteralString.PROPERTY.value.name(), value);
+			else if (literal.isSet(LiteralString.PROPERTY.value.name()))
+				literal.unset(LiteralString.PROPERTY.value.name());
 		}
 		else if (PrimitiveTypeName.CLOB.name().equalsIgnoreCase(name)) {
 			LiteralClob literal = null;
@@ -712,7 +715,10 @@ public class SlotAdapter implements Serializable {
 				literal = vs.getLiteralClob(0);
 			else
 				literal = vs.createLiteralClob();
-			literal.set(LiteralClob.PROPERTY.value.name(), value);
+			if (value != null)
+			    literal.set(LiteralClob.PROPERTY.value.name(), value);
+			else if (literal.isSet(LiteralClob.PROPERTY.value.name()))
+				literal.unset(LiteralClob.PROPERTY.value.name());
 		}
 		else if (PrimitiveTypeName.DATE.name().equalsIgnoreCase(name)) {
 			LiteralDate literal = null;
@@ -720,7 +726,10 @@ public class SlotAdapter implements Serializable {
 				literal = vs.getLiteralDate(0);
 			else
 				literal = vs.createLiteralDate();
-			literal.set(LiteralDate.PROPERTY.value.name(), value);
+			if (value != null)
+			    literal.set(LiteralDate.PROPERTY.value.name(), value);
+			else if (literal.isSet(LiteralDate.PROPERTY.value.name()))
+				literal.unset(LiteralDate.PROPERTY.value.name());
 		}
 		else if (PrimitiveTypeName.BOOLEAN.name().equalsIgnoreCase(name)) {
 			LiteralBoolean literal = null;
@@ -729,8 +738,11 @@ public class SlotAdapter implements Serializable {
 			else
 				literal = vs.createLiteralBoolean();
 			// JSF can send us a String "true" / "false" or here 
-			literal.set(LiteralBoolean.PROPERTY.value.name(), 
-					Boolean.valueOf(String.valueOf(value)));
+			if (value != null)
+			    literal.set(LiteralBoolean.PROPERTY.value.name(), 
+			    		Boolean.valueOf(String.valueOf(value)));
+			else if (literal.isSet(LiteralBoolean.PROPERTY.value.name()))
+				literal.unset(LiteralBoolean.PROPERTY.value.name());
 		}
 		else if (PrimitiveTypeName.SHORT.name().equalsIgnoreCase(name)) {
 			LiteralShort literal = null;
@@ -738,7 +750,10 @@ public class SlotAdapter implements Serializable {
 				literal = vs.getLiteralShort(0);
 			else
 				literal = vs.createLiteralShort();
-			literal.set(LiteralShort.PROPERTY.value.name(), value);
+			if (value != null)
+			    literal.set(LiteralShort.PROPERTY.value.name(), value);
+			else if (literal.isSet(LiteralShort.PROPERTY.value.name()))
+				literal.unset(LiteralShort.PROPERTY.value.name());
 		}
 		else if (PrimitiveTypeName.INTEGER.name().equalsIgnoreCase(name)) {
 			LiteralInteger literal = null;
@@ -746,7 +761,10 @@ public class SlotAdapter implements Serializable {
 				literal = vs.getLiteralInteger(0);
 			else
 				literal = vs.createLiteralInteger();
-			literal.set(LiteralInteger.PROPERTY.value.name(), value);
+			if (value != null)
+			    literal.set(LiteralInteger.PROPERTY.value.name(), value);
+			else if (literal.isSet(LiteralInteger.PROPERTY.value.name()))
+				literal.unset(LiteralInteger.PROPERTY.value.name());
 		}
 		else if (PrimitiveTypeName.LONG.name().equalsIgnoreCase(name)) {
 			LiteralLong literal = null;
@@ -754,7 +772,10 @@ public class SlotAdapter implements Serializable {
 				literal = vs.getLiteralLong(0);
 			else
 				literal = vs.createLiteralLong();
-			literal.set(LiteralLong.PROPERTY.value.name(), value);
+			if (value != null)
+			    literal.set(LiteralLong.PROPERTY.value.name(), value);
+			else if (literal.isSet(LiteralLong.PROPERTY.value.name()))
+				literal.unset(LiteralLong.PROPERTY.value.name());
 		}
 		else if (PrimitiveTypeName.FLOAT.name().equalsIgnoreCase(name)) {
 			LiteralFloat literal = null;
@@ -764,8 +785,11 @@ public class SlotAdapter implements Serializable {
 				literal = vs.createLiteralFloat();
 			// JSF can send us a Double or Long here based on the
 			// converter on the input text
-			literal.set(LiteralFloat.PROPERTY.value.name(), 
-					Float.valueOf(String.valueOf(value))); 
+			if (value != null)
+			    literal.set(LiteralFloat.PROPERTY.value.name(), 
+			    		Float.valueOf(String.valueOf(value)));
+			else if (literal.isSet(LiteralFloat.PROPERTY.value.name()))
+				literal.unset(LiteralFloat.PROPERTY.value.name());
 		}
 		else if (PrimitiveTypeName.DOUBLE.name().equalsIgnoreCase(name)) {
 			LiteralDouble literal = null;
@@ -773,14 +797,17 @@ public class SlotAdapter implements Serializable {
 				literal = vs.getLiteralDouble(0);
 			else
 				literal = vs.createLiteralDouble();
-			literal.set(LiteralDouble.PROPERTY.value.name(), value);
 			// JSF can send us a Double or Long here based on the
 			// converter on the input text
-			literal.set(LiteralFloat.PROPERTY.value.name(), 
-					Double.valueOf(String.valueOf(value))); 
+			if (value != null)
+			    literal.set(LiteralDouble.PROPERTY.value.name(), 
+			    		Double.valueOf(String.valueOf(value)));
+			else if (literal.isSet(LiteralDouble.PROPERTY.value.name()))
+				literal.unset(LiteralDouble.PROPERTY.value.name());
 		}
 		else
 			log.warn("unknown type, " + name);
 	}
+	
 	
 }

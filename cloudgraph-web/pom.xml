@@ -36,13 +36,11 @@
         </repository>
     </repositories>
     <dependencies>
-        <!-- 
         <dependency>
             <groupId>org.cloudgraph</groupId>
-            <artifactId>cloudgraph-common</artifactId>
-            <version>0.5</version>
+            <artifactId>cloudgraph-config</artifactId>
+            <version>0.5.2</version>
         </dependency>
-        -->
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-rdb</artifactId>

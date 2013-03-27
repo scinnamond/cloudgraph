@@ -33,7 +33,8 @@
         value="#{bundle.aplsClassEdit_exit_label}"
         title="#{bundle.aplsClassEdit_exit_tooltip}" 
         action="#{InstanceEditBean.exit}"
-        reRender="dashboard_content_panel,topnav_form">
+        reRender="dashboard_content_panel,topnav_form"
+        immediate="true">
         <f:setPropertyActionListener value="true"   
             target="#{NavigationBean.administrationSelected}" />
       </a4j:commandLink>                                             
@@ -63,22 +64,22 @@
                     required="#{slot.isRequired}">
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:inputText>    
-		        <rich:editor 
-		            rendered="#{slot.isLongString}"
-		            width="280" height="100"
-		            viewMode="visual" 
-		            readonly="false"
-		            value="#{slot.value}" 
-		            useSeamText="false"
-		            theme="advanced" 
-		            plugins="paste">
-		            <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste"/>
-		            <f:param name="theme_advanced_buttons2" value=""/>
-		            <f:param name="theme_advanced_buttons3" value=""/>
-		            <f:param name="theme_advanced_toolbar_location" value="top"/>                               
-		            <f:param name="theme_advanced_toolbar_align" value="left"/>
-	                <rich:toolTip value="#{slot.propertyDefinition}"/>
-		        </rich:editor>
+                <rich:editor 
+                    rendered="#{slot.isLongString}"
+                    width="480" height="300"
+                    viewMode="visual" 
+                    readonly="false"
+                    value="#{slot.value}" 
+                    useSeamText="false"
+                    theme="advanced" 
+                    plugins="paste">
+                    <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste,separator,forecolor,backcolor,separator,bullist,numlist"/>
+                    <f:param name="theme_advanced_buttons2" value="outdent,indent,separator,undo,redo,separator,hr,removeformat,visualaid,separator,sub,sup,separator,charmap"/>
+                    <f:param name="theme_advanced_buttons3" value=""/>
+                    <f:param name="theme_advanced_toolbar_location" value="top"/>                               
+                    <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <rich:toolTip value="#{slot.propertyDefinition}"/>
+                </rich:editor>
                 <h:inputText value="#{slot.value}" 
                     rendered="#{slot.isIntegral}"
                     required="#{slot.isRequired}">
@@ -97,7 +98,8 @@
                     <rich:calendar value="#{slot.value}"
                         datePattern="d/MMM/yy"
                         cellWidth="24px" cellHeight="22px" 
-                        style="width:200px"/>
+                        style="width:200px"
+                        popup="false"/>
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </a4j:outputPanel>	            
                 <h:selectOneRadio
@@ -193,22 +195,22 @@
                     required="#{slot.isRequired}">
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:inputText>    
-		        <rich:editor 
-		            rendered="#{slot.isLongString}"
-		            width="280" height="100"
-		            viewMode="visual" 
-		            readonly="false"
-		            value="#{slot.value}" 
-		            useSeamText="false"
-		            theme="advanced" 
-		            plugins="paste">
-		            <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste"/>
-		            <f:param name="theme_advanced_buttons2" value=""/>
-		            <f:param name="theme_advanced_buttons3" value=""/>
-		            <f:param name="theme_advanced_toolbar_location" value="top"/>                               
-		            <f:param name="theme_advanced_toolbar_align" value="left"/>
-	                <rich:toolTip value="#{slot.propertyDefinition}"/>
-		        </rich:editor>
+                <rich:editor 
+                    rendered="#{slot.isLongString}"
+                    width="480" height="300"
+                    viewMode="visual" 
+                    readonly="false"
+                    value="#{slot.value}" 
+                    useSeamText="false"
+                    theme="advanced" 
+                    plugins="paste">
+                    <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste,separator,forecolor,backcolor,separator,bullist,numlist"/>
+                    <f:param name="theme_advanced_buttons2" value="outdent,indent,separator,undo,redo,separator,hr,removeformat,visualaid,separator,sub,sup,separator,charmap"/>
+                    <f:param name="theme_advanced_buttons3" value=""/>
+                    <f:param name="theme_advanced_toolbar_location" value="top"/>                               
+                    <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <rich:toolTip value="#{slot.propertyDefinition}"/>
+                </rich:editor>
                 <h:inputText value="#{slot.value}" 
                     rendered="#{slot.isIntegral}"
                     required="#{slot.isRequired}">
@@ -227,7 +229,8 @@
                     <rich:calendar value="#{slot.value}"
                         datePattern="d/MMM/yy"
                         cellWidth="24px" cellHeight="22px" 
-                        style="width:200px"/>
+                        style="width:200px"
+                        popup="false"/>
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </a4j:outputPanel>	            
                 <h:selectOneRadio
@@ -323,22 +326,22 @@
                     required="#{slot.isRequired}">
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:inputText>    
-		        <rich:editor 
-		            rendered="#{slot.isLongString}"
-		            width="280" height="100"
-		            viewMode="visual" 
-		            readonly="false"
-		            value="#{slot.value}" 
-		            useSeamText="false"
-		            theme="advanced" 
-		            plugins="paste">
-		            <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste"/>
-		            <f:param name="theme_advanced_buttons2" value=""/>
-		            <f:param name="theme_advanced_buttons3" value=""/>
-		            <f:param name="theme_advanced_toolbar_location" value="top"/>                               
-		            <f:param name="theme_advanced_toolbar_align" value="left"/>
-	                <rich:toolTip value="#{slot.propertyDefinition}"/>
-		        </rich:editor>
+                <rich:editor 
+                    rendered="#{slot.isLongString}"
+                    width="480" height="300"
+                    viewMode="visual" 
+                    readonly="false"
+                    value="#{slot.value}" 
+                    useSeamText="false"
+                    theme="advanced" 
+                    plugins="paste">
+                    <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste,separator,forecolor,backcolor,separator,bullist,numlist"/>
+                    <f:param name="theme_advanced_buttons2" value="outdent,indent,separator,undo,redo,separator,hr,removeformat,visualaid,separator,sub,sup,separator,charmap"/>
+                    <f:param name="theme_advanced_buttons3" value=""/>
+                    <f:param name="theme_advanced_toolbar_location" value="top"/>                               
+                    <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <rich:toolTip value="#{slot.propertyDefinition}"/>
+                </rich:editor>
                 <h:inputText value="#{slot.value}" 
                     rendered="#{slot.isIntegral}"
                     required="#{slot.isRequired}">
@@ -357,7 +360,8 @@
                     <rich:calendar value="#{slot.value}"
                         datePattern="d/MMM/yy"
                         cellWidth="24px" cellHeight="22px" 
-                        style="width:200px"/>
+                        style="width:200px"
+                        popup="false"/>
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </a4j:outputPanel>	            
                 <h:selectOneRadio
@@ -453,22 +457,22 @@
                     required="#{slot.isRequired}">
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:inputText>    
-		        <rich:editor 
-		            rendered="#{slot.isLongString}"
-		            width="280" height="100"
-		            viewMode="visual" 
-		            readonly="false"
-		            value="#{slot.value}" 
-		            useSeamText="false"
-		            theme="advanced" 
-		            plugins="paste">
-		            <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste"/>
-		            <f:param name="theme_advanced_buttons2" value=""/>
-		            <f:param name="theme_advanced_buttons3" value=""/>
-		            <f:param name="theme_advanced_toolbar_location" value="top"/>                               
-		            <f:param name="theme_advanced_toolbar_align" value="left"/>
-	                <rich:toolTip value="#{slot.propertyDefinition}"/>
-		        </rich:editor>
+                <rich:editor 
+                    rendered="#{slot.isLongString}"
+                    width="480" height="300"
+                    viewMode="visual" 
+                    readonly="false"
+                    value="#{slot.value}" 
+                    useSeamText="false"
+                    theme="advanced" 
+                    plugins="paste">
+                    <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste,separator,forecolor,backcolor,separator,bullist,numlist"/>
+                    <f:param name="theme_advanced_buttons2" value="outdent,indent,separator,undo,redo,separator,hr,removeformat,visualaid,separator,sub,sup,separator,charmap"/>
+                    <f:param name="theme_advanced_buttons3" value=""/>
+                    <f:param name="theme_advanced_toolbar_location" value="top"/>                               
+                    <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <rich:toolTip value="#{slot.propertyDefinition}"/>
+                </rich:editor>
                 <h:inputText value="#{slot.value}" 
                     rendered="#{slot.isIntegral}"
                     required="#{slot.isRequired}">
@@ -487,7 +491,8 @@
                     <rich:calendar value="#{slot.value}"
                         datePattern="d/MMM/yy"
                         cellWidth="24px" cellHeight="22px" 
-                        style="width:200px"/>
+                        style="width:200px"
+                        popup="false"/>
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </a4j:outputPanel>	            
                 <h:selectOneRadio
@@ -583,22 +588,22 @@
                     required="#{slot.isRequired}">
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:inputText>    
-		        <rich:editor 
-		            rendered="#{slot.isLongString}"
-		            width="280" height="100"
-		            viewMode="visual" 
-		            readonly="false"
-		            value="#{slot.value}" 
-		            useSeamText="false"
-		            theme="advanced" 
-		            plugins="paste">
-		            <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste"/>
-		            <f:param name="theme_advanced_buttons2" value=""/>
-		            <f:param name="theme_advanced_buttons3" value=""/>
-		            <f:param name="theme_advanced_toolbar_location" value="top"/>                               
-		            <f:param name="theme_advanced_toolbar_align" value="left"/>
-	                <rich:toolTip value="#{slot.propertyDefinition}"/>
-		        </rich:editor>
+                <rich:editor 
+                    rendered="#{slot.isLongString}"
+                    width="480" height="300"
+                    viewMode="visual" 
+                    readonly="false"
+                    value="#{slot.value}" 
+                    useSeamText="false"
+                    theme="advanced" 
+                    plugins="paste">
+                    <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste,separator,forecolor,backcolor,separator,bullist,numlist"/>
+                    <f:param name="theme_advanced_buttons2" value="outdent,indent,separator,undo,redo,separator,hr,removeformat,visualaid,separator,sub,sup,separator,charmap"/>
+                    <f:param name="theme_advanced_buttons3" value=""/>
+                    <f:param name="theme_advanced_toolbar_location" value="top"/>                               
+                    <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <rich:toolTip value="#{slot.propertyDefinition}"/>
+                </rich:editor>
                 <h:inputText value="#{slot.value}" 
                     rendered="#{slot.isIntegral}"
                     required="#{slot.isRequired}">
@@ -617,7 +622,8 @@
                     <rich:calendar value="#{slot.value}"
                         datePattern="d/MMM/yy"
                         cellWidth="24px" cellHeight="22px" 
-                        style="width:200px"/>
+                        style="width:200px"
+                        popup="false"/>
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </a4j:outputPanel>	            
                 <h:selectOneRadio
@@ -713,22 +719,22 @@
                     required="#{slot.isRequired}">
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:inputText>    
-		        <rich:editor 
-		            rendered="#{slot.isLongString}"
-		            width="280" height="100"
-		            viewMode="visual" 
-		            readonly="false"
-		            value="#{slot.value}" 
-		            useSeamText="false"
-		            theme="advanced" 
-		            plugins="paste">
-		            <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste"/>
-		            <f:param name="theme_advanced_buttons2" value=""/>
-		            <f:param name="theme_advanced_buttons3" value=""/>
-		            <f:param name="theme_advanced_toolbar_location" value="top"/>                               
-		            <f:param name="theme_advanced_toolbar_align" value="left"/>
-	                <rich:toolTip value="#{slot.propertyDefinition}"/>
-		        </rich:editor>
+                <rich:editor 
+                    rendered="#{slot.isLongString}"
+                    width="480" height="300"
+                    viewMode="visual" 
+                    readonly="false"
+                    value="#{slot.value}" 
+                    useSeamText="false"
+                    theme="advanced" 
+                    plugins="paste">
+                    <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste,separator,forecolor,backcolor,separator,bullist,numlist"/>
+                    <f:param name="theme_advanced_buttons2" value="outdent,indent,separator,undo,redo,separator,hr,removeformat,visualaid,separator,sub,sup,separator,charmap"/>
+                    <f:param name="theme_advanced_buttons3" value=""/>
+                    <f:param name="theme_advanced_toolbar_location" value="top"/>                               
+                    <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <rich:toolTip value="#{slot.propertyDefinition}"/>
+                </rich:editor>
                 <h:inputText value="#{slot.value}" 
                     rendered="#{slot.isIntegral}"
                     required="#{slot.isRequired}">
@@ -747,7 +753,8 @@
                     <rich:calendar value="#{slot.value}"
                         datePattern="d/MMM/yy"
                         cellWidth="24px" cellHeight="22px" 
-                        style="width:200px"/>
+                        style="width:200px"
+                        popup="false"/>
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </a4j:outputPanel>	            
                 <h:selectOneRadio
@@ -843,23 +850,23 @@
                     required="#{slot.isRequired}">
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </h:inputText>    
-		        <rich:editor 
-		            rendered="#{slot.isLongString}"
-		            width="280" height="100"
-		            viewMode="visual" 
-		            readonly="false"
-		            value="#{slot.value}" 
-		            useSeamText="false"
-		            theme="advanced" 
-		            plugins="paste">
-		            <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste"/>
-		            <f:param name="theme_advanced_buttons2" value=""/>
-		            <f:param name="theme_advanced_buttons3" value=""/>
-		            <f:param name="theme_advanced_toolbar_location" value="top"/>                               
-		            <f:param name="theme_advanced_toolbar_align" value="left"/>
-	                <rich:toolTip value="#{slot.propertyDefinition}"/>
-		        </rich:editor>
-                <h:inputText value="#{slot.value}" 
+                <rich:editor 
+                    rendered="#{slot.isLongString}"
+                    width="480" height="300"
+                    viewMode="visual" 
+                    readonly="false"
+                    value="#{slot.value}" 
+                    useSeamText="false"
+                    theme="advanced" 
+                    plugins="paste">
+                    <f:param name="theme_advanced_buttons1" value="bold,italic,underline,separator,cut,copy,paste,separator,forecolor,backcolor,separator,bullist,numlist"/>
+                    <f:param name="theme_advanced_buttons2" value="outdent,indent,separator,undo,redo,separator,hr,removeformat,visualaid,separator,sub,sup,separator,charmap"/>
+                    <f:param name="theme_advanced_buttons3" value=""/>
+                    <f:param name="theme_advanced_toolbar_location" value="top"/>                               
+                    <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <rich:toolTip value="#{slot.propertyDefinition}"/>
+               </rich:editor>
+               <h:inputText value="#{slot.value}" 
                     rendered="#{slot.isIntegral}"
                     required="#{slot.isRequired}">
                     <f:convertNumber integerOnly="true"/>
@@ -877,7 +884,8 @@
                     <rich:calendar value="#{slot.value}"
                         datePattern="d/MMM/yy"
                         cellWidth="24px" cellHeight="22px" 
-                        style="width:200px"/>
+                        style="width:200px"
+                        popup="false"/>
 	                <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </a4j:outputPanel>	            
                 <h:selectOneRadio

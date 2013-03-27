@@ -1,6 +1,7 @@
 package org.cloudgraph.web.model.profile;
 
 import org.cloudgraph.web.sdo.personalization.User;
+import org.cloudgraph.web.sdo.personalization.query.QUser;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Property;
 import org.plasma.query.model.Query;
@@ -22,5 +23,17 @@ public class UserQuery {
         
         Query query = new Query(select, from, where);
         return query;		
-	}		
+	}
+	
+	public static org.plasma.query.Query createProfileGraphQuery(String username) {
+		QUser user = QUser.newQuery();
+		
+		user.select(user.wildcard())
+		    .select(user.person().wildcard())
+		    .select(user.profile().wildcard())
+		    .select(user.profile().profileElementSetting().wildcard());
+		
+		user.where(user.username().eq(username));
+		return user;
+	}	
 }

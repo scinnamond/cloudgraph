@@ -37,7 +37,16 @@
           rowClasses="DashboardTable,DashboardTable,DashboardTable,DashboardTable,DashboardTable"
           cellpadding="0" cellspacing="0"> 
 	   
-          <a4j:include viewId="#{DocumentBean.url}" />
+          <h:graphicImage value="/images/caption_major_features.png"
+              rendered="#{DocumentBean.instance.values['Type'] == 'feature'}"/>
+          <h:graphicImage value="/images/caption_services.png"
+              rendered="#{DocumentBean.instance.values['Type'] == 'service'}"/>
+          <h:graphicImage value="/images/caption_overview.png"
+              rendered="#{DocumentBean.instance.values['Type'] != 'service' && DocumentBean.instance.values['Type'] != 'feature'}"/>
+          <rich:spacer height="20" />          
+          <h:panelGrid columns="1" styleClass="AlignLeft">
+                <h:outputText escape="false" value="#{DocumentBean.instance.values['Content']}"/>    
+          </h:panelGrid>
 	
       </h:panelGrid>
   </h:panelGrid>
@@ -47,6 +56,7 @@
 
        
   <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
+  <jsp:include page="/common/LoginModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

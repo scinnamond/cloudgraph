@@ -17,7 +17,6 @@ public class NavigationBean extends ModelBean {
     // using the 'binding' attribute which means we have to create all sub-components
     // dynamically as well. Hence declare top-nav items statically. :(
     private TreeNodeAction dashboardAction;
-    private TreeNodeAction workspaceAction;
     
     private TreeNodeAction overviewAction;
     private TreeNodeAction demoAction;
@@ -51,7 +50,6 @@ public class NavigationBean extends ModelBean {
 			public void clearSelection() {
 				dashboardAction.setSelected(false);
 				overviewAction.setSelected(false);
-				workspaceAction.setSelected(false);
 				downloadAction.setSelected(false);
 				documentationAction.setSelected(false); 
 				newsAction.setSelected(false); 
@@ -82,8 +80,6 @@ public class NavigationBean extends ModelBean {
 	    		topActionHandler, topSelectionModel);
 	    overviewAction.setSelected(true);
 	    selectedTopAction = overviewAction;
-	    workspaceAction = new TreeNodeAction(Action.topnav_workspace, 
-	    		topActionHandler, topSelectionModel);
 	    demoAction = new TreeNodeAction(Action.topnav_demo, 
 	    		topActionHandler, topSelectionModel);
 	    downloadAction = new TreeNodeAction(Action.topnav_download, 
@@ -128,14 +124,6 @@ public class NavigationBean extends ModelBean {
 			this.overviewAction.setSelected(false);
 	}
 	
-	public void setWorkspaceSelected(Object selected) {
-		Boolean b = new Boolean(String.valueOf(selected));
-		if (b.booleanValue())
-		    this.topSelectionModel.setSelection(this.workspaceAction);
-		else
-			this.workspaceAction.setSelected(false);
-	}
-
 	public void setDemoSelected(Object selected) {
 		Boolean b = new Boolean(String.valueOf(selected));
 		if (b.booleanValue())
@@ -254,13 +242,6 @@ public class NavigationBean extends ModelBean {
 
 	public void setDemoAction(TreeNodeAction demoAction) {
 		this.demoAction = demoAction;
-	}
-	public TreeNodeAction getWorkspaceAction() {
-		return workspaceAction;
-	}
-
-	public void setWorkspaceAction(TreeNodeAction workspaceAction) {
-		this.workspaceAction = workspaceAction;
 	}
 	
 	public TreeNodeAction getAdministrationAction() {

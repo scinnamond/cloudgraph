@@ -33,7 +33,8 @@
         value="#{bundle.aplsPackageEdit_exit_label}"
         title="#{bundle.aplsPackageEdit_exit_tooltip}" 
         action="#{PackageEditBean.exit}"
-        reRender="admin_content_panel">
+        reRender="admin_content_panel"
+        immediate="true">
       </a4j:commandLink>  
    </h:panelGrid>   
 	

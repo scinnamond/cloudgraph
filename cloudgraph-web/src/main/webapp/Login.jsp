@@ -34,7 +34,7 @@
 		<blockquote>
 		<h4></h4>
 		<p />
-		<form id="login_form" method="POST" action="app-login" autocomplete="off">
+		<form id="login_form" method="POST" action="j_security_check" autocomplete="off">
 		<table border="0">
 			<tr>
 				<td><label class="label" for="j_username">Username:</label></td>

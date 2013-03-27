@@ -14,8 +14,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.ModelBean;
+import org.cloudgraph.web.model.common.InstanceBean;
 
-public class DocumentBean extends ModelBean 
+public class DocumentBean extends InstanceBean 
 {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(DocumentBean.class);	
@@ -25,6 +26,7 @@ public class DocumentBean extends ModelBean
 	private int height = 1000;
 		
 	public DocumentBean() {
+		super("Document");
 		log.debug("created DocumentBean");
 	}
 	

@@ -38,7 +38,8 @@
               value="#{NavigationBean.downloadAction.label}" 
               title="#{NavigationBean.downloadAction.tooltip}"/>
       </rich:toolBarGroup>
-      <rich:toolBarGroup styleClass="#{NavigationBean.emailAction.selected ? 'TopNavActive' : 'TopNav'}">
+      <rich:toolBarGroup styleClass="#{NavigationBean.emailAction.selected ? 'TopNavActive' : 'TopNav'}"
+          rendered="#{UserBean.roleName == 'SUPERUSER'}">
           <h:graphicImage value="#{NavigationBean.emailAction.icon}" />
           <h:commandLink
               action="#{NavigationBean.emailAction.onAction}"
@@ -46,7 +47,8 @@
               value="#{NavigationBean.emailAction.label}" 
               title="#{NavigationBean.emailAction.tooltip}"/>
       </rich:toolBarGroup>
-      <rich:toolBarGroup styleClass="#{NavigationBean.blogAction.selected ? 'TopNavActive' : 'TopNav'}">
+      <rich:toolBarGroup styleClass="#{NavigationBean.blogAction.selected ? 'TopNavActive' : 'TopNav'}"
+          rendered="#{UserBean.roleName == 'SUPERUSER'}">
           <h:graphicImage value="#{NavigationBean.blogAction.icon}" />
           <h:commandLink
               action="#{NavigationBean.blogAction.onAction}"

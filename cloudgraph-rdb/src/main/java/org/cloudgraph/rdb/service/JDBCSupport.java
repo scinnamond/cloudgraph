@@ -345,7 +345,6 @@ public abstract class JDBCSupport {
 		StringBuilder sql = new StringBuilder();
 		sql.append("DELETE FROM ");		
 		sql.append(type.getPhysicalName());
-		sql.append(" t0 ");
 		sql.append(" WHERE ");
 		int i = 0;
 		for (PropertyPair pair : values.values()) {
@@ -354,7 +353,6 @@ public abstract class JDBCSupport {
 				continue;
 			if (!prop.isKey(KeyType.primary))
 				continue;
-        	sql.append("t0.");  
         	sql.append(pair.getProp().getPhysicalName());
         	sql.append(" = ?"); 
         	pair.setColumn(i+1);

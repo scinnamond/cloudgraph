@@ -146,6 +146,16 @@
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <managed-bean-name>NewsBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.news.NewsBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>InstanceBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.common.InstanceBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <managed-bean-name>DemoBean</managed-bean-name>
     <managed-bean-class>org.cloudgraph.web.model.demo.DemoBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
@@ -212,12 +222,6 @@
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
-        <from-outcome>topnav_workspace</from-outcome>
-        <to-view-id>/workspace/Workspace.jsp</to-view-id>
-      </navigation-case>
-    </navigation-rule>
-    <navigation-rule>
-      <navigation-case>
         <from-outcome>topnav_configuration</from-outcome>
         <to-view-id>/configuration/Configuration.jsp</to-view-id>
       </navigation-case>
@@ -260,11 +264,11 @@
 	    <from-view-id>/data/Data.jsp</from-view-id>                        
 	    <navigation-case>                                                                           
 	        <from-outcome>edit</from-outcome>                                              
-	        <to-view-id>/workspace/Workspace.jsp</to-view-id>                      
+	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
 	    </navigation-case>                                                                          
 	    <navigation-case>                                                                           
 	        <from-outcome>create</from-outcome>                                              
-	        <to-view-id>/workspace/Workspace.jsp</to-view-id>                      
+	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
 	    </navigation-case>                                                                          
     </navigation-rule>                                                                              
     <navigation-rule>                                                                               
@@ -272,11 +276,11 @@
 	    <from-view-id>/configuration/Configuration.jsp</from-view-id>                        
 	    <navigation-case>                                                                           
 	        <from-outcome>edit</from-outcome>                                              
-	        <to-view-id>/workspace/Workspace.jsp</to-view-id>                      
+	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
 	    </navigation-case>                                                                          
 	    <navigation-case>                                                                           
 	        <from-outcome>create</from-outcome>                                              
-	        <to-view-id>/workspace/Workspace.jsp</to-view-id>                      
+	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
 	    </navigation-case>                                                                          
     </navigation-rule>                                                                              
     <navigation-rule>                                                                               
@@ -284,11 +288,11 @@
 	    <from-view-id>/administration/Administration.jsp</from-view-id>                        
 	    <navigation-case>                                                                           
 	        <from-outcome>edit</from-outcome>                                              
-	        <to-view-id>/workspace/Workspace.jsp</to-view-id>                      
+	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
 	    </navigation-case>                                                                          
 	    <navigation-case>                                                                           
 	        <from-outcome>create</from-outcome>                                              
-	        <to-view-id>/workspace/Workspace.jsp</to-view-id>                      
+	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
 	    </navigation-case>                                                                          
     </navigation-rule>                                                                              
     <navigation-rule>                                                                               
@@ -296,11 +300,11 @@
 	    <from-view-id>/campaign/Campaign.jsp</from-view-id>                        
 	    <navigation-case>                                                                           
 	        <from-outcome>edit</from-outcome>                                              
-	        <to-view-id>/workspace/Workspace.jsp</to-view-id>                      
+	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
 	    </navigation-case>                                                                          
 	    <navigation-case>                                                                           
 	        <from-outcome>create</from-outcome>                                              
-	        <to-view-id>/workspace/Workspace.jsp</to-view-id>                      
+	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
 	    </navigation-case>                                                                          
     </navigation-rule>                                                                              
 

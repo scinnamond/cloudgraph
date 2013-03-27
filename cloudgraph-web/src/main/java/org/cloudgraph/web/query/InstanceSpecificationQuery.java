@@ -61,6 +61,36 @@ public class InstanceSpecificationQuery {
 		return query;
 	}
 	
+	public static Query createQueueQueryByInstanceId(String classifierName, Long id) {
+		
+		QInstanceSpecification query = QInstanceSpecification.newQuery();
+		query.select(query.wildcard())
+             .select(query.clazz().wildcard())
+             .select(query.clazz().classifier().wildcard())
+             .select(query.instanceCategorization().wildcard())
+             .select(query.instanceCategorization().categorization().wildcard())
+             .select(query.instanceCategorization().categorization().category().name())
+             .select(query.instanceCategorization().categorization().category().parent().name())
+             .select(query.slot().wildcard())
+             .select(query.slot().definingFeature().wildcard())
+             .select(query.slot().definingFeature().propertyCategorization().categorization().category().seqId())
+             .select(query.slot().value().wildcard())  
+             .select(query.slot().value().instanceValue().wildcard())  
+             .select(query.slot().value().instanceValue().instance().seqId()) // links to another instance
+             .select(query.slot().value().literalString().wildcard())
+             .select(query.slot().value().literalClob().wildcard())
+             .select(query.slot().value().literalShort().wildcard())
+             .select(query.slot().value().literalInteger().wildcard())
+             .select(query.slot().value().literalLong().wildcard())
+             .select(query.slot().value().literalFloat().wildcard())
+             .select(query.slot().value().literalDouble().wildcard())
+             .select(query.slot().value().literalDate().wildcard())
+             .select(query.slot().value().literalBoolean().wildcard());		
+		query.where(query.seqId().eq(id)
+			 .and(query.clazz().classifier().name().eq(classifierName)));
+		return query;
+	}
+	
 	public static Query createQueueQueryByClassId(Long classId) {
 		
 		QInstanceSpecification query = QInstanceSpecification.newQuery();
