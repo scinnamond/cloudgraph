@@ -5,6 +5,14 @@
  
     <DataImport name="core-metadata" providerName="JDBC">  
          
+        <ImportLoader className="org.cloudgraph.web.etl.loader.RoleLoader">
+            <DataEntity sourceDir="import/roles" 
+                source="role*.xml"/>
+        </ImportLoader>
+        <ImportLoader className="org.cloudgraph.web.etl.loader.UserLoader">
+            <DataEntity sourceDir="import/users" 
+                source="user*.xml"/>
+        </ImportLoader>
         <ImportLoader className="org.cloudgraph.web.etl.loader.TaxonomyLoader">
             <DataEntity sourceDir="import/taxonomyies" 
                 source="taxonomomy*.xml"/>
@@ -43,7 +51,6 @@
 
     <DataExport name="main" providerName="JDBC" 
         targetDir="./target/data">
-        <!--  
         <DataEntity name="package" 
             source="data/query/package-query.xml"
             targetDir="packages"
@@ -77,7 +84,14 @@
             source="data/query/taxonomy-query.xml"
             targetDir="taxonomyies"
             targetNamespaceUri="http://org.cloudgraph/web/categorization"/>
-     -->
+        <DataEntity name="role" 
+            source="data/query/role-query.xml"
+            targetDir="roles"
+            targetNamespaceUri="http://org.cloudgraph/web/personalization"/>
+        <DataEntity name="user" 
+            source="data/query/user-query.xml"
+            targetDir="users"
+            targetNamespaceUri="http://org.cloudgraph/web/personalization"/>
     
     </DataExport>
     

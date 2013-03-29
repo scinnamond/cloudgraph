@@ -105,6 +105,20 @@
 	            <f:setPropertyActionListener value="true"   
 	                    target="#{NavigationBean.administrationSelected}" />                                             
 	        </a4j:commandLink>                                                                                                                    
+            <f:verbatim>&nbsp</f:verbatim>                   
+            <a4j:commandLink 
+                title="Delete this item"
+                action="#{InstanceEditBean.deleteConfirm}"
+                rendered="#{UserBean.roleName == 'SUPERUSER'}"                                                                               
+                oncomplete="#{rich:component('deleteInstanceConfirmModalPanel')}.show()"
+                reRender="dataqueue_dtbl,inst_delete_confirm_panel_form">                                                                               
+                <h:outputText value="delete"                                                                   
+                    title="Delete this item"/>                                                                         
+                <f:setPropertyActionListener value="#{item.id}"   
+                        target="#{InstanceEditBean.instanceId}" />                                             
+                <f:setPropertyActionListener value="true"   
+                        target="#{NavigationBean.administrationSelected}" />                                             
+            </a4j:commandLink>                                                                                                                    
       </rich:column>  
                                                                                                                                                                  
       <rich:columns value="#{InstanceQueueBean.properties}" 

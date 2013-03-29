@@ -524,11 +524,7 @@
 										<upperValue xmi:type='uml:LiteralUnlimitedNatural' xmi:id='_17_0_6_1707042b_1364055412968_668144_2200' visibility='public' value='1'/>
 									</modelExtension>
 								</xmi:Extension>
-								<xmi:Extension extender='MagicDraw UML 17.0'>
-									<modelExtension>
-										<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_6_1707042b_1364055412968_201590_2199' visibility='public' value='1'/>
-									</modelExtension>
-								</xmi:Extension>
+								<lowerValue xmi:type='uml:LiteralInteger' xmi:id='_17_0_6_1707042b_1364055412968_201590_2199' visibility='public'/>
 							</ownedAttribute>
 						</packagedElement>
 						<packagedElement xmi:type='uml:Association' xmi:id='_16_0_1_1707042b_1306852402626_877158_403' visibility='public'>
@@ -2375,7 +2371,7 @@
 						<mdElement elementClass='StringProperty'>
 							<propertyID>INFO_PROPERTY</propertyID>
 							<propertyDescriptionID>INFO_PROPERTY_DESCRIPTION</propertyDescriptionID>
-							<value>5 4f 67 41 51 70 43 15 79 58 ce ef 4d 6 a6 68 f3 2e e1 83 a4 9b e0 bc 48 55 db 49 d0 cc 97 39 f0 a8 bb 87 bc 57 e7 be 1c d7 67 f0 41 c7 84 a3 70 7a c0 8 ca 88 8f 8e 71 f9 2c 7c a9 5e 26 96 75 12 23 3 13 fd d6 </value>
+							<value>5 4f 67 41 51 70 43 15 79 58 ce ef 4d 6 a6 68 f3 2e e1 83 a4 9b e0 bc 48 50 d4 49 d1 ce 97 39 f0 a8 bb 87 bc 57 e7 be 1c d7 67 f0 41 c7 84 a3 70 7a c0 8 ca 88 8f 8e 71 f9 2c 7c a9 5e 26 96 75 12 23 3 13 fd d6 </value>
 						</mdElement>
 						<mdElement elementClass='LIST_PROPERTY'>
 							<propertyID>ADDITIONAL_CONTAINMENT_TREES</propertyID>

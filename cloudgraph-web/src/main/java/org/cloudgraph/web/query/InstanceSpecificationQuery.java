@@ -32,6 +32,33 @@ public class InstanceSpecificationQuery {
 		return query;
 	}
 	
+	public static Query createDeleteQueryById(Long id) {
+		
+		QInstanceSpecification query = QInstanceSpecification.newQuery();
+		query.select(query.seqId())
+             .select(query.instanceCategorization().seqId())
+             .select(query.instanceCategorization().categorization().seqId())
+             // delete slots that point to us
+             .select(query.instanceValue().seqId())
+             .select(query.instanceValue().valueSpecification().seqId())
+             .select(query.instanceValue().valueSpecification().slot().seqId())
+             // delete our slots
+             .select(query.slot().seqId())
+             .select(query.slot().value().seqId())  
+             .select(query.slot().value().instanceValue().seqId())  
+             .select(query.slot().value().literalString().seqId())
+             .select(query.slot().value().literalClob().seqId())
+             .select(query.slot().value().literalShort().seqId())
+             .select(query.slot().value().literalInteger().seqId())
+             .select(query.slot().value().literalLong().seqId())
+             .select(query.slot().value().literalFloat().seqId())
+             .select(query.slot().value().literalDouble().seqId())
+             .select(query.slot().value().literalDate().seqId())
+             .select(query.slot().value().literalBoolean().seqId());		
+		query.where(query.seqId().eq(id));
+		return query;
+	}
+	
 	public static Query createQueueQueryByClassifierName(String name) {
 		
 		QInstanceSpecification query = QInstanceSpecification.newQuery();

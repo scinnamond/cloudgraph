@@ -44,21 +44,31 @@
   <h:form id="demo_form">                                                                                                                
   <h:panelGrid rowClasses="AlignCenter" columns="1" width="100%" border="0"> 
 
-    <h:panelGrid columns="2" styleClass="AlignLeft">
-        <h:graphicImage value="/images/caption_live_demo.png"/>
-        <h:outputText value=" - #{DemoBean.modelDisplayName}" 
-            style="color: 222222; font-family: sans-serif; font-style: italic; font-size:16px;"/>
-    </h:panelGrid>
     <h:panelGrid width="100%" columns="1" 
         styleClass="DashboardTable"
         rowClasses="DashboardTable,DashboardTable,DashboardTable,DashboardTable,DashboardTable"
         cellpadding="0" cellspacing="0"
         rendered="#{!DemoBean.hasModel}"> 
+        <h:graphicImage value="/images/caption_live_demo.png"/>
      
-        <a4j:include viewId="#{DemoBean.defaultUrl}" />
-  
+        <f:verbatim>
+Welcome to a live demo of CloudGraph™. Select a source (UML) model from navigation menu on the left, and several tabs will become available including set of live data graphs, rendered and expanded as a tree. These are assembled on demand using the CloudGraph™ HBase Service. The various available models span several domains such as Healthcare, Life Sciences and others.  
+        </f:verbatim>
+        
+        <rich:spacer height="40" />          
+        <rich:separator height="4" lineType="double"/>          
+        <h:outputText style="font-size: 120%; font-weight: normal" 
+              value="Select a UML model to the left"/>    
+        <h:graphicImage value="/images/big_left_arrow.png"/>
+        
     </h:panelGrid>
 
+    <h:panelGrid columns="2" styleClass="AlignLeft"
+        rendered="#{DemoBean.hasModel}">
+        <h:graphicImage value="/images/caption_live_demo.png"/>
+        <h:outputText value=" - #{DemoBean.modelDisplayName}" 
+            style="color: 222222; font-family: sans-serif; font-style: italic; font-size:16px;"/>
+    </h:panelGrid>
     <rich:tabPanel switchType="ajax" 
         rendered="#{DemoBean.hasModel}"
         selectedTab="#{DemoBean.selectedTab}">
@@ -67,7 +77,7 @@
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
-                <h:outputText value="Model" />
+                <h:outputText value="UML Model" />
             </h:panelGroup>
         </f:facet>
         <f:subview id="model_sv">
@@ -222,6 +232,7 @@
        
   <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
   <jsp:include page="/common/LoginModalPanel.jsp" flush="false"/>
+  <jsp:include page="/common/ContactModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

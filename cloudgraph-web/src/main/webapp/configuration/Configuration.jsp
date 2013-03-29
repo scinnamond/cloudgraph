@@ -67,6 +67,7 @@
  
        
   <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
+  <jsp:include page="/common/ContactModalPanel.jsp" flush="false"/>
   <jsp:include page="/configuration/PropertyDeleteConfirmModalPanel.jsp" flush="false"/>
 </body>
 </html>

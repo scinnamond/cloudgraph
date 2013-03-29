@@ -49,6 +49,7 @@
        
   <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
   <jsp:include page="/common/LoginModalPanel.jsp" flush="false"/>
+  <jsp:include page="/common/ContactModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

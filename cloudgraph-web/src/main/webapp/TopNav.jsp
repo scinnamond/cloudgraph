@@ -30,7 +30,8 @@
               value="#{NavigationBean.demoAction.label}" 
               title="#{NavigationBean.demoAction.tooltip}"/>
       </rich:toolBarGroup>
-      <rich:toolBarGroup styleClass="#{NavigationBean.downloadAction.selected ? 'TopNavActive' : 'TopNav'}">
+      <rich:toolBarGroup styleClass="#{NavigationBean.downloadAction.selected ? 'TopNavActive' : 'TopNav'}"
+          rendered="#{UserBean.roleName == 'SUPERUSER'}">
           <h:graphicImage value="#{NavigationBean.downloadAction.icon}" />
           <h:commandLink
               action="#{NavigationBean.downloadAction.onAction}"

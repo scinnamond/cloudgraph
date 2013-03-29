@@ -184,7 +184,9 @@
 </a4j:outputPanel>
   <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
   <jsp:include page="/common/LoginModalPanel.jsp" flush="false"/>
+  <jsp:include page="/common/ContactModalPanel.jsp" flush="false"/>
   <jsp:include page="/data/PersonalizeQueuePanel.jsp" flush="false"/>
+  <jsp:include page="/data/InstanceDeleteConfirmModalPanel.jsp" flush="false"/>
 </body>
 </html>
 </f:view>

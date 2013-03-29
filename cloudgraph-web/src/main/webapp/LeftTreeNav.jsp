@@ -82,13 +82,17 @@
             <c:forEach var="chap" items="#{document.values['Chapters']}">
                 <rich:panelMenuItem label="#{chap.values['Name']}" 
 		            reRender="documentation_content_panel">                                                                               
-		            <f:setPropertyActionListener value="#{chap.values['URL']}"   
-		                target="#{DocumentBean.url}" />                                             
-                    <f:setPropertyActionListener value="Chapter"   
+                   <f:setPropertyActionListener value="Document"   
                         target="#{DocumentBean.classifierName}" />                                             
-                    <f:setPropertyActionListener value="#{chap.id}"   
+                    <f:setPropertyActionListener value="#{document.id}"   
                         target="#{DocumentBean.id}" />                                             
-                </rich:panelMenuItem>
+                    <f:setPropertyActionListener value="Chapter"   
+                        target="#{ChapterBean.classifierName}" />                                             
+                    <f:setPropertyActionListener value="#{chap.id}"   
+                        target="#{ChapterBean.id}" />                                             
+                    <f:setPropertyActionListener value="#{chap.values['URL']}"   
+                        target="#{ChapterBean.url}" />                                             
+                 </rich:panelMenuItem>
             </c:forEach>
             <c:forEach var="ref" items="#{document.values['References']}">
                 <rich:panelMenuItem label="#{ref.values['Name']}" 

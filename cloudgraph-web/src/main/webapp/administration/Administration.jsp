@@ -102,7 +102,7 @@
 	    </rich:simpleTogglePanel> 
 	    
 	    <rich:simpleTogglePanel label="#{InstanceEditBean.title}"
-	        rendered="#{InstanceEditBean.hasInstance}"
+	        rendered="#{InstanceEditBean.hasInstance && !InstanceEditBean.isDelete}"
 	          switchType="client">          
 	       <jsp:include page="/data/InstanceEditPanel.jsp" flush="false"/>        
 	    </rich:simpleTogglePanel> 
@@ -122,6 +122,7 @@
 </a4j:outputPanel>
 
   <jsp:include page="/common/SettingsModalPanel.jsp" flush="false"/>
+  <jsp:include page="/common/ContactModalPanel.jsp" flush="false"/>
   <jsp:include page="/administration/TaxonomyDeleteConfirmModalPanel.jsp" flush="false"/>
   <jsp:include page="/administration/TaxonomyExportModalPanel.jsp" flush="false"/>
   <jsp:include page="/data/PersonalizeQueuePanel.jsp" flush="false"/>
@@ -129,6 +130,7 @@
    <jsp:include page="/common/CreateEditCategorizationPanel.jsp" flush="false"/>
   <jsp:include page="/configuration/CreateEditEnumerationLiteralPanel.jsp" flush="false"/>
   <jsp:include page="/data/InstanceBrowserQueuePanel.jsp" flush="false"/>      
+  <jsp:include page="/data/InstanceDeleteConfirmModalPanel.jsp" flush="false"/>
        
 </body>
 </html>

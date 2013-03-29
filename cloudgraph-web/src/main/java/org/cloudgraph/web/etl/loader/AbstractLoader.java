@@ -13,6 +13,8 @@ import org.cloudgraph.web.sdo.meta.query.QClazz;
 import org.cloudgraph.web.sdo.meta.query.QInstanceSpecification;
 import org.cloudgraph.web.sdo.meta.query.QPackage;
 import org.cloudgraph.web.sdo.meta.query.QProperty;
+import org.cloudgraph.web.sdo.personalization.Role;
+import org.cloudgraph.web.sdo.personalization.query.QRole;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.sdo.access.client.PojoDataAccessClient;
 import org.plasma.sdo.access.client.SDODataAccessClient;
@@ -44,6 +46,24 @@ public abstract class AbstractLoader {
 			throw new RuntimeException("multiple results for, "
 					+ uuid);
 		Package result = (Package)results[0].getRootObject();
+		result.setDataGraph(null); // so can re parent
+		return result;
+	}
+    
+    protected Role fetchRole(String uuid) {
+		
+		QRole query = QRole.newQuery();
+		query.select(query.wildcard());
+		query.where(query.externalId().eq(uuid));
+		
+		DataGraph[] results = service.find(query);
+		if (results == null)
+			throw new RuntimeException("no package results for, "
+					+ uuid);
+		if (results.length > 1)
+			throw new RuntimeException("multiple results for, "
+					+ uuid);
+		Role result = (Role)results[0].getRootObject();
 		result.setDataGraph(null); // so can re parent
 		return result;
 	}

@@ -108,6 +108,11 @@
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
   <managed-bean>
+    <managed-bean-name>EmailBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.common.EmailBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
     <managed-bean-name>InstanceEditBean</managed-bean-name>
     <managed-bean-class>org.cloudgraph.web.model.data.InstanceEditBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
@@ -143,6 +148,11 @@
   <managed-bean>
     <managed-bean-name>DocumentBean</managed-bean-name>
     <managed-bean-class>org.cloudgraph.web.model.documentation.DocumentBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+  </managed-bean>
+  <managed-bean>
+    <managed-bean-name>ChapterBean</managed-bean-name>
+    <managed-bean-class>org.cloudgraph.web.model.documentation.ChapterBean</managed-bean-class>
     <managed-bean-scope>request</managed-bean-scope>
   </managed-bean>
   <managed-bean>

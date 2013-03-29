@@ -41,10 +41,14 @@
              </h:outputLink>     
          </rich:toolBarGroup>
          <rich:toolBarGroup location="right">
-             <h:outputLink
-                 value="#"
+             <h:outputLink id="contactLink"
+                 value="#" 
                  title="">
-                 <h:outputText value="Contact"/> 
+                 <h:outputText value="Contact"/>   
+                 <rich:componentControl 
+                     for="contactModalPanel" attachTo="contactLink" 
+                     operation="show" 
+                     event="onclick"/>
              </h:outputLink>     
          </rich:toolBarGroup>
     </rich:toolBar>

@@ -58,6 +58,11 @@
             <version>5.1.23</version>
         </dependency>
         <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>1.4.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-hbase</artifactId>
             <version>0.5.2</version>
@@ -562,7 +567,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-                        <skip>true</skip>
+                        <skip>false</skip>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
@@ -601,7 +606,7 @@
               <artifactId>maven-antrun-plugin</artifactId>                   
               <version>1.7</version> 
               <executions>  
-                <!--  
+                 <!--    
                 <execution>    
                   <id>test-export</id>                                              
                   <phase>test</phase>                
@@ -631,7 +636,7 @@
                     <goal>run</goal>                                         
                   </goals>                                                   
                 </execution> 
-                 -->
+                  -->
                 <!--    
                 <execution>    
                   <id>test-import</id>                                              

@@ -43,6 +43,7 @@ public class InstanceEditBean extends ModelBean {
 	private static Log log = LogFactory.getLog(InstanceEditBean.class);
 	
 	private Long instanceId;
+	private boolean isDelete;
 	private InstanceSpecification instance;
 	private String saveActionReRender;
     private CategorizedPropertySupport propertySupport;
@@ -52,6 +53,10 @@ public class InstanceEditBean extends ModelBean {
     	this.propertySupport = new CategorizedPropertySupport();
 	}
 
+	public boolean getIsDelete() {
+		return this.isDelete;
+	}
+	
 	public String getTitle() {
 		if (this.instance != null && 
 			this.instance.getClazz() != null &&
@@ -78,7 +83,7 @@ public class InstanceEditBean extends ModelBean {
     	BeanFinder beanFinder = new BeanFinder();
         ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
-        	
+        	this.isDelete = false;
 		    SDODataAccessClient service = new SDODataAccessClient();
 		    DataGraph[] result = service.find(
 		    		ClassQuery.createEditQuery(
@@ -114,6 +119,7 @@ public class InstanceEditBean extends ModelBean {
     	BeanFinder beanFinder = new BeanFinder();
         ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
+        	this.isDelete = false;
 		    SDODataAccessClient service = new SDODataAccessClient();
 		    DataGraph[] result = service.find(InstanceSpecificationQuery.createEditQueryById(this.instanceId));
 	        this.instance = (InstanceSpecification)result[0].getRootObject();	
@@ -167,6 +173,63 @@ public class InstanceEditBean extends ModelBean {
         }       
         return null;
     }
+    
+	public String deleteConfirm() {
+    	BeanFinder beanFinder = new BeanFinder();
+        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
+        try {
+        	this.isDelete = true;
+		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] result = service.find(InstanceSpecificationQuery.createDeleteQueryById(this.instanceId));
+		    this.instance = (InstanceSpecification)result[0].getRootObject();
+	        	        
+	        return AppActions.DELETE.value();
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+            errorHandler.setError(t);
+            errorHandler.setRecoverable(false);
+            return AppActions.ERRORHANDLER.value();
+        } finally {
+        }       
+    }		
+
+	public String cancelDelete() {
+    	BeanFinder beanFinder = new BeanFinder();
+        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
+        try {
+        	this.instance = null;
+	        clear();
+	        	        
+	        return AppActions.SUCCESS.value();
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+            errorHandler.setError(t);
+            errorHandler.setRecoverable(false);
+            return AppActions.ERRORHANDLER.value();
+        } finally {
+        }       
+    }	
+	
+	public String delete() {
+    	BeanFinder beanFinder = new BeanFinder();
+        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
+        try {
+		    SDODataAccessClient service = new SDODataAccessClient();
+	        this.instance.delete();
+	        service.commit(this.instance.getDataGraph(), 
+		    	    beanFinder.findUserBean().getName());
+	        clear();
+	        	        
+	        return AppActions.SUCCESS.value();
+        } catch (Throwable t) {
+            log.error(t.getMessage(), t);
+            errorHandler.setError(t);
+            errorHandler.setRecoverable(false);
+            return AppActions.ERRORHANDLER.value();
+        } finally {
+	        this.instance = null;
+        }       
+    }		
 
     public void clear() {
     	try {

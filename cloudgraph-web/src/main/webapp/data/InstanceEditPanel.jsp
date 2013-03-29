@@ -78,6 +78,8 @@
                     <f:param name="theme_advanced_buttons3" value=""/>
                     <f:param name="theme_advanced_toolbar_location" value="top"/>                               
                     <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <f:param name="theme_advanced_font_sizes" value="10px,12px,14px,16px,24px"/>
+                    <f:param name="theme_advanced_fonts" value="Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;AkrutiKndPadmini=Akpdmi-n"/>
                     <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </rich:editor>
                 <h:inputText value="#{slot.value}" 
@@ -209,6 +211,8 @@
                     <f:param name="theme_advanced_buttons3" value=""/>
                     <f:param name="theme_advanced_toolbar_location" value="top"/>                               
                     <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <f:param name="theme_advanced_font_sizes" value="10px,12px,14px,16px,24px"/>
+                    <f:param name="theme_advanced_fonts" value="Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;AkrutiKndPadmini=Akpdmi-n"/>
                     <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </rich:editor>
                 <h:inputText value="#{slot.value}" 
@@ -340,6 +344,8 @@
                     <f:param name="theme_advanced_buttons3" value=""/>
                     <f:param name="theme_advanced_toolbar_location" value="top"/>                               
                     <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <f:param name="theme_advanced_font_sizes" value="10px,12px,14px,16px,24px"/>
+                    <f:param name="theme_advanced_fonts" value="Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;AkrutiKndPadmini=Akpdmi-n"/>
                     <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </rich:editor>
                 <h:inputText value="#{slot.value}" 
@@ -471,6 +477,8 @@
                     <f:param name="theme_advanced_buttons3" value=""/>
                     <f:param name="theme_advanced_toolbar_location" value="top"/>                               
                     <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <f:param name="theme_advanced_font_sizes" value="10px,12px,14px,16px,24px"/>
+                    <f:param name="theme_advanced_fonts" value="Arial=arial,helvetica,sans-serif;Courier New=courier new,courier,monospace;AkrutiKndPadmini=Akpdmi-n"/>
                     <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </rich:editor>
                 <h:inputText value="#{slot.value}" 
@@ -602,6 +610,7 @@
                     <f:param name="theme_advanced_buttons3" value=""/>
                     <f:param name="theme_advanced_toolbar_location" value="top"/>                               
                     <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <f:param name="theme_advanced_font_sizes" value="10px,12px,14px,16px,24px"/>
                     <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </rich:editor>
                 <h:inputText value="#{slot.value}" 
@@ -733,6 +742,7 @@
                     <f:param name="theme_advanced_buttons3" value=""/>
                     <f:param name="theme_advanced_toolbar_location" value="top"/>                               
                     <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <f:param name="theme_advanced_font_sizes" value="10px,12px,14px,16px,24px"/>
                     <rich:toolTip value="#{slot.propertyDefinition}"/>
                 </rich:editor>
                 <h:inputText value="#{slot.value}" 
@@ -864,6 +874,7 @@
                     <f:param name="theme_advanced_buttons3" value=""/>
                     <f:param name="theme_advanced_toolbar_location" value="top"/>                               
                     <f:param name="theme_advanced_toolbar_align" value="left"/>
+                    <f:param name="theme_advanced_font_sizes" value="10px,12px,14px,16px,24px"/>
                     <rich:toolTip value="#{slot.propertyDefinition}"/>
                </rich:editor>
                <h:inputText value="#{slot.value}" 

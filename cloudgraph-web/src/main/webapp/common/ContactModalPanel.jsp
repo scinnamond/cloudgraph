@@ -3,23 +3,23 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
 
-<rich:modalPanel id="settingsModalPanel"
+<rich:modalPanel id="contactModalPanel"
     autosized="true" resizeable="false">
     <f:facet name="header">
         <h:panelGroup>
-            <h:outputText value="Registration Settings"></h:outputText>
+            <h:outputText value="Contact"></h:outputText>
         </h:panelGroup>
     </f:facet>
     <f:facet name="controls">
         <h:panelGroup>
             <h:graphicImage value="/images/close_window.gif"
-                styleClass="hidelink" id="settings_queue_close_link" />
-            <rich:componentControl for="settingsModalPanel" 
-                attachTo="settings_queue_close_link"
+                styleClass="hidelink" id="contact_queue_close_link" />
+            <rich:componentControl for="contactModalPanel" 
+                attachTo="contact_queue_close_link"
                 operation="hide" event="onclick" />
         </h:panelGroup>
     </f:facet>
-    <a4j:form  id="settings_modalPanel1_form" 
+    <a4j:form  id="contact_modalPanel1_form" 
         ajaxSubmit="true" 
         reRender="dashboard_content_panel">
         <h:panelGrid columns="1" width="95%" 
@@ -29,28 +29,23 @@
             </a4j:outputPanel>
                 <h:panelGrid columns="2" width="80%" 
                     columnClasses="FormLabelColumn,FormControlColumn,FormLabelColumn,FormControlColumn">
-                    <h:outputText value="Username:" />
-                    <h:inputText value="#{UserBean.username}" />
+                    <h:outputText value="Subject:" />
+                    <h:inputText value="#{EmailBean.subject}" 
+                        required="true"
+                        validator="#{EmailBean.validateSubject}"/>
                     <f:verbatim>&nbsp</f:verbatim>
                     <f:verbatim>&nbsp</f:verbatim>
                     
-                    <h:outputText value="Password:" />
-                    <h:inputText value="#{UserBean.password}" />
+                    <h:outputText value="Message:" />
+                    <h:inputTextarea value="#{EmailBean.message}" 
+                        validator="#{EmailBean.validateMessage}"
+                        cols="30" rows="16"/>
                     <f:verbatim>&nbsp</f:verbatim>
                     <f:verbatim>&nbsp</f:verbatim>
                     
-                    <h:outputText value="First Name:" />
-                    <h:inputText value="#{UserBean.firstName}" />
-                    <f:verbatim>&nbsp</f:verbatim>
-                    <f:verbatim>&nbsp</f:verbatim>
-                    
-                    <h:outputText value="Last Name:" />
-                    <h:inputText value="#{UserBean.lastName}" />
-                    <f:verbatim>&nbsp</f:verbatim>
-                    <f:verbatim>&nbsp</f:verbatim>
-                    
-                    <h:outputText value="Email Address:" />
-                    <h:inputText value="#{UserBean.emailAddress}" />
+                    <h:outputText value="From Email Address:" />
+                    <h:inputText value="#{EmailBean.emailAddress}" 
+                        validator="#{EmailBean.validateEmailAddress}"/>
                     <f:verbatim>&nbsp</f:verbatim>
                     <f:verbatim>&nbsp</f:verbatim>
                 </h:panelGrid>          
@@ -58,14 +53,15 @@
             <f:verbatim>&nbsp</f:verbatim>
             <h:panelGrid columns="2" width="80%">
             <a4j:commandButton 
-                action="#{UserBean.commitProfile}"
+                action="#{EmailBean.send}"
                 reRender="dashboard_content_panel"
-                onclick="Richfaces.hideModalPanel('settingsModalPanel');" value="  OK  ">
+                oncomplete="javascript:closeContactPanel()"
+                value="  OK  ">
             </a4j:commandButton>
-            <a4j:commandButton id="settingsPanel_cancel_button" value="Cancel"
+            <a4j:commandButton id="contactPanel_cancel_button" value="Cancel"
                 immediate="true"
-                action="#{UserBean.cancelCommitProfile}"
-                onclick="Richfaces.hideModalPanel('settingsModalPanel');">
+                action="#{EmailBean.cancel}"
+                onclick="Richfaces.hideModalPanel('contactModalPanel');">
             </a4j:commandButton> 
             </h:panelGrid>
     </h:panelGrid>
@@ -73,11 +69,11 @@
 </rich:modalPanel>
 <script type="text/javascript">
   //<![CDATA[
-     function closeSettingsPanel(){
-          if (document.getElementById('settings_modalPanel1_form:dataEntryError')==null){
-               Richfaces.hideModalPanel('settingsModalPanel');
+     function closeContactPanel(){
+          if (document.getElementById('contact_modalPanel1_form:dataEntryError')==null){
+               Richfaces.hideModalPanel('contactModalPanel');
           };
      };
   //\]\]\>
-</script>	        
+</script>           
   	
