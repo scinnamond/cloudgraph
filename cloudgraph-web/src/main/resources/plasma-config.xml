@@ -93,13 +93,16 @@
             <DataAccessProvider name="JDBC"                
                 className="org.cloudgraph.rdb.service.RDBGraphService">
 
-                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionURL">jdbc:mysql://localhost:3306/apls</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionURL">jdbc:mysql://localhost:3306/APLS?autoReconnect=true</Property>    
                 
-                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPassword">mysql</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPassword"></Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionUserName">root</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionDriverName">com.mysql.jdbc.Driver</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMinSize">1</Property>    
-                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMaxSize">80</Property>    
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMaxSize">20</Property>  
+                <Property name="org.apache.commons.dbcp.validationQuery">SELECT * FROM APLS.ROLE</Property>  
+                <Property name="org.apache.commons.dbcp.testOnBorrow">true</Property>  
+                <Property name="org.apache.commons.dbcp.testOnReturn">true</Property>  
 
                 <Concurrency 
                     pessimisticLockTimeoutMillis="300000"/>

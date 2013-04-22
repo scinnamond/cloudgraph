@@ -35,6 +35,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraph;
@@ -63,8 +64,10 @@ import org.plasma.query.model.Where;
 import org.plasma.query.visitor.DefaultQueryVisitor;
 import org.plasma.query.visitor.QueryVisitor;
 import org.plasma.sdo.PlasmaDataGraph;
+import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.QueryDispatcher;
+import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
 /**
@@ -295,8 +298,11 @@ public class GraphQuery
             			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
             		continue; // ignore toumbstone roots
             	}
-          	    graphAssembler.assemble(resultRow);
-                result.add(graphAssembler.getDataGraph());
+            	
+          	    graphAssembler.assemble(resultRow);            	
+            	PlasmaDataGraph assembledGraph = graphAssembler.getDataGraph();
+            	
+            	result.add(assembledGraph);
                 graphAssembler.clear();
                 count++;
             }      
@@ -398,18 +404,17 @@ public class GraphQuery
         	}
         }
         else {
-            //FIXME: partial key scans failing here - The Type name where it is the final field
-	        // in the key has incorrect stop-key value. E.g. both start and stop are the same
-	        /*    
     		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(type);
     		scanAssembler.assemble();
-            scan.setStartRow(scanAssembler.getStartKey()); // inclusive
-            scan.setStopRow(scanAssembler.getStopKey()); // exclusive
-      		if (log.isDebugEnabled())
-    			log.debug("default graph partial key scan: (" 
-      		        + "start: " + Bytes.toString(scan.getStartRow())
-      		        + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
-      		*/        
+    		byte[] startKey = scanAssembler.getStartKey();
+    		if (startKey != null && startKey.length > 0) {
+                scan.setStartRow(startKey); // inclusive
+                scan.setStopRow(scanAssembler.getStopKey()); // exclusive
+      		    if (log.isDebugEnabled())
+    			    log.debug("default graph partial key scan: (" 
+      		            + "start: " + Bytes.toString(scan.getStartRow())
+      		            + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
+    		}
         }    	
     }
        

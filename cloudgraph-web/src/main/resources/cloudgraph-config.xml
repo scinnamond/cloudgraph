@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cloudgraph:CloudGraphConfiguration  
     xmlns:cloudgraph="http://www.cloudgraph.org/config">
+    
     <!--
     <Property name="hbase.zookeeper.quorum">u16551142.onlinehome-server.com</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
       -->
-    
+      
     <Property name="hbase.zookeeper.quorum">ip-50-63-153-238.ip.secureserver.net</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
-      
      
      <!--
      does not seem to do anything 

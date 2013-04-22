@@ -46,9 +46,9 @@ import commonj.sdo.Type;
  */
 public class RealLiteral extends ScanLiteral {
 
-	protected final float INCREMENT_FLOAT = Float.MIN_VALUE;
-	protected final double INCREMENT_DOUBLE = Double.MIN_VALUE;
-	protected final BigDecimal INCREMENT_DECIMAL = BigDecimal.valueOf(Double.MIN_VALUE);
+	public static final float INCREMENT_FLOAT = Float.MIN_VALUE;
+	public static final double INCREMENT_DOUBLE = Double.MIN_VALUE;
+	public static final BigDecimal INCREMENT_DECIMAL = BigDecimal.valueOf(Double.MIN_VALUE);
 
 	public RealLiteral(String literal,
 			PlasmaType rootType,

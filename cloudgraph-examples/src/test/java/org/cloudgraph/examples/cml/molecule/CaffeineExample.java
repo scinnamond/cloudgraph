@@ -470,5 +470,5 @@ public class CaffeineExample extends CMLTest {
     	String xml = this.serializeGraph(moleculeResult.getDataGraph());
     	log.info(xml);
     }
-    
+        
 }

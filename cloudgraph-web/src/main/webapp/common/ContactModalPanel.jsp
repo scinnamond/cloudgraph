@@ -39,7 +39,7 @@
                     <h:outputText value="Message:" />
                     <h:inputTextarea value="#{EmailBean.message}" 
                         validator="#{EmailBean.validateMessage}"
-                        cols="30" rows="16"/>
+                        cols="30" rows="8"/>
                     <f:verbatim>&nbsp</f:verbatim>
                     <f:verbatim>&nbsp</f:verbatim>
                     

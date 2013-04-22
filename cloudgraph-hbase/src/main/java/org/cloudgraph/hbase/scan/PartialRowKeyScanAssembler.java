@@ -163,16 +163,32 @@ public class PartialRowKeyScanAssembler
 	private void assemblePredefinedFields()
 	{
     	List<PreDefinedKeyFieldConfig> preDefinedFields = this.graph.getPreDefinedRowKeyFields();
-        for (int i = 0; i < preDefinedFields.size(); i++) {
+        int fieldCount = preDefinedFields.size();
+    	for (int i = 0; i < fieldCount; i++) {
         	PreDefinedKeyFieldConfig preDefinedField = preDefinedFields.get(i);
-    		if (i > 0) {
+    		if (startRowFieldCount > 0) {
         	    this.startKey.put(graph.getRowKeyFieldDelimiterBytes());
+    		}
+    		if (stopRowFieldCount > 0) {
         	    this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());
     		}
-    		byte[] tokenValue = this.keySupport.getPredefinedFieldValueBytes(this.rootType, 
+    		
+    		byte[] startValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
        	    		hash, preDefinedField);
-       	    this.startKey.put(tokenValue);
-       	    this.stopKey.put(tokenValue);
+       	    this.startKey.put(startValue);
+       	    startRowFieldCount++;
+       	    
+       	    byte[] stopValue = null;
+       	    if (i < (fieldCount -1)) {
+       		    stopValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
+           	    		hash, preDefinedField);       	    	
+       	    }
+       	    else {
+    		    stopValue = this.keySupport.getPredefinedFieldValueStopBytes(this.rootType, 
+       	    		hash, preDefinedField);
+       	    }
+    		this.stopKey.put(stopValue);
+       	    stopRowFieldCount++;
         }				
 	}
 	

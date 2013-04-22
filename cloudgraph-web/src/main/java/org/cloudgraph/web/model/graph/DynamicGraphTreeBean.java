@@ -8,11 +8,13 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.web.model.ModelBean;
-import org.cloudgraph.web.model.tree.DynamicTreeNodeModel;
+import org.cloudgraph.web.model.tree.GraphTreeNodeModel;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
+import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.profile.KeyType;
 import org.richfaces.component.UITree;
 import org.richfaces.component.html.HtmlTreeNode;
@@ -23,12 +25,13 @@ import org.richfaces.model.TreeRowKey;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
+import commonj.sdo.Type;
 
 public abstract class DynamicGraphTreeBean extends ModelBean {
-
-    private static Log log = LogFactory.getLog(DynamicGraphTreeBean.class);
+	private static final long serialVersionUID = 1L;
+	private static Log log = LogFactory.getLog(DynamicGraphTreeBean.class);
     private long ids = 0;
-    private DynamicTreeNodeModel treeRoot;
+    private GraphTreeNodeModel treeRoot;
     private TreeState treeState;
     protected TreeNodeTypeMap typeMap;
     protected NodeLabelFormat labelFormat;
@@ -42,7 +45,7 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
 		this.typeMap = typeMap;
 	}
 
-	public DynamicTreeNodeModel getModel() {
+	public GraphTreeNodeModel getModel() {
 		return this.treeRoot;
 	}
 	
@@ -80,7 +83,7 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
      */
 	protected void initTree(DataGraph[] graphs)
 	{	
-		treeRoot = new DynamicTreeNodeModel(++ids);
+		treeRoot = new GraphTreeNodeModel(++ids);
 		treeRoot.setUserData("root");
 		treeRoot.setLevel(0);
 		
@@ -88,16 +91,21 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
 		{
 			DataObject topObject = graphs[i].getRootObject();
 			DataObjectNode objectNode = new DataObjectNode(topObject, null);
-			DynamicTreeNodeModel topNode = new DynamicTreeNodeModel(++ids);
-	        topNode.setEnabled(true);
+			GraphTreeNodeModel topNode = new GraphTreeNodeModel(++ids);
+			topNode.setIsRoot(true);
+			topNode.setEnabled(true);
+    		    		
+    		// its visible name and label
 	        topNode.setName(topObject.getType().getName());
         	if (this.labelFormat == null) 
         		topNode.setLabel(objectNode.getLabel());
 	        else 
 	        	topNode.setLabel(
 	        			this.labelFormat.getLabel(objectNode));
-        	if (this.displayNodeHelpText)
+        	
+        	if (this.displayNodeHelpText) {
 	            topNode.setTooltip(((PlasmaType)topObject.getType()).getName());
+        	}
 			topNode.setLevel(treeRoot.getLevel() + 1);
 	        topNode.setType(typeMap.getTreeNodeType(topNode.getLevel()));
 	        topNode.setUserData(objectNode);
@@ -140,8 +148,8 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
 				isExpanded = tree.isExpanded();
 
 			// get the model node of this node.  
-			DynamicTreeNodeModel selectedTreeModelNode =
-				(DynamicTreeNodeModel) tree.getTreeNode(rowKey);
+			GraphTreeNodeModel selectedTreeModelNode =
+				(GraphTreeNodeModel) tree.getTreeNode(rowKey);
 			
 			if(null != selectedTreeModelNode){  
 				if (isExpanded) {
@@ -163,7 +171,7 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
 	/** 
 	 * Method for adding children nodes to a given tree model node. 
 	 */  
-	public void addChildrenNodes(DynamicTreeNodeModel parentNode){
+	public void addChildrenNodes(GraphTreeNodeModel parentNode){
 		DataObject parentDataObject = null;
 		if (parentNode.getUserData() instanceof DataObjectNode) {
 			DataObjectNode dataObjectNode = (DataObjectNode)parentNode.getUserData();
@@ -183,7 +191,7 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
         }
         for (CommonNode childObject : childObjects)
         {
-        	DynamicTreeNodeModel childNode = new DynamicTreeNodeModel(++ids);
+        	GraphTreeNodeModel childNode = new GraphTreeNodeModel(++ids);
         	childNode.setEnabled(true);
         	childNode.setName(childObject.getName());
         	if (this.labelFormat == null) 

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -107,11 +108,13 @@ public class UserBean implements Serializable {
     		dataGraph.getChangeSummary().beginLogging(); // log changes from this point
         	Type rootType = PlasmaTypeHelper.INSTANCE.getType(User.class);
         	this.user = (User)dataGraph.createRootObject(rootType);  	
-    		String ip = getIpAddress();
+    		String ip = getClientIpAddr();
     		this.user.setIpAddress(ip);  
     		this.user.setUsername(this.defaultUserName);
     		this.user.setPassword(this.defaultUserName);
-        	UserRole userRole = this.user.createUserRole();        	
+    		this.user.setExternalId(UUID.randomUUID().toString());
+        	UserRole userRole = this.user.createUserRole();  
+        	
         	this.role = getRole(RoleName.ANONYMOUS, service);
     		userRole.setRole(this.role);
     		this.profile = user.createProfile();
@@ -184,6 +187,27 @@ public class UserBean implements Serializable {
 		}
 		return null;
 	}
+	
+	private String getClientIpAddr() {  
+		HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String ip = request.getHeader("X-Forwarded-For");  
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("Proxy-Client-IP");  
+        }  
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("WL-Proxy-Client-IP");  
+        }  
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("HTTP_CLIENT_IP");  
+        }  
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");  
+        }  
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {  
+            ip = request.getRemoteAddr();  
+        }  
+        return ip;  
+    }
 	
 	private RoleName findRoleNameEnum(String roleName)
 	{

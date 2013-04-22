@@ -44,6 +44,12 @@ import commonj.sdo.DataObject;
 public interface TableReader extends TableOperation {
 
 	/**
+	 * Returns the table name associated with this reader. 
+	 * @return the table name associated with this reader. 
+	 */
+	public String getTableName();
+	
+	/**
 	 * Returns the row reader context for the given UUID string
 	 * @param uuid the UUID string
 	 * @return the row reader context for the given UUID string

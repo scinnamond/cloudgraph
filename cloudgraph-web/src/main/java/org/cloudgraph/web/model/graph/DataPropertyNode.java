@@ -1,9 +1,11 @@
 package org.cloudgraph.web.model.graph;
 
+import org.cloudgraph.web.model.tree.GraphPropertyNode;
+
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
 
-class DataPropertyNode extends CommonNode implements LabeledGraphNode {
+class DataPropertyNode extends CommonNode implements GraphPropertyNode {
 	private Property dataProperty;
 	private DataObject sourceDataObject;
 	
@@ -29,4 +31,25 @@ class DataPropertyNode extends CommonNode implements LabeledGraphNode {
 	public DataObject getSourceDataObject() {
 		return sourceDataObject;
 	}
+	
+	@Override
+	public String getPropertyName() {
+		return this.dataProperty.getName();
+	}
+	
+	@Override
+	public String getPropertyIsMany() {
+		return String.valueOf(this.dataProperty.isMany());
+	}
+	
+	@Override
+	public String getPropertyIsReadOnly() {
+		return String.valueOf(this.dataProperty.isReadOnly());
+	}
+	
+	@Override
+	public String getPropertyDataType() {
+		return String.valueOf(this.dataProperty.getType().getName());
+	}
+	
 }

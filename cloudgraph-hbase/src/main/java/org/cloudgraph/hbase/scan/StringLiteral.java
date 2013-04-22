@@ -45,7 +45,7 @@ public class StringLiteral extends ScanLiteral {
 	// FIXME: appending the first lexicographic ASCII char
 	// to the row key "works" as a stop key. But need
 	// to understand more about why, say the min unicode char does not. 
-	protected final String INCREMENT = "A";
+	public static final String INCREMENT = "A";
 
 	public StringLiteral(String literal,
 			PlasmaType rootType,
@@ -128,7 +128,7 @@ public class StringLiteral extends ScanLiteral {
 		byte[] startBytes = null;
 		String startValueStr = this.literal;
 		if (fieldConfig.isHash()) {
-			int startHashValue = hash.hash(startValueStr.getBytes());
+			int startHashValue = hash.hash(startValueStr.getBytes(this.charset));
 			startHashValue = startHashValue + this.HASH_INCREMENT;
 			startValueStr = String.valueOf(startHashValue);
 			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, startValueStr);
@@ -210,7 +210,7 @@ public class StringLiteral extends ScanLiteral {
 		// Note: in HBase the stop row is exclusive, so just use
 		// the literal value, no need to decrement it
 		if (fieldConfig.isHash()) {
-			int stopHashValue = hash.hash(stopValueStr.getBytes());
+			int stopHashValue = hash.hash(stopValueStr.getBytes(this.charset));
 			stopValueStr = String.valueOf(stopHashValue);
 			stopBytes = stopValueStr.getBytes(this.charset);
 		}
@@ -250,7 +250,7 @@ public class StringLiteral extends ScanLiteral {
 		// Note: in HBase the stop row is exclusive, so increment
 		// stop value to get this row for this field/literal
 		if (fieldConfig.isHash()) {
-			int stopHashValue = hash.hash(stopValueStr.getBytes());
+			int stopHashValue = hash.hash(stopValueStr.getBytes(this.charset));
 			stopHashValue = stopHashValue + this.HASH_INCREMENT;
 			stopValueStr = String.valueOf(stopHashValue);
 			stopBytes = stopValueStr.getBytes(this.charset);

@@ -49,7 +49,7 @@
               <h:outputText escape="false" value="#{ChapterBean.instance.values['Content']}"/>    
           </h:panelGrid>
 
-        <h:dataTable 
+        <h:dataTable width="100%"
             rendered="#{!DocumentBean.hasItem}"
             value="#{DataListBean.dataMap['Document']}" 
             var="document">                                                                                            
@@ -63,18 +63,16 @@
                   rendered="#{document.values['Type'] == 'general'}"/>
             </h:panelGrid>
             
-            <h:dataTable                                                                      
+            <h:dataTable width="100%"                                                                     
                 value="#{document.values['Chapters']}"                                   
                 var="chap"
                 rendered="#{document.values['Type'] == 'feature' || document.values['Type'] == 'service' || document.values['Type'] == 'general'}">                                                                                        
              <h:column>                                                                       
-                <h:panelGrid columns="1" styleClass="AlignLeft">                              
-                    <h:outputText escape="false" value="#{chap.values['Content']}"/>      
-                </h:panelGrid>                                                                
-                <rich:spacer height="20" />                                                   
+                <h:outputText escape="false" value="#{chap.values['Content']}"/>  
+                <rich:separator height="4" lineType="double"/>    
              </h:column>                                                                      
             </h:dataTable>                                                                    
-            <rich:spacer height="20" />          
+            <rich:spacer height="20" />                                                   
          </h:column>
         </h:dataTable>
 	

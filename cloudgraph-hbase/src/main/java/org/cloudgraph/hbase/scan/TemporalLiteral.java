@@ -46,9 +46,9 @@ import org.plasma.sdo.PlasmaType;
 public class TemporalLiteral extends ScanLiteral {
 
     private static Log log = LogFactory.getLog(TemporalLiteral.class);
-    private final int INCREMENT = 1;
-    private final int DATE_INCREMENT = 1000; // SDO Date data type resolution is seconds
-    private final int DATE_TIME_INCREMENT = 1; // SDO Datetime data type resolution is seconds
+    public static final int INCREMENT = 1;
+    public static final int DATE_INCREMENT = 1000; // SDO Date data type resolution is seconds
+    public static final int DATE_TIME_INCREMENT = 1; // SDO Datetime data type resolution is seconds
 
 	public TemporalLiteral(String literal,
 			PlasmaType rootType,

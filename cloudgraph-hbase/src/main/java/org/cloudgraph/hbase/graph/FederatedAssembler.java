@@ -23,21 +23,29 @@ package org.cloudgraph.hbase.graph;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.hbase.io.FederatedReader;
 import org.cloudgraph.hbase.io.RowReader;
+import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState.Edge;
 import org.plasma.query.collector.PropertySelection;
+import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
+import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.core.CoreNode;
+
+import commonj.sdo.DataObject;
 
 /**
  * Supports the assembly of a directed data graph which may span multiple
@@ -100,11 +108,59 @@ public abstract class FederatedAssembler extends DefaultAssembler
 		this.federatedReader.mapRowReader(this.root, 
 				rowReader);					
 		
+    	long before = System.currentTimeMillis();
 		try {
 			assemble(this.root, null, null, rowReader, 0);
 		} catch (IOException e) {
 			throw new GraphServiceException(e);
 		}
+    	long after = System.currentTimeMillis();
+    	
+    	// FIXME: are there not supposed to be instance
+    	// properties on data object? Why must we
+    	// to into core object. 
+    	CoreDataObject root = (CoreDataObject)this.root;
+    	root.getValueObject().put(
+    		CloudGraphConstants.GRAPH_ASSEMBLY_TIME,
+    		Long.valueOf(after - before));
+    	
+    	GraphMetricVisitor visitor = new GraphMetricVisitor();
+    	this.root.accept(visitor);
+    	
+    	root.getValueObject().put(
+        		CloudGraphConstants.GRAPH_NODE_COUNT,
+        		Long.valueOf(visitor.getCount()));
+    	root.getValueObject().put(
+        		CloudGraphConstants.GRAPH_DEPTH,
+        		Long.valueOf(visitor.getDepth()));
+    	
+    	List<String> tables = new ArrayList<String>();
+    	for (TableReader tableReader : this.federatedReader.getTableReaders()) {
+    		tables.add(tableReader.getTableName());
+    	}
+    	root.getValueObject().put(
+        		CloudGraphConstants.GRAPH_TABLE_NAMES,
+        		tables);    	
+	}
+	
+	private class GraphMetricVisitor implements PlasmaDataGraphVisitor {
+		
+		private long count = 0;
+		private long depth = 0;
+		@Override
+		public void visit(DataObject target, DataObject source,
+				String sourcePropertyName, int level) {
+			count++;
+			if (level > depth)
+				depth = level;
+			
+		}
+		public long getCount() {
+			return count;
+		}
+		public long getDepth() {
+			return depth;
+		}		
 	}
 	
 	/**

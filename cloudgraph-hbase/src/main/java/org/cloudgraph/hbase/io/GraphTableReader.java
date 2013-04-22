@@ -64,6 +64,15 @@ public class GraphTableReader extends GraphTable
 		super(table);
 		this.federatedOperation = federatedOperation;
 	}
+	
+	/**
+	 * 
+	 * Returns the table name associated with this reader. 
+	 * @return the table name associated with this reader. 
+	 */
+	public String getTableName() {
+		return this.getTable().getName();
+	}
 
 	@Override
 	public HTableInterface getConnection() {

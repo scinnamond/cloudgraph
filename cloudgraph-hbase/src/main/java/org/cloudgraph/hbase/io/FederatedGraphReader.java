@@ -142,10 +142,6 @@ public class FederatedGraphReader implements FederatedReader {
 		return this.tableReaderMap.get(tableName);
 	}
 
-	{
-		
-	}
-	
 	/**
 	 * Returns the table reader for the given 
 	 * qualified type name, or null if not exists.

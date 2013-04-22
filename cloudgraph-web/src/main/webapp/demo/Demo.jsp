@@ -12,7 +12,7 @@
   <title><h:outputText value="#{bundle.aplsWindowTitle}"/></title>
   <script type="text/javascript">                                                          
     function theFrameLoaded(theFrame) {  
-    	theFrame.style.height ="";
+        theFrame.style.height ="";
         theFrame.style.height = theFrame.contentWindow.document.body.scrollHeight + 'px';
         theFrame.style.width = "";
         theFrame.style.width = theFrame.contentWindow.document.body.scrollWidth + 'px';
@@ -73,11 +73,12 @@ Welcome to a live demo of CloudGraph™. Select a source (UML) model from naviga
         rendered="#{DemoBean.hasModel}"
         selectedTab="#{DemoBean.selectedTab}">
 
-    <rich:tab id="tab_model" title=""
+    <rich:tab id="tab_model" 
+        title="A default document generated from the UML model for #{DemoBean.modelDisplayName}"
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
-                <h:outputText value="UML Model" />
+                <h:outputText value="UML Model"/>
             </h:panelGroup>
         </f:facet>
         <f:subview id="model_sv">
@@ -90,7 +91,8 @@ Welcome to a live demo of CloudGraph™. Select a source (UML) model from naviga
         </f:verbatim>
         </f:subview>
     </rich:tab>
-    <rich:tab id="tab_javaDocs" title=""
+    <rich:tab id="tab_javaDocs" 
+        title="The javadocks for SDO classes generated for UML model #{DemoBean.modelDisplayName}"
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
@@ -107,11 +109,13 @@ Welcome to a live demo of CloudGraph™. Select a source (UML) model from naviga
         </f:verbatim>
         </f:subview>    
     </rich:tab>
-    <rich:tab id="tab_dataGraphs" title=""
+    <rich:tab id="tab_dataGraphs" 
+        
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
-                <h:outputText value="Data Graphs" />
+                <h:outputText value="HBase Data Graphs" 
+                    title="Live data graphs assembled from HBase for UML model, #{DemoBean.modelDisplayName}. Hover over the graph root and other nodes to view #{DemoBean.modelDisplayName} graph assembly information and underlying SDO metadata."/>
             </h:panelGroup>
         </f:facet>
         <rich:tree id="graphTree" 
@@ -126,12 +130,114 @@ Welcome to a live demo of CloudGraph™. Select a source (UML) model from naviga
                 iconLeaf="/images/orangedotleaf.gif" 
                 icon="/images/yellow-folder-open.png"
                 changeExpandListener="#{GraphEditBean.graphTree.processExpansion}">
-                <h:outputText value="#{item.label}"
-                    title="#{item.tooltip}"/>
+                <h:outputText value="#{item.label}"/>
+                <rich:toolTip rendered="#{item.isRoot}">
+                    <h:panelGrid columns="3">
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Graph Assemble Time:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.graphAssembleTimeMillis} (milliseconds)"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Graph Node Count:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.graphNodeCount}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Graph Depth:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.graphDepth}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="HBase Tables:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.graphTableNames}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Root Type:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.typeName}"/>
+                        
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Base Types:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.baseTypeNames}"/>
+                        
+                    </h:panelGrid>
+                </rich:toolTip>
+                <rich:toolTip rendered="#{!item.isRoot && !item.leaf}">
+                    <h:panelGrid columns="3">
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Type:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.typeName}"/>
+                        
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Base Types:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.baseTypeNames}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Source Property:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.propertyName}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Many Valued:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.propertyIsMany}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Read Only:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.propertyIsReadOnly}"/>
+
+                    </h:panelGrid>
+                </rich:toolTip>
+                <rich:toolTip rendered="#{!item.isRoot && item.leaf}">
+                    <h:panelGrid columns="3">
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Property Name:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.propertyName}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Data Type:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.propertyDataType}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Many Valued:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.propertyIsMany}"/>
+
+                        <h:outputText 
+                            style="white-space:nowrap; font-weight: bold" 
+                            value="Read Only:" />
+                        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+                        <h:outputText value="#{item.propertyIsReadOnly}"/>
+
+                    </h:panelGrid>
+                </rich:toolTip>
+
             </rich:treeNode>
         </rich:tree>
     </rich:tab>
-    <rich:tab id="tab_hbase" title=""
+    <rich:tab id="tab_hbase" title="The raw HBase data underlying the assembled #{DemoBean.modelDisplayName} data graphs."
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>
@@ -146,43 +252,43 @@ Welcome to a live demo of CloudGraph™. Select a source (UML) model from naviga
                         <h:outputText value="#{tableInfo.config.table.name}" />
                     </h:panelGroup>
                 </f:facet> 
-		        <h:panelGrid rowClasses="AlignCenter" columns="1" border="0">                                                            
-		            <rich:dataTable id="hbase_dtbl_data" 
-		                var="item" 
-		                value="#{HBaseQueueBean.data}">    		                                                                                     
-		              <rich:columns value="#{HBaseQueueBean.columns}" 
-		                  var="col" index="ind" 
-		                  sortBy="#{item.data[ind]}" sortOrder="#{col.queueColumnSortOrder}">        
-		                  <f:facet name="header">
-		                      <h:outputText value="#{col.displayName}" 
-		                          title="#{col.description}"/>
-		                  </f:facet>   
-		                  <h:outputText value="#{item.data[ind]} " />
-		              </rich:columns>
-		               
-		            </rich:dataTable>                                                                                                                          
-		            <rich:datascroller  
-		                  align="center"
-		                  for="hbase_dtbl_data"
-		                  maxPages="20"
-		                  page="#{HBaseQueueBean.scrollerPage}"
-		                  reRender="dashboard_content_panel"/>
-		                                                                                                                                                    
-		        </h:panelGrid>                 
+                <h:panelGrid rowClasses="AlignCenter" columns="1" border="0">                                                            
+                    <rich:dataTable id="hbase_dtbl_data" 
+                        var="item" 
+                        value="#{HBaseQueueBean.data}">                                                                                              
+                      <rich:columns value="#{HBaseQueueBean.columns}" 
+                          var="col" index="ind" 
+                          sortBy="#{item.data[ind]}" sortOrder="#{col.queueColumnSortOrder}">        
+                          <f:facet name="header">
+                              <h:outputText value="#{col.displayName}" 
+                                  title="#{col.description}"/>
+                          </f:facet>   
+                          <h:outputText value="#{item.data[ind]} " />
+                      </rich:columns>
+                       
+                    </rich:dataTable>                                                                                                                          
+                    <rich:datascroller  
+                          align="center"
+                          for="hbase_dtbl_data"
+                          maxPages="20"
+                          page="#{HBaseQueueBean.scrollerPage}"
+                          reRender="dashboard_content_panel"/>
+                                                                                                                                                            
+                </h:panelGrid>                 
 
             </rich:tab>
             </c:forEach>
         </rich:tabPanel>
       </rich:tab>
     <rich:tab id="tab_cassandra" title=""
-        rendered="true">
+        rendered="false">
         <f:facet name="label">
             <h:panelGroup>
                 <h:outputText value="Cassandra (raw data)" />
             </h:panelGroup>
         </f:facet>
     </rich:tab>
-    <rich:tab id="tab_codeSamples" title=""
+    <rich:tab id="tab_codeSamples" title="Code samples used within unit tests to create, query, modify and delete the #{DemoBean.modelDisplayName} data graphs."
         rendered="true" >
         <f:facet name="label">
             <h:panelGroup>
@@ -200,7 +306,8 @@ Welcome to a live demo of CloudGraph™. Select a source (UML) model from naviga
         </f:subview>
     </rich:tab>
     
-    <rich:tab id="tab_config"  title=""
+    <rich:tab id="tab_config"  
+        title="The CloudGraph configuration elements for #{DemoBean.modelDisplayName} including table and data graph mappings, detailed row and column key field configuration including field hashing, formatting and XPath mappings to data graph elements"
         rendered="true">
         <f:facet name="label">
             <h:panelGroup>

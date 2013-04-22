@@ -21,6 +21,10 @@
  */
 package org.cloudgraph.common;
 
+import org.plasma.sdo.DataType;
+import org.plasma.sdo.PlasmaProperty;
+import org.plasma.sdo.core.CoreProperty;
+
 /**
  * Common constants. 
  * @author Scott Cinnamond
@@ -28,7 +32,32 @@ package org.cloudgraph.common;
  */
 public class CloudGraphConstants {
     
+	
+	/**
+	 * An SDO instance property representing the time
+	 * in milliseconds taken to assemble a data graph. 
+	 */
+    public static final String GRAPH_ASSEMBLY_TIME = "GraphAssemblyTime";
+
+    /**
+	 * An SDO instance property representing the number
+	 * of graph nodes contained by a data graph. 
+	 */
+    public static final String GRAPH_NODE_COUNT = "GraphNodeCount";
     
+    /**
+	 * An SDO instance property representing the 
+	 * depth of a data graph. 
+	 */
+    public static final String GRAPH_DEPTH = "GraphDepth";
+    
+    /**
+	 * An SDO instance property representing the 
+	 * table names for all physical tables used to
+	 * assemble a graph. 
+	 */
+    public static final String GRAPH_TABLE_NAMES = "GraphTableNames";
+	
 	/**
 	 * The configuration property name for the property which 
 	 * indicates the non-cryptographic hash algorithm type.

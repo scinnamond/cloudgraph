@@ -29,7 +29,6 @@ public class EmailBean extends ModelBean {
 	
 	final String username = "scinnamond@gmail.com";
 	final String password = "p3hoenix";
-
 	
 	private void clear() {
 		this.subject = null;
@@ -60,11 +59,17 @@ public class EmailBean extends ModelBean {
 			try {
 	 
 				Message message = new MimeMessage(session);
-				message.setFrom(new InternetAddress("from-email@gmail.com"));
+				message.setFrom(new InternetAddress(this.emailAddress));
 				message.setRecipients(Message.RecipientType.TO,
-					InternetAddress.parse("scinnamond@gmail.com"));
+					InternetAddress.parse(username));
 				message.setSubject(this.getSubject());
-				message.setText(this.getMessage());
+				
+				StringBuilder buf = new StringBuilder(); 
+				buf.append(this.getMessage());
+				buf.append("\n");
+				buf.append("FROM: ");
+				buf.append(this.emailAddress);
+				message.setText(buf.toString());
 	 
 				Transport.send(message);
 				
@@ -80,8 +85,7 @@ public class EmailBean extends ModelBean {
 			log.error(t.getMessage(), t);
 		}
 		return null;
-	}
-	
+	}	
 	
 	public String getSubject() {
 		return subject;

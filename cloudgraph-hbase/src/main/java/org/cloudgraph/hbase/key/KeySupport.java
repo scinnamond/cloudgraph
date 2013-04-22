@@ -36,6 +36,7 @@ import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.PredefinedField;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.hbase.scan.StringLiteral;
 import org.cloudgraph.hbase.service.CloudGraphContext;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaType;
@@ -137,6 +138,69 @@ public class KeySupport {
 		
 		return result;
 	}
+    
+    public byte[] getPredefinedFieldValueStartBytes(
+			PlasmaType type, Hash hash, 
+			PreDefinedKeyFieldConfig token) {
+    	return getPredefinedFieldValueBytes(type, hash, token);
+    }
+    
+    public byte[] getPredefinedFieldValueStopBytes(
+			PlasmaType type, Hash hash, 
+			PreDefinedKeyFieldConfig token) {
+		byte[] result = null;
+		switch (token.getName()) {
+		case URI: 
+			if (token.isHash()) {
+				int hashValue = hash.hash(type.getURIBytes());
+				hashValue++;
+				// convert integer hash values to string-bytes so readable
+				// in third party tools			
+				result = Bytes.toBytes(String.valueOf(hashValue));
+			}
+			else {
+				String stringResult = type.getURI();
+				stringResult += StringLiteral.INCREMENT;
+				result = Bytes.toBytes(stringResult);
+			}
+			break;
+		case TYPE:
+			QName qname = type.getQualifiedName();
+			if (token.isHash()) {
+				byte[] nameBytes = type.getPhysicalNameBytes();
+				if (nameBytes == null || nameBytes.length == 0) {
+					if (log.isDebugEnabled())
+					    log.debug("no physical name for type, "
+					    		+ qname.getNamespaceURI() + "#" + type.getName() 
+					    		+ ", defined - using logical name");
+					nameBytes = type.getNameBytes();
+				}
+				int hashValue = hash.hash(nameBytes);
+				hashValue++;
+				// convert integer hash values to string-bytes so readable
+				// in third party tools			
+				result = Bytes.toBytes(String.valueOf(hashValue));
+			}
+			else {
+				String nameString = type.getPhysicalName();
+				if (nameString == null) {
+					if (log.isDebugEnabled())
+					    log.debug("no physical name for type, "
+					    		+ qname.getNamespaceURI() + "#" + type.getName() 
+					    		+ ", defined - using logical name");
+					nameString = type.getName();
+				}
+				nameString += StringLiteral.INCREMENT;
+				result = Bytes.toBytes(nameString);
+			}
+			break;
+		default:
+		    throw new CloudGraphConfigurationException("invalid row key token name, "
+		    		+ token.getName().name() + " - cannot get this token from a SDO Type");
+		}
+		
+		return result;
+    }
 
     public byte[] getPredefinedFieldValueBytes(
 			PlasmaType type, Hash hash, 

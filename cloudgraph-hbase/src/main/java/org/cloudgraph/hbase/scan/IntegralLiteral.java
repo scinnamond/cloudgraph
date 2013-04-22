@@ -42,7 +42,7 @@ import org.plasma.sdo.PlasmaType;
  */
 public class IntegralLiteral extends ScanLiteral {
 
-	protected final int INCREMENT = 1;
+	public static final int INCREMENT = 1;
 	
 	public IntegralLiteral(String literal,
 			PlasmaType rootType,
