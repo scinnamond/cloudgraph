@@ -29,7 +29,7 @@ import junit.framework.Test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.hbase.DataTypeGraphModelTest;
+import org.cloudgraph.hbase.test.DataTypeGraphModelTest;
 import org.cloudgraph.test.datatypes.DateNode;
 import org.cloudgraph.test.datatypes.Node;
 import org.cloudgraph.test.datatypes.query.QDateNode;

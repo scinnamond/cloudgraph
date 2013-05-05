@@ -55,15 +55,17 @@ import org.plasma.sdo.PlasmaType;
  * @author Scott Cinnamond
  * @since 0.5
  */
+@Deprecated
 public class ScanContext extends DefaultQueryVisitor {
     
 	private static Log log = LogFactory.getLog(ScanContext.class);
 	
 	protected PlasmaType rootType;
 	protected DataGraphConfig graph;
-	protected ScanLiterals scanLiterals;
-	protected boolean hasWildcardOperators;
-	protected boolean hasContiguousFieldValues;
+	protected ScanLiterals partialKeyScanLiterals;
+	protected ScanLiterals fuzzyKeyScanLiterals;
+	protected boolean hasContiguousPartialKeyScanFieldValues;
+	
 	protected boolean hasOnlyPartialKeyScanSupportedLogicalOperators = true;
 	protected boolean hasOnlyPartialKeyScanSupportedRelationalOperators = true;
 	
@@ -90,7 +92,8 @@ public class ScanContext extends DefaultQueryVisitor {
 		ScanLiteralAssembler literalAssembler = 
 				new ScanLiteralAssembler(this.rootType);
     	where.accept(literalAssembler); // traverse
-    	this.scanLiterals = literalAssembler.getResult();
+    	this.partialKeyScanLiterals = literalAssembler.getPartialKeyScanResult();
+    	this.fuzzyKeyScanLiterals = literalAssembler.getFuzzyKeyScanResult();
     	
     	where.accept(this); // traverse
     	
@@ -101,15 +104,15 @@ public class ScanContext extends DefaultQueryVisitor {
     }
     
 	private void construct() {
-    	if (this.scanLiterals.size() == 0)
+    	if (this.partialKeyScanLiterals.size() == 0)
     		throw new IllegalStateException("no literals found in predicate");
-    	this.hasContiguousFieldValues = true;
+    	this.hasContiguousPartialKeyScanFieldValues = true;
     	int size = this.graph.getUserDefinedRowKeyFields().size();
     	int[] scanLiteralCount = new int[size];
     	
     	for (int i = 0; i < size; i++) {
     		UserDefinedRowKeyFieldConfig fieldConfig = this.graph.getUserDefinedRowKeyFields().get(i); 
-    		List<ScanLiteral> list = this.scanLiterals.getLiterals(fieldConfig);
+    		List<ScanLiteral> list = this.partialKeyScanLiterals.getLiterals(fieldConfig);
     		if (list != null)
     		    scanLiteralCount[i] = list.size();
     		else
@@ -118,17 +121,21 @@ public class ScanContext extends DefaultQueryVisitor {
     	
     	for (int i = 0; i < size-1; i++)
     		if (scanLiteralCount[i] == 0 && scanLiteralCount[i+1] > 0)
-    			this.hasContiguousFieldValues = false;    	
+    			this.hasContiguousPartialKeyScanFieldValues = false;    	
     }
     
 	/**
 	 * Return the current scan literals.
 	 * @return the current scan literals.
 	 */
-	public ScanLiterals getLiterals() {
-		return this.scanLiterals;
+	public ScanLiterals getPartialKeyScanLiterals() {
+		return this.partialKeyScanLiterals;
 	}
 	
+	public ScanLiterals getFuzzyKeyScanLiterals() {
+		return this.fuzzyKeyScanLiterals;
+	}
+
 	/**
 	 * Returns whether an HBase partial row-key scan is possible
 	 * under the current scan context. 
@@ -136,20 +143,20 @@ public class ScanContext extends DefaultQueryVisitor {
 	 * under the current scan context.
 	 */
 	public boolean canUsePartialKeyScan() {
-		return this.hasWildcardOperators == false &&
-			this.hasContiguousFieldValues == true &&
-			this.hasOnlyPartialKeyScanSupportedLogicalOperators == true &&
-			this.hasOnlyPartialKeyScanSupportedRelationalOperators == true;		
+		//return //this.hasWildcardOperators == false &&
+		//	this.hasContiguousPartialKeyScanFieldValues == true &&
+		//	this.hasOnlyPartialKeyScanSupportedLogicalOperators == true &&
+		//	this.hasOnlyPartialKeyScanSupportedRelationalOperators == true;	
+		
+		//FIXME: what about OR operator ??
+		return this.partialKeyScanLiterals.size() > 0 &&
+			this.hasContiguousPartialKeyScanFieldValues;
 	}
-    
-	/**
-	 * Returns whether underlying query contains wildcard operators.
-	 * @return whether underlying query contains wildcard operators.
-	 */
-    public boolean hasWildcardOperators() {
-		return hasWildcardOperators;
+	
+	public boolean canUseFuzzyKeyScan() {
+		return this.fuzzyKeyScanLiterals.size() > 0;
 	}
-    
+	
     /**
      * Returns whether the underlying query predicates represent
      * a contiguous set of composite row-key fields making a partial
@@ -159,7 +166,7 @@ public class ScanContext extends DefaultQueryVisitor {
      * row-key scan possible. 
      */
 	public boolean hasContiguousFieldValues() {
-		return hasContiguousFieldValues;
+		return hasContiguousPartialKeyScanFieldValues;
 	}
 	
 	/**
@@ -197,7 +204,6 @@ public class ScanContext extends DefaultQueryVisitor {
 	public void start(WildcardOperator operator) {
 		switch (operator.getValue()) {
 		case LIKE:
-			this.hasWildcardOperators = true;
 			break;
 		default:
 			throw new GraphServiceException("unknown operator '"
@@ -220,6 +226,8 @@ public class ScanContext extends DefaultQueryVisitor {
 		case AND:
 			break; 
 		case OR:	
+			// Note: if an OR on 2 fields of the same property
+			// 2 partial key scans can be used
 			this.hasOnlyPartialKeyScanSupportedLogicalOperators = false;
 			break;
 		}
@@ -242,7 +250,8 @@ public class ScanContext extends DefaultQueryVisitor {
 		case LESS_THAN:
 		case LESS_THAN_EQUALS:
 			break;
-		case NOT_EQUALS:
+		case NOT_EQUALS: 
+			// partial key scan is a range of keys. Not-equals is therefore not applicable
 			this.hasOnlyPartialKeyScanSupportedRelationalOperators = false;
 			break;
 		default:

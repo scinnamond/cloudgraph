@@ -111,8 +111,7 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
     		}			
 			
 			if (fieldConfig.isHash()) {
-				int hashValue = hash.hash(keyValue.getBytes(this.charset));
-				keyValue = String.valueOf(hashValue);
+				keyValue = this.hashing.toString(keyValue);
 			}
 			
 			result.append(keyValue);	
@@ -174,8 +173,7 @@ public class CompositeRowKeyExpressionFactory extends ByteBufferKeyFactory
     		}			
 			
 			if (fieldConfig.isHash()) {
-				int hashValue = hash.hash(keyValue);
-				keyValue = String.valueOf(hashValue).getBytes(charset);
+				keyValue = this.hashing.toStringBytes(keyValue);
 			}
 			
 			buf.put(keyValue);	

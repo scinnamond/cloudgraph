@@ -4,25 +4,43 @@
     <parent>
         <groupId>org.cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.2</version>
+        <version>0.5.3</version>
     </parent>
     <groupId>org.cloudgraph</groupId>
     <artifactId>cloudgraph-hbase</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.2</version>
+    <version>0.5.3</version>
     <name>CloudGraph HBase Service</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
     <url>http://cloudgraph.org</url>
+    <properties>
+        <slf4j.version>1.6.1</slf4j.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-common</artifactId>
-            <version>0.5.2</version>
+            <version>0.5.3</version>
         </dependency>
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-config</artifactId>
-            <version>0.5.2</version>
+            <version>0.5.3</version>
+        </dependency>
+        <!-- 
+             sl4j (note: slf4j must be present or causes Zookeeper 
+             client connection failures in HBase 0.94.x versions ) 
+        -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
         </dependency>
         
         <!-- Plasma Dependencies -->
@@ -46,12 +64,19 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.2</version>
         </dependency>
+        <!--  
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase</artifactId>
             <version>0.92.1</version>
+        </dependency>
+        -->
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase</artifactId>
+            <version>0.94.6.1</version>
         </dependency>
     </dependencies>
     <build>
@@ -173,7 +198,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-                        <skip>false</skip>
+                        <skip>true</skip>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
@@ -186,9 +211,9 @@
                             <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                         </systemProperties>
                         <includes>               
-                            <include>**/*SocialGraphNonFederatedTest*</include>                      
-                            <include>**/*PartialRowKeyScanTest*</include>   
-                            <include>**/*DatePredicateSliceTest*</include>   
+<!--                             <include>**/*SocialGraphNonFederatedTest*</include>                       -->
+<!--                             <include>**/*PartialRowKeyScanTest*</include>    -->
+<!--                             <include>**/*DatePredicateSliceTest*</include>    -->
                             
                         </includes> 
                     </configuration>
@@ -213,7 +238,8 @@
 	                        <property><name>log4j.configuration</name><value>log4j.properties</value></property>
 	                    </systemProperties>
 	                    <includes>               
-	                        <include>**/*SocialGraphFederationTest*</include>                      
+<!-- 	                        <include>**/*SocialGraphFederationTest*</include> -->
+	                        <include>**/*SocialGraphScanTest*</include>                      
 	                    </includes> 
                     </configuration>
                   </execution>
@@ -225,9 +251,9 @@
                     <argLine>-Xms128M -Xmx500M</argLine>                      
                       --> 
                     <!-- debugging -->  
-                           <!--               
+                       <!--
                     <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
-                           -->
+                        -->
                     <!-- profiling  -->
                     <!--
                     <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  

@@ -22,8 +22,8 @@
 package org.cloudgraph.hbase.scan;
 
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
-import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaType;
 
 
@@ -40,16 +40,17 @@ import org.plasma.sdo.PlasmaType;
  * @author Scott Cinnamond
  * @since 0.5
  */
-public class IntegralLiteral extends ScanLiteral {
+public class IntegralLiteral extends ScanLiteral 
+    implements PartialRowKeyLiteral  {
 
 	public static final int INCREMENT = 1;
 	
 	public IntegralLiteral(String literal,
 			PlasmaType rootType,
 			RelationalOperator relationalOperator,
-			LogicalOperator logicalOperator, UserDefinedRowKeyFieldConfig fieldConfig) {
+			UserDefinedRowKeyFieldConfig fieldConfig) {
 		super(literal, rootType, relationalOperator, 
-				logicalOperator, fieldConfig);
+			  fieldConfig);
 	}
 	
 	/**
@@ -64,19 +65,22 @@ public class IntegralLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected byte[] getEqualsStartBytes() {
+	public byte[] getEqualsStartBytes() {
 		byte[] startBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
 		Long startValue = this.dataConverter.toLong(property.getType(), value);
+		String startValueStr = this.dataConverter.toString(property.getType(), startValue);
 		if (this.fieldConfig.isHash()) {
-			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
-			int startHashValue = hash.hash(startValueStr.getBytes());
-			startValueStr = String.valueOf(startHashValue);
-			startBytes = startValueStr.getBytes(this.charset);
+			startBytes = this.hashing.toStringBytes(startValueStr);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.integral);
 		}
 		else {
-			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
 			startBytes = startValueStr.getBytes(this.charset);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					this.fieldConfig.getDataFlavor());
 		}
 		return startBytes;
 	}
@@ -93,25 +97,25 @@ public class IntegralLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected byte[] getEqualsStopBytes() {
+	public byte[] getEqualsStopBytes() {
 		byte[] stopBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
 		Long startValue = this.dataConverter.toLong(property.getType(), value);
 		
 		if (this.fieldConfig.isHash()) {
-			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
-			int startHashValue = hash.hash(startValueStr.getBytes());
-			
-			// Note only increment/decrement the hashed value
-			// for hashed fields
-			Long stopValue = Long.valueOf(startHashValue + HASH_INCREMENT);
-			String stopValueStr = String.valueOf(stopValue);
-			stopBytes = stopValueStr.getBytes(this.charset);
+			String stopValueStr = this.dataConverter.toString(property.getType(), startValue);
+			stopBytes = this.hashing.toStringBytes(stopValueStr, HASH_INCREMENT);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.integral);
 		}
 		else {
 			Long stopValue = startValue + INCREMENT;
 			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
 			stopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					this.fieldConfig.getDataFlavor());
 		}
 		return stopBytes;
 	}	
@@ -128,23 +132,24 @@ public class IntegralLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected byte[] getGreaterThanStartBytes() {
+	public byte[] getGreaterThanStartBytes() {
 		byte[] startBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
 		Long startValue = this.dataConverter.toLong(property.getType(), value);
 		if (fieldConfig.isHash()) {
-			String startValueStr = String.valueOf(startValue);
-			int startHashValue = hash.hash(startValueStr.getBytes());
-			// Note only increment/decrement the hashed value
-			// for hashed fields
-			startHashValue = startHashValue + HASH_INCREMENT;
-			startValueStr = String.valueOf(startHashValue);
-			startBytes = startValueStr.getBytes(this.charset);
+			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
+			startBytes = this.hashing.toStringBytes(startValueStr, HASH_INCREMENT);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.integral);
 		}
 		else {
 			startValue = startValue + INCREMENT;
 			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
 			startBytes = startValueStr.getBytes(this.charset);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					this.fieldConfig.getDataFlavor());
 		}
 		return startBytes;
 	}
@@ -157,7 +162,7 @@ public class IntegralLiteral extends ScanLiteral {
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
-	protected byte[] getGreaterThanStopBytes() {
+	public byte[] getGreaterThanStopBytes() {
 	    return new byte[0];
 	}
 	
@@ -173,18 +178,22 @@ public class IntegralLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected byte[] getGreaterThanEqualStartBytes() {
+	public byte[] getGreaterThanEqualStartBytes() {
 		byte[] startBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
 		Long startValue = this.dataConverter.toLong(property.getType(), value);
 		String startValueStr = this.dataConverter.toString(property.getType(), startValue);
 		if (fieldConfig.isHash()) {
-			int startHashValue = hash.hash(startValueStr.getBytes());
-			startValueStr = String.valueOf(startHashValue);
-			startBytes = startValueStr.getBytes(this.charset);
+			startBytes = this.hashing.toStringBytes(startValueStr);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.integral);
 		}
 		else {
 			startBytes = startValueStr.getBytes(this.charset);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					this.fieldConfig.getDataFlavor());
 		}
 		return startBytes;
 	}
@@ -197,7 +206,7 @@ public class IntegralLiteral extends ScanLiteral {
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
-	protected byte[] getGreaterThanEqualStopBytes() {
+	public byte[] getGreaterThanEqualStopBytes() {
 	    return new byte[0];
 	}
 	
@@ -209,7 +218,7 @@ public class IntegralLiteral extends ScanLiteral {
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
-	protected byte[] getLessThanStartBytes() {
+	public byte[] getLessThanStartBytes() {
 	    return new byte[0];
 	}
 	
@@ -225,7 +234,7 @@ public class IntegralLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
-	protected byte[] getLessThanStopBytes() {
+	public byte[] getLessThanStopBytes() {
 		byte[] stopBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
 		Long stopValue = this.dataConverter.toLong(property.getType(), value);
@@ -233,12 +242,16 @@ public class IntegralLiteral extends ScanLiteral {
 		// the literal value, no need to decrement it
 		String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
 		if (fieldConfig.isHash()) {
-			int stopHashValue = hash.hash(stopValueStr.getBytes());
-			stopValueStr = String.valueOf(stopHashValue);
-			stopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = this.hashing.toStringBytes(stopValueStr);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.integral);		
 		}
 		else {
 			stopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					this.fieldConfig.getDataFlavor());
 		}
 		return stopBytes;
 	}
@@ -251,7 +264,7 @@ public class IntegralLiteral extends ScanLiteral {
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
-	protected byte[] getLessThanEqualStartBytes() {
+	public byte[] getLessThanEqualStartBytes() {
 	    return new byte[0];
 	}
 	
@@ -267,23 +280,26 @@ public class IntegralLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
-	protected byte[] getLessThanEqualStopBytes() {
+	public byte[] getLessThanEqualStopBytes() {
 		byte[] stopBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
 		Long stopValue = this.dataConverter.toLong(property.getType(), value);
 		// Note: in HBase the stop row is exclusive, so increment
 		// stop value to get this row for this field/literal
 		if (fieldConfig.isHash()) {
-			String stopValueStr = String.valueOf(stopValue);
-			int stopHashValue = hash.hash(stopValueStr.getBytes());
-			stopHashValue = stopHashValue + this.HASH_INCREMENT;
-			stopValueStr = String.valueOf(stopHashValue);
-			stopBytes = stopValueStr.getBytes(this.charset);
+			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
+			stopBytes = this.hashing.toStringBytes(stopValueStr, this.HASH_INCREMENT);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.integral);		
 		}
 		else {
 			stopValue = stopValue + this.INCREMENT;
 			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
 			stopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					this.fieldConfig.getDataFlavor());
 		}
 		return stopBytes;
 	}

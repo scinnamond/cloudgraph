@@ -60,7 +60,7 @@ public class FilterUtil {
             	}
         	}
         	else {
-        	    buf.append(filter.getClass().getSimpleName()+": ");
+        	    buf.append(filter.toString());  
         	}
         }
     }

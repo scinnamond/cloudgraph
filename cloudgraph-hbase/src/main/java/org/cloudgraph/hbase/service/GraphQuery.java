@@ -27,35 +27,54 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.JAXBException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.FuzzyRowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraph;
+import org.cloudgraph.config.DataGraphConfig;
+import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.TableConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.hbase.expr.Expr;
+import org.cloudgraph.hbase.expr.ExprPrinter;
 import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.filter.InitialFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
 import org.cloudgraph.hbase.graph.FederatedGraphAssembler;
 import org.cloudgraph.hbase.graph.FederatedGraphSliceAssembler;
+import org.cloudgraph.hbase.graph.GraphRecognizerContext;
+import org.cloudgraph.hbase.graph.GraphRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
 import org.cloudgraph.hbase.graph.SimpleGraphAssembler;
 import org.cloudgraph.hbase.io.FederatedGraphReader;
 import org.cloudgraph.hbase.io.FederatedReader;
 import org.cloudgraph.hbase.io.GraphTableReader;
 import org.cloudgraph.hbase.io.TableReader;
+import org.cloudgraph.hbase.scan.FuzzyRowKeyScan;
+import org.cloudgraph.hbase.scan.FuzzyRowKeyScanAssembler;
+import org.cloudgraph.hbase.scan.PartialRowKeyScan;
 import org.cloudgraph.hbase.scan.PartialRowKeyScanAssembler;
+import org.cloudgraph.hbase.scan.RowKeyScanAssembler;
+import org.cloudgraph.hbase.scan.ScanCollector;
 import org.cloudgraph.hbase.scan.ScanContext;
+import org.cloudgraph.hbase.scan.ScanRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.cloudgraph.state.GraphState;
+import org.plasma.common.bind.DefaultValidationEventHandler;
+import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
@@ -69,6 +88,9 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.QueryDispatcher;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
+import org.xml.sax.SAXException;
+
+import commonj.sdo.Type;
 
 /**
  * Assembles and returns one or more {@link DataGraph data graphs} 
@@ -241,71 +263,70 @@ public class GraphQuery
     private List<PlasmaDataGraph> findResults(Query query, PlasmaType type, Timestamp snapshotDate)
     {
         Object[] params = new Object[0];
-        List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();
-        PropertySelectionCollector collector = new PropertySelectionCollector(
-            query.getSelectClause(), type);
-        collector.setOnlyDeclaredProperties(false);
-        collector.getResult(); // trigger the traversal
+        
         if (log.isDebugEnabled())
-        	log.debug(collector.dumpInheritedProperties());
+        	log(query);
+        Where where = query.findWhereClause();
+        List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();
+        PropertySelectionCollector selectionCollector = new PropertySelectionCollector(
+            query.getSelectClause(), type);
+        selectionCollector.setOnlyDeclaredProperties(false);
+        selectionCollector.getResult(); // trigger the traversal
+        if (query.getWhereClause() != null)
+        	selectionCollector.collect(query.getWhereClause());
+        for (Type t : selectionCollector.getTypes()) 
+        	collectRowKeyProperties(selectionCollector, (PlasmaType)t);
+        
+        //if (log.isDebugEnabled())
+        //	log.debug(selectionCollector.dumpInheritedProperties());
         FederatedGraphReader graphReader = new FederatedGraphReader(
-        		type, collector.getTypes(),
+        		type, selectionCollector.getTypes(),
         		this.context.getMarshallingContext());
         TableReader rootTableReader = graphReader.getRootTableReader();
 
-        Scan scan = new Scan();
-        FilterList rootFilter = new FilterList(
-    			FilterList.Operator.MUST_PASS_ALL);
-        scan.setFilter(rootFilter);
-        
         // Create and add a column filter for the initial
         // column set based on existence of path predicates
         // in the Select. 
+        FilterList rootFilter = new FilterList(
+    			FilterList.Operator.MUST_PASS_ALL);
         HBaseFilterAssembler columnFilterAssembler = createRootColumnFilterAssembler(type,
-        	collector);
+        	selectionCollector);
         rootFilter.addFilter(columnFilterAssembler.getFilter());
 
-        // Create and add a scan start/stop range or row filter 
-        Where where = query.findWhereClause();
-        setupScanContext(scan, rootFilter, where, type);
-        
         // Create a graph assembler based on existence
         // of selection path predicates, need for federation, etc...
         HBaseGraphAssembler graphAssembler = createGraphAssembler(
-        	type, graphReader, collector, snapshotDate);
+        	type, graphReader, selectionCollector, snapshotDate);
         
-        // Create a scan. For each result row, 
-        // assemble a graph and return it
+        GraphRecognizerSyntaxTreeAssembler recognizerAssembler = new GraphRecognizerSyntaxTreeAssembler(
+        		where, type);
+        Expr graphRecognizerRootExpr = recognizerAssembler.getResult();
+        ExprPrinter printer = new ExprPrinter();
+        graphRecognizerRootExpr.accept(printer);
+        if (log.isDebugEnabled())
+            log.debug("Graph Recognizer: " + printer.toString());
+        ScanCollector scanCollector = new ScanCollector(type);
+        graphRecognizerRootExpr.accept(scanCollector);
+                
+        // execute scans
         try {
         	long before = System.currentTimeMillis();
-            if (log.isDebugEnabled() ) 
-                log.debug("executing scan...");
-            
-            if (log.isDebugEnabled() ) 
-            	log.debug(FilterUtil.printFilterTree(rootFilter));
-            ResultScanner scanner = rootTableReader.getConnection().getScanner(scan);
         	int count = 0;
-            for (Result resultRow : scanner) {
-            	if (log.isTraceEnabled()) {
-          	        log.trace(rootTableReader.getTable().getName() + ": " + new String(resultRow.getRow()));              	  
-              	    for (KeyValue keyValue : resultRow.list()) {
-              	    	log.trace("\tkey: " 
-              	    		+ new String(keyValue.getQualifier())
-              	    	    + "\tvalue: " + new String(keyValue.getValue()));
-              	    }
-            	}
-            	if (resultRow.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
-            			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
-            		continue; // ignore toumbstone roots
-            	}
-            	
-          	    graphAssembler.assemble(resultRow);            	
-            	PlasmaDataGraph assembledGraph = graphAssembler.getDataGraph();
-            	
-            	result.add(assembledGraph);
-                graphAssembler.clear();
-                count++;
-            }      
+        	for (PartialRowKeyScan scan : scanCollector.getPartialRowKeyScans()) {
+        		List<PlasmaDataGraph> list = execute(scan, 
+        		    rootFilter, rootTableReader, graphAssembler, 
+        		    graphRecognizerRootExpr);
+        		result.addAll(list);
+	            count += list.size();
+        	} // scan
+        	for (FuzzyRowKeyScan scan : scanCollector.getFuzzyRowKeyScans()) {
+        		List<PlasmaDataGraph> list = execute(scan, 
+        		    rootFilter, rootTableReader, graphAssembler, 
+        		    graphRecognizerRootExpr);
+        		result.addAll(list);
+	            count += list.size();
+        	} // scan
+            
             long after = System.currentTimeMillis();
             log.info("assembled " + String.valueOf(count) + " results ("
             	+ String.valueOf(after - before) + ")");
@@ -327,6 +348,91 @@ public class GraphQuery
         		}
         	}
         }
+        return result;
+    }
+
+    private List<PlasmaDataGraph> execute(PartialRowKeyScan partialScan, 
+    		FilterList rootFilter, TableReader rootTableReader,
+    		HBaseGraphAssembler graphAssembler, 
+    		Expr graphRecognizerRootExpr) throws IOException {
+    	
+        Scan scan = new Scan();
+        scan.setFilter(rootFilter);        
+		scan.setStartRow(partialScan.getStartKey()); // inclusive
+        scan.setStopRow(partialScan.getStopKey()); // exclusive
+  		if (log.isDebugEnabled())
+			log.debug("using partial row key scan: (" 
+  		        + "start: '" + Bytes.toString(scan.getStartRow())
+  		        + "' stop: '" + Bytes.toString(scan.getStopRow()) + "')");	
+  		return execute(scan, rootFilter, 
+  			rootTableReader, graphAssembler, 
+    		graphRecognizerRootExpr);
+    }
+    
+    private List<PlasmaDataGraph> execute(FuzzyRowKeyScan fuzzyScan, 
+    		FilterList rootFilter, TableReader rootTableReader,
+    		HBaseGraphAssembler graphAssembler, 
+    		Expr graphRecognizerRootExpr) throws IOException {
+    	
+        Scan scan = new Scan();
+        scan.setFilter(rootFilter); 
+        Filter fuzzyFilter = fuzzyScan.getFilter();
+		rootFilter.addFilter(fuzzyFilter);
+        if (log.isDebugEnabled() ) 
+        	log.debug("using fuzzy scan: " + FilterUtil.printFilterTree(fuzzyFilter));
+  		return execute(scan, rootFilter, 
+  			rootTableReader, graphAssembler, 
+    		graphRecognizerRootExpr);
+    }
+    
+    private List<PlasmaDataGraph> execute(Scan scan, 
+    		FilterList rootFilter, TableReader rootTableReader,
+    		HBaseGraphAssembler graphAssembler, 
+    		Expr graphRecognizerRootExpr) throws IOException {
+    	
+    	List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();    		
+        if (log.isDebugEnabled() ) 
+            log.debug("executing scan...");
+        
+        //if (log.isDebugEnabled() ) 
+        //	log.debug(FilterUtil.printFilterTree(rootFilter));
+        ResultScanner scanner = rootTableReader.getConnection().getScanner(scan);
+        for (Result resultRow : scanner) {	     
+        	if (log.isTraceEnabled()) {
+      	        log.trace(rootTableReader.getTable().getName() + ": " + new String(resultRow.getRow()));              	  
+          	    //for (KeyValue keyValue : resultRow.list()) {
+          	    //	log.trace("\tkey: " 
+          	    //		+ new String(keyValue.getQualifier())
+          	    //	    + "\tvalue: " + new String(keyValue.getValue()));
+          	    //}
+        	}
+        	 
+        	if (resultRow.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
+        			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
+        		continue; // ignore toumbstone roots
+        	}
+        	
+      	    graphAssembler.assemble(resultRow);            	
+        	PlasmaDataGraph assembledGraph = graphAssembler.getDataGraph();
+            graphAssembler.clear();
+        	
+        	// FIXME: need to determine cases where a graph recognizer is
+        	// NOT needed based on completeness of partial or fuzzy
+        	// scan(s)
+        	GraphRecognizerContext recognizerContext = new GraphRecognizerContext();
+        	recognizerContext.setGraph(assembledGraph);
+        	if (!graphRecognizerRootExpr.evaluate(recognizerContext)) {
+        		if (log.isDebugEnabled())
+        			log.debug("recognizer excluded: " + Bytes.toString(
+        					resultRow.getRow()));
+        		continue;
+        	}
+        	result.add(assembledGraph);
+        }
+        if (log.isDebugEnabled())
+        	log.debug("assembled "+String.valueOf(result.size())
+        			+" sub results");
+        
         return result;
     }
     
@@ -365,6 +471,30 @@ public class GraphQuery
     }
     
     /**
+     * Recursively collects row key properties adding them to the 
+     * given collector for the given type. Any additional properties
+     * associated with types discovered during traversal of user defined
+     * row key field paths are added recursively. 
+     * @param collector the property collector
+     * @param type the current type
+     */
+    private void collectRowKeyProperties(
+    	PropertySelectionCollector collector, PlasmaType type) {
+	    CloudGraphConfig config = CloudGraphConfig.getInstance();    	
+        DataGraphConfig graph = config.findDataGraph(type.getQualifiedName());
+        if (graph != null) {	        
+	        UserDefinedRowKeyFieldConfig[] fields = new UserDefinedRowKeyFieldConfig[graph.getUserDefinedRowKeyFields().size()];
+	        graph.getUserDefinedRowKeyFields().toArray(fields);	        
+		    for (UserDefinedRowKeyFieldConfig field : fields) { 
+			    List<Type> types = collector.addProperty(graph.getRootType(), 
+					field.getPropertyPath());
+			    for (Type nextType : types)
+			    	collectRowKeyProperties(collector, (PlasmaType)nextType);
+		    }
+        }
+    }
+    
+    /**
      * Determines whether a partial row-key scan is possible given the
      * current {@link ScanContext}, and is so {@link PartialRowKeyScanAssembler assembles}  
      * a partial row-key scan. Otherwise a row filter hierarchy is 
@@ -388,19 +518,28 @@ public class GraphQuery
         			new ScanContext(type, where);
         	if (scanContext.canUsePartialKeyScan()) {
         		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(type);
-        		scanAssembler.assemble(scanContext.getLiterals());
+        		scanAssembler.assemble(scanContext.getPartialKeyScanLiterals());
                 scan.setStartRow(scanAssembler.getStartKey()); // inclusive
                 scan.setStopRow(scanAssembler.getStopKey()); // exclusive
           		if (log.isDebugEnabled())
-        			log.debug("partial key scan: (" 
-          		        + "start: " + Bytes.toString(scan.getStartRow())
-          		        + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
+        			log.debug("using partial row key scan: (" 
+          		        + "start: '" + Bytes.toString(scan.getStartRow())
+          		        + "' stop: '" + Bytes.toString(scan.getStopRow()) + "')");
+        	}
+        	else if (scanContext.canUseFuzzyKeyScan()) {
+        		FuzzyRowKeyScanAssembler scanAssembler = new FuzzyRowKeyScanAssembler(type);
+        		scanAssembler.assemble(scanContext.getFuzzyKeyScanLiterals());
+        		rootFilter.addFilter(scanAssembler.getFilter());
+        		if (log.isDebugEnabled())
+        			log.debug("using fuzzy row key scan");
         	}
         	else {
 	            PredicateRowFilterAssembler rowFilterAssembler = 
 	            	new PredicateRowFilterAssembler(type);
 	            rowFilterAssembler.assemble(where, type);
 	            rootFilter.addFilter(rowFilterAssembler.getFilter());
+        		log.warn("insufficient query parameters present for partial or fuzzy row "
+        				+ "key scan - using row filter hierarchy - could result in very large results set");        		 
         	}
         }
         else {
@@ -410,12 +549,16 @@ public class GraphQuery
     		if (startKey != null && startKey.length > 0) {
                 scan.setStartRow(startKey); // inclusive
                 scan.setStopRow(scanAssembler.getStopKey()); // exclusive
-      		    if (log.isDebugEnabled())
-    			    log.debug("default graph partial key scan: (" 
+                log.warn("no root predicate present - using default graph partial key scan: (" 
       		            + "start: " + Bytes.toString(scan.getStartRow())
-      		            + " stop: " + Bytes.toString(scan.getStopRow()) + ")");
+      		            + " stop: " + Bytes.toString(scan.getStopRow()) 
+      		            + ") - could result in very large results set");
     		}
-        }    	
+    		else
+    	        log.warn("no root predicate present and no pre-defined row key fields found "
+    	            + "configured for table / data-graph - using full table scan - " 
+    	            + "could result in very large results set");
+        }            
     }
        
     /**
@@ -466,6 +609,21 @@ public class GraphQuery
         return list;
     }    
     
+    protected void log(Query query)
+    {
+    	String xml = "";
+        PlasmaQueryDataBinding binding;
+		try {
+			binding = new PlasmaQueryDataBinding(
+			        new DefaultValidationEventHandler());
+	        xml = binding.marshal(query);
+		} catch (JAXBException e) {
+			log.debug(e);
+		} catch (SAXException e) {
+			log.debug(e);
+		}
+        log.debug("query: " + xml);
+    }
 
 }
 

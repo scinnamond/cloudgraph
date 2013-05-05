@@ -64,10 +64,10 @@ public abstract class ByteBufferKeyFactory
 
 	protected PlasmaType rootType;
 	protected TableConfig table;
-	protected Hash hash;
 	protected DataGraphConfig graph;
 	protected Charset charset;
 	protected KeySupport keySupport = new KeySupport();
+	protected Hashing hashing;
 	
 	@SuppressWarnings("unused")
 	private ByteBufferKeyFactory() {}
@@ -83,8 +83,9 @@ public abstract class ByteBufferKeyFactory
 		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);
 		this.graph = CloudGraphConfig.getInstance().getDataGraph(
 				rootTypeQname);
-		this.hash = this.keySupport.getHashAlgorithm(this.table);
 		this.charset = CloudGraphConfig.getInstance().getCharset();
+		Hash hash = this.keySupport.getHashAlgorithm(this.table);
+		this.hashing = new Hashing(hash, this.charset);
 	}
 
 	public TableConfig getTable() {

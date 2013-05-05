@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 
 /**
@@ -35,6 +36,7 @@ import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 public class ScanLiterals {
 	private Map<Integer, List<ScanLiteral>> literalMap = new HashMap<Integer, List<ScanLiteral>>();
 	private List<ScanLiteral> literalList = new ArrayList<ScanLiteral>();
+	private boolean hasWildcards = false;
 	public ScanLiterals() {}
 	
     public List<ScanLiteral> getLiterals() {    	
@@ -51,6 +53,9 @@ public class ScanLiterals {
     }
     
     public void addLiteral(ScanLiteral scanLiteral) {
+    	if (scanLiteral instanceof WildcardStringLiteral)
+    		this.hasWildcards = true;
+    	
     	UserDefinedRowKeyFieldConfig fieldConfig = scanLiteral.getFieldConfig();
 		List<ScanLiteral> list = this.literalMap.get(fieldConfig.getSequenceNum());
 		if (list == null) {
@@ -59,6 +64,38 @@ public class ScanLiterals {
 		}
 		list.add(scanLiteral);
 		this.literalList.add(scanLiteral);    	
+    }
+    
+    /**
+     * Returns true if this set of literals can support
+     * a partial row key scan for the given graph
+     * @param graph the graph 
+     * @return true if this set of literals can support
+     * a partial row key scan for the given graph
+     */
+    public boolean supportPartialRowKeyScan(DataGraphConfig graph)
+    {
+    	if (this.hasWildcards)
+    		return false;
+    	
+    	boolean hasContiguousPartialKeyScanFieldValues = true;
+    	int size = graph.getUserDefinedRowKeyFields().size();
+    	int[] scanLiteralCount = new int[size];
+    	
+    	for (int i = 0; i < size; i++) {
+    		UserDefinedRowKeyFieldConfig fieldConfig = graph.getUserDefinedRowKeyFields().get(i); 
+    		List<ScanLiteral> list = this.getLiterals(fieldConfig);
+    		if (list != null)
+    		    scanLiteralCount[i] = list.size();
+    		else
+    			scanLiteralCount[i] = 0; 
+    	}
+    	
+    	for (int i = 0; i < size-1; i++)
+    		if (scanLiteralCount[i] == 0 && scanLiteralCount[i+1] > 0)
+    			hasContiguousPartialKeyScanFieldValues = false;    	
+    
+    	return hasContiguousPartialKeyScanFieldValues;
     }
 	
 }

@@ -41,6 +41,8 @@ import commonj.sdo.Type;
  * @see org.cloudgraph.config.DataGraphConfig
  * @author Scott Cinnamond
  * @since 0.5.1
+ * 
+ * @see GraphStatefullColumnKeyFactory
  */
 public class GraphRow implements RowState {
 

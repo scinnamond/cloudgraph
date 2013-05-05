@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.service.GraphServiceException;
-import org.cloudgraph.common.service.ToumbstoneRowException;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.io.FederatedReader;
 import org.cloudgraph.hbase.io.RowReader;

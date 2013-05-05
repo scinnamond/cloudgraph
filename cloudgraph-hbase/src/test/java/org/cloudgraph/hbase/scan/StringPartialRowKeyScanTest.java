@@ -28,7 +28,7 @@ import junit.framework.Test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.hbase.DataTypeGraphModelTest;
+import org.cloudgraph.hbase.test.DataTypeGraphModelTest;
 import org.cloudgraph.test.datatypes.Node;
 import org.cloudgraph.test.datatypes.StringNode;
 import org.cloudgraph.test.datatypes.query.QStringNode;
@@ -73,21 +73,16 @@ public class StringPartialRowKeyScanTest extends DataTypeGraphModelTest {
 
         Date now3 = new Date(id + WAIT_TIME + WAIT_TIME);
         Node root3 = this.createGraph(id, now3, "CCC");
-        service.commit(root3.getDataGraph(), USERNAME);        
+        service.commit(root3.getDataGraph(), USERNAME);                
         
-        
-        // fetch a slice
-        Node fetched = this.fetchSingleGraph(id, 
-        		root.getChild(3).getName());
+        // fetch  
+        Node fetched = this.fetchSingleGraph(root2.getRootId(), 
+        		root2.getStringField());
         String xml = serializeGraph(fetched.getDataGraph());
-        log.info("SLICED GRAPH: " + xml);
+        log.info("GRAPH: " + xml);
         assertTrue(fetched.getRootId() == id);
-        //assertTrue(fetched.getChildCount() == 1); // expect single slice
-        //String name = fetched.getString(
-        //		"child[@name='child2']/@name");
-        //assertTrue(name.equals("child2"));         
     }  
-    
+     
     public void testBetween() throws IOException       
     {
         long id1 = System.currentTimeMillis();
@@ -108,7 +103,7 @@ public class StringPartialRowKeyScanTest extends DataTypeGraphModelTest {
         Node[] fetched = this.fetchGraphsBetween(
         		id1, id3, 
         		root1.getStringField(), root3.getStringField());
-        assertTrue(fetched.length == 3);
+        assertTrue("expected 3 results", fetched.length == 3);
         logGraph(fetched[0].getDataGraph());
         logGraph(fetched[1].getDataGraph());
         logGraph(fetched[2].getDataGraph());
@@ -164,9 +159,9 @@ public class StringPartialRowKeyScanTest extends DataTypeGraphModelTest {
 
         logGraph(fetched[0].getDataGraph());
     }    
- 
+  
     protected Node fetchSingleGraph(long id, String name) {    	
-    	QStringNode root = createSelect(name);
+    	QStringNode root = createSelect();
     	
     	root.where(root.rootId().eq(id)
         		.and(root.stringField().eq(name)));
@@ -176,7 +171,7 @@ public class StringPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
     	//FIXME: failing
-    	//assertTrue(result.length == 1);
+    	assertTrue("expected 1 results", result.length == 1);
     	
     	return (Node)result[0].getRootObject();
     }

@@ -32,6 +32,7 @@ import org.cloudgraph.common.key.KeyValue;
 import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataGraph;
@@ -58,9 +59,11 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
     implements GraphRowKeyFactory 
 {
 	private static final Log log = LogFactory.getLog(CompositeRowKeyFactory.class);
+	protected Padding padding;
 	
 	public CompositeRowKeyFactory(PlasmaType rootType) {	
 		super(rootType);
+		this.padding = new Padding(this.charset);
 	}
 	
 	/**
@@ -81,8 +84,11 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
     		if (i > 0)
         	    result.append(graph.getRowKeyFieldDelimiter());
        	    String tokenValue = this.keySupport.getPredefinedFieldValue(plasmaType, 
-       	    	hash, preDefinedField);
-       	    result.append(tokenValue);
+       	    	this.hashing, preDefinedField);
+       	    
+       	    String padded = this.padding.pad(tokenValue, preDefinedField.getMaxLength(), 
+       	    		preDefinedField.getDataFlavor());
+       	    result.append(padded);
         }		
 		return result.toString();
 	}
@@ -114,7 +120,18 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
     		if (i > 0)
     			this.buf.put(this.graph.getRowKeyFieldDelimiterBytes());
     		byte[] tokenValue = this.keySupport.getPredefinedFieldValueBytes(type, 
-    			this.hash, preDefinedField);
+    			this.hashing, preDefinedField);
+    		if (preDefinedField.isHash()) {
+    			tokenValue = padding.pad(tokenValue, 
+    					preDefinedField.getMaxLength(), 
+						DataFlavor.integral);			    			
+    		}
+    		else {    			
+    			tokenValue = padding.pad(tokenValue, 
+    			preDefinedField.getMaxLength(), 
+    			preDefinedField.getDataFlavor());
+    		}
+    		
     		this.buf.put(tokenValue);
         }        		
 	}		
@@ -134,10 +151,26 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 		for (KeyFieldConfig fieldConfig : this.graph.getRowKeyFields()) {
     		if (i > 0)
         	    this.buf.put(graph.getRowKeyFieldDelimiterBytes());
-			keyValue = fieldConfig.getKeyBytes(rootDataObject);
+			
+    		keyValue = fieldConfig.getKeyBytes(rootDataObject);
 			if (fieldConfig.isHash()) {
-				int hashValue = hash.hash(keyValue);
-				keyValue = String.valueOf(hashValue).getBytes(charset);
+				keyValue = this.hashing.toStringBytes(keyValue);
+				keyValue = padding.pad(keyValue, 
+						fieldConfig.getMaxLength(), 
+						DataFlavor.integral);			
+			}
+			else {
+				if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
+					UserDefinedRowKeyFieldConfig userField = (UserDefinedRowKeyFieldConfig)fieldConfig;
+					keyValue = padding.pad(keyValue, 
+						userField.getMaxLength(), 
+	    				userField.getEndpointProperty());			
+				}
+				else {
+					keyValue = padding.pad(keyValue, 
+						fieldConfig.getMaxLength(), 
+						fieldConfig.getDataFlavor());			
+				}
 			}
 	       	
 		    this.buf.put(keyValue);
@@ -184,9 +217,25 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
     		}
     		
 			if (fieldConfig.isHash()) {
-				int hashValue = hash.hash(fieldValue);
-				fieldValue = String.valueOf(hashValue).getBytes(charset);
-			}    		
+				fieldValue = this.hashing.toStringBytes(fieldValue);
+				fieldValue = padding.pad(fieldValue, 
+						fieldConfig.getMaxLength(), 
+						DataFlavor.integral);			
+			}
+			else {
+				if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
+					UserDefinedRowKeyFieldConfig userField = (UserDefinedRowKeyFieldConfig)fieldConfig;
+					fieldValue = padding.pad(fieldValue, 
+						userField.getMaxLength(), 
+	    				userField.getEndpointProperty());			
+				}
+				else {
+					fieldValue = padding.pad(fieldValue, 
+						fieldConfig.getMaxLength(), 
+						fieldConfig.getDataFlavor());			
+				}
+			}
+			
        	    this.buf.put(fieldValue);
 			i++;
 		}	

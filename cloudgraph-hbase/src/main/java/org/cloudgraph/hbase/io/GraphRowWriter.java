@@ -43,6 +43,8 @@ import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.cloudgraph.state.GraphRow;
 import org.cloudgraph.state.GraphState;
+import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.ChangeSummary;
@@ -129,6 +131,33 @@ public class GraphRowWriter extends GraphRow
 	public boolean hasRowDelete() {
 		return this.rowDelete != null;
 	}
+	
+	/**
+	 * Returns a single column value for this row given a context
+	 * data object and property. Uses a statefull column key factory
+	 * to generate a column key based on the given context data object 
+	 * and property.
+	 * @param dataObject the context data object
+	 * @param property the context property
+	 * @return the column value bytes
+	 * @throws IOException
+	 * 
+	 * @see StatefullColumnKeyFactory
+	 */
+	@Override
+	public byte[] fetchColumnValue(PlasmaDataObject dataObject, 
+			PlasmaProperty property) throws IOException {
+    	byte[] qualifier = this.getColumnKeyFactory().createColumnKey(
+    		dataObject, property);
+    	
+		Get existing = new Get(this.rowKey);
+		
+		byte[] family = tableWriter.getTable().getDataColumnFamilyNameBytes();
+		existing.addColumn(family, qualifier);
+		
+		Result result = this.getTableWriter().getConnection().get(existing);
+		return result.getValue(family, qualifier);
+	}	
 	
 	@Override
 	public TableWriter getTableWriter() {

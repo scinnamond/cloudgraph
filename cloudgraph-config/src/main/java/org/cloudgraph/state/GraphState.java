@@ -84,7 +84,7 @@ import commonj.sdo.Type;
 public class GraphState implements State {
 
     private static Log log = LogFactory.getLog(GraphState.class);
-    private static final Charset charset = Charset.forName( CoreConstants.UTF8_ENCODING );
+    public static final Charset charset = Charset.forName( CoreConstants.UTF8_ENCODING );
 	
 	/**
      * The name of the table column which stores the UUID for the
@@ -629,6 +629,21 @@ public class GraphState implements State {
 		return Arrays.toString(result);
     }
 	
+	public String marshalEdges(Edge[] edges) {
+		String[] result = new String[0];
+		if (edges != null) {
+			result = new String[edges.length];
+			int i = 0;
+			for (Edge edge : edges) {
+	    		result[i] = marshalEdge(edge);
+	         	i++;
+			}
+		}
+		//NOTE: returns '[]' for zero length array
+		// use Arrays formatting
+		return Arrays.toString(result);
+    }
+	
 	public Edge[] unmarshalEdges(byte[] data) {
 		String edges = new String(data, this.charset);
 		return unmarshalEdges(edges);
@@ -664,18 +679,85 @@ public class GraphState implements State {
     	return this.buf.toString();   	
     }
     
-    private String formatDirection(TraversalDirection dir) {
-	    if (dir.ordinal() == TraversalDirection.RIGHT.ordinal()) {
-	    	return EDGE_RIGHT;
-	    }
-	    else if (dir.ordinal() == TraversalDirection.LEFT.ordinal()) {
-	    	return EDGE_LEFT;
-	    }
-	    else
-	    	throw new IllegalStateException("unknown traversal direction, "
-	    			+ dir.name());
-	}
+    private String marshalEdge(Edge edge)
+    {
+    	this.buf.setLength(0);        	
+        this.buf.append(String.valueOf(edge.getTypeId()));        	
+        this.buf.append(EDGE_DELIM);
+        this.buf.append(String.valueOf(edge.getId()));        	
+    	return this.buf.toString();   	
+    }
     
+    /**
+     * Returns edge structures for the given data edges
+     * @param dataNode the source data node
+     * @param edges the edges
+     * @return edge structures for the given data edges
+     */
+	public Edge[] createEdges(PlasmaNode dataNode, List<PlasmaEdge> edges) {
+		Edge[] result = new Edge[0];
+		if (edges != null) {
+			result = new Edge[edges.size()];
+			int i = 0;
+			for (PlasmaEdge edge : edges) {
+	    		PlasmaDataObject opposite = edge.getOpposite(dataNode).getDataObject();	    		
+	    		result[i] = createEdge(edge, opposite);
+	         	i++;
+			}
+		}
+		return result;
+    }
+	
+    /**
+     * Returns edge structures for the given data objects
+     * @param edges the edges
+     * @return edge structures for the given data edges
+     */
+	public Edge[] createEdges(List<DataObject> dataObjects) {
+		Edge[] result = new Edge[0];
+		if (dataObjects != null) {
+			result = new Edge[dataObjects.size()];
+			int i = 0;
+			for (DataObject dataObject : dataObjects) {
+	    		result[i] = createEdge((PlasmaDataObject)dataObject);
+	         	i++;
+			}
+		}
+		return result;
+    }
+    
+    private Edge createEdge(PlasmaEdge edge, DataObject opposite)
+    {
+    	PlasmaType type = (PlasmaType)opposite.getType();    	
+    	TypeEntry typeEntry = this.typeNameMap.get(type.getQualifiedName());    	
+		if (typeEntry == null)	
+    	    throw new StateException("no type mapped for, "
+    	    	+ type.getQualifiedName()
+    	    	+ " (" + String.valueOf(type.getQualifiedName().hashCode())+ ")");
+    	Integer typeSeq = typeEntry.getId();
+		String uuid = ((PlasmaDataObject)opposite).getUUIDAsString();
+    	Integer seq = this.getSequence(opposite);  
+    	Edge result = new Edge(type, 
+    		typeSeq, uuid, seq);
+    	return result;   	
+    } 
+    
+    private Edge createEdge(DataObject opposite)
+    {
+    	PlasmaType type = (PlasmaType)opposite.getType();    	
+    	TypeEntry typeEntry = this.typeNameMap.get(type.getQualifiedName());    	
+		if (typeEntry == null)	
+    	    throw new StateException("no type mapped for, "
+    	    	+ type.getQualifiedName()
+    	    	+ " (" + String.valueOf(type.getQualifiedName().hashCode())+ ")");
+    	Integer typeSeq = typeEntry.getId();
+		String uuid = ((PlasmaDataObject)opposite).getUUIDAsString();
+    	Integer seq = this.getSequence(opposite);  
+    	Edge result = new Edge(type, 
+    		typeSeq, uuid, seq);
+    	return result;   	
+    }    
+        
     public String marshal() {
     	return marshal(false);
     }
@@ -726,26 +808,31 @@ public class GraphState implements State {
      * manage the parse result for a single edge.  
      */ 
     public class Edge {
-    	private TraversalDirection direction;
     	private PlasmaType type;
-    	private String uuid;
     	private Integer typeId;
+    	private String uuid;
     	private Integer id;
+    	private int hashCode;
     	
     	@SuppressWarnings("unused")
 		private Edge() {}
+    	
+    	public Edge(PlasmaType type, Integer typeId, String uuid, Integer id) {
+			super();
+			this.type = type;
+			this.typeId = typeId;
+			this.uuid = uuid;
+			this.id = id;
+		}
+
+		/**
+    	 * COnstructor which parses the given marshalled raw edge data into
+    	 * an edge structure. 
+    	 * @param data
+    	 */
     	public Edge(String data) {
     		this.type = (PlasmaType)type;
     	    String[] tokens = data.split(EDGE_DELIM);
-    	    //if (EDGE_RIGHT.equals(tokens[0])) {
-    	    //	this.direction = TraversalDirection.RIGHT;
-    	    //}
-    	    //else if (EDGE_LEFT.equals(tokens[0])) {
-    	    //	this.direction = TraversalDirection.LEFT;
-    	    //}
-    	    //else
-    	    //	throw new IllegalStateException("could not parse traversal direction token from, '"
-    	    //			+ data + "'");
     	    
     	    this.typeId = Integer.valueOf(tokens[0]);
     	    
@@ -758,12 +845,22 @@ public class GraphState implements State {
     	    this.uuid = getUUID(type, this.id);
     	}
     	
-		//public TraversalDirection getDirection() {
-		//	return direction;
-		//}
- 		
+    	public boolean equals(Edge other) {
+    		return this.hashCode() == other.hashCode();
+    	}
+    		
+    	public int hashCode() {
+    		if (this.hashCode == 0)
+    			this.hashCode = this.typeId.intValue() ^ this.id.intValue();
+    		return this.hashCode;
+    	}
+    	
 		public PlasmaType getType() {
 			return type;
+		}		
+		
+		public Integer getTypeId() {
+			return typeId;
 		}
 		
 		/**

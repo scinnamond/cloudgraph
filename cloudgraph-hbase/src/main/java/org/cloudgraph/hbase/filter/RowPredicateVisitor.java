@@ -232,7 +232,7 @@ public class RowPredicateVisitor extends PredicateVisitor {
 					+ rowKeyExpr + " operator: " + this.contextHBaseCompareOp);
 		}
 		else
-	        throw new GraphFilterException("no user defined row-key token for query path '"
+	        log.warn("no user defined row-key token for query path '"
 			    	+ this.contextPropertyPath + "'");
 		
 		super.start(literal);

@@ -27,7 +27,7 @@ import junit.framework.Test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.hbase.SocialGraphModelTest;
+import org.cloudgraph.hbase.test.SocialGraphModelTest;
 import org.cloudgraph.test.socialgraph.actor.Actor;
 import org.cloudgraph.test.socialgraph.story.Blog;
 import org.cloudgraph.test.socialgraph.actor.Friendship;
@@ -50,7 +50,7 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     public void setUp() throws Exception {
         super.setUp();
     } 
-/*        
+          
     public void testFederatedInsert() throws IOException       
     {
     	GraphInfo info = createGraph();
@@ -248,10 +248,10 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	assertTrue(fetchedTopic.getName().equals(magnetization.getName()));
         
     }    
-*/ 
+   
     public void testBlogAdd() throws IOException       
     {
-    	/* 
+    	  
     	Topic rocks = createRootTopic("Rocks");
  
     	Topic igneousRocks = rocks.createChild();
@@ -266,7 +266,7 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	// commit some topics we can use
     	this.service.commit(rocks.getDataGraph(), 
     			"test1");
-    	*/ 
+    	  
     	String name = USERNAME_BASE 
         	+ String.valueOf(System.currentTimeMillis())
         	+ "@example.com";	
@@ -306,7 +306,7 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
         String xml = this.serializeGraph(fetchedActor.getDataGraph());
         log.info(xml);  
         // FIXME: pending graph writer fix 
-    	//assertTrue(fetchedActor.getBlogCount() == 2);
+    	assertTrue(fetchedActor.getBlogCount() == 2);
 
     	Blog sedementaryRocksBlog = simpleActor.createBlog();
     	sedementaryRocksBlog.setName("Thoughts on Sedementary Rocks");
@@ -323,7 +323,7 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
         xml = this.serializeGraph(fetchedActor.getDataGraph());
         log.info(xml);        
         // FIXME: pending graph writer fix 
-    	//assertTrue(fetchedActor.getBlogCount() == 3);
+    	assertTrue(fetchedActor.getBlogCount() == 3);
         
     }    
     

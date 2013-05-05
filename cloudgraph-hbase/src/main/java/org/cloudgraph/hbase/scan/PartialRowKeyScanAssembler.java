@@ -36,8 +36,11 @@ import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.hbase.key.Hashing;
 import org.cloudgraph.hbase.key.KeySupport;
+import org.cloudgraph.hbase.key.Padding;
 import org.plasma.query.model.Where;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaType;
 
 
@@ -55,13 +58,12 @@ import org.plasma.sdo.PlasmaType;
  * @since 0.5
  */
 public class PartialRowKeyScanAssembler  
-    implements RowKeyScanAssembler
+    implements RowKeyScanAssembler, PartialRowKeyScan
 {
     private static Log log = LogFactory.getLog(PartialRowKeyScanAssembler.class);
 	protected int bufsize = 4000;
 	protected ByteBuffer startKey = ByteBuffer.allocate(bufsize);
 	protected ByteBuffer stopKey = ByteBuffer.allocate(bufsize);
-	protected Hash hash;
 	protected PlasmaType rootType;
 	protected DataGraphConfig graph;
 	protected TableConfig table;
@@ -71,6 +73,8 @@ public class PartialRowKeyScanAssembler
 	protected int startRowFieldCount;
     protected int stopRowFieldCount;
     protected String rootUUID;
+	protected Hashing hashing;
+	protected Padding padding;
 	
 	@SuppressWarnings("unused")
 	private PartialRowKeyScanAssembler() {}
@@ -86,8 +90,10 @@ public class PartialRowKeyScanAssembler
 		this.graph = CloudGraphConfig.getInstance().getDataGraph(
 				rootTypeQname);
 		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);
-		this.hash = this.keySupport.getHashAlgorithm(this.table);
+		Hash hash = this.keySupport.getHashAlgorithm(this.table);
 		this.charset = CloudGraphConfig.getInstance().getCharset();
+		this.hashing = new Hashing(hash, this.charset);
+		this.padding = new Padding(this.charset);
 	}
 	
 	/**
@@ -152,7 +158,7 @@ public class PartialRowKeyScanAssembler
 				new ScanLiteralAssembler(this.rootType);
     	where.accept(literalAssembler); // traverse
     	
-    	this.scanLiterals = literalAssembler.getResult();
+    	this.scanLiterals = literalAssembler.getPartialKeyScanResult();
     	
     	if (log.isDebugEnabled())
     		log.debug("end traverse");      	
@@ -174,19 +180,27 @@ public class PartialRowKeyScanAssembler
     		}
     		
     		byte[] startValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
-       	    		hash, preDefinedField);
-       	    this.startKey.put(startValue);
+       	    		hashing, preDefinedField);
+    		startValue = this.padding.pad(startValue, preDefinedField.getMaxLength(), 
+    				preDefinedField.getDataFlavor());
+    		
+    		this.startKey.put(startValue);
        	    startRowFieldCount++;
        	    
        	    byte[] stopValue = null;
        	    if (i < (fieldCount -1)) {
        		    stopValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
-           	    		hash, preDefinedField);       	    	
+       		    		hashing, preDefinedField);       	    	
        	    }
-       	    else {
+       	    else { // if last use stop key
     		    stopValue = this.keySupport.getPredefinedFieldValueStopBytes(this.rootType, 
-       	    		hash, preDefinedField);
+    		    		hashing, preDefinedField);
        	    }
+       	    
+       	    // FIXME: padding needs to be conditional based on
+       	    // field hashing hashing
+       	    stopValue = this.padding.pad(stopValue, preDefinedField.getMaxLength(), 
+    				preDefinedField.getDataFlavor());
     		this.stopKey.put(stopValue);
        	    stopRowFieldCount++;
         }				
@@ -211,11 +225,19 @@ public class PartialRowKeyScanAssembler
         		    tokenValue = predefinedConfig.getKeyBytes(this.rootType);
         			break;
         		}        		
+        		//FIXME: if predefined field is last, need stop bytes
+        		
         		
         		if (fieldConfig.isHash()) {
-    				int hashValue = hash.hash(tokenValue);
-    				tokenValue = String.valueOf(hashValue).getBytes(charset);
-    			}    			
+        			tokenValue = hashing.toStringBytes(tokenValue);
+            		tokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
+            				DataFlavor.integral);
+    			} 
+        		else {
+            		tokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
+            				predefinedConfig.getDataFlavor());
+        		}
+        		
         		if (startRowFieldCount > 0) 
             	    this.startKey.put(graph.getRowKeyFieldDelimiterBytes());
         		if (stopRowFieldCount > 0) 

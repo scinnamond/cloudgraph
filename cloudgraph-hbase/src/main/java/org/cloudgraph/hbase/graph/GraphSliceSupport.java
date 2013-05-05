@@ -39,14 +39,13 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
+import org.cloudgraph.hbase.expr.Expr;
 import org.cloudgraph.hbase.filter.BinaryPrefixColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.StatefullBinaryPrefixColumnFilterAssembler;
 import org.cloudgraph.hbase.io.RowReader;
+import org.cloudgraph.hbase.io.TableOperation;
 import org.cloudgraph.hbase.io.TableReader;
-import org.cloudgraph.hbase.query.Expr;
-import org.cloudgraph.hbase.query.RecogniserContext;
-import org.cloudgraph.hbase.query.RecogniserSyntaxTreeAssembler;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaType;
@@ -92,12 +91,12 @@ public class GraphSliceSupport {
 		
 		// assemble a recogniser once for
 		// all results. Then only evaluate each result.
-		RecogniserSyntaxTreeAssembler assembler = new RecogniserSyntaxTreeAssembler(where, 
+		EdgeRecognizerSyntaxTreeAssembler assembler = new EdgeRecognizerSyntaxTreeAssembler(where, 
 			graphConfig, contextType, rootType);	
 		Expr recogniser = assembler.getResult();
 		
 		Map<Integer, Integer> sequences = new HashMap<Integer, Integer>();
-		RecogniserContext context = new RecogniserContext();
+		EdgeRecognizerContext context = new EdgeRecognizerContext();
 		
 		for (Integer seq : buckets.keySet())
 		{
@@ -109,14 +108,15 @@ public class GraphSliceSupport {
 		}
         return sequences;
 	}
-
+	
 	/**
 	 * Runs the given get and returns the result.  
 	 * @param get the row get
 	 * @return the result.
 	 * @throws IOException 
 	 */
-	public Result fetchResult(Get get, TableReader tableReader, DataGraphConfig graphConfig) throws IOException
+	public Result fetchResult(Get get, TableOperation tableOperation, 
+			DataGraphConfig graphConfig) throws IOException
 	{
         if (log.isDebugEnabled() )
 			try {
@@ -128,10 +128,10 @@ public class GraphSliceSupport {
         if (log.isDebugEnabled() ) 
             log.debug("executing get...");
         
-        Result result = tableReader.getConnection().get(get);
+        Result result = tableOperation.getConnection().get(get);
         if (result == null) // Note: may not have any key-values
         	throw new GraphServiceException("expected result from table "
-                + tableReader.getTable().getName() + " for row '"
+                + tableOperation.getTable().getName() + " for row '"
         		+ new String(get.getRow()) + "'");
     	
         long after = System.currentTimeMillis();

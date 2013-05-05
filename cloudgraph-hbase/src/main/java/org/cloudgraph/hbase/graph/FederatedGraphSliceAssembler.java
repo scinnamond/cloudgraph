@@ -251,7 +251,7 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
     			new ScanContext(contextType, where);
     	if (scanContext.canUsePartialKeyScan()) {
     		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(contextType);
-    		scanAssembler.assemble(scanContext.getLiterals());
+    		scanAssembler.assemble(scanContext.getPartialKeyScanLiterals());
             scan.setStartRow(scanAssembler.getStartKey()); // inclusive
             scan.setStopRow(scanAssembler.getStopKey()); // exclusive
       		if (log.isDebugEnabled())

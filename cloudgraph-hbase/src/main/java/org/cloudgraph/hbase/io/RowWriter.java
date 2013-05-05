@@ -21,11 +21,14 @@
  */
 package org.cloudgraph.hbase.io;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
+import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.PlasmaProperty;
 
 /**
  * Provides access to the operational, configuration and other state information
@@ -70,6 +73,21 @@ public interface RowWriter extends RowOperation {
 	public List<Row> getWriteOperations();
 
 	/**
+	 * Returns a single column value for this row given a context
+	 * data object and property. Uses a statefull column key factory
+	 * to generate a column key based on the given context data object 
+	 * and property.
+	 * @param dataObject the context data object
+	 * @param property the context property
+	 * @return the column value bytes
+	 * @throws IOException
+	 * 
+	 * @see StatefullColumnKeyFactory
+	 */
+	public byte[] fetchColumnValue(PlasmaDataObject dataObject, 
+			PlasmaProperty property) throws IOException;
+
+		/**
 	 * Returns the container for this writer. 
 	 * @return the container for this writer.
 	 */

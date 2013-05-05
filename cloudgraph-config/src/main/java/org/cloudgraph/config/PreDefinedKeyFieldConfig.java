@@ -25,9 +25,11 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaType;
 
+import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 
 /**
@@ -60,6 +62,41 @@ public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
     	return field.isHash();
     }	
     
+	@Override
+	public String getKey(DataGraph dataGraph) {
+		return getKey(dataGraph.getRootObject());
+	}
+
+	@Override
+	public String getKey(DataObject dataObject) {
+		PlasmaType rootType = (PlasmaType)dataObject.getType();
+		
+		String result = null;
+		switch (this.getName()) {
+		case URI: 
+			result = rootType.getURI();
+			break;
+		case TYPE:
+			result = rootType.getPhysicalName();
+			if (result == null || result.length() == 0) {
+				if (log.isDebugEnabled())
+				    log.debug("no physical name for type, "
+				    		+ rootType.getQualifiedName().getNamespaceURI() + "#" + rootType.getName() 
+				    		+ ", defined - using logical name");
+				result = rootType.getName();
+			}
+			break;
+		case UUID:
+			result = ((PlasmaDataObject)dataObject).getUUIDAsString();
+			break;
+		default:
+		    throw new CloudGraphConfigurationException("invalid row key field name, "
+		    		+ this.getName().name() + " - cannot get this field from a Data Graph");
+		}
+		
+		return result;
+	}
+   
 	/**
 	 * Returns a key value from the given Data Graph
 	 * @param dataGraph the data graph 
@@ -86,13 +123,11 @@ public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
 			result = rootType.getURIBytes();
 			break;
 		case TYPE:
-			QName qname = rootType.getQualifiedName();
-			
 			result = rootType.getPhysicalNameBytes();
 			if (result == null || result.length == 0) {
 				if (log.isDebugEnabled())
 				    log.debug("no physical name for type, "
-				    		+ qname.getNamespaceURI() + "#" + rootType.getName() 
+				    		+ rootType.getQualifiedName().getNamespaceURI() + "#" + rootType.getName() 
 				    		+ ", defined - using logical name");
 				result = rootType.getNameBytes();
 			}
@@ -139,4 +174,34 @@ public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
 		
 		return result;
 	}
+
+	// FIXME: drive these from 
+	// global configuration settings
+	@Override
+	public int getMaxLength() {
+		switch (this.getName()) {
+		case URI: 
+			return 12;
+		case TYPE:
+			return 8;
+		case UUID:
+			return 36;
+		default:
+			return 12;
+		}
+	}
+	
+	public DataFlavor getDataFlavor() {
+		switch (this.getName()) {
+		case URI: 
+			return DataFlavor.string;
+		case TYPE:
+			return DataFlavor.string;
+		case UUID:
+			return DataFlavor.string;
+		default:
+			return DataFlavor.string;
+		}
+	}
+
 }

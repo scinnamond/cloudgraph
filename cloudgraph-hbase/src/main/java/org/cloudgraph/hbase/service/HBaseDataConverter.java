@@ -127,10 +127,7 @@ public class HBaseDataConverter {
 				result = new BigInteger(value);
 				break;
 			case Long:
-				// FIXME: hack for Toad4CLoud
-				//result = Bytes.toLong(value);  
-				resultStr = Bytes.toString(value);
-				result = Long.valueOf(resultStr);
+				result = Bytes.toLong(value);  
 				break;
 			case Short:
 				result = Bytes.toShort(value);  
@@ -228,17 +225,12 @@ public class HBaseDataConverter {
 			case Integer:
 				BigInteger resultInteger = DataConverter.INSTANCE.toInteger(sourceProperty
 						.getType(), value);
-				//NOTE: no  
 				result = resultInteger.toByteArray();
 				break;
 			case Long:
 				long resultLong = DataConverter.INSTANCE.toLong(
 						    sourceProperty.getType(), value);
-				// FIXME: hack for Toad4CLoud
-				//result = Bytes.toBytes(resultLong);
-				resultStr = DataConverter.INSTANCE.toString(
-					    sourceProperty.getType(), value); 
-				result = Bytes.toBytes(resultStr);
+				result = Bytes.toBytes(resultLong);
 				break;
 			case Short:
 				short resultShort = DataConverter.INSTANCE.toShort(sourceProperty

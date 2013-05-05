@@ -30,8 +30,9 @@ import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.hbase.key.Hashing;
 import org.cloudgraph.hbase.key.KeySupport;
-import org.plasma.query.model.LogicalOperator;
+import org.cloudgraph.hbase.key.Padding;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -56,15 +57,15 @@ public abstract class ScanLiteral {
 
 	protected String literal;
 	protected RelationalOperator relationalOperator;
-	protected LogicalOperator logicalOperator;
 	protected UserDefinedRowKeyFieldConfig fieldConfig;
 	protected DataConverter dataConverter = DataConverter.INSTANCE;
-	protected Hash hash;
 	protected PlasmaType rootType;
 	protected Charset charset;
 	protected TableConfig table;
 	protected KeySupport keySupport = new KeySupport();
 	protected PlasmaProperty property;
+	protected Hashing hashing;
+	protected Padding padding;
 	
 	@SuppressWarnings("unused")
 	private ScanLiteral() {}
@@ -72,20 +73,20 @@ public abstract class ScanLiteral {
 	public ScanLiteral(String literal,
 			PlasmaType rootType,
 			RelationalOperator relationalOperator,
-			LogicalOperator logicalOperator,
 			UserDefinedRowKeyFieldConfig fieldConfig) {
 		super();
 		this.rootType = rootType;
 		this.relationalOperator = relationalOperator;
-		this.logicalOperator = logicalOperator;
 		this.fieldConfig = fieldConfig;		
 		this.property = (PlasmaProperty)this.fieldConfig.getEndpointProperty();
 		this.literal = literal;
 
 		QName rootTypeQname = this.rootType.getQualifiedName();
 		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);
-		this.hash = this.keySupport.getHashAlgorithm(this.table);
+		Hash hash = this.keySupport.getHashAlgorithm(this.table);
 		this.charset = CloudGraphConfig.getInstance().getCharset();
+		this.hashing = new Hashing(hash, this.charset);
+		this.padding = new Padding(this.charset);		
 	}
 
 	/**
@@ -102,14 +103,6 @@ public abstract class ScanLiteral {
 	 */
 	public final RelationalOperator getRelationalOperator() {
 		return relationalOperator;
-	}
-
-	/**
-	 * Returns the context logical operator or null if none exists.
-	 * @return the context logical operator or null if none exists.
-	 */
-	public final LogicalOperator getLogicalOperator() {
-		return logicalOperator;
 	}
 
 	/**
@@ -192,7 +185,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected abstract byte[] getEqualsStartBytes();
+	public abstract byte[] getEqualsStartBytes();
 	
 	/**
 	 * Returns the "stop row" bytes 
@@ -206,7 +199,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected abstract byte[] getEqualsStopBytes();
+	public abstract byte[] getEqualsStopBytes();
 	
 	/**
 	 * Returns the "start row" bytes 
@@ -220,7 +213,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected abstract byte[] getGreaterThanStartBytes();
+	public abstract byte[] getGreaterThanStartBytes();
 
 	/**
 	 * Returns the "stop row" bytes 
@@ -234,7 +227,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected abstract byte[] getGreaterThanStopBytes();
+	public abstract byte[] getGreaterThanStopBytes();
 
 	/**
 	 * Returns the "start row" bytes 
@@ -248,7 +241,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected abstract byte[] getGreaterThanEqualStartBytes();
+	public abstract byte[] getGreaterThanEqualStartBytes();
 
 	/**
 	 * Returns the "stop row" bytes 
@@ -262,7 +255,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected abstract byte[] getGreaterThanEqualStopBytes();
+	public abstract byte[] getGreaterThanEqualStopBytes();
 	
 	/**
 	 * Returns the "start row" bytes 
@@ -276,7 +269,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
-	protected abstract byte[] getLessThanStartBytes();
+	public abstract byte[] getLessThanStartBytes();
 	
 	/**
 	 * Returns the "stop row" bytes 
@@ -290,7 +283,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
-	protected abstract byte[] getLessThanStopBytes();
+	public abstract byte[] getLessThanStopBytes();
 	
 	/**
 	 * Returns the "start row" bytes 
@@ -304,7 +297,7 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
-	protected abstract byte[] getLessThanEqualStartBytes();
+	public abstract byte[] getLessThanEqualStartBytes();
 
 	/**
 	 * Returns the "stop row" bytes 
@@ -318,5 +311,5 @@ public abstract class ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
-	protected abstract byte[] getLessThanEqualStopBytes();
+	public abstract byte[] getLessThanEqualStopBytes();
 }

@@ -83,13 +83,13 @@ public class CompositeColumnKeyFactory extends ByteBufferKeyFactory
 		}
 		
 		// URI
-		byte[] uriToken = configureTokenBytes(type.getURIBytes(), graph, hash, PreDefinedFieldName.URI);
+		byte[] uriToken = configureTokenBytes(type.getURIBytes(), graph, hashing, PreDefinedFieldName.URI);
 
 		// local type name
-		byte[] typeToken = configureTokenBytes(typeNameToken, graph, hash, PreDefinedFieldName.TYPE);
+		byte[] typeToken = configureTokenBytes(typeNameToken, graph, hashing, PreDefinedFieldName.TYPE);
 
 		// property name
-		byte[] propToken = configureTokenBytes(propertyNameToken, graph, hash, PreDefinedFieldName.PROPERTY);
+		byte[] propToken = configureTokenBytes(propertyNameToken, graph, hashing, PreDefinedFieldName.PROPERTY);
 
 		int tokensLen = uriToken.length + typeToken.length + propToken.length;
 		byte[] delim = graph.getColumnKeyFieldDelimiterBytes();
@@ -115,18 +115,14 @@ public class CompositeColumnKeyFactory extends ByteBufferKeyFactory
 	}
 
 	protected byte[] configureTokenBytes(byte[] token, 
-			DataGraphConfig graph, Hash hash, 
+			DataGraphConfig graph, Hashing hashing, 
 			PreDefinedFieldName tokenName)
 	{
 		byte[] result = token;
 		ColumnKeyFieldConfig tokenConfig = graph.getColumnKeyField(tokenName);
 		if (tokenConfig != null) {
 			if (tokenConfig.isHash()) {
-				int hashValue = hash.hash(result);
-				// hash to an integer but use the bytes of the 
-				// String representation so column names so we can read
-				// the column names in third party tools. 
-				result = Bytes.toBytes(String.valueOf(hashValue));
+				result = hashing.toStringBytes(result);
 			}
 		}
 		return result;

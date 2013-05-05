@@ -23,6 +23,7 @@ package org.cloudgraph.config;
 
 import java.nio.charset.Charset;
 
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.core.CoreConstants;
 
 import commonj.sdo.DataObject;
@@ -54,14 +55,46 @@ public abstract class KeyFieldConfig {
 		return this.field.isHash();
 	}
 	
+	/**
+	 * Returns a key value as string from the given data graph
+	 * @param dataGraph the data graph
+	 * @return the key value
+	 */
+	public abstract String getKey(
+			commonj.sdo.DataGraph dataGraph);
+
+	/**
+	 * Returns a key value as string from the given data object
+	 * @param dataObject the root data object 
+	 * @return the key value
+	 */
+	public abstract String getKey(
+			DataObject dataObject);
+
+	/**
+	 * Returns a key value as bytes from the given data graph
+	 * @param dataGraph the data graph
+	 * @return the key value
+	 */
 	public abstract byte[] getKeyBytes(
 			commonj.sdo.DataGraph dataGraph);
 
 	/**
-	 * Returns a key value from the given data object
+	 * Returns a key value as bytes from the given data object
 	 * @param dataObject the root data object 
 	 * @return the key value
 	 */
 	public abstract byte[] getKeyBytes(
 			DataObject dataObject);
+	
+	/**
+	 * Returns the maximum length allowed for this
+	 * key field. 
+	 * @return the maximum length allowed for this
+	 * key field.
+	 */
+	public abstract int getMaxLength();
+	
+	public abstract DataFlavor getDataFlavor();
+	
 }

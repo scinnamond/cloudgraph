@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.service.HBaseDataConverter;
-import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaType;
@@ -43,9 +42,9 @@ import org.plasma.sdo.PlasmaType;
  * @see org.cloudgraph.config.TableConfig
  * @see org.cloudgraph.hbase.service.HBaseDataConverter
  */
-public class TemporalLiteral extends ScanLiteral {
+public class TemporalLiteral extends ScanLiteral 
+    implements PartialRowKeyLiteral {
 
-    private static Log log = LogFactory.getLog(TemporalLiteral.class);
     public static final int INCREMENT = 1;
     public static final int DATE_INCREMENT = 1000; // SDO Date data type resolution is seconds
     public static final int DATE_TIME_INCREMENT = 1; // SDO Datetime data type resolution is seconds
@@ -53,9 +52,9 @@ public class TemporalLiteral extends ScanLiteral {
 	public TemporalLiteral(String literal,
 			PlasmaType rootType,
 			RelationalOperator relationalOperator,
-			LogicalOperator logicalOperator, UserDefinedRowKeyFieldConfig fieldConfig) {
+			UserDefinedRowKeyFieldConfig fieldConfig) {
 		super(literal, rootType, relationalOperator, 
-				logicalOperator, fieldConfig);
+			fieldConfig);
 	}
 
 	protected int getIncrement(DataType dataType) {
@@ -81,15 +80,13 @@ public class TemporalLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected byte[] getEqualsStartBytes() {
+	public byte[] getEqualsStartBytes() {
 		byte[] startBytes = null;
 		// FIXME: convert to native type as we create literals
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
 		if (fieldConfig.isHash()) {
 			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
-			int startHashValue = hash.hash(startBytes);
-			String startHashValueStr = String.valueOf(startHashValue);
-			startBytes = startHashValueStr.getBytes(this.charset);
+			startBytes = this.hashing.toStringBytes(startBytes);
 		}
 		else {
 			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
@@ -109,7 +106,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected byte[] getEqualsStopBytes() {
+	public byte[] getEqualsStopBytes() {
 		byte[] stopBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
         DataType dataType = DataType.valueOf(property.getType().getName());
@@ -125,13 +122,7 @@ public class TemporalLiteral extends ScanLiteral {
 		
 		if (this.fieldConfig.isHash()) {
 			stopBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
-			int startHashValue = hash.hash(stopBytes);
-			
-			// Note only increment/decrement the hash value
-			// for hashed fields
-			Long stopValue = Long.valueOf(startHashValue + HASH_INCREMENT);
-			String stopValueStr = String.valueOf(stopValue);
-			stopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = this.hashing.toStringBytes(stopBytes, HASH_INCREMENT);
 		}
 		else {
 			Long stopLongValue = longValue + getIncrement(dataType);
@@ -139,8 +130,7 @@ public class TemporalLiteral extends ScanLiteral {
 			// back to whatever its native type is
 			Object stopValue = this.dataConverter.convert(property.getType(), stopDate);
 			// re format the string under its native type
-			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
-			
+			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);			
 			stopBytes = stopValueStr.getBytes(this.charset);
 		}
 		return stopBytes;
@@ -158,7 +148,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected byte[] getGreaterThanStartBytes() {
+	public byte[] getGreaterThanStartBytes() {
 		byte[] startBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
         DataType dataType = DataType.valueOf(property.getType().getName());
@@ -171,13 +161,7 @@ public class TemporalLiteral extends ScanLiteral {
 		
 		if (this.fieldConfig.isHash()) {
 			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
-			int startHashValue = hash.hash(startBytes);
-			
-			// Note only increment/decrement the hash value
-			// for hashed fields
-			Long startValue = Long.valueOf(startHashValue + HASH_INCREMENT);
-			String startValueStr = String.valueOf(startValue);
-			startBytes = startValueStr.getBytes(this.charset);
+			startBytes = this.hashing.toStringBytes(startBytes, HASH_INCREMENT);
 		}
 		else {
 			Long startLongValue = longValue + getIncrement(dataType);
@@ -200,7 +184,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
-	protected byte[] getGreaterThanStopBytes() {
+	public byte[] getGreaterThanStopBytes() {
 	    return new byte[0];
 	}
 	
@@ -216,7 +200,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	protected byte[] getGreaterThanEqualStartBytes() {
+	public byte[] getGreaterThanEqualStartBytes() {
 	    return this.getEqualsStartBytes();
 	}
 	
@@ -228,7 +212,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
-	protected byte[] getGreaterThanEqualStopBytes() {
+	public byte[] getGreaterThanEqualStopBytes() {
 	    return new byte[0];
 	}
 	
@@ -240,7 +224,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
-	protected byte[] getLessThanStartBytes() {
+	public byte[] getLessThanStartBytes() {
 	    return new byte[0];
 	}
 	
@@ -256,7 +240,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
-	protected byte[] getLessThanStopBytes() {
+	public byte[] getLessThanStopBytes() {
 		byte[] stopBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
 		// As per SDO 2.1 spec every temporal data type can be
@@ -271,10 +255,7 @@ public class TemporalLiteral extends ScanLiteral {
 		
 		if (this.fieldConfig.isHash()) {
 			stopBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
-			int startHashValue = hash.hash(stopBytes);
-			Long stopValue = Long.valueOf(startHashValue);
-			String stopValueStr = String.valueOf(stopValue);
-			stopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = this.hashing.toStringBytes(stopBytes);
 		}
 		else {
 			Long stopLongValue = longValue;
@@ -297,7 +278,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
-	protected byte[] getLessThanEqualStartBytes() {
+	public byte[] getLessThanEqualStartBytes() {
 	    return new byte[0];
 	}
 	
@@ -313,7 +294,7 @@ public class TemporalLiteral extends ScanLiteral {
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
-	protected byte[] getLessThanEqualStopBytes() {
+	public byte[] getLessThanEqualStopBytes() {
 	    return this.getEqualsStopBytes();
 	}
 }

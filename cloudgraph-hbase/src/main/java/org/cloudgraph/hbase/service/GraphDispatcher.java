@@ -24,7 +24,10 @@ package org.cloudgraph.hbase.service;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -44,6 +47,7 @@ import org.cloudgraph.hbase.io.RowWriter;
 import org.cloudgraph.hbase.io.TableWriter;
 import org.cloudgraph.hbase.io.TableWriterCollector;
 import org.cloudgraph.state.GraphState;
+import org.cloudgraph.state.GraphState.Edge;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaChangeSummary;
 import org.plasma.sdo.PlasmaDataObject;
@@ -543,57 +547,112 @@ public class GraphDispatcher
         	
     		byte[] valueBytes = null;
         	if (!property.getType().isDataType()) {
-        		
-        		// Move any old values into the graph state history
-    			PlasmaSetting setting = (PlasmaSetting)oldValue;
+    			// get old value setting/value - can be List or single data-object
+        		PlasmaSetting setting = (PlasmaSetting)oldValue;
     			Object oldOppositeValue = setting.getValue();
-    			if (!(oldOppositeValue instanceof NullValue)) {
-	    			if (oldOppositeValue instanceof List) {
-	        			List<DataObject> oldOpposites = (List<DataObject>)oldOppositeValue;
-	        		    for (DataObject oldOpposite : oldOpposites) {
-	        		    	rowWriter.getGraphState().archiveSequence(oldOpposite);
-	        		    	rowWriter.getGraphState().archiveRowKey(oldOpposite);
-	        		    }
-	    			}
-	        		else {
-	        			DataObject oldOpposite = (DataObject)oldOppositeValue;
-	    		    	rowWriter.getGraphState().archiveSequence(oldOpposite);
-	    		    	rowWriter.getGraphState().archiveRowKey(oldOpposite);
-	        		}
-    			}
         		
         		List <PlasmaEdge> edges = dataNode.getEdges(property);
         		
         		// Modifying this property but add all 
         		// its edges to row graph state
         		List<PlasmaEdge> stateEdges = this.createEdgeState(dataObject, dataNode,
-            			property, edges, graphWriter,
-            			tableWriter, rowWriter);
-        		rowWriter.getGraphState().addEdges(dataNode,  stateEdges);
-        		
-        		// Create a formatted column value
-        		// for this edge collection. 
-        		// Note; the new
-        		// edge collection value will NOT contain any edges
-        		// NOT part of the commit graph. This is a fundamental
-        		// problem because it forces clients to pull
-        		// the entire existing collection before adding to it.
-        		// The fix involves merging with the existing edge value
-        		// which is not unfortunately available within the graph state
-        		// as this is purely mapping data, and is not available
-        		// within the federated writer hierarchy, as the writers
-        		// do not query for existing vales. 
-        		valueBytes = this.createEdgeValueBytes(
-        			dataNode, stateEdges,  rowWriter);
+            		property, edges, graphWriter,
+            		tableWriter, rowWriter);
+        		if (!property.isMany()) {
+        			// move old value if exists into graph state history
+        			if (!(oldOppositeValue instanceof NullValue)) {
+    	    			if (!(oldOppositeValue instanceof List)) {
+    	        			DataObject oldOpposite = (DataObject)oldOppositeValue;
+    	    		    	rowWriter.getGraphState().archiveSequence(oldOpposite);
+    	    		    	rowWriter.getGraphState().archiveRowKey(oldOpposite);
+    	    			}
+    	        		else 
+                            throw new GraphServiceException("unexpected List as old value for property, "  
+                            	+ property.toString());
+        			}
+        			// add the new value into graph state
+              		rowWriter.getGraphState().addEdges(dataNode,  stateEdges);        		
+            		// Create a formatted column value
+            		// for this edge. 
+            		valueBytes = this.createEdgeValueBytes(
+            			dataNode, stateEdges,  rowWriter);
+        		}
+        		else {
+        			HashMap<String, DataObject> oldEdgeMap = getOldEdgeMap(
+        				oldOppositeValue, property);
+        			
+        			// add the new values into graph state
+              		rowWriter.getGraphState().addEdges(dataNode,  stateEdges);        		
+
+              		Edge[] updatedEdges = rowWriter.getGraphState().createEdges(dataNode, stateEdges);
+        			HashSet<Edge> updatedEdgeHash = new HashSet<Edge>(
+                			Arrays.asList(updatedEdges));
+        			
+        			// fetch the existing edges from data store
+        		    byte[] existingValue = rowWriter.fetchColumnValue(dataObject, property);
+        		    Edge[] existingEdges = null;
+        		    if (existingValue != null && existingValue.length > 0)
+        		        existingEdges = rowWriter.getGraphState().unmarshalEdges(existingValue);
+        		    
+        		    // merge
+        		    List<Edge> list = new ArrayList<Edge>();
+    		    	for (Edge updated : updatedEdges)
+    		    		list.add(updated);
+    		    	if (existingEdges != null)
+	        		    for (Edge existing : existingEdges) {
+	        		    	if (!updatedEdgeHash.contains(existing)) {
+	        		    		// only exclude edge if explicitly removed by user
+	        		    		DataObject oldDataObject = oldEdgeMap.get(existing.getUuid());
+	        		    		if (oldDataObject == null) {
+	        		    			list.add(existing);
+	        		    		}
+	        		    		else { // edge is obsolete - move to history
+	        	    		    	rowWriter.getGraphState().archiveSequence(oldDataObject);
+	        	    		    	rowWriter.getGraphState().archiveRowKey(oldDataObject);
+	        		    		}
+	        		    	} // else added it already above	        		    	
+	        		    }
+        		    
+        		    Edge[] resultEdges = new Edge[list.size()];
+        		    list.toArray(resultEdges);
+        		    String valueString = rowWriter.getGraphState().marshalEdges(resultEdges);
+        		    valueBytes = valueString.getBytes(GraphState.charset);
+        		}
          	}
         	else {
+        		// FIXME: research best way to encode multiple
+        		// primitives as bytes
                 valueBytes = HBaseDataConverter.INSTANCE.toBytes(
-                	property, value);
+                	    property, value);
             }
+        	
         	this.updateCell(rowWriter,
         		rowWriter.getRow(), dataObject, 
                 property, valueBytes);
         }    
+    }
+    
+    private HashMap<String, DataObject> getOldEdgeMap(Object oldValue, 
+    		Property property) 
+    {
+		HashMap<String, DataObject> result = null;
+		if (!(oldValue instanceof NullValue)) {
+			if (oldValue instanceof List) {
+				@SuppressWarnings("unchecked")
+				List<DataObject> oldValueList = (List<DataObject>)oldValue;
+				result = new HashMap<String, DataObject>(oldValueList.size());
+				for (DataObject dataObject : oldValueList)
+					result.put(((PlasmaDataObject)dataObject).getUUIDAsString(),
+							dataObject);
+			}
+    		else {
+    			result = new HashMap<String, DataObject>(1);
+    			PlasmaDataObject oldOpposite = (PlasmaDataObject)oldValue;
+				result.put(oldOpposite.getUUIDAsString(),
+						oldOpposite);
+    		}
+		}
+    	return result;
     }
  
     private void delete(DataGraph dataGraph, PlasmaDataObject dataObject, 

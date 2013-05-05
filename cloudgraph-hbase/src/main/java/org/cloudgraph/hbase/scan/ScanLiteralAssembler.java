@@ -39,6 +39,7 @@ import org.plasma.query.model.Path;
 import org.plasma.query.model.PathElement;
 import org.plasma.query.model.Property;
 import org.plasma.query.model.RelationalOperator;
+import org.plasma.query.model.RelationalOperatorValues;
 import org.plasma.query.model.Where;
 import org.plasma.query.model.WildcardOperator;
 import org.plasma.query.model.WildcardPathElement;
@@ -66,9 +67,11 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 	protected String contextPropertyPath;
 	protected RelationalOperator contextRelationalOperator;
 	protected LogicalOperator contextLogicalOperator;
+	protected WildcardOperator contextWildcardOperator;
 	protected DataGraphConfig graph;
 	protected TableConfig table;
-	protected ScanLiterals scanLiterals = new ScanLiterals();
+	protected ScanLiterals partialKeyScanLiterals = new ScanLiterals();
+	protected ScanLiterals fuzzyKeyScanLiterals = new ScanLiterals();
 	protected ScanLiteralFactory scanLiteralFactory = new ScanLiteralFactory();
 	
 	@SuppressWarnings("unused")
@@ -84,11 +87,15 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 		this.table = CloudGraphConfig.getInstance().getTable(rootTypeQname);
 	}
 	
-    public ScanLiterals getResult() {    	
-		return this.scanLiterals;
+    public ScanLiterals getPartialKeyScanResult() {    	
+		return this.partialKeyScanLiterals;
 	}
     
-	/**
+    public ScanLiterals getFuzzyKeyScanResult() {    	
+		return this.fuzzyKeyScanLiterals;
+	}
+
+    /**
      * Assemble the set of data "flavor" and data type specific
      * scan literals used to construct composite partial row 
      * (start/stop) key pair. 
@@ -145,14 +152,6 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
         super.start(property);
     }     
 
-	public void start(WildcardOperator operator) {
-		switch (operator.getValue()) {
-		default:
-			throw new GraphServiceException("unsupported operator '"
-					+ operator.getValue().toString() + "'");
-		}
-	}	
-	
     /**
      * Process the traversal start event for a query {@link org.plasma.query.model.Literal literal}
      * within an {@link org.plasma.query.model.Expression expression}.
@@ -176,17 +175,38 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 		if (fieldConfig != null) 
 		{
 			PlasmaProperty property = (PlasmaProperty)fieldConfig.getEndpointProperty();
-			ScanLiteral scanLiteral = this.scanLiteralFactory.createLiteral(
+			ScanLiteral scanLiteral = null;
+			if (this.contextRelationalOperator != null) {
+			    scanLiteral = this.scanLiteralFactory.createLiteral(
 					content, property, 
 					this.rootType, 
 					this.contextRelationalOperator, 
-					this.contextLogicalOperator, 
 					fieldConfig);
-			this.scanLiterals.addLiteral(scanLiteral);
+			    // partial scan does not accommodate 'not equals' as it scans for
+			    // contiguous set of row keys
+				if (this.contextRelationalOperator.getValue().ordinal() !=
+						RelationalOperatorValues.NOT_EQUALS.ordinal())
+				    this.partialKeyScanLiterals.addLiteral(scanLiteral);
+				// fuzzy only does 'equals' and wildcards
+				if (this.contextRelationalOperator.getValue().ordinal() ==
+						RelationalOperatorValues.EQUALS.ordinal())
+				    this.fuzzyKeyScanLiterals.addLiteral(scanLiteral);
+			}
+			else if (this.contextWildcardOperator != null) {
+			    scanLiteral = this.scanLiteralFactory.createLiteral(
+					content, property, 
+					this.rootType, 
+					this.contextWildcardOperator, 
+					fieldConfig);
+				this.fuzzyKeyScanLiterals.addLiteral(scanLiteral);
+			}
+			else
+		        throw new GraphServiceException("expected relational or wildcard operator for query path '"
+			    	+ this.contextPropertyPath + "'");				
 		}
 		else
-	        throw new GraphServiceException("no user defined row-key field for query path '"
-			    	+ this.contextPropertyPath + "'");
+	        log.warn("no user defined row-key field for query path '"
+			    	+ this.contextPropertyPath + "' - deferring to graph recogniser post processor");
 		
 		super.start(literal);
 	}
@@ -213,6 +233,14 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 		}
 		super.start(operator);
 	}
+	
+	public void start(WildcardOperator operator) {
+		switch (operator.getValue()) {
+		default:
+			this.contextRelationalOperator = null;
+			this.contextWildcardOperator = operator;
+		}
+	}		
     
 	public void start(RelationalOperator operator) {
 		switch (operator.getValue()) {
@@ -223,6 +251,7 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 		case LESS_THAN:
 		case LESS_THAN_EQUALS:
 			this.contextRelationalOperator = operator;
+			this.contextWildcardOperator = null;
 			break;
 		default:
 			throw new GraphServiceException("unknown relational operator '"

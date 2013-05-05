@@ -107,7 +107,7 @@ public class KeySupport {
 	 * @return the token value
 	 */
     public String getPredefinedFieldValue(
-			PlasmaType type, Hash hash, 
+			PlasmaType type, Hashing hashing, 
 			PreDefinedKeyFieldConfig token) {
 		String result = null;
 		switch (token.getName()) {
@@ -132,31 +132,26 @@ public class KeySupport {
 		}
 		
 		if (token.isHash()) {
-			int hashValue = hash.hash(result.getBytes());
-			result = String.valueOf(hashValue);
+			result = hashing.toString(result);
 		}
 		
 		return result;
 	}
     
     public byte[] getPredefinedFieldValueStartBytes(
-			PlasmaType type, Hash hash, 
+			PlasmaType type, Hashing hashing, 
 			PreDefinedKeyFieldConfig token) {
-    	return getPredefinedFieldValueBytes(type, hash, token);
+    	return getPredefinedFieldValueBytes(type, hashing, token);
     }
     
     public byte[] getPredefinedFieldValueStopBytes(
-			PlasmaType type, Hash hash, 
+			PlasmaType type, Hashing hashing, 
 			PreDefinedKeyFieldConfig token) {
 		byte[] result = null;
 		switch (token.getName()) {
 		case URI: 
 			if (token.isHash()) {
-				int hashValue = hash.hash(type.getURIBytes());
-				hashValue++;
-				// convert integer hash values to string-bytes so readable
-				// in third party tools			
-				result = Bytes.toBytes(String.valueOf(hashValue));
+				result = hashing.toStringBytes(type.getURIBytes(), 1);
 			}
 			else {
 				String stringResult = type.getURI();
@@ -175,11 +170,7 @@ public class KeySupport {
 					    		+ ", defined - using logical name");
 					nameBytes = type.getNameBytes();
 				}
-				int hashValue = hash.hash(nameBytes);
-				hashValue++;
-				// convert integer hash values to string-bytes so readable
-				// in third party tools			
-				result = Bytes.toBytes(String.valueOf(hashValue));
+				result = hashing.toStringBytes(nameBytes, 1);
 			}
 			else {
 				String nameString = type.getPhysicalName();
@@ -203,7 +194,7 @@ public class KeySupport {
     }
 
     public byte[] getPredefinedFieldValueBytes(
-			PlasmaType type, Hash hash, 
+			PlasmaType type, Hashing hashing, 
 			PreDefinedKeyFieldConfig token) {
 		byte[] result = null;
 		switch (token.getName()) {
@@ -228,10 +219,7 @@ public class KeySupport {
 		}
 		
 		if (token.isHash()) {
-			int hashValue = hash.hash(result);
-			// convert integer hash values to string-bytes so readable
-			// in third party tools			
-			result = Bytes.toBytes(String.valueOf(hashValue));
+			result = hashing.toStringBytes(result);
 		}
 		
 		return result;

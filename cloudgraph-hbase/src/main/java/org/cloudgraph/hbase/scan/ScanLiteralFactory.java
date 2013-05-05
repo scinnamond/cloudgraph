@@ -22,8 +22,8 @@
 package org.cloudgraph.hbase.scan;
 
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
-import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.RelationalOperator;
+import org.plasma.query.model.WildcardOperator;
 import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -31,8 +31,7 @@ import org.plasma.sdo.PlasmaType;
 /**
  * Simple factory constructing data "flavor" and data type 
  * specific scan literals given various configuration specific
- * as well as predicate context specific relational and 
- * logical operators.
+ * as well as predicate context specific relational operators.
  * 
  * @see ScanLiteral
  * @author Scott Cinnamond
@@ -49,7 +48,6 @@ public class ScanLiteralFactory {
 	 * @param property the context property
 	 * @param rootType the graph root type
 	 * @param relationalOperator the context relational operator 
-	 * @param logicalOperator the context logical operator
 	 * @param fieldConfig the row-key field configuration
 	 * @return the data "flavor" and data type 
      * specific scan literal given various configuration specific
@@ -59,7 +57,7 @@ public class ScanLiteralFactory {
 	public ScanLiteral createLiteral(String content,
 			PlasmaProperty property, PlasmaType rootType,
 			RelationalOperator relationalOperator,
-			LogicalOperator logicalOperator, UserDefinedRowKeyFieldConfig fieldConfig) {
+			UserDefinedRowKeyFieldConfig fieldConfig) {
 
 		ScanLiteral result = null;
 		DataType dataType = DataType.valueOf(property.getType().getName());
@@ -67,15 +65,15 @@ public class ScanLiteralFactory {
 		switch (property.getDataFlavor()) {
 		case integral:
 			result = new IntegralLiteral(content, rootType, relationalOperator,
-					logicalOperator, fieldConfig);
+					fieldConfig);
 			break;
 		case string:
 			result = new StringLiteral(content, rootType, relationalOperator,
-					logicalOperator, fieldConfig);
+					fieldConfig);
 			break;
 		case real:
 			result = new RealLiteral(content, rootType, relationalOperator,
-					logicalOperator, fieldConfig);
+					fieldConfig);
 			break;
 		case temporal:
 			switch (dataType) {
@@ -83,12 +81,50 @@ public class ScanLiteralFactory {
 			case DateTime:
 			default:	
 				result = new TemporalLiteral(content, rootType, relationalOperator,
-						logicalOperator, fieldConfig);
+					fieldConfig);
 			}
 			break;
 		case other:
-			throw new RuntimeException("data flavor not supported, '"
-					+ property.getDataFlavor() + "'");
+			throw new ScanException("data flavor '"+property.getDataFlavor()+"' not supported for relational operator, '"
+					+ relationalOperator.getValue() + "'");
+		}
+		return result;
+	}
+	
+	/**
+	 * Creates and returns a data "flavor" and data type 
+     * specific scan literal given various configuration specific
+     * as well as predicate context specific wildcard and 
+     * logical operators.
+	 * @param content the literal string content
+	 * @param property the context property
+	 * @param rootType the graph root type
+	 * @param wildcardOperator the context wildcard operator 
+	 * @param fieldConfig the row-key field configuration
+	 * @return the data "flavor" and data type 
+     * specific scan literal given various configuration specific
+     * as well as predicate context specific relational and 
+     * logical operators.
+	 */
+	public ScanLiteral createLiteral(String content,
+			PlasmaProperty property, PlasmaType rootType,
+			WildcardOperator wildcardOperator,
+			UserDefinedRowKeyFieldConfig fieldConfig) {
+
+		ScanLiteral result = null;
+		DataType dataType = DataType.valueOf(property.getType().getName());
+
+		switch (property.getDataFlavor()) {
+		case string:
+			result = new WildcardStringLiteral(content, rootType, wildcardOperator,
+				fieldConfig);
+			break;
+		case integral:
+		case real:
+		case temporal:
+		case other:
+			throw new ScanException("data flavor '"+property.getDataFlavor()+"' not supported for wildcard operator, '"
+					+ wildcardOperator.getValue() + "'");
 		}
 		return result;
 	}

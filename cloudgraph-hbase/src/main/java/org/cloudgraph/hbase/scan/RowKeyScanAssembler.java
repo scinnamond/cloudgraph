@@ -31,7 +31,7 @@ import org.plasma.sdo.PlasmaType;
  * @author Scott Cinnamond
  * @since 0.5
  */
-public interface RowKeyScanAssembler extends PartialRowKeyScan {
+public interface RowKeyScanAssembler {
     /**
      * Assemble row key scan information based on one or more
      * given query predicates.

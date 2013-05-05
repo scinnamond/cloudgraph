@@ -27,7 +27,7 @@ import junit.framework.Test;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.hbase.SocialGraphModelTest;
+import org.cloudgraph.hbase.test.SocialGraphModelTest;
 import org.cloudgraph.test.socialgraph.actor.Actor;
 import org.cloudgraph.test.socialgraph.story.Blog;
 import org.cloudgraph.test.socialgraph.actor.Friendship;
@@ -55,7 +55,7 @@ public class SocialGraphNonFederatedTest extends SocialGraphModelTest
         super.setUp();
     } 
     
-    public void testFederatedInsert() throws IOException       
+    public void testNonFederatedInsert() throws IOException       
     {
     	GraphInfo info = createGraph();
     	
