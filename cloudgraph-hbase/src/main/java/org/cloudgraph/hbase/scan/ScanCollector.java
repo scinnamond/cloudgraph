@@ -46,7 +46,8 @@ import org.plasma.sdo.PlasmaType;
  * Collector visitor which supports the "recognition" of one or more 
  * {@link PartialRowKeyScan partial}, {@link FuzzyRowKeyScan fuzzy} and other
  * scan constructs within the context of a binary 
- * {@link Expr expression} syntax tree. 
+ * {@link Expr expression} syntax tree encapsulating operator precedence
+ * and other factors. 
  * <p>
  * Composite row key scans represent only {@link org.cloudgraph.hbase.expr.LogicalBinaryExpr logical binary} 'AND'
  * expressions across the key fields. So
@@ -67,6 +68,7 @@ import org.plasma.sdo.PlasmaType;
  * @see org.cloudgraph.config.DataGraphConfig 
  * @see org.cloudgraph.hbase.expr.LogicalBinaryExpr 
  * @see org.cloudgraph.hbase.expr.RelationalBinaryExpr 
+ * @see org.cloudgraph.hbase.expr.WildcardBinaryExpr 
  */
 public class ScanCollector implements ExprVisitor {
 

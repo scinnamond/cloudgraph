@@ -53,7 +53,6 @@ import org.plasma.query.model.WildcardOperatorValues;
 import org.plasma.query.model.WildcardPathElement;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.access.DataAccessException;
 import org.xml.sax.SAXException;
 
 /**
@@ -188,14 +187,21 @@ public abstract class DefaultBinaryExprTreeAssembler extends ExpresionVisitorSup
 	 * @param expression the expression
 	 */
 	private void assemble(Expression expression) {
+		
+		if (expression.getTerms().size() > 3) {
+		    int foo = 0;  
+		    foo++;
+		}
+		
     	for (int i = 0; i < expression.getTerms().size(); i++) {
     		Term term = expression.getTerms().get(i);
-			consume(term);
+			consume(term);			
     	} // for
+    	
     	Expr expr = assemble();
     	exprMap.put(expression, expr);
     	if (log.isDebugEnabled())
-    		log.debug("mapped: " + expr);    	
+    		log.debug("mapped: " + expr); 
 	}
 	
 	/**
@@ -308,6 +314,9 @@ public abstract class DefaultBinaryExprTreeAssembler extends ExpresionVisitorSup
 			    	log.debug("comparing " + existing + " and " + oper);
 				if (existing.compareTo(oper) <= 0) {
 					Expr expr = assemble();
+				    this.operators.push(oper);
+			        if (log.isDebugEnabled())
+			    	    log.debug("pushed " + oper);
 				    this.operands.push(expr);
 				    if (log.isDebugEnabled())
 				    	log.debug("pushed expr node: " + expr);

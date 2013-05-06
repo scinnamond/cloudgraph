@@ -22,6 +22,7 @@
 package org.cloudgraph.hbase.expr;
 
 import java.util.HashSet;
+
 import org.plasma.query.Term;
 import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.PathElement;

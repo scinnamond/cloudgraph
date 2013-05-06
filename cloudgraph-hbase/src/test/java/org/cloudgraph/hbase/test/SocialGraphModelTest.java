@@ -304,8 +304,8 @@ public abstract class SocialGraphModelTest extends HBaseTestCase {
     }
     
     protected QActor createTopicScanQuery(String name1,
-    		String name2,
-    		Topic topic) {
+    		String name2, String name3,
+    		Topic topic1, Topic topic2) {
     	QActor root = QActor.newQuery();
     	root.select(root.wildcard())
     	    .select(root.sourceEdge().wildcard())
@@ -318,10 +318,11 @@ public abstract class SocialGraphModelTest extends HBaseTestCase {
     	    .select(root.photo().wildcard());
         
     	root.where(root.name().like(name1.substring(0, 21) + "*")
-    		.or(root.name().like(name2.substring(0, 21) + "*"))
-    		//.or(root.name().eq(name1))
-    		.and(root.blog().topic().name().eq(topic.getName())));
-    		 
+    		.or(root.name().eq(name2))
+    		.or(root.name().like(name3.substring(0, 21) + "*"))
+    		.and(root.blog().topic().name().eq(topic1.getName())
+    		.and(root.blog().topic().name().eq(topic2.getName())
+    	)));    		 
     	
     	return root;
     }

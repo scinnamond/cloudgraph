@@ -26,8 +26,6 @@ import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.Property;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.query.model.WildcardOperator;
-import org.plasma.sdo.PlasmaProperty;
-import org.plasma.sdo.PlasmaType;
 
 /**
  * A factory oriented interface used to create various 

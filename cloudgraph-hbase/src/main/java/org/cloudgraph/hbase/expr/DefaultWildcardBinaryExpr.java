@@ -21,14 +21,9 @@
  */
 package org.cloudgraph.hbase.expr;
 
-import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.Literal;
-import org.plasma.query.model.PathElement;
-import org.plasma.query.model.PathNode;
 import org.plasma.query.model.Property;
 import org.plasma.query.model.WildcardOperator;
-import org.plasma.query.model.WildcardPathElement;
-import org.plasma.sdo.PlasmaProperty;
 
 /**
  * Contains default functionality for 
