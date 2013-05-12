@@ -46,17 +46,17 @@ public class Padding {
     	this.space = (byte)Character.valueOf(' ').charValue();
     }
 
-    public final byte[] pad(byte[] value, int maxLength, 
-    		PlasmaProperty property) {
-    	int delta = maxLength - value.length;
-    	if (delta < 0)
-    		throw new KeyFieldOverflowException("value '" + new String(value, this.charset)
-    			+ "' for property, " + property.getContainingType().toString()
-    			+ "." + property.getName() + ", exceeded max length ("
-    			+ String.valueOf(maxLength) + ")");
-    	return pad(value, maxLength, property.getDataFlavor());
-    }
-    
+    /**
+     * Returns an array front padded with zeros or rear padded
+     * with spaces depending on the given data flavor.
+     * @param value the value
+     * @param maxLength the maximum length of the target key field
+     * @param dataFlavor the data flavor
+     * @return an array front padded with zeros or rear padded
+     * with spaces depending on the given data flavor.
+     * @throws KeyFieldOverflowException if the length of the given
+     * value exceeds the max length
+     */
     public final byte[] pad(byte[] value, int maxLength, 
     		DataFlavor dataFlavor) {
     	
@@ -72,7 +72,7 @@ public class Padding {
      	switch (dataFlavor) {
     	case integral:
     	case real: // front pad with zeros
-    		front(value, maxLength, space);
+    		result = front(value, maxLength, zero);
     		break;
     	case temporal:
     	case string:
@@ -103,17 +103,17 @@ public class Padding {
     	return result;
     }
     
-    public final String pad(String value, int maxLength, 
-    		PlasmaProperty property) {
-    	int delta = maxLength - value.length();
-    	if (delta < 0)
-    		throw new KeyFieldOverflowException("value '" + value
-    			+ "' for property, " + property.getContainingType().toString()
-    			+ "." + property.getName() + ", exceeded max length ("
-    			+ String.valueOf(maxLength) + ")");
-    	return pad(value, maxLength, property.getDataFlavor());
-    }
-    
+    /**
+     * Returns an array front padded with zeros or rear padded
+     * with spaces depending on the given data flavor.
+     * @param value the value
+     * @param maxLength the maximum length of the target key field
+     * @param dataFlavor the data flavor
+     * @return an array front padded with zeros or rear padded
+     * with spaces depending on the given data flavor.
+     * @throws KeyFieldOverflowException if the length of the given
+     * value exceeds the max length
+     */
     public final String pad(String value, int maxLength, 
     		DataFlavor dataFlavor) {
     	int len = value.length();

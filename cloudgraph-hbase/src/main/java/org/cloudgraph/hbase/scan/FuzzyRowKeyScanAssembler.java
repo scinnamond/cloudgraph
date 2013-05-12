@@ -46,6 +46,7 @@ import org.cloudgraph.hbase.key.Hashing;
 import org.cloudgraph.hbase.key.KeySupport;
 import org.cloudgraph.hbase.key.Padding;
 import org.plasma.query.model.Where;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaType;
 
 
@@ -182,10 +183,18 @@ public class FuzzyRowKeyScanAssembler
     		}
     		byte[] tokenValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
        	    		hashing, preDefinedField);
-    		tokenValue = this.padding.pad(tokenValue, preDefinedField.getMaxLength(), 
-    				preDefinedField.getDataFlavor());
     		
-    		this.keyBytes.put(tokenValue);
+       	    byte[] paddedTokenValue = null;
+       	    if (preDefinedField.isHash()) {
+       	    	paddedTokenValue = this.padding.pad(tokenValue, preDefinedField.getMaxLength(), 
+    				DataFlavor.integral);
+       	    }
+       	    else {
+       	    	paddedTokenValue = this.padding.pad(tokenValue, preDefinedField.getMaxLength(), 
+       	    			preDefinedField.getDataFlavor());
+       	    }
+    		
+    		this.keyBytes.put(paddedTokenValue);
 			byte[] tokenMask = new byte[tokenValue.length];
     	    for (int j = 0; j < tokenMask.length; j++)
     	    	tokenMask[j] = fixedMaskByte;
@@ -206,10 +215,20 @@ public class FuzzyRowKeyScanAssembler
     		if (fieldConfig instanceof PreDefinedKeyFieldConfig) {
     			PreDefinedKeyFieldConfig predefinedConfig = (PreDefinedKeyFieldConfig)fieldConfig;        		
         		byte[] tokenValue = getPredefinedToken(predefinedConfig);
-        		tokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
-        				predefinedConfig.getDataFlavor());
-           	    this.keyBytes.put(tokenValue);
-    			byte[] tokenMask = new byte[tokenValue.length];
+        		
+           	    byte[] paddedTokenValue = null;
+           	    if (predefinedConfig.isHash()) {
+           	    	paddedTokenValue = this.padding.pad(tokenValue, 
+           	    		predefinedConfig.getMaxLength(), 
+        				DataFlavor.integral);
+           	    }
+           	    else {
+           	    	paddedTokenValue = this.padding.pad(tokenValue, 
+           	    		predefinedConfig.getMaxLength(), 
+           	    		predefinedConfig.getDataFlavor());
+           	    }
+           	    this.keyBytes.put(paddedTokenValue);
+    			byte[] tokenMask = new byte[paddedTokenValue.length];
         	    for (int i = 0; i < tokenMask.length; i++)
         	    	tokenMask[i] = fixedMaskByte;
     			this.infoBytes.put(tokenMask);

@@ -267,13 +267,12 @@ public class GraphQuery
         if (log.isDebugEnabled())
         	log(query);
         Where where = query.findWhereClause();
-        List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();
         PropertySelectionCollector selectionCollector = new PropertySelectionCollector(
             query.getSelectClause(), type);
         selectionCollector.setOnlyDeclaredProperties(false);
         selectionCollector.getResult(); // trigger the traversal
-        if (query.getWhereClause() != null)
-        	selectionCollector.collect(query.getWhereClause());
+        if (where != null)
+        	selectionCollector.collect(where);
         for (Type t : selectionCollector.getTypes()) 
         	collectRowKeyProperties(selectionCollector, (PlasmaType)t);        
         //if (log.isDebugEnabled())
@@ -300,36 +299,76 @@ public class GraphQuery
         HBaseGraphAssembler graphAssembler = createGraphAssembler(
         	type, graphReader, selectionCollector, snapshotDate);
         
-        GraphRecognizerSyntaxTreeAssembler recognizerAssembler = new GraphRecognizerSyntaxTreeAssembler(
-        		where, type);
-        Expr graphRecognizerRootExpr = recognizerAssembler.getResult();
-        ExprPrinter printer = new ExprPrinter();
-        graphRecognizerRootExpr.accept(printer);
-        if (log.isDebugEnabled())
-            log.debug("Graph Recognizer: " + printer.toString());
-        ScanCollector scanCollector = new ScanCollector(type);
-        graphRecognizerRootExpr.accept(scanCollector);
+        List<PartialRowKeyScan> partialScans = new ArrayList<PartialRowKeyScan>();
+        List<FuzzyRowKeyScan> fuzzyScans = new ArrayList<FuzzyRowKeyScan>();
+        Expr graphRecognizerRootExpr = null;
+        if (where != null) {
+	        GraphRecognizerSyntaxTreeAssembler recognizerAssembler = new GraphRecognizerSyntaxTreeAssembler(
+	        		where, type);
+	        graphRecognizerRootExpr = recognizerAssembler.getResult();
+	        ExprPrinter printer = new ExprPrinter();
+	        graphRecognizerRootExpr.accept(printer);
+	        if (log.isDebugEnabled())
+	            log.debug("Graph Recognizer: " + printer.toString());
+	        ScanCollector scanCollector = new ScanCollector(type);
+	        graphRecognizerRootExpr.accept(scanCollector);
+	        partialScans = scanCollector.getPartialRowKeyScans();
+	        fuzzyScans = scanCollector.getFuzzyRowKeyScans();
+        }        
+        
+        if (where == null || (partialScans.size() == 0 && fuzzyScans.size() == 0)) {
+    		PartialRowKeyScanAssembler scanAssembler = new PartialRowKeyScanAssembler(type);
+    		scanAssembler.assemble();
+    		byte[] startKey = scanAssembler.getStartKey();
+    		if (startKey != null && startKey.length > 0) {
+                log.warn("no root predicate present - using default graph partial "
+                		+ "key scan - could result in very large results set");
+        		partialScans.add(scanAssembler);
+    		}
+    		else
+    	        log.warn("no root predicate present and no pre-defined row key fields found "
+    	            + "configured for table / data-graph - using full table scan - " 
+    	            + "could result in very large results set");
+        }
                 
         // execute scans
+        List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();
         try {
         	long before = System.currentTimeMillis();
         	int count = 0;
-        	for (PartialRowKeyScan scan : scanCollector.getPartialRowKeyScans()) {
-        		List<PlasmaDataGraph> list = execute(scan, 
-        		    rootTableReader, columnFilter,
-        		    graphAssembler, 
-        		    graphRecognizerRootExpr);
-        		result.addAll(list);
+        	if (partialScans.size() > 0 || fuzzyScans.size() > 0) {
+	        	for (PartialRowKeyScan scan : partialScans) {
+	        		List<PlasmaDataGraph> list = execute(scan, 
+	        		    rootTableReader, columnFilter,
+	        		    graphAssembler, 
+	        		    graphRecognizerRootExpr);
+	        		result.addAll(list);
+		            count += list.size();
+	        	} // scan
+	        	for (FuzzyRowKeyScan scan : fuzzyScans) {
+	        		List<PlasmaDataGraph> list = execute(scan, 
+	        		    rootTableReader, columnFilter, 
+	        		    graphAssembler, 
+	        		    graphRecognizerRootExpr);
+	        		result.addAll(list);
+		            count += list.size();
+	        	} // scan
+        	}
+        	else {
+    	        log.warn("no root predicate present and no pre-defined row key fields found "
+        	            + "configured for table / data-graph - using full table scan - " 
+        	            + "could result in very large results set");
+	            FilterList rootFilter = new FilterList(
+	        			FilterList.Operator.MUST_PASS_ALL);
+	            rootFilter.addFilter(columnFilter);
+	            Scan scan = new Scan();
+	            scan.setFilter(rootFilter);        
+	            List<PlasmaDataGraph> list = execute(scan, 
+	      	  			rootTableReader, graphAssembler, 
+	      	    		graphRecognizerRootExpr);
+	    		result.addAll(list);
 	            count += list.size();
-        	} // scan
-        	for (FuzzyRowKeyScan scan : scanCollector.getFuzzyRowKeyScans()) {
-        		List<PlasmaDataGraph> list = execute(scan, 
-        		    rootTableReader, columnFilter, 
-        		    graphAssembler, 
-        		    graphRecognizerRootExpr);
-        		result.addAll(list);
-	            count += list.size();
-        	} // scan
+        	}        	
             
             long after = System.currentTimeMillis();
             log.info("assembled " + String.valueOf(count) + " results ("
@@ -354,6 +393,7 @@ public class GraphQuery
         }
         return result;
     }
+    
 
     private List<PlasmaDataGraph> execute(PartialRowKeyScan partialScan, 
     		TableReader rootTableReader,
@@ -372,7 +412,7 @@ public class GraphQuery
 			log.debug("using partial row key scan: (" 
   		        + "start: '" + Bytes.toString(scan.getStartRow())
   		        + "' stop: '" + Bytes.toString(scan.getStopRow()) + "')");	
-  		return execute(scan, rootFilter, 
+  		return execute(scan, 
   			rootTableReader, graphAssembler, 
     		graphRecognizerRootExpr);
     }
@@ -393,13 +433,13 @@ public class GraphQuery
         if (log.isDebugEnabled() ) 
         	log.debug("using fuzzy scan: " 
                 + FilterUtil.printFilterTree(fuzzyFilter));
-  		return execute(scan, rootFilter, 
+  		return execute(scan,   
   			rootTableReader, graphAssembler, 
     		graphRecognizerRootExpr);
     }
     
     private List<PlasmaDataGraph> execute(Scan scan, 
-    		FilterList rootFilter, TableReader rootTableReader,
+    		TableReader rootTableReader,
     		HBaseGraphAssembler graphAssembler, 
     		Expr graphRecognizerRootExpr) throws IOException {
     	
@@ -430,16 +470,17 @@ public class GraphQuery
             graphAssembler.clear();
         	
         	// FIXME: need to determine cases where a graph recognizer is
-        	// NOT needed based on completeness of partial or fuzzy
-        	// scan(s)
-        	GraphRecognizerContext recognizerContext = new GraphRecognizerContext();
-        	recognizerContext.setGraph(assembledGraph);
-        	if (!graphRecognizerRootExpr.evaluate(recognizerContext)) {
-        		if (log.isDebugEnabled())
-        			log.debug("recognizer excluded: " + Bytes.toString(
-        					resultRow.getRow()));
-        		continue;
-        	}
+        	// NOT needed based on completeness of partial or fuzzy scan(s)
+            if (graphRecognizerRootExpr != null) {
+	        	GraphRecognizerContext recognizerContext = new GraphRecognizerContext();
+	        	recognizerContext.setGraph(assembledGraph);
+	        	if (!graphRecognizerRootExpr.evaluate(recognizerContext)) {
+	        		if (log.isDebugEnabled())
+	        			log.debug("recognizer excluded: " + Bytes.toString(
+	        					resultRow.getRow()));
+	        		continue;
+	        	}
+            }
         	result.add(assembledGraph);
         }
         if (log.isDebugEnabled())

@@ -28,6 +28,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.key.GraphRowKeyFactory;
+import org.cloudgraph.common.key.KeyFieldOverflowException;
 import org.cloudgraph.common.key.KeyValue;
 import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;
@@ -146,34 +147,34 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 		
 		this.buf.clear();
 		
-		byte[] keyValue = null;
 		int i = 0;
 		for (KeyFieldConfig fieldConfig : this.graph.getRowKeyFields()) {
     		if (i > 0)
         	    this.buf.put(graph.getRowKeyFieldDelimiterBytes());
 			
-    		keyValue = fieldConfig.getKeyBytes(rootDataObject);
-			if (fieldConfig.isHash()) {
+    		byte[] keyValue = fieldConfig.getKeyBytes(rootDataObject);
+    		byte[] paddedKeyValue = null;
+    		if (fieldConfig.isHash()) {
 				keyValue = this.hashing.toStringBytes(keyValue);
-				keyValue = padding.pad(keyValue, 
+				paddedKeyValue = padding.pad(keyValue, 
 						fieldConfig.getMaxLength(), 
 						DataFlavor.integral);			
 			}
 			else {
 				if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
 					UserDefinedRowKeyFieldConfig userField = (UserDefinedRowKeyFieldConfig)fieldConfig;
-					keyValue = padding.pad(keyValue, 
-						userField.getMaxLength(), 
-	    				userField.getEndpointProperty());			
+				    paddedKeyValue = padding.pad(keyValue, 
+						    userField.getMaxLength(), 
+	    				    userField.getEndpointProperty().getDataFlavor());
 				}
 				else {
-					keyValue = padding.pad(keyValue, 
+					paddedKeyValue = padding.pad(keyValue, 
 						fieldConfig.getMaxLength(), 
 						fieldConfig.getDataFlavor());			
 				}
 			}
-	       	
-		    this.buf.put(keyValue);
+			
+		    this.buf.put(paddedKeyValue);
 				
 			i++;
 		}
@@ -189,6 +190,7 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 		return result;
 	}
 	
+	@Override
 	public byte[] createRowKeyBytes(List<KeyValue> values) {
 		this.buf.clear();
 		
@@ -197,11 +199,12 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 		for (KeyFieldConfig fieldConfig : this.graph.getRowKeyFields()) {
     		if (i > 0)
         	    this.buf.put(graph.getRowKeyFieldDelimiterBytes());
+
     		if (fieldConfig instanceof PreDefinedKeyFieldConfig) {
     			PreDefinedKeyFieldConfig predefinedConfig = (PreDefinedKeyFieldConfig)fieldConfig;
     			fieldValue = predefinedConfig.getKeyBytes(this.rootType);
     		}
-    		else if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
+    		else {
     			UserDefinedRowKeyFieldConfig userFieldConfig = (UserDefinedRowKeyFieldConfig)fieldConfig;
     			KeyValue keyValue = this.keySupport.findKeyValue(userFieldConfig, values);
     			
@@ -216,27 +219,28 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
     			}
     		}
     		
+    		byte[] paddedKeyValue = null;
 			if (fieldConfig.isHash()) {
 				fieldValue = this.hashing.toStringBytes(fieldValue);
-				fieldValue = padding.pad(fieldValue, 
+				paddedKeyValue = padding.pad(fieldValue, 
 						fieldConfig.getMaxLength(), 
 						DataFlavor.integral);			
 			}
 			else {
 				if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
 					UserDefinedRowKeyFieldConfig userField = (UserDefinedRowKeyFieldConfig)fieldConfig;
-					fieldValue = padding.pad(fieldValue, 
+					paddedKeyValue = padding.pad(fieldValue, 
 						userField.getMaxLength(), 
-	    				userField.getEndpointProperty());			
+	    				userField.getEndpointProperty().getDataFlavor());			
 				}
 				else {
-					fieldValue = padding.pad(fieldValue, 
+					paddedKeyValue = padding.pad(fieldValue, 
 						fieldConfig.getMaxLength(), 
 						fieldConfig.getDataFlavor());			
 				}
 			}
 			
-       	    this.buf.put(fieldValue);
+       	    this.buf.put(paddedKeyValue);
 			i++;
 		}	
 		

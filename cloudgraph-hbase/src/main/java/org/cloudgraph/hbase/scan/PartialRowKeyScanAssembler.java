@@ -181,10 +181,17 @@ public class PartialRowKeyScanAssembler
     		
     		byte[] startValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
        	    		hashing, preDefinedField);
-    		startValue = this.padding.pad(startValue, preDefinedField.getMaxLength(), 
-    				preDefinedField.getDataFlavor());
+       	    byte[] paddedStartValue = null;
+       	    if (preDefinedField.isHash()) {
+       	    	paddedStartValue = this.padding.pad(startValue, preDefinedField.getMaxLength(), 
+    				DataFlavor.integral);
+       	    }
+       	    else {
+       	    	paddedStartValue = this.padding.pad(startValue, preDefinedField.getMaxLength(), 
+       	    			preDefinedField.getDataFlavor());
+       	    }
     		
-    		this.startKey.put(startValue);
+    		this.startKey.put(paddedStartValue);
        	    startRowFieldCount++;
        	    
        	    byte[] stopValue = null;
@@ -197,11 +204,17 @@ public class PartialRowKeyScanAssembler
     		    		hashing, preDefinedField);
        	    }
        	    
-       	    // FIXME: padding needs to be conditional based on
-       	    // field hashing hashing
-       	    stopValue = this.padding.pad(stopValue, preDefinedField.getMaxLength(), 
-    				preDefinedField.getDataFlavor());
-    		this.stopKey.put(stopValue);
+       	    byte[] paddedStopValue = null;
+       	    if (preDefinedField.isHash()) {
+       	    	paddedStopValue = this.padding.pad(stopValue, preDefinedField.getMaxLength(), 
+    				DataFlavor.integral);
+       	    }
+       	    else {
+       	    	paddedStopValue = this.padding.pad(stopValue, preDefinedField.getMaxLength(), 
+       	    			preDefinedField.getDataFlavor());
+       	    }
+       	    
+       	    this.stopKey.put(paddedStopValue);
        	    stopRowFieldCount++;
         }				
 	}
@@ -227,14 +240,14 @@ public class PartialRowKeyScanAssembler
         		}        		
         		//FIXME: if predefined field is last, need stop bytes
         		
-        		
+        		byte[] paddedTokenValue = null;
         		if (fieldConfig.isHash()) {
         			tokenValue = hashing.toStringBytes(tokenValue);
-            		tokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
+            		paddedTokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
             				DataFlavor.integral);
     			} 
         		else {
-            		tokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
+        			paddedTokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
             				predefinedConfig.getDataFlavor());
         		}
         		
@@ -243,8 +256,8 @@ public class PartialRowKeyScanAssembler
         		if (stopRowFieldCount > 0) 
             	    this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());
     			
-           	    this.startKey.put(tokenValue);
-           	    this.stopKey.put(tokenValue);
+           	    this.startKey.put(paddedTokenValue);
+           	    this.stopKey.put(paddedTokenValue);
            	    this.startRowFieldCount++;
            	    this.stopRowFieldCount++;
     		}

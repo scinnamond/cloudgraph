@@ -126,7 +126,7 @@ public class UserDefinedRowKeyFieldConfig extends KeyFieldConfig {
 			DataType dataType, DataFlavor flavor) {
 		if (prop.getValueConstraint() == null)
 			throw new MissingRequiredConstraintException("expected value contraint for property, "
-				+ prop.getContainingType().toString() + "." + prop.getName() + " - row key fields are fixed length and properties used in row key fields must be annotated with a value constraint and the max-length or total-digits set");
+				+ prop.getContainingType().toString() + "." + prop.getName() + " - row key fields are fixed length and real properties used in row key fields must be annotated with a value constraint and the total-digits set");
 		ValueConstraint constraint = prop.getValueConstraint();
 		if (constraint.getTotalDigits() == null || constraint.getTotalDigits().length() == 0)
 			throw new MissingRequiredConstraintException("expected value contraint total-digits for real property, "
@@ -142,7 +142,7 @@ public class UserDefinedRowKeyFieldConfig extends KeyFieldConfig {
 			DataType dataType, DataFlavor flavor) {
 		if (prop.getValueConstraint() == null)
 			throw new MissingRequiredConstraintException("expected value contraint for string property, "
-				+ prop.getContainingType().toString() + "." + prop.getName() + " - row key fields are fixed length and string properties used in row key fields must be annotated with a value constraint and the max-length or total-digits set");
+				+ prop.getContainingType().toString() + "." + prop.getName() + " - row key fields are fixed length and string properties used in row key fields must be annotated with a value constraint and the max-length set");
 		ValueConstraint constraint = prop.getValueConstraint();
 		if (constraint.getMaxLength() == null || constraint.getMaxLength().length() == 0)
 			throw new MissingRequiredConstraintException("expected value contraint max-length for string property, "
@@ -159,7 +159,7 @@ public class UserDefinedRowKeyFieldConfig extends KeyFieldConfig {
 			DataType dataType, DataFlavor flavor) {
 		int result = 0;
 		
-		if (prop.getValueConstraint() != null && prop.getValueConstraint().getTotalDigits().length() > 0) {
+		if (prop.getValueConstraint() != null && prop.getValueConstraint().getTotalDigits() != null && prop.getValueConstraint().getTotalDigits().length() > 0) {
 			result = Integer.parseInt(prop.getValueConstraint().getTotalDigits());
 			if (result == 0) {
 				log.warn("expected value contraint with non-zero total-digits for integral property, "
