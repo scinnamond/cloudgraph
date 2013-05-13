@@ -73,14 +73,14 @@ public abstract class SocialGraphModelTest extends HBaseTestCase {
     	
     	String name = USERNAME_BASE 
     		+ String.valueOf(System.currentTimeMillis())
-    		+ "_example.com";	
+    		+ "test.com";	
     	info.actor = createRootActor(name);
     	info.actor.setName(name);
     	info.actor.setDescription("I'm a guy who likes storms...");
     	
-    	String followerName = "follower" 
+    	String followerName = "fol" 
         		+ String.valueOf(System.currentTimeMillis())
-        		+ "_example.com";	
+        		+ "test.com";	
     	
     	info.friendship = (Friendship)info.actor.createTargetEdge(Friendship.class);
     	
@@ -137,7 +137,7 @@ public abstract class SocialGraphModelTest extends HBaseTestCase {
     	
     	String name = USERNAME_BASE 
     		+ String.valueOf(System.currentTimeMillis())
-    		+ "_example.com";	
+    		+ "_test.com";	
     	info.actor = createRootActor(name);
     	info.actor.setName(name);
     	info.actor.setDescription("I'm a guy who likes storms...");

@@ -39,6 +39,7 @@ import org.cloudgraph.hbase.expr.LogicalBinaryExpr;
 import org.cloudgraph.hbase.expr.RelationalBinaryExpr;
 import org.cloudgraph.hbase.expr.WildcardBinaryExpr;
 import org.plasma.query.model.LogicalOperatorValues;
+import org.plasma.query.model.RelationalOperatorValues;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
@@ -73,7 +74,8 @@ import org.plasma.sdo.PlasmaType;
 public class ScanCollector implements ExprVisitor {
 
     private static Log log = LogFactory.getLog(ScanCollector.class);
-    private List<Map<UserDefinedRowKeyFieldConfig, ScanLiteral>> literals = new ArrayList<Map<UserDefinedRowKeyFieldConfig, ScanLiteral>>();
+    private List<Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>>> literals = 
+    	new ArrayList<Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>>>();
     
 	private PlasmaType rootType;
 	private DataGraphConfig graph;
@@ -92,10 +94,12 @@ public class ScanCollector implements ExprVisitor {
 		if (partialKeyScans == null) {
 			partialKeyScans = new ArrayList<PartialRowKeyScan>(this.literals.size());
 			fuzzyKeyScans = new ArrayList<FuzzyRowKeyScan>(this.literals.size());
-			for (Map<UserDefinedRowKeyFieldConfig, ScanLiteral> existing : literals) {
+			for (Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> existing : literals) {
 				ScanLiterals literalColl = new ScanLiterals();
-				for (ScanLiteral literal : existing.values())
-					literalColl.addLiteral(literal);
+				for (List<ScanLiteral> literalList : existing.values()) {
+					for (ScanLiteral literal : literalList)
+					    literalColl.addLiteral(literal);
+				}
 				
 				if (literalColl.supportPartialRowKeyScan(this.graph)) {
 				    PartialRowKeyScanAssembler assembler = new PartialRowKeyScanAssembler(this.rootType);
@@ -198,35 +202,80 @@ public class ScanCollector implements ExprVisitor {
 			ScanLiteral scanLiteral)
 	{
 		if (this.literals.size() == 0) {
-			Map<UserDefinedRowKeyFieldConfig, ScanLiteral> map = new HashMap<UserDefinedRowKeyFieldConfig, ScanLiteral>();
-			map.put(fieldConfig, scanLiteral);
+			Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> map = new HashMap<UserDefinedRowKeyFieldConfig, List<ScanLiteral>>();
+			List<ScanLiteral> list = new ArrayList<ScanLiteral>(2);
+			list.add(scanLiteral);
+			map.put(fieldConfig, list);
 			this.literals.add(map);
 		}
 		else if (this.literals.size() > 0) {
 			boolean foundField = false;
 			
-			for (Map<UserDefinedRowKeyFieldConfig, ScanLiteral> existing : literals) {
+			for (Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> existingMap : literals) {
 				if (source == null || source.getOperator().getValue().ordinal() == LogicalOperatorValues.AND.ordinal()) {							
-					if (existing.get(fieldConfig) == null) {
-						existing.put(fieldConfig, scanLiteral);
+					List<ScanLiteral> list = existingMap.get(fieldConfig);
+					if (list == null) {
+						list = new ArrayList<ScanLiteral>();
+						list.add(scanLiteral);
+						existingMap.put(fieldConfig, list);
+					}
+					else if (list.size() == 1) {
+						ScanLiteral existingLiteral = list.get(0);
+						RelationalOperatorValues existingOperator = existingLiteral.getRelationalOperator().getValue();
+						switch (scanLiteral.getRelationalOperator().getValue()) {
+						case GREATER_THAN:
+						case GREATER_THAN_EQUALS:		
+							if (existingOperator.ordinal() != RelationalOperatorValues.LESS_THAN.ordinal() &&
+							    existingOperator.ordinal() != RelationalOperatorValues.LESS_THAN_EQUALS.ordinal())
+								throw new ImbalancedOperatorMappingException(  
+									   scanLiteral.getRelationalOperator().getValue(), 
+							           LogicalOperatorValues.AND,
+									   existingOperator, 
+									   fieldConfig);
+							list.add(scanLiteral);
+							break;
+						case LESS_THAN:
+						case LESS_THAN_EQUALS:
+							if (existingOperator.ordinal() != RelationalOperatorValues.GREATER_THAN.ordinal() &&
+						        existingOperator.ordinal() != RelationalOperatorValues.GREATER_THAN_EQUALS.ordinal())
+							throw new ImbalancedOperatorMappingException(  
+								   scanLiteral.getRelationalOperator().getValue(), 
+						           LogicalOperatorValues.AND,
+								   existingOperator, 
+								   fieldConfig);
+						list.add(scanLiteral);
+						break;
+						case EQUALS:
+						case NOT_EQUALS:							
+					    default:	
+							throw new IllegalOperatorMappingException("relational operator '" 
+							    + scanLiteral.getRelationalOperator().getValue() 
+							    + "' linked through logical operator '" 
+					            + LogicalOperatorValues.AND
+							    + "to row key field property, "
+							    + fieldConfig.getEndpointProperty().getContainingType().toString() 
+							    + "." + fieldConfig.getEndpointProperty().getName());
+						}				
 					}
 					else {
 						throw new IllegalOperatorMappingException("logical operator '" 
-					        + LogicalOperatorValues.AND + "' mapped multiple times "
+					        + LogicalOperatorValues.AND + "' mapped more than 2 times "
 					        + "to row key field property, "
 					        + fieldConfig.getEndpointProperty().getContainingType().toString() 
 					        + "." + fieldConfig.getEndpointProperty().getName());
 					}	
 				}
 				else if (source.getOperator().getValue().ordinal() == LogicalOperatorValues.OR.ordinal()) {
-					if (existing.get(fieldConfig) == null) {
+					List<ScanLiteral> list = existingMap.get(fieldConfig);
+					if (list == null) {
 						if (foundField)
 							throw new IllegalStateException("expected for key field mapped to scans "
 					        + "for row key field property, "
 					        + fieldConfig.getEndpointProperty().getContainingType().toString() 
 					        + "." + fieldConfig.getEndpointProperty().getName());
-
-						existing.put(fieldConfig, scanLiteral);
+						list = new ArrayList<ScanLiteral>();
+						list.add(scanLiteral);
+						existingMap.put(fieldConfig, list);
 					}
 					else {
 						foundField = true;
@@ -240,7 +289,7 @@ public class ScanCollector implements ExprVisitor {
 			
 			if (foundField) {
 			    // duplicate any map with new literal
-			    Map<UserDefinedRowKeyFieldConfig, ScanLiteral> next = newMap(literals.get(0),
+			    Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> next = newMap(literals.get(0),
 				    fieldConfig, scanLiteral);
 			    literals.add(next);
 			}
@@ -255,17 +304,19 @@ public class ScanCollector implements ExprVisitor {
 	 * @param scanLiteral the literal
 	 * @return the new map
 	 */
-	private Map<UserDefinedRowKeyFieldConfig, ScanLiteral> newMap(
-			Map<UserDefinedRowKeyFieldConfig, ScanLiteral> existing,
+	private Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> newMap(
+			Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> existing,
 			UserDefinedRowKeyFieldConfig fieldConfig,
 			ScanLiteral scanLiteral) {
-		Map<UserDefinedRowKeyFieldConfig, ScanLiteral> next = new HashMap<UserDefinedRowKeyFieldConfig, ScanLiteral>();
+		Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> next = new HashMap<UserDefinedRowKeyFieldConfig, List<ScanLiteral>>();
 		for (UserDefinedRowKeyFieldConfig config : existing.keySet()) {
-			if (!config.equals(fieldConfig)) {
+			if (!config.equals(fieldConfig)) {				
 				next.put(config, existing.get(config));
 			}
 			else {
-				next.put(fieldConfig, scanLiteral);
+				List<ScanLiteral> list = new ArrayList<ScanLiteral>(2);
+				list.add(scanLiteral);
+				next.put(fieldConfig, list);
 			}
 		}					
 		return next;

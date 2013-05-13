@@ -56,7 +56,7 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
     public void setUp() throws Exception {
         super.setUp();
     } 
-    
+     
     public void testEqual() throws IOException       
     {
         long id1 = System.currentTimeMillis();
@@ -124,7 +124,7 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
         logGraph(fetched[2].getDataGraph());
         
     } 
-     
+      
     public void testInclusive() throws IOException       
     {
         long id1 = System.currentTimeMillis();
@@ -155,7 +155,8 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
         logGraph(fetched[1].getDataGraph());
         logGraph(fetched[2].getDataGraph());
     }  
-    
+
+     
     public void testExclusive() throws IOException       
     {
         long id1 = System.currentTimeMillis();
@@ -184,7 +185,7 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
         assertTrue(fetched.length == 1);
         logGraph(fetched[0].getDataGraph());
     }    
-  
+   
     protected Node fetchSingleGraph(Float id, String name) {    	
     	QFloatNode root = createSelect(name);
     	root.where(root.floatField().eq(id));
