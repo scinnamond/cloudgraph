@@ -22,6 +22,8 @@
 package org.cloudgraph.hbase.service;
 
 // java imports
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -88,9 +90,12 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.QueryDispatcher;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
+import org.plasma.sdo.helper.PlasmaXMLHelper;
+import org.plasma.sdo.xml.DefaultOptions;
 import org.xml.sax.SAXException;
 
 import commonj.sdo.Type;
+import commonj.sdo.helper.XMLDocument;
 
 /**
  * Assembles and returns one or more {@link DataGraph data graphs} 
@@ -447,17 +452,17 @@ public class GraphQuery
         if (log.isDebugEnabled() ) 
             log.debug("executing scan...");
         
-        //if (log.isDebugEnabled() ) 
-        //	log.debug(FilterUtil.printFilterTree(rootFilter));
+        if (log.isDebugEnabled() ) 
+        	log.debug(FilterUtil.printFilterTree(scan.getFilter()));
         ResultScanner scanner = rootTableReader.getConnection().getScanner(scan);
         for (Result resultRow : scanner) {	     
-        	if (log.isTraceEnabled()) {
-      	        log.trace(rootTableReader.getTable().getName() + ": " + new String(resultRow.getRow()));              	  
-          	    //for (KeyValue keyValue : resultRow.list()) {
-          	    //	log.trace("\tkey: " 
-          	    //		+ new String(keyValue.getQualifier())
-          	    //	    + "\tvalue: " + new String(keyValue.getValue()));
-          	    //}
+        	if (log.isDebugEnabled()) {
+      	        log.debug(rootTableReader.getTable().getName() + ": " + new String(resultRow.getRow()));              	  
+          	    for (KeyValue keyValue : resultRow.list()) {
+          	    	log.debug("\tkey: " 
+          	    		+ new String(keyValue.getQualifier())
+          	    	    + "\tvalue: " + new String(keyValue.getValue()));
+          	    }
         	}
         	 
         	if (resultRow.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
@@ -478,6 +483,9 @@ public class GraphQuery
 	        		if (log.isDebugEnabled())
 	        			log.debug("recognizer excluded: " + Bytes.toString(
 	        					resultRow.getRow()));
+	        		if (log.isDebugEnabled())
+	        			log.debug(serializeGraph(assembledGraph));
+	        		
 	        		continue;
 	        	}
             }
@@ -679,6 +687,22 @@ public class GraphQuery
         log.debug("query: " + xml);
     }
 
+    protected String serializeGraph(commonj.sdo.DataGraph graph) throws IOException
+    {
+        DefaultOptions options = new DefaultOptions(
+        		graph.getRootObject().getType().getURI());
+        options.setRootNamespacePrefix("crackoo");
+        
+        XMLDocument doc = PlasmaXMLHelper.INSTANCE.createDocument(graph.getRootObject(), 
+        		graph.getRootObject().getType().getURI(), 
+        		null);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+	    PlasmaXMLHelper.INSTANCE.save(doc, os, options);        
+        os.flush();
+        os.close(); 
+        String xml = new String(os.toByteArray());
+        return xml;
+    }
 }
 
 

@@ -120,7 +120,7 @@ public abstract class DefaultAssembler {
 		uuidStr = new String(rootUuid, 
 				this.rootTableReader.getTable().getCharset());
 		UUID uuid = UUID.fromString(uuidStr);
-		rootNode.setValue(CoreConstants.PROPERTY_NAME_UUID, uuid);
+		rootObject.resetUUID(uuid);
 		return rootObject;
 	}
 	

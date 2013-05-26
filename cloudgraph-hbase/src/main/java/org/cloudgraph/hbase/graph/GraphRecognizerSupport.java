@@ -98,15 +98,17 @@ public class GraphRecognizerSupport {
             if (!endpointProp.getType().isDataType())
                 throw new GraphServiceException("expected datatype property for, "
                 	+ endpointProp);
-            if (endpointProp.isMany()) {
-        	    @SuppressWarnings("unchecked")
-				List<Object> list = targetObject.getList(endpointProp);
-        	    for (Object value : list)
-        	    	values.add(value);
-            }
-            else {
-            	Object value = targetObject.get(endpointProp);                	
-    	    	values.add(value);
+            if (targetObject.isSet(endpointProp)) {
+	            if (endpointProp.isMany()) {
+	        	    @SuppressWarnings("unchecked")
+					List<Object> list = targetObject.getList(endpointProp);
+	        	    for (Object value : list)
+	        	    	values.add(value);
+	            }
+	            else {
+	        	    Object value = targetObject.get(endpointProp);  
+	        	    values.add(value);
+	            }
             }
         }
 	}	
@@ -264,9 +266,14 @@ public class GraphRecognizerSupport {
 		RelationalOperatorValues operator,
 		String literalValue) 
 	{
+		try {
 		int comp = propertyValue.compareTo( 
 			literalValue);
 		return evaluate(operator, comp);
+		}
+		catch (NullPointerException e) {
+			throw e;
+		}
 	}
 
 	private boolean evaluate(String propertyValue,

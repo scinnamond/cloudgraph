@@ -209,9 +209,7 @@ public abstract class FederatedAssembler extends DefaultAssembler
 		        + edge.getUuid()+ ") type:  "
 		        + edgeType.toString());
 		PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop, edge.getType());								
-		CoreNode childDataNode = (CoreNode)child;
-		childDataNode.setValue(CoreConstants.PROPERTY_NAME_UUID, 
-			UUID.fromString(edge.getUuid()));
+		child.resetUUID(UUID.fromString(edge.getUuid()));
 		return child;		
 	}
 	

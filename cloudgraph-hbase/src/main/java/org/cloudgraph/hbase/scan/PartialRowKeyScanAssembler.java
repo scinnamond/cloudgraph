@@ -23,6 +23,7 @@ package org.cloudgraph.hbase.scan;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.namespace.QName;
@@ -168,10 +169,23 @@ public class PartialRowKeyScanAssembler
 	
 	private void assemblePredefinedFields()
 	{
-    	List<PreDefinedKeyFieldConfig> preDefinedFields = this.graph.getPreDefinedRowKeyFields();
-        int fieldCount = preDefinedFields.size();
+    	List<PreDefinedKeyFieldConfig> resultFields = new ArrayList<PreDefinedKeyFieldConfig>();
+        
+    	for (PreDefinedKeyFieldConfig field : this.graph.getPreDefinedRowKeyFields()) {
+    		switch (field.getName()) {
+    		case URI: 
+    		case TYPE:
+    			resultFields.add(field);
+    			break;
+    		case UUID:
+    			break; // not applicable
+    		default:
+    		}
+        }    	
+    	
+    	int fieldCount = resultFields.size();
     	for (int i = 0; i < fieldCount; i++) {
-        	PreDefinedKeyFieldConfig preDefinedField = preDefinedFields.get(i);
+        	PreDefinedKeyFieldConfig preDefinedField = resultFields.get(i);
     		if (startRowFieldCount > 0) {
         	    this.startKey.put(graph.getRowKeyFieldDelimiterBytes());
     		}

@@ -131,8 +131,7 @@ public class GraphEditBean extends ModelBean{
             return AppActions.ERRORHANDLER.value();
         } finally {
         	this.toDeleteDataObjectGraph = null;        	
-        }
-        
+        }        
     }
     
     public String exit() {

@@ -147,9 +147,7 @@ public class SimpleGraphAssembler extends DefaultAssembler
         	// create a child object
 			PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop);
 			CoreNode childDataNode = (CoreNode)child;
-			childDataNode.setValue(CoreConstants.PROPERTY_NAME_UUID, 
-				UUID.fromString(edge.getUuid()));
-			
+			child.resetUUID(UUID.fromString(edge.getUuid()));
 			rowReader.addDataObject(child);			
             
 	        assemble(child, target, prop, level+1);		

@@ -198,7 +198,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-                        <skip>true</skip>
+                        <skip>false</skip>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
@@ -211,9 +211,9 @@
                             <property><name>log4j.configuration</name><value>log4j.properties</value></property>
                         </systemProperties>
                         <includes>               
-<!--                             <include>**/*SocialGraphNonFederatedTest*</include>                       -->
-<!--                             <include>**/*PartialRowKeyScanTest*</include>    -->
-<!--                             <include>**/*DatePredicateSliceTest*</include>    -->
+                            <include>**/*SocialGraphNonFederatedTest*</include>                      
+                            <include>**/*PartialRowKeyScanTest*</include>   
+                            <include>**/*DatePredicateSliceTest*</include>   
                             
                         </includes> 
                     </configuration>
@@ -238,7 +238,7 @@
 	                        <property><name>log4j.configuration</name><value>log4j.properties</value></property>
 	                    </systemProperties>
 	                    <includes>               
-<!-- 	                        <include>**/*SocialGraphFederationTest*</include> -->
+	                        <include>**/*SocialGraphFederationTest*</include>
 	                        <include>**/*SocialGraphScanTest*</include>                      
 	                    </includes> 
                     </configuration>
@@ -251,9 +251,9 @@
                     <argLine>-Xms128M -Xmx500M</argLine>                      
                       --> 
                     <!-- debugging -->  
-                       <!--
+                        <!--
                     <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
-                        -->
+                          -->
                     <!-- profiling  -->
                     <!--
                     <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  
