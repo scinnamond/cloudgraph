@@ -1,4 +1,4 @@
-package org.cloudgraph.rdb.service;
+package org.cloudgraph.common.service;
 
 import java.io.Serializable;
 import java.util.Comparator;

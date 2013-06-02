@@ -38,7 +38,6 @@ import org.plasma.query.collector.PropertySelection;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
 
 /**

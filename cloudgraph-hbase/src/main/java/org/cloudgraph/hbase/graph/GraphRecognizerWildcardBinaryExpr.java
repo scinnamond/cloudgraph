@@ -26,14 +26,11 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.hbase.expr.DefaultRelationalBinaryExpr;
 import org.cloudgraph.hbase.expr.DefaultWildcardBinaryExpr;
 import org.cloudgraph.hbase.expr.EvaluationContext;
-import org.cloudgraph.hbase.expr.RelationalBinaryExpr;
 import org.cloudgraph.hbase.expr.WildcardBinaryExpr;
 import org.plasma.query.model.Literal;
 import org.plasma.query.model.Property;
-import org.plasma.query.model.RelationalOperator;
 import org.plasma.query.model.WildcardOperator;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaProperty;

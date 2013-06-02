@@ -82,6 +82,7 @@ public class ScanCollector implements ExprVisitor {
 	private List<PartialRowKeyScan> partialKeyScans;
 	private List<FuzzyRowKeyScan> fuzzyKeyScans;
 	private ScanLiteralFactory factory = new ScanLiteralFactory();
+	private boolean queryRequiresGraphRecognizer = false;
 	
 	public ScanCollector(PlasmaType rootType) {
 		this.rootType = rootType;
@@ -115,6 +116,10 @@ public class ScanCollector implements ExprVisitor {
 		}
 	}
 	
+	public boolean isQueryRequiresGraphRecognizer() {
+		return queryRequiresGraphRecognizer;
+	}
+
 	public List<PartialRowKeyScan> getPartialRowKeyScans() {
 		init();
 		return partialKeyScans;
@@ -143,7 +148,8 @@ public class ScanCollector implements ExprVisitor {
 	        log.warn("no user defined row-key field for query path '"
 			    	+ target.getPropertyPath() 
 			    	+ "' - deferring to graph recogniser post processor");	    	
-            return;			
+	        this.queryRequiresGraphRecognizer = true;
+	        return;			
 		}
 		PlasmaProperty property = (PlasmaProperty)fieldConfig.getEndpointProperty();
 		
@@ -163,6 +169,7 @@ public class ScanCollector implements ExprVisitor {
 	        log.warn("no user defined row-key field for query path '"
 			    	+ target.getPropertyPath() 
 			    	+ "' - deferring to graph recogniser post processor");	    	
+	        this.queryRequiresGraphRecognizer = true;
             return;			
 		}
 		PlasmaProperty property = (PlasmaProperty)fieldConfig.getEndpointProperty();

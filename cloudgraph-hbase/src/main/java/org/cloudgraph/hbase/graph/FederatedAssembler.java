@@ -41,9 +41,7 @@ import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreDataObject;
-import org.plasma.sdo.core.CoreNode;
 
 import commonj.sdo.DataObject;
 
@@ -107,6 +105,12 @@ public abstract class FederatedAssembler extends DefaultAssembler
 			this.root, resultRow);
 		this.federatedReader.mapRowReader(this.root, 
 				rowReader);					
+    	// FIXME: are there not supposed to be instance
+    	// properties on data object? Why must we
+    	// to into core object. 
+    	CoreDataObject root = (CoreDataObject)this.root;
+    	root.getValueObject().put(
+        	CloudGraphConstants.ROW_KEY, rowReader.getRowKey());
 		
     	long before = System.currentTimeMillis();
 		try {
@@ -116,13 +120,9 @@ public abstract class FederatedAssembler extends DefaultAssembler
 		}
     	long after = System.currentTimeMillis();
     	
-    	// FIXME: are there not supposed to be instance
-    	// properties on data object? Why must we
-    	// to into core object. 
-    	CoreDataObject root = (CoreDataObject)this.root;
-    	root.getValueObject().put(
+        root.getValueObject().put(
     		CloudGraphConstants.GRAPH_ASSEMBLY_TIME,
-    		Long.valueOf(after - before));
+    		Long.valueOf(after - before));    	
     	
     	GraphMetricVisitor visitor = new GraphMetricVisitor();
     	this.root.accept(visitor);
@@ -209,7 +209,7 @@ public abstract class FederatedAssembler extends DefaultAssembler
 		        + edge.getUuid()+ ") type:  "
 		        + edgeType.toString());
 		PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop, edge.getType());								
-		child.resetUUID(UUID.fromString(edge.getUuid()));
+		child.resetUUID(UUID.fromString(edge.getUuid()));		
 		return child;		
 	}
 	

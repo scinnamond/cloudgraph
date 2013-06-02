@@ -57,11 +57,19 @@ public class CloudGraphConstants {
 	 * assemble a graph. 
 	 */
     public static final String GRAPH_TABLE_NAMES = "GraphTableNames";
+
+    /**
+	 * An SDO instance property used to set / cache row keys
+	 * on the root and other nodes across a federated graph.
+	 */
+	public static final String ROW_KEY = "__ROW_KEY__";
 	
 	/**
 	 * The configuration property name for the property which 
 	 * indicates the non-cryptographic hash algorithm type.
 	 */
 	public static final String PROPERTY_CONFIG_HASH_TYPE = "hash.type";
+	
+	
 	 
 }

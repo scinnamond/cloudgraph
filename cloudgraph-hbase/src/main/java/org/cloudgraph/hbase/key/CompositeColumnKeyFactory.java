@@ -23,8 +23,6 @@ package org.cloudgraph.hbase.key;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.config.ColumnKeyFieldConfig;
 import org.cloudgraph.config.DataGraphConfig;

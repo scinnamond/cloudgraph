@@ -113,7 +113,7 @@ public abstract class JDBCSupport {
 			i++;
 		}
 		sql.append(" FROM ");
-		sql.append(type.getPhysicalName());
+		sql.append(getQualifiedPhysicalName(type));
 		sql.append(" t0 ");
 		sql.append(" WHERE ");
         for (int k = 0; k < keyValues.size(); k++) {
@@ -134,6 +134,14 @@ public abstract class JDBCSupport {
         sql.append(" FOR UPDATE");
 
 		return sql;
+	}
+	
+	protected String getQualifiedPhysicalName(PlasmaType type) {
+		String packageName = type.getPackagePhysicalName();
+		if (packageName != null) 
+			return packageName + "." + type.getPhysicalName();
+		else
+			return type.getPhysicalName();
 	}
 	
 	protected StringBuilder createSelect(PlasmaType type, List<String> names, 
@@ -166,7 +174,7 @@ public abstract class JDBCSupport {
 		}		
 		
 		sql.append(" FROM ");
-		sql.append(type.getPhysicalName());
+		sql.append(getQualifiedPhysicalName(type));
 		sql.append(" t0 ");
 		sql.append(" WHERE ");
         for (count = 0; count < keyValues.size(); count++) {
@@ -220,7 +228,7 @@ public abstract class JDBCSupport {
     		String alias = aliasMap.getAlias(aliasType); 
     		if (count > 0)
     			sql.append(", ");
-    		sql.append(aliasType.getPhysicalName());
+    		sql.append(getQualifiedPhysicalName(aliasType));
     		sql.append(" ");
     		sql.append(alias);
     		count++;
@@ -255,7 +263,7 @@ public abstract class JDBCSupport {
 			Map<String, PropertyPair> values) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO ");
-		sql.append(type.getPhysicalName());
+		sql.append(getQualifiedPhysicalName(type));
 		sql.append("(");
 		int i = 0;
 		for (PropertyPair pair : values.values()) {
@@ -304,7 +312,7 @@ public abstract class JDBCSupport {
 		// construct an 'update' for all non pri-keys and
 		// excluding many reference properties
 		sql.append("UPDATE ");		
-		sql.append(type.getPhysicalName());
+		sql.append(getQualifiedPhysicalName(type));
 		sql.append(" t0 SET ");
 		int i = 0;
 		for (PropertyPair pair : values.values()) {
@@ -344,7 +352,7 @@ public abstract class JDBCSupport {
 			Map<String, PropertyPair> values) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("DELETE FROM ");		
-		sql.append(type.getPhysicalName());
+		sql.append(getQualifiedPhysicalName(type));
 		sql.append(" WHERE ");
 		int i = 0;
 		for (PropertyPair pair : values.values()) {

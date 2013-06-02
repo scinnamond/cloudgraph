@@ -30,10 +30,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Result;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.connect.HBaseConnectionManager;
 import org.cloudgraph.state.GraphTable;
 import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.core.CoreDataObject;
 
 import commonj.sdo.DataObject;
 
@@ -155,6 +157,12 @@ public class GraphTableReader extends GraphTable
         	dataObject, this);
         String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
         this.addRowReader(uuid, rowReader);
+        
+        // set the row key so we can look it up on
+        // modify and delete ops
+    	CoreDataObject coreObject = (CoreDataObject)dataObject;
+    	coreObject.getValueObject().put(
+        	CloudGraphConstants.ROW_KEY, rowReader.getRowKey());
 		
 		return rowReader;
 	}

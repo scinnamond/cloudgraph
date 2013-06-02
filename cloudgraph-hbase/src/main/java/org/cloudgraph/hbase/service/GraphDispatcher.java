@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.service.CreatedCommitComparator;
 import org.cloudgraph.common.service.DuplicateRowException;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
@@ -59,7 +61,6 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.DataGraphDispatcher;
 import org.plasma.sdo.access.RequiredPropertyException;
-import org.plasma.sdo.access.provider.common.CreatedObjectCollector;
 import org.plasma.sdo.access.provider.common.DeletedObjectCollector;
 import org.plasma.sdo.access.provider.common.ModifiedObjectCollector;
 import org.plasma.sdo.core.CoreConstants;
@@ -70,6 +71,8 @@ import org.plasma.sdo.helper.DataConverter;
 import org.plasma.sdo.profile.ConcurrencyType;
 import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
+
+import sorts.InsertionSort;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -153,7 +156,20 @@ public class GraphDispatcher
 	        	this.checkConcurrency(dataGraph, (PlasmaDataObject)changed);           
             	        
 	        
-	        CreatedObjectCollector created = new CreatedObjectCollector(dataGraph);   	
+	        List<CoreDataObject> createdList = new ArrayList<CoreDataObject>();
+	        for (DataObject changed : changeSummary.getChangedDataObjects()) {
+	            if (changeSummary.isCreated(changed))
+	            	createdList.add((CoreDataObject)changed);
+	        }
+	        CoreDataObject[] createdArray = new CoreDataObject[createdList.size()];
+	        createdList.toArray(createdArray);
+	        Comparator<CoreDataObject> comparator = new CreatedCommitComparator();
+	        InsertionSort sort = new InsertionSort();
+	        sort.sort(createdArray, comparator);
+            PlasmaDataObject[] created = new PlasmaDataObject[createdArray.length];
+            for (int i = 0; i < createdArray.length; i++)
+            	created[i] = createdArray[i];
+	        
 	        ModifiedObjectCollector modified = new ModifiedObjectCollector(dataGraph);
 	        DeletedObjectCollector deleted = new DeletedObjectCollector(dataGraph);
 
@@ -273,16 +289,16 @@ public class GraphDispatcher
     }
     	
     private void create(DataGraph dataGraph,
-    		CreatedObjectCollector created,
+    		PlasmaDataObject[] created,
     		FederatedWriter graphWriter) throws IOException, IllegalAccessException {
 
-		for (PlasmaDataObject dataObject : created.getResult()) {
+		for (PlasmaDataObject dataObject : created) {
         	RowWriter rowWriter = graphWriter.getRowWriter(dataObject);
         	
         	rowWriter.getGraphState().addSequence(dataObject);
         }
         
-        for (PlasmaDataObject dataObject : created.getResult()) {
+        for (PlasmaDataObject dataObject : created) {
         	RowWriter rowWriter = graphWriter.getRowWriter(dataObject);
             TableWriter tableWriter = rowWriter.getTableWriter();        	
         	if (log.isDebugEnabled())

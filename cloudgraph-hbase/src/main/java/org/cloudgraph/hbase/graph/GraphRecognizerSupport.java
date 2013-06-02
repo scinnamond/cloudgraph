@@ -33,7 +33,6 @@ import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.Path;
 import org.plasma.query.model.PathElement;
 import org.plasma.query.model.Property;
-import org.plasma.query.model.QueryConstants;
 import org.plasma.query.model.RelationalOperatorValues;
 import org.plasma.query.model.WildcardOperatorValues;
 import org.plasma.query.model.WildcardPathElement;

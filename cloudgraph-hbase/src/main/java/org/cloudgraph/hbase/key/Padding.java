@@ -24,10 +24,8 @@ package org.cloudgraph.hbase.key;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import org.cloudgraph.common.key.KeyException;
 import org.cloudgraph.common.key.KeyFieldOverflowException;
 import org.plasma.sdo.DataFlavor;
-import org.plasma.sdo.PlasmaProperty;
 
 /**
  * Delegate for composite row and column key padding.

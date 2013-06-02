@@ -23,8 +23,6 @@ package org.cloudgraph.hbase.scan;
 
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.service.HBaseDataConverter;
 import org.plasma.query.model.RelationalOperator;

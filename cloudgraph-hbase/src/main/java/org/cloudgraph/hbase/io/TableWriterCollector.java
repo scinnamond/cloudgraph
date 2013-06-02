@@ -31,19 +31,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
-import org.plasma.sdo.PlasmaDataGraph;
-import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.access.provider.common.CreatedObjectCollector;
 import org.plasma.sdo.access.provider.common.DeletedObjectCollector;
 import org.plasma.sdo.access.provider.common.ModifiedObjectCollector;
 
 import commonj.sdo.ChangeSummary;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
-import commonj.sdo.Property;
 
 /**
  * Traverses the change summary of the 
@@ -72,13 +67,13 @@ public class TableWriterCollector extends FederationSupport {
 	private PlasmaDataObject root;
 	private TableWriter rootTableWriter;
 	private Map<String, TableWriter> result = new HashMap<String, TableWriter>();
-	private CreatedObjectCollector created;   	
+	private PlasmaDataObject[] created;   	
 	private ModifiedObjectCollector modified;
 	private DeletedObjectCollector deleted;
 	private CloudGraphConfig config = CloudGraphConfig.getInstance();
 
 	public TableWriterCollector(DataGraph dataGraph,
-	        CreatedObjectCollector created,   	
+			PlasmaDataObject[] created,   	
 	        ModifiedObjectCollector modified,
 	        DeletedObjectCollector deleted) throws IOException {
 		this.dataGraph = dataGraph;
@@ -133,7 +128,7 @@ public class TableWriterCollector extends FederationSupport {
 			throw new OperationException("no configured table(s) could be associated with root type "  
 				+ this.root.getType().toString() + " - please add a configuration for this type");
 		
-        for (PlasmaDataObject dataObject : this.created.getResult()) {
+        for (PlasmaDataObject dataObject : this.created) {
 			PlasmaType type = (PlasmaType)dataObject.getType();
 			TableConfig table = this.config.findTable(type);
         	if (log.isDebugEnabled())

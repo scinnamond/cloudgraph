@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.key.GraphRowKeyFactory;
-import org.cloudgraph.common.key.KeyFieldOverflowException;
 import org.cloudgraph.common.key.KeyValue;
 import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;

@@ -23,7 +23,6 @@ package org.cloudgraph.hbase.service;
 
 // java imports
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -39,14 +38,11 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.filter.FuzzyRowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraph;
 import org.cloudgraph.config.DataGraphConfig;
-import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.expr.Expr;
@@ -69,10 +65,8 @@ import org.cloudgraph.hbase.scan.FuzzyRowKeyScan;
 import org.cloudgraph.hbase.scan.FuzzyRowKeyScanAssembler;
 import org.cloudgraph.hbase.scan.PartialRowKeyScan;
 import org.cloudgraph.hbase.scan.PartialRowKeyScanAssembler;
-import org.cloudgraph.hbase.scan.RowKeyScanAssembler;
 import org.cloudgraph.hbase.scan.ScanCollector;
 import org.cloudgraph.hbase.scan.ScanContext;
-import org.cloudgraph.hbase.scan.ScanRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.cloudgraph.state.GraphState;
 import org.plasma.common.bind.DefaultValidationEventHandler;
@@ -85,10 +79,8 @@ import org.plasma.query.model.Where;
 import org.plasma.query.visitor.DefaultQueryVisitor;
 import org.plasma.query.visitor.QueryVisitor;
 import org.plasma.sdo.PlasmaDataGraph;
-import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.QueryDispatcher;
-import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
@@ -291,13 +283,10 @@ public class GraphQuery
         // Create and add a column filter for the initial
         // column set based on existence of path predicates
         // in the Select. 
-        //FilterList rootFilter = new FilterList(
-    	//		FilterList.Operator.MUST_PASS_ALL);
         HBaseFilterAssembler columnFilterAssembler = 
         	createRootColumnFilterAssembler(type,
         	selectionCollector);
         Filter columnFilter = columnFilterAssembler.getFilter();
-        //rootFilter.addFilter(columnFilterAssembler.getFilter());
 
         // Create a graph assembler based on existence
         // of selection path predicates, need for federation, etc...
@@ -319,6 +308,8 @@ public class GraphQuery
 	        graphRecognizerRootExpr.accept(scanCollector);
 	        partialScans = scanCollector.getPartialRowKeyScans();
 	        fuzzyScans = scanCollector.getFuzzyRowKeyScans();
+	        if (!scanCollector.isQueryRequiresGraphRecognizer())
+	        	graphRecognizerRootExpr = null;	        
         }        
         
         if (where == null || (partialScans.size() == 0 && fuzzyScans.size() == 0)) {
@@ -474,8 +465,6 @@ public class GraphQuery
         	PlasmaDataGraph assembledGraph = graphAssembler.getDataGraph();
             graphAssembler.clear();
         	
-        	// FIXME: need to determine cases where a graph recognizer is
-        	// NOT needed based on completeness of partial or fuzzy scan(s)
             if (graphRecognizerRootExpr != null) {
 	        	GraphRecognizerContext recognizerContext = new GraphRecognizerContext();
 	        	recognizerContext.setGraph(assembledGraph);

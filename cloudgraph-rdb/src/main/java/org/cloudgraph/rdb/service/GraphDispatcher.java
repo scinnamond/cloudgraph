@@ -36,6 +36,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.service.CreatedCommitComparator;
 import org.plasma.config.DataAccessProvider;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
@@ -159,7 +160,7 @@ public class GraphDispatcher extends JDBCSupport
     	}        
         Comparator<CoreDataObject> comparator = new CreatedCommitComparator();
         //Arrays.sort(createdArray, comparator);
-        Collections.sort(createdList, comparator);
+        //Collections.sort(createdList, comparator);
         InsertionSort sort = new InsertionSort();
         sort.sort(createdArray, comparator);
     	
