@@ -341,25 +341,30 @@ public class GraphDispatcher extends JDBCSupport
             	PropertyPair pair = createValue(dataObject, value, property);
             	entity.put(property.getName(), pair);
             }
-        }
+        }       
         
         StringBuilder insert = createInsert(type, entity);
         if (log.isDebugEnabled()) {
             log.debug("inserting " + dataObject.getType().getName()); 
         }
-        List<PropertyPair> keys = executeInsert(type, insert, entity, con);
-        
-        for (Property pkp : pkList) {
-            PlasmaProperty targetPriKeyProperty = (PlasmaProperty)pkp;
-            for (PropertyPair key : keys) {
-                if (targetPriKeyProperty.getName().equals(key.getProp().getName())) { 
-    	            if (log.isDebugEnabled()) {
-    	                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(key.getValue()) + ")");
-    	            }
-                    // FIXME: multiple PK's not supported
-                    snapshotMap.put(uuid, key.getValue()); // map new PK back to UUID\
-                }
-            }
+        if (sequenceGenerator == null) {
+	        List<PropertyPair> keys = executeInsertWithGeneratedKeys(type, insert, entity, con);
+	        
+	        for (Property pkp : pkList) {
+	            PlasmaProperty targetPriKeyProperty = (PlasmaProperty)pkp;
+	            for (PropertyPair key : keys) {
+	                if (targetPriKeyProperty.getName().equals(key.getProp().getName())) { 
+	    	            if (log.isDebugEnabled()) {
+	    	                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(key.getValue()) + ")");
+	    	            }
+	                    // FIXME: multiple PK's not supported
+	                    snapshotMap.put(uuid, key.getValue()); // map new PK back to UUID\
+	                }
+	            }
+	        }
+        }
+        else {
+        	executeInsert(type, insert, entity, con);        
         }
 
     }

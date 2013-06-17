@@ -26,7 +26,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.bind.JAXBException;
 
@@ -70,6 +77,7 @@ import org.cloudgraph.hbase.scan.ScanContext;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.cloudgraph.state.GraphState;
 import org.plasma.common.bind.DefaultValidationEventHandler;
+import org.plasma.query.OrderBy;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.model.From;
@@ -81,11 +89,15 @@ import org.plasma.query.visitor.QueryVisitor;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.QueryDispatcher;
+import org.plasma.sdo.access.provider.common.DataGraphComparatorAssembler;
+import org.plasma.sdo.access.provider.common.DataObjectComparator;
+import org.plasma.sdo.access.provider.common.DataObjectComparatorAssembler;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 import org.xml.sax.SAXException;
 
+import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
 
@@ -160,13 +172,7 @@ public class GraphQuery
         		from.getEntity().getName());
         PlasmaDataGraph[] results = new PlasmaDataGraph[0];
         try {
-            List<PlasmaDataGraph> queryResults = findResults(query, type, snapshotDate);
-            
-            if (log.isDebugEnabled() ){
-                log.debug("assembling results");
-            }
-            results = new PlasmaDataGraph[queryResults.size()];
-            queryResults.toArray(results);
+        	results = findResults(query, type, snapshotDate);
         }
         finally {
         	
@@ -203,64 +209,48 @@ public class GraphQuery
     
     private int countResults(Query query, PlasmaType type)
     {
-        int count = 0;
-        Object[] params = new Object[0];
-        
-        TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(
-        		type.getQualifiedName());
-        TableReader tableReader = new GraphTableReader(tableConfig,
-        		null); // FIXME: 
-        
-        Scan scan = new Scan();
-        
-    	scan.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
-    		Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME));
-        FilterList rootFilter = new FilterList(
-    			FilterList.Operator.MUST_PASS_ALL);
-        scan.setFilter(rootFilter);
-        
-        // Create and add a scan start/stop range or row filter 
-        Where where = query.findWhereClause();
-        setupScanContext(scan, rootFilter, where, type);
-
-        try {
-            if (query.getStartRange() != null && query.getEndRange() != null)
-                log.warn("query range (start: "
-                		+ query.getStartRange() + ", end: "
-                		+ query.getEndRange() + ") ignored for count operation");
-                
-        	long before = System.currentTimeMillis();
-            if (log.isDebugEnabled())  
-                log.debug("executing count...");
-        	ResultScanner scanner = tableReader.getConnection().getScanner(scan);
-            for (Result result : scanner) {
-            	if (result.containsColumn(tableReader.getTable().getDataColumnFamilyNameBytes(), 
-            			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
-            		continue; // ignore toumbstone roots
-            	}
-            	count++;
-            }       
-            long after = System.currentTimeMillis();
-            if (log.isDebugEnabled())  
-                log.debug("returning count " + String.valueOf(count)
-                		+ " (" + String.valueOf(after - before) + ")");
-		} catch (IOException e) {
-			throw new GraphServiceException(e);
-		}            	 
-        finally {
-        	try {
-				tableReader.getConnection().close();
-			} catch (IOException e) {
-				log.error(e.getMessage());
-			}
-        }
-        return count;
+    	// FIXME: don't care about ordering, graph assembly 
+    	// (if no graph recognizer), or potentially returning any
+    	// columns whatsoever. 
+    	PlasmaDataGraph[] graphs = find(query, 
+        	type, new Timestamp(System.currentTimeMillis()));
+        return graphs.length;
     }
     
-    private List<PlasmaDataGraph> findResults(Query query, PlasmaType type, Timestamp snapshotDate)
-    {
-        Object[] params = new Object[0];
+    private PlasmaDataGraph[] findResults(Query query, PlasmaType type, Timestamp snapshotDate)
+    {   
+    	PlasmaDataGraph[] graphs = find(query, 
+        		type, snapshotDate);
+    	PlasmaDataGraph[] result = graphs;    	
         
+        int last = graphs.length; 
+        if (query.getStartRange() != null && query.getEndRange() != null) {
+        	if (query.getStartRange() < last && query.getEndRange() < last) {
+        		result = Arrays.copyOfRange(graphs, query.getStartRange(), 
+            			query.getEndRange());
+        	}
+        	else if (query.getStartRange() < last && query.getEndRange() >= last) {
+        		result = Arrays.copyOfRange(graphs, query.getStartRange(), 
+            			last);
+        		log.warn("query end range (" + query.getEndRange()
+            	    + ") exceeds results size (" + graphs.length
+            	    + ") - truncating results");
+        	}
+        	else {
+        		log.warn("query range ("
+        	        + query.getStartRange()+ ":" + query.getEndRange()
+        	        + ") exceeds results size (" + graphs.length 
+        	        + ") - clearing results");
+        		result = new PlasmaDataGraph[0];
+        	}
+        }
+        log.info("returning " + result.length + " results");
+        
+        return result;
+    }  
+    
+    private PlasmaDataGraph[] find(Query query, PlasmaType type, Timestamp snapshotDate)
+    {
         if (log.isDebugEnabled())
         	log(query);
         Where where = query.findWhereClause();
@@ -308,6 +298,7 @@ public class GraphQuery
 	        graphRecognizerRootExpr.accept(scanCollector);
 	        partialScans = scanCollector.getPartialRowKeyScans();
 	        fuzzyScans = scanCollector.getFuzzyRowKeyScans();
+	        // in which case for a count this effects alot
 	        if (!scanCollector.isQueryRequiresGraphRecognizer())
 	        	graphRecognizerRootExpr = null;	        
         }        
@@ -326,28 +317,45 @@ public class GraphQuery
     	            + "configured for table / data-graph - using full table scan - " 
     	            + "could result in very large results set");
         }
+        
+        // use an ordered set to we get immediate sorting
+        // and can therefore abort after max requested rows reached
+        Set<PlasmaDataGraph> graphs = new HashSet<PlasmaDataGraph>();
+        
+        boolean hasOrdering = false;
+        Comparator<PlasmaDataGraph> orderingComparator = null;
+        OrderBy orderBy = query.findOrderByClause();
+        if (orderBy != null) {
+        	DataGraphComparatorAssembler orderingCompAssem = 
+        		new DataGraphComparatorAssembler(
+        			(org.plasma.query.model.OrderBy)orderBy, type);
+        	orderingComparator = orderingCompAssem.getComparator();
+        	hasOrdering = true;
+        }
                 
         // execute scans
-        List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();
         try {
         	long before = System.currentTimeMillis();
-        	int count = 0;
         	if (partialScans.size() > 0 || fuzzyScans.size() > 0) {
 	        	for (PartialRowKeyScan scan : partialScans) {
+	        		if (canAbortScan(hasOrdering, query.getStartRange(), query.getEndRange(), graphs))
+	        			break;
 	        		List<PlasmaDataGraph> list = execute(scan, 
+		        		query.getStartRange(), query.getEndRange(),	
 	        		    rootTableReader, columnFilter,
 	        		    graphAssembler, 
 	        		    graphRecognizerRootExpr);
-	        		result.addAll(list);
-		            count += list.size();
+	        		graphs.addAll(list);
 	        	} // scan
 	        	for (FuzzyRowKeyScan scan : fuzzyScans) {
-	        		List<PlasmaDataGraph> list = execute(scan, 
+	        		if (canAbortScan(hasOrdering, query.getStartRange(), query.getEndRange(), graphs))
+	        			break;
+	        		List<PlasmaDataGraph> list = execute(scan,
+	        			query.getStartRange(), query.getEndRange(),	
 	        		    rootTableReader, columnFilter, 
 	        		    graphAssembler, 
 	        		    graphRecognizerRootExpr);
-	        		result.addAll(list);
-		            count += list.size();
+	        		graphs.addAll(list);
 	        	} // scan
         	}
         	else {
@@ -362,13 +370,20 @@ public class GraphQuery
 	            List<PlasmaDataGraph> list = execute(scan, 
 	      	  			rootTableReader, graphAssembler, 
 	      	    		graphRecognizerRootExpr);
-	    		result.addAll(list);
-	            count += list.size();
-        	}        	
-            
+	    		graphs.addAll(list);
+        	} 
+        	
             long after = System.currentTimeMillis();
-            log.info("assembled " + String.valueOf(count) + " results ("
+            log.info("initialized " + String.valueOf(graphs.size()) + " results ("
             	+ String.valueOf(after - before) + ")");
+            PlasmaDataGraph[] array = new PlasmaDataGraph[graphs.size()]; 
+            graphs.toArray(array);
+            
+            if (orderingComparator != null) {
+            	Arrays.sort(array, orderingComparator);
+            }
+            
+            return array;
         }
         catch (IOException e) {
             throw new GraphServiceException(e);
@@ -387,11 +402,19 @@ public class GraphQuery
         		}
         	}
         }
-        return result;
-    }
+    }  
     
+    private boolean canAbortScan(boolean hasOrdering, Integer startRange, Integer endRange, 
+    		Set<PlasmaDataGraph> result) {
+    	if (!hasOrdering && startRange != null && endRange != null) {
+    		if (result.size() >= endRange.intValue())
+    			return true;
+    	}
+    	return false;
+    }
 
     private List<PlasmaDataGraph> execute(PartialRowKeyScan partialScan, 
+    		Integer startRange, Integer endRange,
     		TableReader rootTableReader,
     		Filter columnFilter,
     		HBaseGraphAssembler graphAssembler, 
@@ -408,12 +431,13 @@ public class GraphQuery
 			log.debug("using partial row key scan: (" 
   		        + "start: '" + Bytes.toString(scan.getStartRow())
   		        + "' stop: '" + Bytes.toString(scan.getStopRow()) + "')");	
-  		return execute(scan, 
+  		return execute(scan,  
   			rootTableReader, graphAssembler, 
     		graphRecognizerRootExpr);
     }
     
-    private List<PlasmaDataGraph> execute(FuzzyRowKeyScan fuzzyScan, 
+    private List<PlasmaDataGraph> execute(FuzzyRowKeyScan fuzzyScan,
+    		Integer startRange, Integer endRange,
     		TableReader rootTableReader,
     		Filter columnFilter,
     		HBaseGraphAssembler graphAssembler, 
@@ -424,6 +448,11 @@ public class GraphQuery
         rootFilter.addFilter(columnFilter);
         Scan scan = new Scan();
         scan.setFilter(rootFilter); 
+        if (startRange != null && endRange != null) {
+        	int max = endRange.intValue() - startRange.intValue();
+        	//scan.setMaxResultSize(max); // See 0.9.7
+        }
+        
         Filter fuzzyFilter = fuzzyScan.getFilter();
 		rootFilter.addFilter(fuzzyFilter);
         if (log.isDebugEnabled() ) 

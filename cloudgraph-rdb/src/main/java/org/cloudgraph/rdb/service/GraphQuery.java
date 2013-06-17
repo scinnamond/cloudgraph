@@ -276,51 +276,93 @@ public class GraphQuery extends JDBCSupport
     {
         int result = 0;
         Object[] params = new Object[0];
-        FilterAssembler filterAssembler = null;
 
         StringBuilder sqlQuery = new StringBuilder();
         AliasMap aliasMap = new AliasMap(type);        
         
         sqlQuery.append("SELECT COUNT(*)");
-        sqlQuery.append(aliasMap.getAlias(type));
-        Statement statement = null;
+
+        // construct a FROM clause from alias map
+        sqlQuery.append(" FROM ");        	        	
+    	Iterator<PlasmaType> it = aliasMap.getTypes();
+    	int count = 0;
+    	while (it.hasNext()) {
+    		PlasmaType aliasType = it.next();
+    		String alias = aliasMap.getAlias(aliasType); 
+    		if (count > 0)
+    			sqlQuery.append(", ");
+    		sqlQuery.append(getQualifiedPhysicalName(aliasType));
+    		sqlQuery.append(" ");
+    		sqlQuery.append(alias);
+    		count++;
+    	}
+        Where where = query.findWhereClause();
+        FilterAssembler filterAssembler = null;
+        if (where != null)
+        {
+            filterAssembler = new FilterAssembler(where, type, aliasMap);
+            sqlQuery.append(" ");
+            sqlQuery.append(filterAssembler.getFilter());
+            params = filterAssembler.getParams();
+            
+            if (log.isDebugEnabled() ){
+                log.debug("filter: " + filterAssembler.getFilter());
+            }
+        }
+        
+    	if(query.getStartRange() != null && query.getEndRange() != null)
+            log.warn("query range (start: "
+            		+ query.getStartRange() + ", end: "
+            		+ query.getEndRange() + ") ignored for count operation");
+        
+    	PreparedStatement statement = null;
         ResultSet rs = null; 
         
         try {
-            Where where = query.findWhereClause();
-            if (where != null)
-            {
-                filterAssembler = new FilterAssembler(where, type, aliasMap);
-                sqlQuery.append(" ");
-                sqlQuery.append(filterAssembler.getFilter());
-                params = filterAssembler.getParams();
-                
-                if (log.isDebugEnabled() ){
-                    log.debug("filter: " + filterAssembler.getFilter());
-                }
-            }
-            else {
-          	    sqlQuery.append(" FROM ");
-          	    sqlQuery.append(getQualifiedPhysicalName(type));  
-          	    sqlQuery.append(" ");
-          	    sqlQuery.append(aliasMap.getAlias(type));    
-            }
-            if(query.getStartRange() != null && query.getEndRange() != null)
-                log.warn("query range (start: "
-                		+ query.getStartRange() + ", end: "
-                		+ query.getEndRange() + ") ignored for count operation");
-                
+               
             if (log.isDebugEnabled() ){
                 log.debug("queryString: " + sqlQuery.toString());
                 log.debug("executing...");
             } 
             
-            statement = con.createStatement(
-                    ResultSet.TYPE_SCROLL_INSENSITIVE,
+            statement = con.prepareStatement(sqlQuery.toString(),
+            		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
                     ResultSet.CONCUR_READ_ONLY);
-            statement.execute(sqlQuery.toString());
+
+            // set params 
+            // note params are pre-converted
+            // to string in filter assembly
+            if (filterAssembler != null) {
+	            params = filterAssembler.getParams();
+	            if (params != null)
+	                for (int i = 0; i < params.length; i++)
+	                	statement.setString(i+1, 
+	                			String.valueOf(params[i]));
+            }
+            
+            if (log.isDebugEnabled() ){
+                if (params == null || params.length == 0) {
+                    log.debug("executing: "+ sqlQuery.toString());                	
+                }
+                else
+                {
+                    StringBuilder paramBuf = new StringBuilder();
+                	paramBuf.append(" [");
+                    for (int p = 0; p < params.length; p++)
+                    {
+                        if (p > 0)
+                        	paramBuf.append(", ");
+                        paramBuf.append(String.valueOf(params[p]));
+                    }
+                    paramBuf.append("]");
+                    log.debug("executing: "+ sqlQuery.toString() 
+                    		+ " " + paramBuf.toString());
+                }
+            } 
+            
+            statement.execute();
             rs = statement.getResultSet();
-            rs.first();
+            rs.next();
             result = rs.getInt(1);
         }
         catch (Throwable t) {
@@ -449,7 +491,6 @@ public class GraphQuery extends JDBCSupport
             // set params 
             // note params are pre-converted
             // to string in filter assembly
-            // FIXME: are parameters relevant in SQL in this context?
             if (filterAssembler != null) {
 	            params = filterAssembler.getParams();
 	            if (params != null)

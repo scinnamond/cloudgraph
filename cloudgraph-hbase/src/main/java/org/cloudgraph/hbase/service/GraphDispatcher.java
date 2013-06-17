@@ -174,8 +174,8 @@ public class GraphDispatcher
 	        DeletedObjectCollector deleted = new DeletedObjectCollector(dataGraph);
 
 			TableWriterCollector collector = 
-					new TableWriterCollector(dataGraph, 
-							created, modified, deleted);
+				new TableWriterCollector(dataGraph, 
+					created, modified, deleted);
 			
 	        this.graphWriter = new FederatedGraphWriter( 
 	        	dataGraph, collector,

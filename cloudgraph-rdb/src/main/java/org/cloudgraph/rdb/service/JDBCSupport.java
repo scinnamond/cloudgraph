@@ -381,14 +381,6 @@ public abstract class JDBCSupport {
         PreparedStatement statement = null;
         ResultSet rs = null; 
         try {
-            statement = con.prepareStatement(sql.toString(),
-               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
-                    ResultSet.CONCUR_READ_ONLY);
-		
-            for (int i = 0; i < params.length; i++)
-            	statement.setString(i+1, 
-            			String.valueOf(params[i]));
-            
             if (log.isDebugEnabled() ){
                 if (params == null || params.length == 0) {
                     log.debug("fetch: "+ sql.toString());                	
@@ -408,6 +400,14 @@ public abstract class JDBCSupport {
                     		+ " " + paramBuf.toString());
                 }
             } 
+            statement = con.prepareStatement(sql.toString(),
+               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
+                    ResultSet.CONCUR_READ_ONLY);
+		
+            for (int i = 0; i < params.length; i++)
+            	statement.setString(i+1, 
+            			String.valueOf(params[i]));
+            
             statement.execute();
             rs = statement.getResultSet();
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -453,14 +453,13 @@ public abstract class JDBCSupport {
         PreparedStatement statement = null;
         ResultSet rs = null; 
         try {
-            statement = con.prepareStatement(sqlQuery.toString(),
-               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
-                    ResultSet.CONCUR_READ_ONLY);
-		
             if (log.isDebugEnabled() ){
                 log.debug("fetch: " + sqlQuery.toString());
             } 
-            
+            statement = con.prepareStatement(sqlQuery.toString(),
+               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
+                    ResultSet.CONCUR_READ_ONLY);
+		            
             statement.execute();
             rs = statement.getResultSet();
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -507,14 +506,14 @@ public abstract class JDBCSupport {
         PreparedStatement statement = null;
         ResultSet rs = null; 
         try {
-            statement = con.prepareStatement(sql.toString(),
-               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
-                    ResultSet.CONCUR_READ_ONLY);
-		
             if (log.isDebugEnabled() ){
                 log.debug("fetch: " + sql.toString());
             } 
             
+            statement = con.prepareStatement(sql.toString(),
+               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
+                    ResultSet.CONCUR_READ_ONLY);
+		
             statement.execute();
             rs = statement.getResultSet();
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -555,14 +554,13 @@ public abstract class JDBCSupport {
         PreparedStatement statement = null;
         ResultSet rs = null; 
         try {
-            statement = con.prepareStatement(sql.toString(),
-               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
-                    ResultSet.CONCUR_READ_ONLY);
-		
             if (log.isDebugEnabled() ){
                 log.debug("fetch: " + sql.toString());
             } 
-            
+            statement = con.prepareStatement(sql.toString(),
+               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
+                    ResultSet.CONCUR_READ_ONLY);
+		            
             statement.execute();
             rs = statement.getResultSet();
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -602,39 +600,19 @@ public abstract class JDBCSupport {
 			Connection con)
 	{
         PreparedStatement statement = null;
-        try {
-            statement = con.prepareStatement(sql.toString());
-		
-            StringBuilder paramBuf = null;
+        try {		
             if (log.isDebugEnabled() ){
                 log.debug("execute: " + sql.toString());
-                paramBuf = new StringBuilder();
-                paramBuf.append("[");
+                StringBuilder paramBuf = createParamDebug(values);
+                log.debug("params: " + paramBuf.toString());
             } 
-            
-    		int i = 1;
+            statement = con.prepareStatement(sql.toString());
     		for (PropertyPair pair : values.values()) {
     			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
     			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
     			statement.setObject(pair.getColumn(), 
     					jdbcValue, jdbcType);
-                if (log.isDebugEnabled() ) {
-                	if (i > 1) {
-                		paramBuf.append(", ");
-                	}
-                	paramBuf.append("(");
-                	paramBuf.append(jdbcValue.getClass().getSimpleName());
-                	paramBuf.append("/");
-                	paramBuf.append(converter.getJdbcTypeName(jdbcType));
-                	paramBuf.append(")");
-                	paramBuf.append(String.valueOf(jdbcValue));
-                }                	
-    			i++;		
     		}
-            if (log.isDebugEnabled() ){
-            	paramBuf.append("]");
-                log.debug("params: " + paramBuf.toString());
-            } 
             statement.executeUpdate();
         }
         catch (Throwable t) {
@@ -650,7 +628,44 @@ public abstract class JDBCSupport {
         }
  	}
 	
-	protected List<PropertyPair> executeInsert(PlasmaType type, StringBuilder sql, 
+	protected void executeInsert(PlasmaType type, StringBuilder sql, 
+			Map<String, PropertyPair> values,
+			Connection con)
+	{
+        PreparedStatement statement = null;
+        try {
+		
+            if (log.isDebugEnabled() ){
+                log.debug("execute: " + sql.toString());
+                StringBuilder paramBuf = createParamDebug(values);
+                log.debug("params: " + paramBuf.toString());
+            } 
+             
+            statement = con.prepareStatement(sql.toString());
+            
+    		for (PropertyPair pair : values.values()) {
+    			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
+    			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
+    			statement.setObject(pair.getColumn(), 
+    					jdbcValue, jdbcType);
+    		}
+            
+            statement.execute();
+        }
+        catch (Throwable t) {
+            throw new DataAccessException(t);
+        }
+        finally {
+			try {
+	        	if (statement != null)
+				    statement.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
+        }
+ 	}
+	
+	protected List<PropertyPair> executeInsertWithGeneratedKeys(PlasmaType type, StringBuilder sql, 
 			Map<String, PropertyPair> values,
 			Connection con)
 	{
@@ -658,39 +673,23 @@ public abstract class JDBCSupport {
         PreparedStatement statement = null;
         ResultSet generatedKeys = null;
         try {
-            statement = con.prepareStatement(sql.toString(), 
-            		PreparedStatement.RETURN_GENERATED_KEYS);
 		
-            StringBuilder paramBuf = null;
             if (log.isDebugEnabled() ){
                 log.debug("execute: " + sql.toString());
-                paramBuf = new StringBuilder();
-                paramBuf.append("[");
+                StringBuilder paramBuf = createParamDebug(values);
+                log.debug("params: " + paramBuf.toString());
             } 
+             
+            statement = con.prepareStatement(sql.toString(), 
+            		PreparedStatement.RETURN_GENERATED_KEYS);
             
-    		int i = 1;
     		for (PropertyPair pair : values.values()) {
     			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
     			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
     			statement.setObject(pair.getColumn(), 
     					jdbcValue, jdbcType);
-                if (log.isDebugEnabled() ) {
-                	if (i > 1) {
-                		paramBuf.append(", ");
-                	}
-                	paramBuf.append("(");
-                	paramBuf.append(jdbcValue.getClass().getSimpleName());
-                	paramBuf.append("/");
-                	paramBuf.append(converter.getJdbcTypeName(jdbcType));
-                	paramBuf.append(")");
-                	paramBuf.append(String.valueOf(jdbcValue));
-                }                	
-    			i++;		
     		}
-            if (log.isDebugEnabled() ){
-            	paramBuf.append("]");
-                log.debug("params: " + paramBuf.toString());
-            } 
+            
             statement.execute();
             generatedKeys = statement.getGeneratedKeys();
             //if (generatedKeys.next()) {
@@ -718,7 +717,7 @@ public abstract class JDBCSupport {
                             + type.getName() + "' - cannot map to generated keys");
                 PlasmaProperty prop = (PlasmaProperty)pkPropList.get(0);
 
-            	for(i=1;i<=numcols;i++) {
+            	for(int i=1; i<=numcols; i++) {
             		String columnName = rsMeta.getColumnName(i);
                     if (log.isDebugEnabled())
                     	log.debug("returned key column '" + columnName + "'");
@@ -745,5 +744,28 @@ public abstract class JDBCSupport {
         
         return resultKeys;
  	}
+	
+	private StringBuilder createParamDebug(Map<String, PropertyPair> values) throws SQLException {
+		StringBuilder paramBuf = new StringBuilder();
+        paramBuf.append("[");
+        paramBuf.append("[");
+		int i = 1;
+		for (PropertyPair pair : values.values()) {
+			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
+			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
+        	if (i > 1) {
+        		paramBuf.append(", ");
+        	}
+        	paramBuf.append("(");
+        	paramBuf.append(jdbcValue.getClass().getSimpleName());
+        	paramBuf.append("/");
+        	paramBuf.append(converter.getJdbcTypeName(jdbcType));
+        	paramBuf.append(")");
+        	paramBuf.append(String.valueOf(jdbcValue));
+			i++;		
+		}
+    	paramBuf.append("]");
+		return paramBuf;
+	}
 
 }
