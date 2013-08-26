@@ -24,6 +24,7 @@ package org.cloudgraph.rdb.service;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +60,7 @@ import org.plasma.sdo.access.provider.common.DataObjectCommitComparator;
 import org.plasma.sdo.access.provider.common.DeletedObjectCollector;
 import org.plasma.sdo.access.provider.common.ModifiedObjectCollector;
 import org.plasma.sdo.access.provider.common.PropertyPair;
-import org.plasma.sdo.access.provider.jdbc.JDBCDataConverter;
+import org.cloudgraph.rdb.service.RDBDataConverter;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.core.CoreHelper;
@@ -70,7 +71,6 @@ import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
 
 import sorts.InsertionSort;
-
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
@@ -83,7 +83,7 @@ public class GraphDispatcher extends JDBCSupport
     private SnapshotMap snapshotMap;
     private SequenceGenerator sequenceGenerator;
     private String username;
-    private JDBCDataConverter converter = JDBCDataConverter.INSTANCE;
+    private RDBDataConverter converter = RDBDataConverter.INSTANCE;
     
     @SuppressWarnings("unused")
     private GraphDispatcher() {}
@@ -196,17 +196,20 @@ public class GraphDispatcher extends JDBCSupport
             return snapshotMap;
         }                                                         
         catch(IllegalAccessException e) {                         
-            throw new DataAccessException(e);                         
+            throw new RDBServiceException(e);                         
         }                                                         
         catch(IllegalArgumentException e) {                       
-            throw new DataAccessException(e);                         
+            throw new RDBServiceException(e);                         
         }                                                         
         catch(InvocationTargetException e) {                      
-            throw new DataAccessException(e);                         
+            throw new RDBServiceException(e);                         
         }                                                         
+        catch (SQLException e) {
+            throw new RDBServiceException(e);                         
+		}                                                         
         catch(RuntimeException e) {                      
-            throw e;                         
-        }                                                         
+            throw e; 
+        }
     }
     
     private void create(DataGraph dataGraph, PlasmaDataObject dataObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
@@ -369,7 +372,7 @@ public class GraphDispatcher extends JDBCSupport
 
     }
     
-    private void update(DataGraph dataGraph, PlasmaDataObject dataObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+    private void update(DataGraph dataGraph, PlasmaDataObject dataObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException, SQLException {
         
         PlasmaType type = (PlasmaType)dataObject.getType();
         if (log.isDebugEnabled())
@@ -484,7 +487,7 @@ public class GraphDispatcher extends JDBCSupport
  
     private void delete(DataGraph dataGraph, DataObject dataObject)
         throws IllegalAccessException, IllegalArgumentException,
-            InvocationTargetException
+            InvocationTargetException, SQLException
     {
         PlasmaType type = (PlasmaType)dataObject.getType();
         if (log.isDebugEnabled())
@@ -916,7 +919,11 @@ public class GraphDispatcher extends JDBCSupport
         public void visit(DataObject target, DataObject source, String sourceKey, int level) {
             try {
                  if (CoreHelper.isFlaggedLocked(target) || CoreHelper.isFlaggedUnlocked(target))
-                      update(dataGraph, (PlasmaDataObject)target);
+					try {
+						update(dataGraph, (PlasmaDataObject)target);
+					} catch (SQLException e) {
+						throw new RDBServiceException(e);
+					}
             } catch (IllegalArgumentException e) {
                 throw new DataAccessException(e);
             } catch (IllegalAccessException e) {

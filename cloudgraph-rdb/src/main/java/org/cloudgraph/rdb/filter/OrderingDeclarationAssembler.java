@@ -33,7 +33,7 @@ import org.plasma.query.visitor.Traversal;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.model.EntityConstants;
-import org.plasma.sdo.access.provider.jdbc.AliasMap;
+import org.cloudgraph.rdb.service.AliasMap;
 
 public class OrderingDeclarationAssembler extends DefaultQueryVisitor
     implements QueryConstants, EntityConstants

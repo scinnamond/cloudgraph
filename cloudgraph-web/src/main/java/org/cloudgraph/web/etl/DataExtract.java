@@ -115,9 +115,9 @@ public class DataExtract {
         try {
             PlasmaQueryDataBinding binding = new PlasmaQueryDataBinding(
                     new DefaultValidationEventHandler());
-            log.debug("marshaling query");
+            log.info("marshaling query");
             String xml = binding.marshal(query);
-            log.debug("validating marshaled query");
+            log.info("validating marshaled query");
             query = (Query)binding.validate(xml); 
             assert(query != null);
             log.debug(xml);
@@ -166,7 +166,9 @@ public class DataExtract {
     			new PojoDataAccessClient(
     					DataAccessProviderName.valueOf(export.getProviderName())));
 
+        log.info("calling " + export.getProviderName() + " service");
         DataGraph[] graphs = service.find(query);
+        log.info("found " + graphs.length + " results");
         
         XMLOptions options = new DefaultOptions(
         		dataEntity.getTargetNamespaceUri(), null);

@@ -65,7 +65,7 @@ import org.plasma.sdo.access.MaxResultsExceededException;
 import org.plasma.sdo.access.QueryDispatcher;
 import org.plasma.sdo.access.provider.common.DataObjectHashKeyAssembler;
 import org.plasma.sdo.access.provider.common.PropertyPair;
-import org.plasma.sdo.access.provider.jdbc.AliasMap;
+import org.cloudgraph.rdb.service.AliasMap;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.xml.sax.SAXException;
 
@@ -76,6 +76,7 @@ public class GraphQuery extends JDBCSupport
     implements QueryDispatcher
 {
     private static Log log = LogFactory.getLog(GraphQuery.class);
+    private static final String ROWNUM = "R_NM";
 
     public GraphQuery()
     {
@@ -83,10 +84,10 @@ public class GraphQuery extends JDBCSupport
 
     public PlasmaDataGraph[] find(Query query, Timestamp snapshotDate)
     {
-        return find(query, -1, snapshotDate);
+		return find(query, -1, snapshotDate);
     }
 
-    public PlasmaDataGraph[] find(Query query, int requestMax, Timestamp snapshotDate)
+    public PlasmaDataGraph[] find(Query query, int requestMax, Timestamp snapshotDate)  
     {
         Connection con = null;
 		try {
@@ -121,6 +122,9 @@ public class GraphQuery extends JDBCSupport
             else
                 results = trimResults(queryResults, 
                         requestMax, assembler, query.getSelectClause(), type);
+        }
+        catch (SQLException e) {
+        	throw new RDBServiceException(e);
         }
         finally {
             try {
@@ -169,11 +173,12 @@ public class GraphQuery extends JDBCSupport
      * the given maximum, then they are truncated. If no maximum
      * value is given (e.g. -1) then a default max is enforced.
      * @param assembler - the value object assembler
+     * @throws SQLException 
      * @throws MaxResultsExceededException when no request maximum is given and the default 
      * max is exceeded.
      */
     private PlasmaDataGraph[] assembleResults(List<List<PropertyPair>> collection, 
-            int requestMax, GraphAssembler assembler)
+            int requestMax, GraphAssembler assembler) throws SQLException
     {
         ArrayList<PlasmaDataGraph> list = new ArrayList<PlasmaDataGraph>(20);
         Iterator<List<PropertyPair>> iter = collection.iterator();
@@ -221,10 +226,11 @@ public class GraphQuery extends JDBCSupport
      * @param assembler - the value object assembler
      * @param select the Query select clause
      * @param type the candidate Type definition
+     * @throws SQLException 
      * @throws MaxResultsExceededException when no request maximum is given and the default max is exceeded.
      */
     private PlasmaDataGraph[] trimResults(List<List<PropertyPair>> collection, 
-            int requestMax, GraphAssembler assembler, Select select, Type type)
+            int requestMax, GraphAssembler assembler, Select select, Type type) throws SQLException
     {
         DataObjectHashKeyAssembler hashKeyAssembler =
             new DataObjectHashKeyAssembler(select, type);
@@ -420,7 +426,14 @@ public class GraphQuery extends JDBCSupport
                 
         String rootAlias = aliasMap.getAlias(type);
         StringBuilder sqlQuery = new StringBuilder();
-        sqlQuery.append("SELECT ");
+        sqlQuery.append("SELECT DISTINCT ");
+         
+        // FIXME: Oracle specific
+        if(query.getStartRange() != null && query.getEndRange() != null) {
+        	sqlQuery.append("ROWNUM as ");
+        	sqlQuery.append(ROWNUM);
+        	sqlQuery.append(", ");
+        }
         
         int i = 0;
         List<String> names = selectMap.get(type);
@@ -457,19 +470,6 @@ public class GraphQuery extends JDBCSupport
             sqlQuery.append(filterAssembler.getFilter());
     	}
     	
-        // set the result range
-        // FIXME: Oracle specific
-        if(query.getStartRange() != null && query.getEndRange() != null) {
-        	if (where == null)
-        		sqlQuery.append(" WHERE ");
-        	else
-        		sqlQuery.append(" AND ");
-        	sqlQuery.append("ROWNUM >= ");
-        	sqlQuery.append(String.valueOf(query.getStartRange()));
-        	sqlQuery.append(" AND ROWNUM <= ");
-        	sqlQuery.append(String.valueOf(query.getEndRange()));
-        }  
-        
         if (orderingDeclAssembler != null) {
             sqlQuery.append(" ");
             sqlQuery.append(orderingDeclAssembler.getOrderingDeclaration());
@@ -479,7 +479,25 @@ public class GraphQuery extends JDBCSupport
         	sqlQuery.append(" ");
         	sqlQuery.append(groupingDeclAssembler.getGroupingDeclaration());
         }
-       
+    	
+        // set the result range
+        // FIXME: Oracle specific
+        if(query.getStartRange() != null && query.getEndRange() != null) {
+        	StringBuilder buf = new StringBuilder();
+        	buf.append("SELECT * FROM (");
+        	buf.append(sqlQuery);
+        	buf.append(") WHERE ");
+        	buf.append(ROWNUM);
+        	buf.append(" >= ");
+        	buf.append(String.valueOf(query.getStartRange()));
+        	buf.append(" AND ");
+        	buf.append(ROWNUM);
+        	buf.append(" <= ");
+        	buf.append(String.valueOf(query.getEndRange()));
+        	
+        	sqlQuery = buf;
+        }  
+               
         List<List<PropertyPair>> rows = new ArrayList<List<PropertyPair>>();
         PreparedStatement statement = null;
         ResultSet rs = null; 
@@ -530,6 +548,8 @@ public class GraphQuery extends JDBCSupport
             	rows.add(row);                
             	for(i=1;i<=numcols;i++) {
             		String columnName = rsMeta.getColumnName(i);
+            		if (ROWNUM.equals(columnName))
+            			continue;
             		int columnType = rsMeta.getColumnType(i);
             		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
             		Object value = converter.fromJDBCDataType(rs, 

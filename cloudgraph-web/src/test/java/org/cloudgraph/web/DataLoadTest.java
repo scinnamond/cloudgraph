@@ -15,7 +15,7 @@ public class DataLoadTest extends CommonTest {
     public void setUp() throws Exception {
     }
 
-    public void testLoad() throws TransformerConfigurationException, MalformedURLException, IOException, TransformerException, SQLException {
+    public void testImport() throws TransformerConfigurationException, MalformedURLException, IOException, TransformerException, SQLException {
     	
     	DataLoad.main(new String[] {
     		"load", 

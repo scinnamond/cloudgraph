@@ -46,6 +46,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.hbase.client.coprocessor.AggregationClient;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraph;
@@ -262,8 +263,8 @@ public class GraphQuery
         	selectionCollector.collect(where);
         for (Type t : selectionCollector.getTypes()) 
         	collectRowKeyProperties(selectionCollector, (PlasmaType)t);        
-        //if (log.isDebugEnabled())
-        //	log.debug(selectionCollector.dumpInheritedProperties());
+        if (log.isDebugEnabled())
+        	log.debug(selectionCollector.dumpInheritedProperties());
         
         FederatedGraphReader graphReader = new FederatedGraphReader(
         		type, selectionCollector.getTypes(),

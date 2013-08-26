@@ -28,6 +28,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.rdb.service.AliasMap;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.QueryException;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
@@ -50,7 +51,6 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.model.EntityConstants;
 import org.plasma.sdo.access.provider.common.SQLQueryFilterAssembler;
-import org.plasma.sdo.access.provider.jdbc.AliasMap;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.plasma.sdo.profile.KeyType;
 import org.xml.sax.SAXException;

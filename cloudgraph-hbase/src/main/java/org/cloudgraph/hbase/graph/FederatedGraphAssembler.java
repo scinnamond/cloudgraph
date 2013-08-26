@@ -32,6 +32,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.io.FederatedReader;
+import org.cloudgraph.hbase.io.OperationException;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState;
@@ -140,7 +141,13 @@ public class FederatedGraphAssembler extends FederatedAssembler
 			}
 			else {
 				String childTable = rowReader.getGraphState().getRowKeyTable(edges[0].getUuid());
+				if (childTable == null)
+					throw new OperationException("no table found for type, " + 
+							edges[0].getType());
 				TableReader externalTableReader = federatedReader.getTableReader(childTable);
+				if (externalTableReader == null)
+					throw new OperationException("no table reader found for type, " + 
+							edges[0].getType());
 				assembleExternalEdges(target, prop, edges, rowReader,
 						externalTableReader, level);			
 			}

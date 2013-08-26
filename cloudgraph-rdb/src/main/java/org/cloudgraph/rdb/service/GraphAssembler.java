@@ -22,6 +22,7 @@
 package org.cloudgraph.rdb.service;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +44,6 @@ import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.DataGraphAssembler;
 import org.plasma.sdo.access.provider.common.PropertyPair;
-import org.plasma.sdo.access.provider.jdbc.AliasMap;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
 import org.plasma.sdo.core.TraversalDirection;
@@ -95,10 +95,11 @@ public class GraphAssembler extends JDBCSupport
 	 * Initiates the assembly of a data graph based on the 
 	 * given results list. 
 	 * @param results the results list
+	 * @throws SQLException 
 	 * 
 	 * @see DataGraphAssembler.getDataGraph()
 	 */
-	public void assemble(List<PropertyPair> results) {
+	public void assemble(List<PropertyPair> results) throws SQLException {
 		
     	DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
     	this.root = (PlasmaDataObject)dataGraph.createRootObject(this.rootType);		
@@ -171,9 +172,10 @@ public class GraphAssembler extends JDBCSupport
 	 * @param source
 	 * @param sourceProperty
 	 * @param childKeyPairs
+	 * @throws SQLException 
 	 */
 	private void assemble(PlasmaType targetType, PlasmaDataObject source, PlasmaProperty sourceProperty, 
-			List<PropertyPair> childKeyPairs) {
+			List<PropertyPair> childKeyPairs) throws SQLException {
 		List<String> names = this.propertyMap.get(targetType);
 		if (log.isDebugEnabled())
 			log.debug("assemble: " + source.getType().getName() 

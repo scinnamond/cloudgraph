@@ -35,13 +35,15 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.rdb.filter.FilterAssembler;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.provider.common.PropertyPair;
-import org.plasma.sdo.access.provider.jdbc.AliasMap;
+import org.cloudgraph.rdb.service.AliasMap;
 import org.plasma.sdo.core.CoreDataObject;
+import org.cloudgraph.rdb.service.RDBDataConverter;
 import org.plasma.sdo.profile.ConcurrencyType;
 import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
@@ -58,7 +60,7 @@ public abstract class JDBCSupport {
 	}	
 
 	protected StringBuilder createSelectForUpdate(PlasmaType type,
-			List<PropertyPair> keyValues, int waitSeconds) {
+			List<PropertyPair> keyValues, int waitSeconds) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
 		List<Property> props = new ArrayList<Property>();
@@ -123,9 +125,8 @@ public abstract class JDBCSupport {
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
         	sql.append(" = "); 
-        	// FIXME: escape , etc...
-        	sql.append(propValue.getValue()); // FIXME; use converter
-        }
+        	appendValue(propValue, sql);
+       }
         // FIXME: vendor specific checks
         // if Oracle
         //sql.append(" FOR UPDATE WAIT ");
@@ -145,7 +146,7 @@ public abstract class JDBCSupport {
 	}
 	
 	protected StringBuilder createSelect(PlasmaType type, List<String> names, 
-			List<PropertyPair> keyValues) {
+			List<PropertyPair> keyValues) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
 		
@@ -184,9 +185,7 @@ public abstract class JDBCSupport {
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
         	sql.append(" = "); 
-        	// FIXME: escape , etc...
-        	// FIXME: non integral keys etc...
-        	sql.append(propValue.getValue()); // FIXME; use converter
+        	appendValue(propValue, sql);
         }
 		
 		return sql;
@@ -195,7 +194,7 @@ public abstract class JDBCSupport {
 	protected StringBuilder createSelect(PlasmaType type, List<String> names, 
 			List<PropertyPair> keyValues,
 			FilterAssembler filterAssembler,
-			AliasMap aliasMap) {
+			AliasMap aliasMap) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
 		int count = 0;
@@ -241,9 +240,7 @@ public abstract class JDBCSupport {
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
         	sql.append(" = "); 
-        	// FIXME: escape , etc...
-        	// FIXME: non integral keys etc...
-        	sql.append(propValue.getValue()); // FIXME; use converter
+        	appendValue(propValue, sql);
         }
         
         // add default ordering by given keys
@@ -258,6 +255,38 @@ public abstract class JDBCSupport {
 		
 		return sql;
 	}
+	
+	private void appendValue(PropertyPair propValue, StringBuilder sql) throws SQLException
+	{
+    	PlasmaProperty dataProperty = propValue.getProp();
+    	if (!propValue.getProp().getType().isDataType()) {        		
+    		PlasmaType oppositeType = (PlasmaType)propValue.getProp().getType();
+        	List<Property> pkPropList = oppositeType.findProperties(KeyType.primary);
+            if (pkPropList == null || pkPropList.size() == 0)
+                throw new DataAccessException("no pri-key properties found for type '" 
+                        + oppositeType.getName() + "'");
+            if (pkPropList.size() > 1)
+                throw new DataAccessException("multiple pri-key properties found for type '" 
+                        + oppositeType.getName() + "' - cannot map to generated keys");
+            dataProperty = (PlasmaProperty)pkPropList.get(0);
+     	}        	
+    	
+    	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(dataProperty, 
+    			propValue.getValue());
+    	DataFlavor dataFlavor = dataProperty.getDataFlavor();
+    	switch (dataFlavor) {
+    	case string:
+    	case temporal:
+    	case other:
+    	    sql.append("'");
+    	    sql.append(jdbcValue);
+    	    sql.append("'");
+    	    break;
+    	default:
+    	    sql.append(jdbcValue);
+     	   break;
+    	}		
+	}	
 	
 	protected StringBuilder createInsert(PlasmaType type, 
 			Map<String, PropertyPair> values) {
