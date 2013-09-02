@@ -33,11 +33,17 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.plasma.provisioning.rdb.oracle.g11.sys.Constraint.PROPERTY;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaProperty;
+import org.plasma.sdo.PlasmaType;
+import org.plasma.sdo.access.DataAccessException;
+import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.helper.DataConverter;
+import org.plasma.sdo.profile.KeyType;
 
+import commonj.sdo.Property;
 import commonj.sdo.Type;
 
 public class RDBDataConverter {
@@ -71,86 +77,113 @@ public class RDBDataConverter {
 			int sourceType, PlasmaProperty targetProperty) throws SQLException {
 
 		Object result = null;
-
 		if (targetProperty.getType().isDataType()) {
-			DataType targetDataType = DataType.valueOf(targetProperty.getType()
-					.getName());
-
-			switch (targetDataType) {
-			case String:
-			case URI:
-			case Month:
-			case MonthDay:
-			case Day:
-			case Time:
-			case Year:
-			case YearMonth:
-			case YearMonthDay:
-			case Duration:
-				result = rs.getString(columnIndex);
-				break;
-			case Date:
-				java.sql.Timestamp ts = rs.getTimestamp(columnIndex);
-				if (ts != null)
-				    result = new java.util.Date(ts.getTime());
-				break;
-			case DateTime:
-				ts = rs.getTimestamp(columnIndex);
-				if (ts != null)
-				    result = new java.util.Date(ts.getTime());
-				break;
-			case Decimal:
-				result = rs.getBigDecimal(columnIndex);
-				break;
-			case Bytes:
-				result = rs.getBytes(columnIndex);
-				break;
-			case Byte:
-				result = rs.getByte(columnIndex);
-				break;
-			case Boolean:
-				result = rs.getBoolean(columnIndex);
-				break;
-			case Character:
-				result = rs.getInt(columnIndex);
-				break;
-			case Double:
-				result = rs.getDouble(columnIndex);
-				break;
-			case Float:
-				result = rs.getFloat(columnIndex);
-				break;
-			case Int:
-				result = rs.getInt(columnIndex);
-				break;
-			case Integer:
-				result = new BigInteger(rs.getString(columnIndex));
-				break;
-			case Long:
-				result = rs.getLong(columnIndex);
-				break;
-			case Short:
-				result = rs.getShort(columnIndex);
-				break;
-			case Strings:
-				String value = rs.getString(columnIndex);
-				String[] values = value.split("\\s");
-				List<String> list = new ArrayList<String>(values.length);
-				for (int i = 0; i < values.length; i++)
-					list.add(values[i]); // what no Java 5 sugar for this ??
-				result = list;
-				break;
-			case Object:
-			default:
-				result = rs.getObject(columnIndex);
-				break;
-			}
+		    result = convertFrom(rs, columnIndex, sourceType, targetProperty);	
 		} else {
-			// FIXME: or get the opposite containing type
-			// of the property and get its pri-key(s)
-			result = rs.getObject(columnIndex);
+		    Property pkProp = getOppositePriKeyProperty(targetProperty);
+		    result = convertFrom(rs, columnIndex, sourceType, pkProp);	
 		}
 
+		return result;
+	}
+	
+	private Property getOppositePriKeyProperty(Property targetProperty) {
+    	PlasmaProperty opposite = (PlasmaProperty)targetProperty.getOpposite();
+    	if (opposite == null)
+	    	throw new DataAccessException("no opposite property found"
+		        + " - cannot map from reference property, "
+		        + targetProperty.getType() + "." + targetProperty.getName());			    				    	
+		List<Property> pkeyProps = ((PlasmaType)opposite.getContainingType()).findProperties(KeyType.primary);
+	    if (pkeyProps.size() == 0)
+	    	throw new DataAccessException("no opposite pri-key properties found"
+			        + " - cannot map from reference property, "
+			        + targetProperty.getType() + "." + targetProperty.getName());			    				    	
+	    else if (pkeyProps.size() > 1)	
+	    	throw new DataAccessException("multiple opposite pri-key properties found"
+			        + " - cannot map from reference property, "
+			        + targetProperty.getType() + "." + targetProperty.getName());	
+	    Property pkProp = pkeyProps.get(0);
+	    return pkProp;
+		
+	}
+		
+	private Object convertFrom(ResultSet rs, int columnIndex,
+			int sourceType, Property property) throws SQLException {
+		Object result = null;
+		if (!property.getType().isDataType())
+			throw new IllegalArgumentException("expected data type property, not " +
+					property.toString());
+		DataType targetDataType = DataType.valueOf(property.getType()
+				.getName());
+		switch (targetDataType) {
+		case String:
+		case URI:
+		case Month:
+		case MonthDay:
+		case Day:
+		case Time:
+		case Year:
+		case YearMonth:
+		case YearMonthDay:
+		case Duration:
+			result = rs.getString(columnIndex);
+			break;
+		case Date:
+			java.sql.Timestamp ts = rs.getTimestamp(columnIndex);
+			if (ts != null)
+			    result = new java.util.Date(ts.getTime());
+			break;
+		case DateTime:
+			ts = rs.getTimestamp(columnIndex);
+			if (ts != null)
+			    result = new java.util.Date(ts.getTime());
+			break;
+		case Decimal:
+			result = rs.getBigDecimal(columnIndex);
+			break;
+		case Bytes:
+			result = rs.getBytes(columnIndex);
+			break;
+		case Byte:
+			result = rs.getByte(columnIndex);
+			break;
+		case Boolean:
+			result = rs.getBoolean(columnIndex);
+			break;
+		case Character:
+			result = rs.getInt(columnIndex);
+			break;
+		case Double:
+			result = rs.getDouble(columnIndex);
+			break;
+		case Float:
+			result = rs.getFloat(columnIndex);
+			break;
+		case Int:
+			result = rs.getInt(columnIndex);
+			break;
+		case Integer:
+			result = new BigInteger(rs.getString(columnIndex));
+			break;
+		case Long:
+			result = rs.getLong(columnIndex);
+			break;
+		case Short:
+			result = rs.getShort(columnIndex);
+			break;
+		case Strings:
+			String value = rs.getString(columnIndex);
+			String[] values = value.split("\\s");
+			List<String> list = new ArrayList<String>(values.length);
+			for (int i = 0; i < values.length; i++)
+				list.add(values[i]); // what no Java 5 sugar for this ??
+			result = list;
+			break;
+		case Object:
+		default:
+			result = rs.getObject(columnIndex);
+			break;
+		}
 		return result;
 	}
 
@@ -160,76 +193,83 @@ public class RDBDataConverter {
 		int result;
 
 		if (sourceProperty.getType().isDataType()) {
-			DataType dataType = DataType.valueOf(sourceProperty.getType()
-					.getName());
-
-			switch (dataType) {
-			case String:
-			case URI:
-			case Month:
-			case MonthDay:
-			case Day:
-			case Time:
-			case Year:
-			case YearMonth:
-			case YearMonthDay:
-			case Duration:
-			case Strings:
-				result = java.sql.Types.VARCHAR;
-				break;
-			case Date:
-				// Plasma SDO allows more precision than just month/day/year
-				// in an SDO date datatype, and using java.sql.Date will truncate
-				// here so use java.sql.Timestamp.
-				result = java.sql.Types.TIMESTAMP;
-				break;
-			case DateTime:
-				result = java.sql.Types.TIMESTAMP;
-				// FIXME: so what SDO datatype maps to a SQL timestamp??
-				break;
-			case Decimal:
-				result = java.sql.Types.DECIMAL;
-				break;
-			case Bytes:
-				result = java.sql.Types.VARBINARY;
-				break;
-			case Byte:
-				result = java.sql.Types.VARBINARY;
-				break;
-			case Boolean:
-				result = java.sql.Types.BOOLEAN;
-				break;
-			case Character:
-				result = java.sql.Types.CHAR;
-				break;
-			case Double:
-				result = java.sql.Types.DOUBLE;
-				break;
-			case Float:
-				result = java.sql.Types.FLOAT;
-				break;
-			case Int:
-				result = java.sql.Types.INTEGER;
-				break;
-			case Integer:
-				result = java.sql.Types.BIGINT;
-				break;
-			case Long:
-				result = java.sql.Types.INTEGER; // FIXME: no JDBC long??
-				break;
-			case Short:
-				result = java.sql.Types.SMALLINT;
-				break;
-			case Object:
-			default:
-				result = java.sql.Types.VARCHAR;
-				break;
-			}
+			result = convertTo(sourceProperty, value);
 		} else {
-			// FIXME: HACK
-			// FIXME: or get the opposite containing type
-			// of the property and get its pri-key(s)
+		    Property pkProp = getOppositePriKeyProperty(sourceProperty);
+			result = convertTo(pkProp, value);
+		}
+		return result;
+	}
+	
+	private int convertTo(Property property, Object value)
+	{
+		int result;
+		if (!property.getType().isDataType())
+			throw new IllegalArgumentException("expected data type property, not " +
+					property.toString());
+		DataType dataType = DataType.valueOf(property.getType()
+				.getName());
+		switch (dataType) {
+		case String:
+		case URI:
+		case Month:
+		case MonthDay:
+		case Day:
+		case Time:
+		case Year:
+		case YearMonth:
+		case YearMonthDay:
+		case Duration:
+		case Strings:
+			result = java.sql.Types.VARCHAR;
+			break;
+		case Date:
+			// Plasma SDO allows more precision than just month/day/year
+			// in an SDO date datatype, and using java.sql.Date will truncate
+			// here so use java.sql.Timestamp.
+			result = java.sql.Types.TIMESTAMP;
+			break;
+		case DateTime:
+			result = java.sql.Types.TIMESTAMP;
+			// FIXME: so what SDO datatype maps to a SQL timestamp??
+			break;
+		case Decimal:
+			result = java.sql.Types.DECIMAL;
+			break;
+		case Bytes:
+			result = java.sql.Types.VARBINARY;
+			break;
+		case Byte:
+			result = java.sql.Types.VARBINARY;
+			break;
+		case Boolean:
+			result = java.sql.Types.BOOLEAN;
+			break;
+		case Character:
+			result = java.sql.Types.CHAR;
+			break;
+		case Double:
+			result = java.sql.Types.DOUBLE;
+			break;
+		case Float:
+			result = java.sql.Types.FLOAT;
+			break;
+		case Int:
 			result = java.sql.Types.INTEGER;
+			break;
+		case Integer:
+			result = java.sql.Types.BIGINT;
+			break;
+		case Long:
+			result = java.sql.Types.INTEGER; // FIXME: no JDBC long??
+			break;
+		case Short:
+			result = java.sql.Types.SMALLINT;
+			break;
+		case Object:
+		default:
+			result = java.sql.Types.VARCHAR;
+			break;
 		}
 		return result;
 	}

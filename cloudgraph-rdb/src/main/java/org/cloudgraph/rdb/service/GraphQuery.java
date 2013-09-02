@@ -342,8 +342,7 @@ public class GraphQuery extends JDBCSupport
 	            params = filterAssembler.getParams();
 	            if (params != null)
 	                for (int i = 0; i < params.length; i++)
-	                	statement.setString(i+1, 
-	                			String.valueOf(params[i]));
+	                	statement.setObject(i+1, params[i]);
             }
             
             if (log.isDebugEnabled() ){
@@ -507,14 +506,14 @@ public class GraphQuery extends JDBCSupport
                     ResultSet.CONCUR_READ_ONLY);
             
             // set params 
-            // note params are pre-converted
+            // FIXME: params are pre-converted
             // to string in filter assembly
             if (filterAssembler != null) {
 	            params = filterAssembler.getParams();
 	            if (params != null)
-	                for (i = 0; i < params.length; i++)
-	                	statement.setString(i+1, 
-	                			String.valueOf(params[i]));
+	                for (i = 0; i < params.length; i++) {
+	                	statement.setObject(i+1, params[i]);
+	                }
             }
             
             if (log.isDebugEnabled() ){
