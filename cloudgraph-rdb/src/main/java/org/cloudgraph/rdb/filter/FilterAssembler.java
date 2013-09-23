@@ -211,6 +211,7 @@ public class FilterAssembler extends SQLQueryFilterAssembler
 		filter.append("'");                                                                  
 	}
 
+	@Override
     public void start(Property property)
     {                
         org.plasma.query.model.FunctionValues function = property.getFunction();

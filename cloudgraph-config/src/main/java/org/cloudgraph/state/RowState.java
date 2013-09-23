@@ -80,19 +80,19 @@ public interface RowState extends State {
 	
 	/**
 	 * Returns true if this row operation is associated with the given
-	 * data object UUID string.
+	 * data object UUID .
 	 * @return true if this row operation is associated with the given
-	 * data object  UUID string.
+	 * data object  UUID  .
 	 */
-	public boolean contains(String uuid);	
+	public boolean contains(java.util.UUID uuid);	
 
 	/**
 	 * Returns the data object associated with this row operation based on the given
-	 * data object UUID string.
+	 * data object UUID  .
 	 * @return the data object associated with this row operation based on the given
-	 * data object UUID string.
+	 * data object UUID  .
 	 */
-	public DataObject getDataObject(String uuid);	
+	public DataObject getDataObject(java.util.UUID uuid);	
 	
 	/**
      * Returns the graph state for this row context

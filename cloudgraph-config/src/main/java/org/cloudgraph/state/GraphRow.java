@@ -129,22 +129,22 @@ public class GraphRow implements RowState {
 	
 	/**
 	 * Returns true if this row operation is associated with the given
-	 * data object UUID string.
+	 * data object UUID  .
 	 * @return true if this row operation is associated with the given
-	 * data object  UUID string.
+	 * data object  UUID  .
 	 */
-	public boolean contains(String uuid) {
-		return this.dataObjectMap.containsKey(uuid);
+	public boolean contains(java.util.UUID uuid) {
+		return this.dataObjectMap.containsKey(uuid.toString());
 	}
 	
 	/**
 	 * Returns the data object associated with this row operation based on the given
-	 * data object UUID string.
+	 * data object UUID  .
 	 * @return the data object associated with this row operation based on the given
-	 * data object UUID string.
+	 * data object UUID  .
 	 */
-	public DataObject getDataObject(String uuid) {
-		DataObject result = this.dataObjectMap.get(uuid);		
+	public DataObject getDataObject(java.util.UUID uuid) {
+		DataObject result = this.dataObjectMap.get(uuid.toString());		
 		if (result == null) 
 			 throw new IllegalArgumentException("data object ("
 				+ uuid + ") not found"); 

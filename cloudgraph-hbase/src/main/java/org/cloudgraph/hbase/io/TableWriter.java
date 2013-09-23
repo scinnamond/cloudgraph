@@ -22,6 +22,7 @@
 package org.cloudgraph.hbase.io;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Provides access to the operational, configuration and other state information
@@ -41,19 +42,19 @@ import java.util.List;
 public interface TableWriter extends TableOperation {
 
 	/**
-	 * Returns the row writer context for the given UUID string
+	 * Returns the row writer context for the given UUID 
 	 * @param uuid the UUID string
-	 * @return the row writer context for the given UUID string
+	 * @return the row writer context for the given UUID 
 	 */
-	public RowWriter getRowWriter(String uuid);
+	public RowWriter getRowWriter(UUID uuid);
 
 	/**
 	 * Adds the given row writer context mapping it to the
-	 * given UUID string.
-	 * @param uuid the UUID string
+	 * given UUID.
+	 * @param uuid the UUID 
 	 * @param rowContext the row writer context
 	 */
-	public void addRowWriter(String uuid, 
+	public void addRowWriter(UUID uuid, 
 			RowWriter rowContext);
 	
 	/**

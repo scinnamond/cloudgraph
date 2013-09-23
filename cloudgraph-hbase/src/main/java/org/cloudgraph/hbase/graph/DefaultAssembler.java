@@ -193,7 +193,7 @@ public abstract class DefaultAssembler {
 	{
 		byte[] family = tableConfig.getDataColumnFamilyNameBytes();
 		
-		byte[] qualifier = rowReader.getColumnKeyFactory().createColumnKey(
+		byte[] qualifier = rowReader.getColumnKeyFactory().getColumnKey(
 				target, prop);
 		 	
 		if (!rowReader.getRow().containsColumn(family, qualifier)) {

@@ -25,15 +25,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.connect.HBaseConnectionManager;
 import org.cloudgraph.state.GraphTable;
+//import org.cloudgraph.state.UUID;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.core.CoreDataObject;
 
@@ -57,7 +60,7 @@ public class GraphTableReader extends GraphTable
 {
     private static Log log = LogFactory.getLog(GraphTableReader.class);
     private HTableInterface connection;   
-    /** maps data object UUIDs to row readers */
+    /** maps data object UUIDs strings and row key strings to row readers */
     private Map<String, RowReader> rowReaderMap = new HashMap<String, RowReader>();
     private FederatedOperation federatedOperation;
     
@@ -96,38 +99,54 @@ public class GraphTableReader extends GraphTable
 	}
 
 	/**
-	 * Returns the row reader context for the given data object
+	 * Returns the row reader context for the given data object or null
+	 * if null exists
 	 * @param dataObject the data object
-	 * @return the row reader context for the given data object
+	 * @return the row reader context for the given data object or null
+	 * if null exists
 	 */
 	@Override
 	public RowReader getRowReader(DataObject dataObject) {
         String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
 		return rowReaderMap.get(uuid);
 	}
-
+	
 	/**
-	 * Returns the row reader context for the given UUID string
-	 * @param uuid the UUID string
-	 * @return the row reader context for the given UUID string
+	 * Returns the row reader context for the given row key or null
+	 * if null exists 
+	 * @param rowKey the row key bytes
+	 * @return the row reader context for the given row key or null
+	 * if null exists 
 	 */
 	@Override
-	public RowReader getRowReader(String uuid) {
-		return rowReaderMap.get(uuid);
+	public RowReader getRowReader(byte[] rowKey) {
+		return rowReaderMap.get(Bytes.toString(rowKey));
+	}
+
+	/**
+	 * Returns the row reader context for the given UUID 
+	 * @param uuid the UUID  
+	 * @return the row reader context for the given UUID 
+	 */
+	@Override
+	public RowReader getRowReader(UUID uuid) {
+		return rowReaderMap.get(uuid.toString());
 	}
 	
 	/**
 	 * Adds the given row reader context mapping it to the
-	 * given UUID string.
-	 * @param uuid the UUID string
-	 * @param rowContext the row reader context
+	 * given UUID 
+	 * @param uuid the UUID  
+	 * @param rowReader the row reader context
+	 * @throws IllegalArgumentException if an existing row reader is already mapped
+	 * for the given data object UUID 
 	 */
 	@Override
-	public void addRowReader(String uuid, RowReader rowContext) {
-		if (rowReaderMap.get(uuid) != null)
+	public void addRowReader(UUID uuid, RowReader rowReader)  throws IllegalArgumentException {
+		if (rowReaderMap.get(uuid.toString()) != null)
 			throw new IllegalArgumentException("given UUID already mapped to a row reader, "
 					+ uuid);
-		rowReaderMap.put(uuid, rowContext);		
+		rowReaderMap.put(uuid.toString(), rowReader);		
 	}
 
 	/**
@@ -143,20 +162,25 @@ public class GraphTableReader extends GraphTable
 
 	/**
 	 * Creates and adds a row reader based on the given
-	 * data object. If a reader else already mapped for the
-	 * given data object, the existing reader is returned. 
-	 * @param dataObject
+	 * data object and result row mapping it by UUID string
+	 * and row key string. 
+	 * @param dataObject the data object
 	 * @return the row reader
+	 * @throws IllegalArgumentException if an existing row reader is already mapped
+	 * for the given data object UUID 
 	 */
 	@Override
 	public RowReader createRowReader(DataObject dataObject,
-		Result resultRow) {
+		Result resultRow) throws IllegalArgumentException {
 		
         GraphRowReader rowReader = new GraphRowReader(
         	resultRow.getRow(), resultRow,
         	dataObject, this);
-        String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+        UUID uuid = ((PlasmaDataObject)dataObject).getUUID();
         this.addRowReader(uuid, rowReader);
+        byte[] rowKey = resultRow.getRow();
+        String keyString = Bytes.toString(rowKey);
+        this.rowReaderMap.put(keyString, rowReader);
         
         // set the row key so we can look it up on
         // modify and delete ops
@@ -195,4 +219,5 @@ public class GraphTableReader extends GraphTable
     public void clear() {
         this.rowReaderMap.clear();
     }
+
 }

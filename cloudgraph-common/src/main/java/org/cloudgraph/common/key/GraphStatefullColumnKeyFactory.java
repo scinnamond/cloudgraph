@@ -73,4 +73,17 @@ public interface GraphStatefullColumnKeyFactory {
 	 */
 	public byte[] createColumnKey(PlasmaType type, 
 			Integer dataObjectSeqNum, PlasmaProperty property);
+
+
+	/**
+	 * Returns a column key based on data graph specific state information
+	 * within the given data object, such as its UUID, and using the given metadata property
+	 * as well as the configured CloudGraph column key {@link org.cloudgraph.config.ColumnKeyModel
+     * model} for a specific table {@link org.cloudgraph.config.Table configuration}. 
+	 * @param dataObject the data object
+	 * @param property the property
+	 * @return the column key bytes
+	 */
+	public byte[] getColumnKey( 
+		PlasmaDataObject dataObject, PlasmaProperty property);
 }

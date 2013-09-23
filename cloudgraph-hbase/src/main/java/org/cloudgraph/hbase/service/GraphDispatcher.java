@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -63,6 +64,7 @@ import org.plasma.sdo.access.DataGraphDispatcher;
 import org.plasma.sdo.access.RequiredPropertyException;
 import org.plasma.sdo.access.provider.common.DeletedObjectCollector;
 import org.plasma.sdo.access.provider.common.ModifiedObjectCollector;
+import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.core.NullValue;
@@ -73,7 +75,6 @@ import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
 
 import sorts.InsertionSort;
-
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
@@ -784,7 +785,7 @@ public class GraphDispatcher
     	PlasmaType type,
     	RowWriter rowWriter) throws IOException 
     {
-        String uuid = (String)((CoreDataObject)dataObject).getUUIDAsString();
+        UUID uuid = ((CoreDataObject)dataObject).getUUID();
         if (uuid == null)
             throw new GraphServiceException("expected UUID for created entity '" 
             		+ type.getName() + "'");
@@ -829,8 +830,7 @@ public class GraphDispatcher
             if (log.isDebugEnabled()) {
                 log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(pk) + ")");
             }
-            // FIXME: multiple PK's not supported
-            snapshotMap.put(uuid, pk); // map new PK back to UUID
+            snapshotMap.put(uuid, new PropertyPair(targetPriKeyProperty, pk));
         }    	
     }
     

@@ -22,6 +22,7 @@
 package org.cloudgraph.hbase.io;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.hadoop.hbase.client.Result;
 
@@ -50,37 +51,53 @@ public interface TableReader extends TableOperation {
 	public String getTableName();
 	
 	/**
-	 * Returns the row reader context for the given UUID string
-	 * @param uuid the UUID string
-	 * @return the row reader context for the given UUID string
+	 * Returns the row reader context for the given UUID or null
+	 * if null exists
+	 * @param uuid the UUID 
+	 * @return the row reader context for the given UUID  or null
+	 * if null exists
 	 */
-	public RowReader getRowReader(String uuid);
+	public RowReader getRowReader(UUID uuid);
 	
 	/**
-	 * Returns the row reader context for the given data object
+	 * Returns the row reader context for the given row key or null
+	 * if null exists 
+	 * @param rowKey the row key bytes
+	 * @return the row reader context for the given row key or null
+	 * if null exists 
+	 */
+	public RowReader getRowReader(byte[] rowKey);
+	
+	/**
+	 * Returns the row reader context for the given data object or null
+	 * if null exists
 	 * @param dataObject the data object
-	 * @return the row reader context for the given data object
+	 * @return the row reader context for the given data object or null
+	 * if null exists
 	 */
 	public RowReader getRowReader(DataObject dataObject);
 	
 	/**
 	 * Adds the given row reader context mapping it to the
-	 * given UUID string.
-	 * @param uuid the UUID string
+	 * given UUID.
+	 * @param uuid the UUID 
 	 * @param rowContext the row reader context
+	 * @throws IllegalArgumentException if an existing row reader is already mapped
+	 * for the given UUID 
 	 */
-	public void addRowReader(String uuid, 
-			RowReader rowContext);
+	public void addRowReader(UUID uuid, 
+			RowReader rowContext) throws IllegalArgumentException;
 
 	/**
 	 * Creates and adds a row reader based on the given
-	 * data object. If a reader else already mapped for the
-	 * given data object, the existing reader is returned. 
-	 * @param dataObject
+	 * data object and result row. 
+	 * @param dataObject the data object
 	 * @return the row reader
+	 * @throws IllegalArgumentException if an existing row reader is already mapped
+	 * for the given data object UUID 
 	 */
 	public RowReader createRowReader(DataObject dataObject,
-			Result resultRow);
+			Result resultRow) throws IllegalArgumentException;
 	
 	/**
 	 * Returns all row reader context values for this table context.

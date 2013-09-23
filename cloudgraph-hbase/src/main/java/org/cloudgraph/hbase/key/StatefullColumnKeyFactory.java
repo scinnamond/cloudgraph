@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
 import org.cloudgraph.state.GraphState;
+import org.cloudgraph.state.StateException;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -81,6 +82,32 @@ public class StatefullColumnKeyFactory extends CompositeColumnKeyFactory
 		return getKey(type, dataObjectSeqNum, property);
 	}
 	
+	/**
+	 * Returns a column key based on data graph specific state information
+	 * within the given data object, such as its UUID, and using the given metadata property
+	 * as well as the configured CloudGraph column key {@link org.cloudgraph.config.ColumnKeyModel
+     * model} for a specific table {@link org.cloudgraph.config.Table configuration}. 
+	 * @param dataObject the data object
+	 * @param property the property
+	 * @return the column key bytes
+	 * @throws StateException if a sequence is not found for the given data object 
+	 * within the row state for the current row context 
+	 */
+	@Override
+	public byte[] getColumnKey(PlasmaDataObject dataObject,
+			PlasmaProperty property) throws StateException {
+ 	    PlasmaType type = (PlasmaType)dataObject.getType();
+
+		Integer seqNum = this.graphState.findSequence(dataObject);
+		if (seqNum == null) {
+			throw new StateException("expected UUID/sequence mapping in table "
+					+ this.getTable().getName() + " for graph root type " 
+					+ this.getGraph().getRootType() + " for data object, "
+					+ dataObject.toString());
+		}
+		return getKey(type, seqNum, property);
+	}
+	
 	private byte[] getKey(PlasmaType type, 
 			Integer dataObjectSeqNum, PlasmaProperty property) 
 	{
@@ -109,4 +136,5 @@ public class StatefullColumnKeyFactory extends CompositeColumnKeyFactory
 		return result;
 		
 	}
+
 }

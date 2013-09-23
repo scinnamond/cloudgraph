@@ -192,17 +192,17 @@ public abstract class FederatedAssembler extends DefaultAssembler
 	/**
 	 * Creates contained child data object with the same type
 	 * as the given containment property or of a specific sub-type
-	 * as determined by querying the graph state.
+	 * as determined by querying the graph state, as represented in the
+	 * given state Edge.
 	 * 
 	 * @param target the container data object
 	 * @param prop the containment property
-	 * @param edge the edge
-	 * @param rowReader the row reader
+	 * @param edge the state edge
 	 * @return the new child data object
 	 * @throws IOException 
 	 */
 	protected PlasmaDataObject createChild(PlasmaDataObject target, PlasmaProperty prop,
-			Edge edge, RowReader rowReader) throws IOException {
+			Edge edge) throws IOException {
 		PlasmaType edgeType = edge.getType();
 		if (log.isDebugEnabled())
 			log.debug("creating data object ("
@@ -210,6 +210,30 @@ public abstract class FederatedAssembler extends DefaultAssembler
 		        + edgeType.toString());
 		PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop, edge.getType());								
 		child.resetUUID(UUID.fromString(edge.getUuid()));		
+		return child;		
+	}
+	
+	/**
+	 * Creates contained child data object with the same type
+	 * as the given containment property or of a specific sub-type
+	 * as determined by querying the graph state, as represented in the
+	 * given state Edge, but using the given external row root UUID
+	 * @param target the container data object
+	 * @param prop the containment property
+	 * @param edge the state edge
+	 * @param rootUuid the external row root UUID
+	 * @return the new child data object
+	 * @throws IOException
+	 */
+	protected PlasmaDataObject createChild(PlasmaDataObject target, PlasmaProperty prop,
+			Edge edge, UUID rootUuid) throws IOException {
+		PlasmaType edgeType = edge.getType();
+		if (log.isDebugEnabled())
+			log.debug("creating data object ("
+		        + rootUuid.toString() + ") type:  "
+		        + edgeType.toString());
+		PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop, edge.getType());
+		child.resetUUID(rootUuid);		
 		return child;		
 	}
 	

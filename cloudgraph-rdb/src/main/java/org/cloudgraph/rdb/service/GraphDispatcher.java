@@ -34,6 +34,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,6 +72,7 @@ import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
 
 import sorts.InsertionSort;
+import commonj.sdo.ChangeSummary.Setting;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
@@ -214,7 +216,7 @@ public class GraphDispatcher extends JDBCSupport
     
     private void create(DataGraph dataGraph, PlasmaDataObject dataObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         PlasmaType type = (PlasmaType)dataObject.getType();
-        String uuid = (String)((CoreDataObject)dataObject).getUUIDAsString();
+        UUID uuid = ((CoreDataObject)dataObject).getUUID();
         if (uuid == null)
             throw new DataAccessException("expected UUID for inserted entity '" + type.getName() + "'");
         if (log.isDebugEnabled())
@@ -270,8 +272,9 @@ public class GraphDispatcher extends JDBCSupport
 	            if (log.isDebugEnabled()) {
 	                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(pk) + ")");
 	            }
-	            // FIXME: multiple PK's not supported
-	            snapshotMap.put(uuid, pk); // map new PK back to UUID
+	             
+	            PropertyPair pkPair = new PropertyPair(targetPriKeyProperty, pk);
+	            snapshotMap.put(uuid, pkPair); // map new PK back to UUID
             }
         }
         
@@ -350,7 +353,7 @@ public class GraphDispatcher extends JDBCSupport
         if (log.isDebugEnabled()) {
             log.debug("inserting " + dataObject.getType().getName()); 
         }
-        if (sequenceGenerator == null) {
+        if (!this.hasSequenceGenerator()) {
 	        List<PropertyPair> keys = executeInsertWithGeneratedKeys(type, insert, entity, con);
 	        
 	        for (Property pkp : pkList) {
@@ -360,8 +363,7 @@ public class GraphDispatcher extends JDBCSupport
 	    	            if (log.isDebugEnabled()) {
 	    	                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(key.getValue()) + ")");
 	    	            }
-	                    // FIXME: multiple PK's not supported
-	                    snapshotMap.put(uuid, key.getValue()); // map new PK back to UUID\
+	                    snapshotMap.put(uuid, key); // map new PK back to UUID 
 	                }
 	            }
 	        }
@@ -501,10 +503,16 @@ public class GraphDispatcher extends JDBCSupport
         for (Property pkp : pkList) {
             PlasmaProperty pkProperty = (PlasmaProperty)pkp;
             Object pk = dataObject.get(pkProperty);
-            if (pk == null)
-                throw new DataAccessException("found null primary key property '"
+            if (pk == null) {
+            	Setting setting = dataGraph.getChangeSummary().getOldValue(dataObject, pkProperty);
+            	if (setting != null) {
+            	    pk = setting.getValue();
+            	}
+                if (pk == null)
+                    throw new DataAccessException("found null primary key property '"
                 		+ pkProperty.getName() + "' for type, "
                         + type.getURI() + "#" + type.getName());  
+            }
             pkPairs.add(new PropertyPair(pkProperty, pk));
         }        
                        
@@ -811,12 +819,12 @@ public class GraphDispatcher extends JDBCSupport
             Object pk = resultDataObject.get(targetPriKeyProperty.getName());   
             if (pk == null)
             {
-                String uuid = (String)resultCoreObject.getUUIDAsString();
+                UUID uuid = resultCoreObject.getUUID();
                 if (uuid == null)
                     throw new DataAccessException("found no UUID value for entity '" 
                             + property.getType().getName() + "' when setting property "
                             + dataObject.getType().toString() + "." + property.getName());
-                pk = this.snapshotMap.get(uuid);
+                pk = this.snapshotMap.get(uuid, targetPriKeyProperty);
                 if (pk == null)
                     throw new DataAccessException("found no pri-key value for UUID '" + uuid 
                             + "' in id-map for entity '" 

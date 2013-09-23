@@ -24,6 +24,7 @@ package org.cloudgraph.hbase.graph;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -160,10 +161,12 @@ public class FederatedGraphAssembler extends FederatedAssembler
 		int level) throws IOException 
 	{
 		for (Edge edge : edges) {	
-        	if (childRowReader.contains(edge.getUuid()))
+			
+			UUID uuid = UUID.fromString(edge.getUuid());
+        	if (childRowReader.contains(uuid))
         	{            		
         		// we've seen this child before so his data is complete, just link 
-        		PlasmaDataObject existingChild = (PlasmaDataObject)childRowReader.getDataObject(edge.getUuid());
+        		PlasmaDataObject existingChild = (PlasmaDataObject)childRowReader.getDataObject(uuid);
         		link(existingChild, target, prop);
         		continue; 
         	}
@@ -174,7 +177,7 @@ public class FederatedGraphAssembler extends FederatedAssembler
 			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
 			
         	// create a child object
-			PlasmaDataObject child = createChild(target, prop, edge, rowReader);
+			PlasmaDataObject child = createChild(target, prop, edge);
             childRowReader.addDataObject(child);
             
 			assembleEdge(target, prop, edge, 
@@ -182,41 +185,65 @@ public class FederatedGraphAssembler extends FederatedAssembler
 		}
 	}
 	
-	
-	// Target is a different row, within this table or another.
-	// Since we are assembling a graph, each edge requires
-	// a new row reader. 
-	// each edge is a new root in the target table
-	// so need a new row reader for each
+	/**
+	 * Assembles a given set of edges where the target is a different row, within this table or another.
+	 * Since we are assembling a graph, each edge requires
+	 * a new row reader. Each edge is a new root in the target table
+	 * so need a new row reader for each. 
+	 * @param target the object source to which we link edges
+	 * @param prop the edge property
+	 * @param edges the edges
+	 * @param rowReader the row reader
+	 * @param childTableReader the table reader for the child objects
+	 * @param level the assembly level
+	 * @throws IOException
+	 */
 	private void assembleExternalEdges(PlasmaDataObject target, PlasmaProperty prop, 
 			Edge[] edges, RowReader rowReader, TableReader childTableReader, int level) throws IOException 
 	{
 		RowReader childRowReader = null;
 		for (Edge edge : edges) {	
-			RowReader existingChildRowReader = childTableReader.getRowReader(edge.getUuid());
+			// need to look up an existing row reader based on the root UUID of the external graph
+			// or the row key, and the row key is all we have in the local graph state. The edge UUID
+			// is a local graph UUID. 
+			byte[] childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid()); // use local edge UUID
+			RowReader existingChildRowReader = childTableReader.getRowReader(childRowKey);
         	if (existingChildRowReader != null)
-        	{            		
-        		// we've seen this child before so his data is complete, just link 
-        		PlasmaDataObject existingChild = (PlasmaDataObject)existingChildRowReader.getDataObject(edge.getUuid());
+        	{            		        		
+        		// we've seen this row root before so his data is complete, just link 
+        		PlasmaDataObject existingChild = (PlasmaDataObject)existingChildRowReader.getRootDataObject();
         		link(existingChild, target, prop);
         		continue; 
         	}
-			if (log.isDebugEnabled())
-				log.debug("external edge: " 
-			        + target.getType().getURI() + "#" +target.getType().getName()
-			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
-        	
-			byte[] childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid());
 			
 			Result childResult = fetchGraph(childRowKey, childTableReader, edge.getType());
 	    	if (childResult.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
 	    			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
+				String childRowKeyStr = Bytes.toString(childRowKey);
 	    		log.warn("ignoring toubstone result row '" + 
-		    			Bytes.toString(childRowKey) + "'");
+	    				childRowKeyStr + "'");
 				continue; // ignore toumbstone edge
 	    	}
-        	// create a child object
-			PlasmaDataObject child = createChild(target, prop, edge, rowReader);
+	        // need to reconstruct the original graph, so need original UUID
+			byte[] rootUuid = childResult.getValue(Bytes.toBytes(
+					childTableReader.getTable().getDataColumnFamilyName()), 
+	                Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME));
+			if (rootUuid == null)
+				throw new GraphServiceException("expected column: "
+					+ childTableReader.getTable().getDataColumnFamilyName() + ":"
+					+ GraphState.ROOT_UUID_COLUMN_NAME);
+			String uuidStr = null;
+			uuidStr = new String(rootUuid, 
+					childTableReader.getTable().getCharset());
+			UUID uuid = UUID.fromString(uuidStr);	    	
+			if (log.isDebugEnabled())
+				log.debug("external edge: " 
+			        + target.getType().getURI() + "#" +target.getType().getName()
+			        + "->" + prop.getName() + " (" + uuid.toString() + ")");
+        	
+	    	
+        	// create a child object using UUID from external row root
+			PlasmaDataObject child = createChild(target, prop, edge, uuid);
 			
 			// create a row reader for every external edge
 			childRowReader = childTableReader.createRowReader(

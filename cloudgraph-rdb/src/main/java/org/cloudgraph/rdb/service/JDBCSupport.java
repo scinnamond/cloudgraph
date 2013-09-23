@@ -28,9 +28,11 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -120,7 +122,7 @@ public abstract class JDBCSupport {
 		sql.append(" WHERE ");
         for (int k = 0; k < keyValues.size(); k++) {
         	if (k > 0)
-        		sql.append(", ");
+        		sql.append(" AND ");
         	PropertyPair propValue = keyValues.get(k);
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
@@ -129,10 +131,10 @@ public abstract class JDBCSupport {
        }
         // FIXME: vendor specific checks
         // if Oracle
-        //sql.append(" FOR UPDATE WAIT ");
-        //sql.append(String.valueOf(waitSeconds));
+        sql.append(" FOR UPDATE WAIT ");
+        sql.append(String.valueOf(waitSeconds));
         // if MySql
-        sql.append(" FOR UPDATE");
+        //sql.append(" FOR UPDATE");
 
 		return sql;
 	}
@@ -145,7 +147,7 @@ public abstract class JDBCSupport {
 			return type.getPhysicalName();
 	}
 	
-	protected StringBuilder createSelect(PlasmaType type, List<String> names, 
+	protected StringBuilder createSelect(PlasmaType type, Set<Property> props, 
 			List<PropertyPair> keyValues) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
@@ -154,7 +156,7 @@ public abstract class JDBCSupport {
 		// always select pk props where not found in given list
 		List<Property> pkProps = type.findProperties(KeyType.primary);
 		for (Property pkProp : pkProps) {
-			if (names.contains(pkProp.getName()))
+			if (props.contains(pkProp))  
 				continue;
 			if (count > 0)
 				sql.append(", ");
@@ -163,8 +165,8 @@ public abstract class JDBCSupport {
 			count++;
 		}
 		
-		for (String name : names) {
-			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
+		for (Property p : props) {
+			PlasmaProperty prop = (PlasmaProperty)p;
 			if (prop.isMany() && !prop.getType().isDataType())
 				continue;
 			if (count > 0)
@@ -191,7 +193,7 @@ public abstract class JDBCSupport {
 		return sql;
 	}
 
-	protected StringBuilder createSelect(PlasmaType type, List<String> names, 
+	protected StringBuilder createSelect(PlasmaType type, Set<Property> props, 
 			List<PropertyPair> keyValues,
 			FilterAssembler filterAssembler,
 			AliasMap aliasMap) throws SQLException {
@@ -201,7 +203,7 @@ public abstract class JDBCSupport {
 		// always select pk props where not found in given list
 		List<Property> pkProps = type.findProperties(KeyType.primary);
 		for (Property pkProp : pkProps) {
-			if (names.contains(pkProp.getName()))
+			if (props.contains(pkProp))
 				continue;
 			if (count > 0)
 				sql.append(", ");
@@ -209,8 +211,8 @@ public abstract class JDBCSupport {
 			sql.append(((PlasmaProperty)pkProp).getPhysicalName());			
 			count++;
 		}
-		for (String name : names) {
-			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
+		for (Property p : props) {
+			PlasmaProperty prop = (PlasmaProperty)p;
 			if (prop.isMany() && !prop.getType().isDataType())
 				continue;
 			if (count > 0)
@@ -256,11 +258,12 @@ public abstract class JDBCSupport {
 		return sql;
 	}
 	
-	private void appendValue(PropertyPair propValue, StringBuilder sql) throws SQLException
+	private void appendValue(PropertyPair pair, StringBuilder sql) throws SQLException
 	{
-    	PlasmaProperty dataProperty = propValue.getProp();
-    	if (!propValue.getProp().getType().isDataType()) {        		
-    		PlasmaType oppositeType = (PlasmaType)propValue.getProp().getType();
+		/* 
+    	PlasmaProperty dataProperty = pair.getProp();
+    	if (!pair.getProp().getType().isDataType()) {        		
+    		PlasmaType oppositeType = (PlasmaType)pair.getProp().getType();
         	List<Property> pkPropList = oppositeType.findProperties(KeyType.primary);
             if (pkPropList == null || pkPropList.size() == 0)
                 throw new DataAccessException("no pri-key properties found for type '" 
@@ -269,11 +272,13 @@ public abstract class JDBCSupport {
                 throw new DataAccessException("multiple pri-key properties found for type '" 
                         + oppositeType.getName() + "' - cannot map to generated keys");
             dataProperty = (PlasmaProperty)pkPropList.get(0);
-     	}        	
-    	
+     	} 
     	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(dataProperty, 
-    			propValue.getValue());
-    	DataFlavor dataFlavor = dataProperty.getDataFlavor();
+    			pair.getValue());
+     	*/        	
+    	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(pair.getProp(), 
+    			pair.getValue());
+    	DataFlavor dataFlavor = RDBDataConverter.INSTANCE.toJDBCDataFlavor(pair.getProp());
     	switch (dataFlavor) {
     	case string:
     	case temporal:
@@ -390,8 +395,10 @@ public abstract class JDBCSupport {
 				continue;
 			if (!prop.isKey(KeyType.primary))
 				continue;
+        	if (i > 0)
+        		sql.append(" AND "); 
         	sql.append(pair.getProp().getPhysicalName());
-        	sql.append(" = ?"); 
+        	sql.append(" = ? "); 
         	pair.setColumn(i+1);
         	i++;
         }
@@ -401,10 +408,15 @@ public abstract class JDBCSupport {
 	
 	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Connection con)
 	{
-		return fetch(type, sql, new Object[0], con);
+		return fetch(type, sql, new HashSet<Property>(), new Object[0], con);
+	}
+
+	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Set<Property> props, Connection con)
+	{
+		return fetch(type, sql, props, new Object[0], con);
 	}
 	
-	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Object[] params, Connection con)
+	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Set<Property> props, Object[] params, Connection con)
 	{
 		List<List<PropertyPair>> result = new ArrayList<List<PropertyPair>>();
         PreparedStatement statement = null;
@@ -442,6 +454,7 @@ public abstract class JDBCSupport {
             ResultSetMetaData rsMeta = rs.getMetaData();
             int numcols = rsMeta.getColumnCount();
             
+            int count = 0;
             while (rs.next()) {
             	List<PropertyPair> row = new ArrayList<PropertyPair>(numcols);
             	result.add(row);
@@ -454,10 +467,15 @@ public abstract class JDBCSupport {
             		if (value != null) {
             		    PropertyPair pair = new PropertyPair(
             			    (PlasmaProperty)prop, value);
+            		    if (!props.contains(prop))
+            		    	pair.setQueryProperty(false);
             		    row.add(pair);
             		}
                 }
+            	count++;
             }
+            if (log.isDebugEnabled())
+                log.debug("returned "+ count + " results");
         }
         catch (Throwable t) {
             throw new DataAccessException(t);
@@ -493,6 +511,7 @@ public abstract class JDBCSupport {
             rs = statement.getResultSet();
             ResultSetMetaData rsMeta = rs.getMetaData();
             int numcols = rsMeta.getColumnCount();
+            int count = 0;
             while(rs.next()) {
             	PlasmaDataObject target = (PlasmaDataObject)source.createDataObject(sourceProperty);
             	result.add(target);
@@ -511,7 +530,10 @@ public abstract class JDBCSupport {
             			coreObject.setValue(prop.getName(), value);
             		}
                 }
+            	count++;
             }
+            if (log.isDebugEnabled())
+                log.debug("returned "+ count + " results");
         }
         catch (Throwable t) {
             throw new DataAccessException(t);
@@ -547,7 +569,8 @@ public abstract class JDBCSupport {
             rs = statement.getResultSet();
             ResultSetMetaData rsMeta = rs.getMetaData();
             int numcols = rsMeta.getColumnCount();
-            while (rs.next()) 
+            int count = 0;
+            while (rs.next()) {
             	for(int i=1;i<=numcols;i++) {
             		String columnName = rsMeta.getColumnName(i);
             		int columnType = rsMeta.getColumnType(i);
@@ -560,6 +583,10 @@ public abstract class JDBCSupport {
             		    result.put(prop.getName(), pair);
             		}
                 }
+            	count++;
+            }
+            if (log.isDebugEnabled())
+                log.debug("returned "+ count + " results");
         }
         catch (Throwable t) {
             throw new DataAccessException(t);
@@ -594,7 +621,8 @@ public abstract class JDBCSupport {
             rs = statement.getResultSet();
             ResultSetMetaData rsMeta = rs.getMetaData();
             int numcols = rsMeta.getColumnCount();
-            while (rs.next()) 
+            int count = 0;
+            while (rs.next()) {
             	for(int i=1;i<=numcols;i++) {
             		String columnName = rsMeta.getColumnName(i);
             		int columnType = rsMeta.getColumnType(i);
@@ -607,6 +635,10 @@ public abstract class JDBCSupport {
             		    result.add(pair);
             		}
                 }
+            	count++;
+            }
+            if (log.isDebugEnabled())
+                log.debug("returned "+ count + " results");
         }
         catch (Throwable t) {
             throw new DataAccessException(t);

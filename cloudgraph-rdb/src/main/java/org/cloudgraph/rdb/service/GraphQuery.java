@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -44,8 +45,12 @@ import org.cloudgraph.rdb.filter.GroupingDeclarationAssembler;
 import org.cloudgraph.rdb.filter.OrderingDeclarationAssembler;
 import org.cloudgraph.rdb.filter.FilterAssembler;
 import org.plasma.common.bind.DefaultValidationEventHandler;
+import org.plasma.config.DataAccessProviderName;
+import org.plasma.config.PlasmaConfig;
+import org.plasma.config.RDBMSVendorName;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
-import org.plasma.query.collector.PropertySelectionCollector;
+import org.plasma.query.collector.Selection;
+import org.plasma.query.collector.SelectionCollector;
 import org.plasma.query.model.From;
 import org.plasma.query.model.GroupBy;
 import org.plasma.query.model.OrderBy;
@@ -69,6 +74,7 @@ import org.cloudgraph.rdb.service.AliasMap;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.xml.sax.SAXException;
 
+import commonj.sdo.Property;
 import commonj.sdo.Type;
 
 
@@ -99,7 +105,7 @@ public class GraphQuery extends JDBCSupport
         PlasmaType type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(from.getEntity().getNamespaceURI(), 
         		from.getEntity().getName());
         
-        PropertySelectionCollector collector = new PropertySelectionCollector(
+        SelectionCollector collector = new SelectionCollector(
             	query.getSelectClause(), type); 
         collector.setOnlySingularProperties(false);
         collector.setOnlyDeclaredProperties(false); // collect from superclasses
@@ -389,7 +395,7 @@ public class GraphQuery extends JDBCSupport
         return result;
     }
     
-    private List<List<PropertyPair>> findResults(Query query, PropertySelectionCollector collector,
+    private List<List<PropertyPair>> findResults(Query query, SelectionCollector collector,
     		PlasmaType type, Connection con)
     {
         Object[] params = new Object[0];
@@ -400,9 +406,7 @@ public class GraphQuery extends JDBCSupport
         }
 
         AliasMap aliasMap = new AliasMap(type);
-        
-        Map<Type, List<String>> selectMap = collector.getResult();
-        
+               
         // construct a filter adding to alias map
         FilterAssembler filterAssembler = null;
         Where where = query.findWhereClause();
@@ -427,24 +431,28 @@ public class GraphQuery extends JDBCSupport
         StringBuilder sqlQuery = new StringBuilder();
         sqlQuery.append("SELECT DISTINCT ");
          
-        // FIXME: Oracle specific
-        if(query.getStartRange() != null && query.getEndRange() != null) {
-        	sqlQuery.append("ROWNUM as ");
-        	sqlQuery.append(ROWNUM);
-        	sqlQuery.append(", ");
+        RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
+        switch (vendor) {
+        case ORACLE:
+	        if(query.getStartRange() != null && query.getEndRange() != null) {
+	        	sqlQuery.append("ROWNUM as ");
+	        	sqlQuery.append(ROWNUM);
+	        	sqlQuery.append(", ");
+	        }
+	        break;
+	    default:
         }
         
         int i = 0;
-        List<String> names = selectMap.get(type);
-        for (String name : names) {
-			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
+        Set<Property> props = collector.getProperties(type);
+        for (Property prop : props) {
 			if (prop.isMany() && !prop.getType().isDataType())
 				continue;
 			if (i > 0)
         		sqlQuery.append(", ");
         	sqlQuery.append(rootAlias);
         	sqlQuery.append(".");
-        	sqlQuery.append(prop.getPhysicalName());
+        	sqlQuery.append(((PlasmaProperty)prop).getPhysicalName());
         	i++;
 		}        
         
@@ -480,22 +488,33 @@ public class GraphQuery extends JDBCSupport
         }
     	
         // set the result range
-        // FIXME: Oracle specific
-        if(query.getStartRange() != null && query.getEndRange() != null) {
-        	StringBuilder buf = new StringBuilder();
-        	buf.append("SELECT * FROM (");
-        	buf.append(sqlQuery);
-        	buf.append(") WHERE ");
-        	buf.append(ROWNUM);
-        	buf.append(" >= ");
-        	buf.append(String.valueOf(query.getStartRange()));
-        	buf.append(" AND ");
-        	buf.append(ROWNUM);
-        	buf.append(" <= ");
-        	buf.append(String.valueOf(query.getEndRange()));
-        	
-        	sqlQuery = buf;
-        }  
+        switch (vendor) {
+        case ORACLE:
+            if(query.getStartRange() != null && query.getEndRange() != null) {
+            	StringBuilder buf = new StringBuilder();
+            	buf.append("SELECT * FROM (");
+            	buf.append(sqlQuery);
+            	buf.append(") WHERE ");
+            	buf.append(ROWNUM);
+            	buf.append(" >= ");
+            	buf.append(String.valueOf(query.getStartRange()));
+            	buf.append(" AND ");
+            	buf.append(ROWNUM);
+            	buf.append(" <= ");
+            	buf.append(String.valueOf(query.getEndRange()));            	
+            	sqlQuery = buf;
+            }  
+	        break;
+        case MYSQL:
+             if (query.getStartRange() != null && query.getEndRange() != null) {
+        	     sqlQuery.append(" LIMIT ");
+        	     sqlQuery.append(String.valueOf(query.getStartRange()));
+        	     sqlQuery.append(",");
+        	     sqlQuery.append(String.valueOf(query.getEndRange()-query.getStartRange()));
+             }  
+        	 break;
+	    default:
+        }
                
         List<List<PropertyPair>> rows = new ArrayList<List<PropertyPair>>();
         PreparedStatement statement = null;

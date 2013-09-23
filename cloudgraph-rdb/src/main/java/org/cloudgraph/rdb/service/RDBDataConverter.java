@@ -43,6 +43,7 @@ import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.helper.DataConverter;
 import org.plasma.sdo.profile.KeyType;
 
+import commonj.sdo.DataObject;
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 
@@ -86,6 +87,217 @@ public class RDBDataConverter {
 
 		return result;
 	}
+	
+	public int toJDBCDataType(PlasmaProperty sourceProperty, Object value)
+			throws SQLException {
+
+		int result;
+
+		if (sourceProperty.getType().isDataType()) {
+			result = convertToSqlType(sourceProperty, value);
+		} else {
+		    Property pkProp = getOppositePriKeyProperty(sourceProperty);
+			result = convertToSqlType(pkProp, value);
+		}
+		return result;
+	}
+	
+	public Object toJDBCDataValue(PlasmaProperty sourceProperty, Object value)
+			throws SQLException {
+
+		Object result;
+		if (sourceProperty.getType().isDataType()) {
+			result = convertToSqlValue(sourceProperty, value);
+		} else {
+			Property pkProp = getOppositePriKeyProperty(sourceProperty);
+			if (value instanceof DataObject) {
+			    DataObject dataObject = (DataObject)value;
+			    Object pk = dataObject.get(pkProp);
+			    result = convertToSqlValue(pkProp, pk);
+			}
+			else {
+				 result = convertToSqlValue(pkProp, value);
+			}
+		}
+		return result;
+	}
+	
+	public DataFlavor toJDBCDataFlavor(PlasmaProperty sourceProperty)
+	{
+		PlasmaProperty dataProperty = sourceProperty;
+		if (!sourceProperty.getType().isDataType()) {
+			dataProperty = (PlasmaProperty)getOppositePriKeyProperty(sourceProperty);
+		}
+    	return dataProperty.getDataFlavor();
+	}
+
+	private Object convertToSqlValue(Property property, Object value)
+			throws SQLException {
+
+		if (!property.getType().isDataType())
+			throw new IllegalArgumentException("expected data type property, not " +
+					property.toString());
+		DataType dataType = DataType.valueOf(property.getType()
+				.getName());
+		Object result;
+		switch (dataType) {
+		case String:
+		case URI:
+		case Month:
+		case MonthDay:
+		case Day:
+		case Time:
+		case Year:
+		case YearMonth:
+		case YearMonthDay:
+		case Duration:
+			result = DataConverter.INSTANCE.toString(property
+					.getType(), value);
+			break;
+		case Date:
+			// Plasma SDO allows more precision than just month/day/year
+			// in an SDO date datatype, and using java.sql.Date will truncate
+			// here so use java.sql.Timestamp.
+			Date date = DataConverter.INSTANCE.toDate(property
+					.getType(), value);
+			result = new java.sql.Timestamp(date.getTime());
+			break;
+		case DateTime:
+			date = DataConverter.INSTANCE.toDate(property.getType(),
+			    value);
+			result = new java.sql.Timestamp(date.getTime());
+			break;
+		case Decimal:
+			result = DataConverter.INSTANCE.toDecimal(property
+					.getType(), value);
+			break;
+		case Bytes:
+			result = DataConverter.INSTANCE.toBytes(property
+					.getType(), value);
+			break;
+		case Byte:
+			result = DataConverter.INSTANCE.toByte(
+					property.getType(), value);
+			break;
+		case Boolean:
+			result = DataConverter.INSTANCE.toBoolean(property
+					.getType(), value);
+			break;
+		case Character:
+			result = DataConverter.INSTANCE.toString(property
+					.getType(), value);
+			break;
+		case Double:
+			result = DataConverter.INSTANCE.toDouble(property
+					.getType(), value);
+			break;
+		case Float:
+			result = DataConverter.INSTANCE.toDouble(property
+					.getType(), value);
+			break;
+		case Int:
+			result = DataConverter.INSTANCE.toInt(property.getType(),
+					value);
+			break;
+		case Integer:
+			result = DataConverter.INSTANCE.toInteger(property
+					.getType(), value);
+			break;
+		case Long:
+			result = DataConverter.INSTANCE.toLong(
+					property.getType(), value);
+			break;
+		case Short:
+			result = DataConverter.INSTANCE.toShort(property
+					.getType(), value);
+			break;
+		case Strings:
+			result = DataConverter.INSTANCE.toString(property
+					.getType(), value);
+			break;
+		case Object:
+		default:
+			result = DataConverter.INSTANCE.toString(property
+					.getType(), value);
+			break;
+		}
+
+		return result;
+	}
+	
+	private int convertToSqlType(Property property, Object value)
+	{
+		int result;
+		if (!property.getType().isDataType())
+			throw new IllegalArgumentException("expected data type property, not " +
+					property.toString());
+		DataType dataType = DataType.valueOf(property.getType()
+				.getName());
+		switch (dataType) {
+		case String:
+		case URI:
+		case Month:
+		case MonthDay:
+		case Day:
+		case Time:
+		case Year:
+		case YearMonth:
+		case YearMonthDay:
+		case Duration:
+		case Strings:
+			result = java.sql.Types.VARCHAR;
+			break;
+		case Date:
+			// Plasma SDO allows more precision than just month/day/year
+			// in an SDO date datatype, and using java.sql.Date will truncate
+			// here so use java.sql.Timestamp.
+			result = java.sql.Types.TIMESTAMP;
+			break;
+		case DateTime:
+			result = java.sql.Types.TIMESTAMP;
+			// FIXME: so what SDO datatype maps to a SQL timestamp??
+			break;
+		case Decimal:
+			result = java.sql.Types.DECIMAL;
+			break;
+		case Bytes:
+			result = java.sql.Types.VARBINARY;
+			break;
+		case Byte:
+			result = java.sql.Types.VARBINARY;
+			break;
+		case Boolean:
+			result = java.sql.Types.BOOLEAN;
+			break;
+		case Character:
+			result = java.sql.Types.CHAR;
+			break;
+		case Double:
+			result = java.sql.Types.DOUBLE;
+			break;
+		case Float:
+			result = java.sql.Types.FLOAT;
+			break;
+		case Int:
+			result = java.sql.Types.INTEGER;
+			break;
+		case Integer:
+			result = java.sql.Types.BIGINT;
+			break;
+		case Long:
+			result = java.sql.Types.INTEGER; // FIXME: no JDBC long??
+			break;
+		case Short:
+			result = java.sql.Types.SMALLINT;
+			break;
+		case Object:
+		default:
+			result = java.sql.Types.VARCHAR;
+			break;
+		}
+		return result;
+	}
+
 	
 	private Property getOppositePriKeyProperty(Property targetProperty) {
     	PlasmaProperty opposite = (PlasmaProperty)targetProperty.getOpposite();
@@ -183,188 +395,6 @@ public class RDBDataConverter {
 		default:
 			result = rs.getObject(columnIndex);
 			break;
-		}
-		return result;
-	}
-
-	public int toJDBCDataType(PlasmaProperty sourceProperty, Object value)
-			throws SQLException {
-
-		int result;
-
-		if (sourceProperty.getType().isDataType()) {
-			result = convertTo(sourceProperty, value);
-		} else {
-		    Property pkProp = getOppositePriKeyProperty(sourceProperty);
-			result = convertTo(pkProp, value);
-		}
-		return result;
-	}
-	
-	private int convertTo(Property property, Object value)
-	{
-		int result;
-		if (!property.getType().isDataType())
-			throw new IllegalArgumentException("expected data type property, not " +
-					property.toString());
-		DataType dataType = DataType.valueOf(property.getType()
-				.getName());
-		switch (dataType) {
-		case String:
-		case URI:
-		case Month:
-		case MonthDay:
-		case Day:
-		case Time:
-		case Year:
-		case YearMonth:
-		case YearMonthDay:
-		case Duration:
-		case Strings:
-			result = java.sql.Types.VARCHAR;
-			break;
-		case Date:
-			// Plasma SDO allows more precision than just month/day/year
-			// in an SDO date datatype, and using java.sql.Date will truncate
-			// here so use java.sql.Timestamp.
-			result = java.sql.Types.TIMESTAMP;
-			break;
-		case DateTime:
-			result = java.sql.Types.TIMESTAMP;
-			// FIXME: so what SDO datatype maps to a SQL timestamp??
-			break;
-		case Decimal:
-			result = java.sql.Types.DECIMAL;
-			break;
-		case Bytes:
-			result = java.sql.Types.VARBINARY;
-			break;
-		case Byte:
-			result = java.sql.Types.VARBINARY;
-			break;
-		case Boolean:
-			result = java.sql.Types.BOOLEAN;
-			break;
-		case Character:
-			result = java.sql.Types.CHAR;
-			break;
-		case Double:
-			result = java.sql.Types.DOUBLE;
-			break;
-		case Float:
-			result = java.sql.Types.FLOAT;
-			break;
-		case Int:
-			result = java.sql.Types.INTEGER;
-			break;
-		case Integer:
-			result = java.sql.Types.BIGINT;
-			break;
-		case Long:
-			result = java.sql.Types.INTEGER; // FIXME: no JDBC long??
-			break;
-		case Short:
-			result = java.sql.Types.SMALLINT;
-			break;
-		case Object:
-		default:
-			result = java.sql.Types.VARCHAR;
-			break;
-		}
-		return result;
-	}
-
-	public Object toJDBCDataValue(PlasmaProperty sourceProperty, Object value)
-			throws SQLException {
-
-		Object result;
-		if (sourceProperty.getType().isDataType()) {
-			DataType dataType = DataType.valueOf(sourceProperty.getType()
-					.getName());
-
-			switch (dataType) {
-			case String:
-			case URI:
-			case Month:
-			case MonthDay:
-			case Day:
-			case Time:
-			case Year:
-			case YearMonth:
-			case YearMonthDay:
-			case Duration:
-				result = DataConverter.INSTANCE.toString(sourceProperty
-						.getType(), value);
-				break;
-			case Date:
-				// Plasma SDO allows more precision than just month/day/year
-				// in an SDO date datatype, and using java.sql.Date will truncate
-				// here so use java.sql.Timestamp.
-				Date date = DataConverter.INSTANCE.toDate(sourceProperty
-						.getType(), value);
-				result = new java.sql.Timestamp(date.getTime());
-				break;
-			case DateTime:
-				date = DataConverter.INSTANCE.toDate(sourceProperty.getType(),
-				    value);
-				result = new java.sql.Timestamp(date.getTime());
-				break;
-			case Decimal:
-				result = DataConverter.INSTANCE.toDecimal(sourceProperty
-						.getType(), value);
-				break;
-			case Bytes:
-				result = DataConverter.INSTANCE.toBytes(sourceProperty
-						.getType(), value);
-				break;
-			case Byte:
-				result = DataConverter.INSTANCE.toByte(
-						sourceProperty.getType(), value);
-				break;
-			case Boolean:
-				result = DataConverter.INSTANCE.toBoolean(sourceProperty
-						.getType(), value);
-				break;
-			case Character:
-				result = DataConverter.INSTANCE.toString(sourceProperty
-						.getType(), value);
-				break;
-			case Double:
-				result = DataConverter.INSTANCE.toDouble(sourceProperty
-						.getType(), value);
-				break;
-			case Float:
-				result = DataConverter.INSTANCE.toDouble(sourceProperty
-						.getType(), value);
-				break;
-			case Int:
-				result = DataConverter.INSTANCE.toInt(sourceProperty.getType(),
-						value);
-				break;
-			case Integer:
-				result = DataConverter.INSTANCE.toInteger(sourceProperty
-						.getType(), value);
-				break;
-			case Long:
-				result = DataConverter.INSTANCE.toLong(
-						sourceProperty.getType(), value);
-				break;
-			case Short:
-				result = DataConverter.INSTANCE.toShort(sourceProperty
-						.getType(), value);
-				break;
-			case Strings:
-				result = DataConverter.INSTANCE.toString(sourceProperty
-						.getType(), value);
-				break;
-			case Object:
-			default:
-				result = DataConverter.INSTANCE.toString(sourceProperty
-						.getType(), value);
-				break;
-			}
-		} else {
-			result = (Long) value;
 		}
 		return result;
 	}

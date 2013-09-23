@@ -29,10 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.hbase.test.SocialGraphModelTest;
 import org.cloudgraph.test.socialgraph.actor.Actor;
-import org.cloudgraph.test.socialgraph.story.Blog;
-import org.cloudgraph.test.socialgraph.actor.Friendship;
-import org.cloudgraph.test.socialgraph.actor.Photo;
-import org.cloudgraph.test.socialgraph.actor.Topic;
 import org.plasma.common.test.PlasmaTestSetup;
 
 /**

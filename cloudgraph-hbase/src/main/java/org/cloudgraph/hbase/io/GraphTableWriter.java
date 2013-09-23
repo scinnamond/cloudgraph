@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.cloudgraph.config.TableConfig;
@@ -83,13 +84,13 @@ public class GraphTableWriter extends GraphTable
 		return this.connection != null;
 	}
 	@Override
-	public RowWriter getRowWriter(String uuid) {
-		return rowContextMap.get(uuid);
+	public RowWriter getRowWriter(UUID uuid) {
+		return rowContextMap.get(uuid.toString());
 	}
 
 	@Override
-	public void addRowWriter(String uuid, RowWriter rowContext) {
-		rowContextMap.put(uuid, rowContext);		
+	public void addRowWriter(UUID uuid, RowWriter rowContext) {
+		rowContextMap.put(uuid.toString(), rowContext);		
 	}
 
 	@Override

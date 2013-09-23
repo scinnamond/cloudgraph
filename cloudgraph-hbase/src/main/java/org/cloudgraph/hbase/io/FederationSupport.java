@@ -24,6 +24,7 @@ package org.cloudgraph.hbase.io;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.hbase.key.CompositeRowKeyFactory;
@@ -131,7 +132,7 @@ public abstract class FederationSupport {
     	RowWriter rowContext = 
     		new GraphRowWriter(rowKey, dataObject, tableContext);
 
-    	String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+    	UUID uuid = ((PlasmaDataObject)dataObject).getUUID();
     	tableContext.addRowWriter(uuid, rowContext);
     	
     	return rowContext;
@@ -170,7 +171,7 @@ public abstract class FederationSupport {
         }
         RowWriter rowContext = new GraphRowWriter(
     		rowKey, dataObject, tableContext);
-    	String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
+    	UUID uuid = ((PlasmaDataObject)dataObject).getUUID();
     	tableContext.addRowWriter(uuid, rowContext);
     	return rowContext;
     }

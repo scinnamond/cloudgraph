@@ -27,6 +27,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -168,10 +169,11 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 			int level) throws IOException 
 	{
 		for (Edge edge : edges) {	
-        	if (childRowReader.contains(edge.getUuid()))
+			UUID uuid = UUID.fromString(edge.getUuid());
+      	    if (childRowReader.contains(uuid))
         	{            		
         		// we've seen this child before so his data is complete, just link 
-        		PlasmaDataObject existingChild = (PlasmaDataObject)childRowReader.getDataObject(edge.getUuid());
+        		PlasmaDataObject existingChild = (PlasmaDataObject)childRowReader.getDataObject(uuid);
         		link(existingChild, target, prop);
         		continue; 
         	}
@@ -183,7 +185,7 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 			        + target.getType().getURI() + "#" +target.getType().getName()
 			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
          	// create a child object
-			PlasmaDataObject child = createChild(target, prop, edge, rowReader);			
+			PlasmaDataObject child = createChild(target, prop, edge);			
             childRowReader.addDataObject(child);
             
 			assembleEdge(target, prop, edge, 
@@ -202,23 +204,21 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 	{
 		RowReader childRowReader = null;
 		for (Edge edge : edges) {	
-			RowReader existingChildRowReader = childTableReader.getRowReader(edge.getUuid());
+			// need to look up an existing row reader based on the root UUID of the external graph
+			// or the row key, and the row key is all we have in the local graph state. The edge UUID
+			// is a local graph UUID. 
+			byte[] childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid()); // use local edge UUID
+			RowReader existingChildRowReader = childTableReader.getRowReader(childRowKey);
         	if (existingChildRowReader != null)
         	{            		
         		// we've seen this child before so his data is complete, just link 
-        		PlasmaDataObject existingChild = (PlasmaDataObject)existingChildRowReader.getDataObject(edge.getUuid());
+        		PlasmaDataObject existingChild = (PlasmaDataObject)existingChildRowReader.getRootDataObject();
         		link(existingChild, target, prop);
         		continue; 
         	}
-			byte[] childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid());
 			String childRowKeyStr = new String(childRowKey, this.charset);
 			if (resultRows != null && resultRows.get(childRowKeyStr) == null)
 				continue; //not found in predicate
-			
-			if (log.isDebugEnabled())
-				log.debug("external edge: " 
-			        + target.getType().getURI() + "#" +target.getType().getName()
-			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
 			
 			// create a row reader for every external edge
 			Result childResult = fetchGraph(childRowKey, childTableReader, edge.getType());
@@ -228,8 +228,26 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 	    			Bytes.toString(childRowKey) + "'");
 				continue; // ignore toumbstone edge
 	    	}
+	    	
+	        // need to reconstruct the original graph, so need original UUID
+			byte[] rootUuid = childResult.getValue(Bytes.toBytes(
+					childTableReader.getTable().getDataColumnFamilyName()), 
+	                Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME));
+			if (rootUuid == null)
+				throw new GraphServiceException("expected column: "
+					+ childTableReader.getTable().getDataColumnFamilyName() + ":"
+					+ GraphState.ROOT_UUID_COLUMN_NAME);
+			String uuidStr = null;
+			uuidStr = new String(rootUuid, 
+					childTableReader.getTable().getCharset());
+			UUID uuid = UUID.fromString(uuidStr);	    	
+			if (log.isDebugEnabled())
+				log.debug("external edge: " 
+			        + target.getType().getURI() + "#" +target.getType().getName()
+			        + "->" + prop.getName() + " (" + uuid.toString() + ")");			
+	    	
         	// create a child object
-			PlasmaDataObject child = createChild(target, prop, edge, rowReader);
+			PlasmaDataObject child = createChild(target, prop, edge, uuid);
 			childRowReader = childTableReader.createRowReader(
 				child, childResult);
 			
