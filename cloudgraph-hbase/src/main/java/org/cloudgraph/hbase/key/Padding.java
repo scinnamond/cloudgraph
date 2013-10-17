@@ -52,8 +52,6 @@ public class Padding {
      * @param dataFlavor the data flavor
      * @return an array front padded with zeros or rear padded
      * with spaces depending on the given data flavor.
-     * @throws KeyFieldOverflowException if the length of the given
-     * value exceeds the max length
      */
     public final byte[] pad(byte[] value, int maxLength, 
     		DataFlavor dataFlavor) {
@@ -61,10 +59,7 @@ public class Padding {
     	int len = value.length;
     	int delta = maxLength - len;
     	if (delta < 0)
-    		throw new KeyFieldOverflowException("value '" 
-    	        + new String(value, this.charset)
-    			+ "' for dataflavor, " + dataFlavor + ", exceeded max length ("
-    			+ String.valueOf(maxLength) + ")");
+    		return value;
     	byte[] result = null;
     	
      	switch (dataFlavor) {
@@ -109,17 +104,13 @@ public class Padding {
      * @param dataFlavor the data flavor
      * @return an array front padded with zeros or rear padded
      * with spaces depending on the given data flavor.
-     * @throws KeyFieldOverflowException if the length of the given
-     * value exceeds the max length
      */
     public final String pad(String value, int maxLength, 
     		DataFlavor dataFlavor) {
     	int len = value.length();
     	int delta = maxLength - len;
     	if (delta < 0)
-    		throw new KeyFieldOverflowException("value '" + value
-    			+ "' for dataflavor, " + dataFlavor + ", exceeded max length ("
-    			+ String.valueOf(maxLength) + ")");
+    		return value;
 		String result = null;
     	
      	switch (dataFlavor) {

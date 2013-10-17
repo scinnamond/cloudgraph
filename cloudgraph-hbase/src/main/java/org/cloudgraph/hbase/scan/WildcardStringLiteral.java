@@ -43,6 +43,7 @@ import org.plasma.sdo.PlasmaType;
 public class WildcardStringLiteral extends StringLiteral 
     implements FuzzyRowKeyLiteral {
 
+	@Deprecated
 	private WildcardOperator wildcardOperator;
 
 	public WildcardStringLiteral(String literal,
@@ -53,9 +54,16 @@ public class WildcardStringLiteral extends StringLiteral
 			  fieldConfig);
 		this.wildcardOperator = wildcardOperator;
 	}
+		
+
+	public WildcardOperator getWildcardOperator() {
+		return wildcardOperator;
+	}
+
+
 
 	@Override
-	public byte[] getKeyBytes() {
+	public byte[] getFuzzyKeyBytes() {
 		byte[] keyBytes = null;
 		String keyValueStr = this.literal.trim();		
 		if (!fieldConfig.isHash()) {					
@@ -89,7 +97,7 @@ public class WildcardStringLiteral extends StringLiteral
 	@Override
 	public byte[] getFuzzyInfoBytes() {
 		byte[] infoBytes = new byte[this.fieldConfig.getMaxLength()];
-		byte[] literalChars = getKeyBytes();
+		byte[] literalChars = getFuzzyKeyBytes();
 		char wildcard = Wildcard.WILDCARD_CHAR.toCharArray()[0];
 		for (int i = 0; i < infoBytes.length; i++)
 			if (literalChars[i] != wildcard)

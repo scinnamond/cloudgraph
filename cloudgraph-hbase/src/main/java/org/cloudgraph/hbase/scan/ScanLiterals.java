@@ -27,9 +27,18 @@ import java.util.List;
 import java.util.Map;
 
 import org.cloudgraph.config.DataGraphConfig;
+import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.plasma.query.model.RelationalOperator;
+import org.plasma.query.model.RelationalOperatorValues;
 
 /**
+ * A collection of scan literals which provides various accessor methods which
+ * indicate the applicability of the collection under various scan operations. Given that a query
+ * may represent any number of scans or gets, clients should ensure that the collection is
+ * populated with literals applicable for its query expression context. 
+ * populate the collection with literals under 
+ * @see ScanLiteral
  * @author Scott Cinnamond
  * @since 0.5
  */
@@ -37,6 +46,10 @@ public class ScanLiterals {
 	private Map<Integer, List<ScanLiteral>> literalMap = new HashMap<Integer, List<ScanLiteral>>();
 	private List<ScanLiteral> literalList = new ArrayList<ScanLiteral>();
 	private boolean hasWildcards = false;
+	private boolean hasOnlyEqualityRelationalOperators = true;
+	private Map<DataGraphConfig, Boolean> hasContiguousPartialKeyScanFieldValuesMap;
+	private Map<DataGraphConfig, Boolean> hasContiguousKeyFieldValuesMap;
+
 	public ScanLiterals() {}
 	
     public List<ScanLiteral> getLiterals() {    	
@@ -55,6 +68,16 @@ public class ScanLiterals {
     public void addLiteral(ScanLiteral scanLiteral) {
     	if (scanLiteral instanceof WildcardStringLiteral)
     		this.hasWildcards = true;
+    	
+    	RelationalOperator oper = scanLiteral.getRelationalOperator();
+	    if (oper != null) {
+	    	switch (oper.getValue()) {
+	    	case EQUALS:
+	    		break;
+	    	default:
+	    		this.hasOnlyEqualityRelationalOperators	= false;
+	    	}
+    	}
     	
     	UserDefinedRowKeyFieldConfig fieldConfig = scanLiteral.getFieldConfig();
 		List<ScanLiteral> list = this.literalMap.get(fieldConfig.getSequenceNum());
@@ -78,7 +101,79 @@ public class ScanLiterals {
     	if (this.hasWildcards)
     		return false;
     	
-    	boolean hasContiguousPartialKeyScanFieldValues = true;
+    	if (hasContiguousPartialKeyScanFieldValuesMap == null)
+    		hasContiguousPartialKeyScanFieldValuesMap = new HashMap<DataGraphConfig, Boolean>();
+    	
+    	if (this.hasContiguousPartialKeyScanFieldValuesMap.get(graph) == null) {
+    		boolean hasContiguousPartialKeyScanFieldValues = true;
+    		
+        	int size = graph.getUserDefinedRowKeyFields().size();
+	    	int[] scanLiteralCount = initScanLiteralCount(graph);
+	    	
+	    	// If any field literal 'gap' found, i.e. if no literals found
+	    	// for a field and where the next field DOES have literals
+	    	for (int i = 0; i < size-1; i++)
+	    		if (scanLiteralCount[i] == 0 && scanLiteralCount[i+1] > 0)
+	    			hasContiguousPartialKeyScanFieldValues = false; 
+	    	
+	    	this.hasContiguousPartialKeyScanFieldValuesMap.put(graph, hasContiguousPartialKeyScanFieldValues);
+    	}
+    
+    	return this.hasContiguousPartialKeyScanFieldValuesMap.get(graph).booleanValue();
+    }
+ 
+    /**
+     * Returns true if this set of literals can support
+     * a partial row key scan for the given graph
+     * @param graph the graph 
+     * @return true if this set of literals can support
+     * a partial row key scan for the given graph
+     */
+    public boolean supportCompleteRowKey(DataGraphConfig graph)
+    {
+    	if (this.hasWildcards)
+    		return false;
+    	
+    	if (!this.hasOnlyEqualityRelationalOperators)
+    		return false;
+
+    	if (hasContiguousKeyFieldValuesMap == null)
+    		hasContiguousKeyFieldValuesMap = new HashMap<DataGraphConfig, Boolean>();
+    	if (this.hasContiguousKeyFieldValuesMap.get(graph) == null) {
+    		boolean hasContiguousFieldValues = true;
+        	
+    		
+        	int size = graph.getUserDefinedRowKeyFields().size();
+	    	int[] scanLiteralCount = initScanLiteralCount(graph);
+	    	
+	    	// If any field literal 'gap' found
+	    	for (int i = 0; i < size; i++)
+	    		if (scanLiteralCount[i] == 0)
+	    			hasContiguousFieldValues = false;  
+	    	
+	    	for (PreDefinedKeyFieldConfig field : graph.getPreDefinedRowKeyFields()) {
+	    		switch (field.getName()) {
+	    		case URI: 
+	    		case TYPE:
+	    			break;
+	    		case UUID:
+	    			// Because the UUID predefined field exists in the row key definition
+	    			// and the UUID cannot be used in a query, as it is an internal value for
+	    			// a data object and has no accessor/mutator per se, this makes
+	    			// a complete/get operation impossible
+	    			hasContiguousFieldValues = false;  
+	    			break;  
+	    		default:
+	    		}
+	        }    	
+	    	
+	    	this.hasContiguousKeyFieldValuesMap.put(graph, hasContiguousFieldValues);
+    	}
+    
+    	return this.hasContiguousKeyFieldValuesMap.get(graph).booleanValue();
+    }
+    
+    private int[] initScanLiteralCount(DataGraphConfig graph) {
     	int size = graph.getUserDefinedRowKeyFields().size();
     	int[] scanLiteralCount = new int[size];
     	
@@ -91,11 +186,8 @@ public class ScanLiterals {
     			scanLiteralCount[i] = 0; 
     	}
     	
-    	for (int i = 0; i < size-1; i++)
-    		if (scanLiteralCount[i] == 0 && scanLiteralCount[i+1] > 0)
-    			hasContiguousPartialKeyScanFieldValues = false;    	
-    
-    	return hasContiguousPartialKeyScanFieldValues;
+    	return scanLiteralCount;
+   	
     }
 	
 }

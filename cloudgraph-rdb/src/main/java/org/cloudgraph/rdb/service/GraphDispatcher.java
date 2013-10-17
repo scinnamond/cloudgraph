@@ -36,9 +36,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.service.CreatedCommitComparator;
+import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.config.DataAccessProvider;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
@@ -102,7 +104,15 @@ public class GraphDispatcher extends JDBCSupport
         if (sequenceGenerator != null)
             sequenceGenerator.close();
     }
+    
+	@Override
+	public SnapshotMap commit(DataGraph[] dataGraphs) {
+		for (DataGraph dataGraph : dataGraphs)
+			commit(dataGraph);
+		return this.snapshotMap;
+	}
      
+	@Override
     public SnapshotMap commit(DataGraph dataGraph) {
         
         if (username == null || username.length() == 0)
@@ -393,7 +403,22 @@ public class GraphDispatcher extends JDBCSupport
                 throw new DataAccessException("found null primary key property '"
                 		+ pkProperty.getName() + "' for type, "
                         + type.getURI() + "#" + type.getName());  
-            pkPairs.add(new PropertyPair(pkProperty, pk));
+            Setting setting = dataGraph.getChangeSummary().getOldValue(dataObject, pkProperty);
+            if (setting != null) { // it's been modified 
+            	// pk has been modified, yet we need it to lookup record, use the old value
+            	if (!pkProperty.isReadOnly()) {
+            		Object oldPk = setting.getValue();
+            		PropertyPair pair = this.createValue(dataObject, oldPk, pkProperty);             		
+                    pkPairs.add(pair);
+            	}
+            	else
+            		throw new IllegalAccessException("attempt to modify read-only property, "
+            			+ type.getURI() + "#" + type.getName() + "." + pkProperty.getName());
+            }
+            else {
+        		PropertyPair pair = this.createValue(dataObject, pk, pkProperty);             		
+                pkPairs.add(pair);
+            }
         }        
             
         // FIXME: get rid of cast - define instance properties in 'base type'
@@ -436,6 +461,8 @@ public class GraphDispatcher extends JDBCSupport
 
         StringBuilder select = createSelectForUpdate(type, pkPairs, 5);
         Map<String, PropertyPair> entity = fetchRowMap(type, select, con);
+        if (entity.size() == 0)
+        	throw new GraphServiceException("could not lock record of type, " + type.toString());
                 
         if (concurrencyTimestampProperty != null && concurrencyUserProperty != null)  
             checkAndRefreshConcurrencyFields(type, entity, 
@@ -456,8 +483,8 @@ public class GraphDispatcher extends JDBCSupport
         	PlasmaProperty property = (PlasmaProperty)p;
             if (property.isMany()) 
                 continue; // do/could we invoke a "marshaler" here?
-            if (property.isKey(KeyType.primary))
-                continue;
+            //if (property.isKey(KeyType.primary))
+            //    continue;
             
             if (property.getConcurrent() != null)
                 continue;            
@@ -826,8 +853,8 @@ public class GraphDispatcher extends JDBCSupport
                             + dataObject.getType().toString() + "." + property.getName());
                 pk = this.snapshotMap.get(uuid, targetPriKeyProperty);
                 if (pk == null)
-                    throw new DataAccessException("found no pri-key value for UUID '" + uuid 
-                            + "' in id-map for entity '" 
+                    throw new DataAccessException("found no pri-key value found in entity or mapped to UUID '" + uuid 
+                            + "' for entity '" 
                             + property.getType().getName() + "' when setting property "
                             + dataObject.getType().toString() + "." + property.getName());
             }
@@ -942,5 +969,5 @@ public class GraphDispatcher extends JDBCSupport
         }                
     
     }
-     
+    
 }

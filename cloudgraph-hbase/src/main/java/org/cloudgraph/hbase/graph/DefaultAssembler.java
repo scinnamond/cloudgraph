@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -43,6 +44,7 @@ import org.cloudgraph.hbase.service.HBaseDataConverter;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.cloudgraph.state.GraphState;
 import org.plasma.query.collector.PropertySelection;
+import org.plasma.query.collector.Selection;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -67,7 +69,7 @@ public abstract class DefaultAssembler {
     protected PlasmaType rootType;
 	protected PlasmaDataObject root;
 	protected TableReader rootTableReader;
-	protected PropertySelection selection;
+	protected Selection selection;
 	protected Timestamp snapshotDate;
 	
 	@SuppressWarnings("unused")
@@ -81,7 +83,7 @@ public abstract class DefaultAssembler {
 	 * into every data object in the result data graph. 
 	 */
 	public DefaultAssembler(PlasmaType rootType,
-			PropertySelection selection,
+			Selection selection,
 			TableReader rootTableReader,
 			Timestamp snapshotDate) {
 		this.rootType = rootType;
@@ -133,7 +135,7 @@ public abstract class DefaultAssembler {
 	 * @throws IOException if a remote or network exception occurs.
 	 */
 	protected void assembleData(PlasmaDataObject target,
-		List<String> names,
+		Set<Property> props,
 		RowReader rowReader) throws IOException
 	{
 		CoreNode targetDataNode = (CoreNode)target;
@@ -145,8 +147,8 @@ public abstract class DefaultAssembler {
         	targetDataNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
 
 		// data props
-		for (String name : names) {
-			PlasmaProperty prop = (PlasmaProperty)target.getType().getProperty(name);
+		for (Property p : props) {
+			PlasmaProperty prop = (PlasmaProperty)p;
 			if (!prop.getType().isDataType())
 				continue;
 			
@@ -246,10 +248,12 @@ public abstract class DefaultAssembler {
                         + "." + sourceProperty.getName() + "->(" + target.getUUIDAsString() + ") "
                         + target.getType().getURI() + "#" + target.getType().getName());
                 if (target.getContainer() == null) {
-                	throw new IllegalStateException("the given target (" + target.getUUIDAsString() + ") "
-                        + "of type " 
-                		+ target.getType().getURI() + "#" + target.getType().getName()
-                		+ " has no container");
+                	if (source.getDataGraph().getRootObject().equals(target)) {
+                		log.warn("linking root object, " + target.toString() + " to source, "
+                			+ source.toString());
+                	}
+                	else
+                	    throw new IllegalStateException("the given target has no container: " + target.toString());
                 }
                 list.add(target);   
                 // FIXME: HACK
@@ -265,10 +269,12 @@ public abstract class DefaultAssembler {
             PlasmaDataObject existing = (PlasmaDataObject)source.get(sourceProperty);
             if (existing == null) {
                 if (target.getContainer() == null) {
-                	throw new IllegalStateException("the given target (" + target.getUUIDAsString() + ") "
-                            + "of type " 
-                    		+ target.getType().getURI() + "#" + target.getType().getName()
-                    		+ " has no container");
+                	if (source.getDataGraph().getRootObject().equals(target)) {
+                		log.warn("linking root object, " + target.toString() + " to source, "
+                			+ source.toString());
+                	}
+                	else
+                	    throw new IllegalStateException("the given target has no container: " + target.toString());
                 }
                 source.set(sourceProperty, target); 
             }

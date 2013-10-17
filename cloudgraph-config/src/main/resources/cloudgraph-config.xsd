@@ -60,7 +60,12 @@ Configuration settings for a table.
                     <xsd:annotation>
                     <xsd:documentation>The name of the column family used for data</xsd:documentation>
                     </xsd:annotation>
-                </xsd:attribute>    
+                </xsd:attribute> 
+                <xsd:attribute name="uniqueChecks" type="xsd:boolean" use="optional" default="true">
+                    <xsd:annotation>
+                    <xsd:documentation>Whether to first check for an existing matching row key before creating/inserting new rows</xsd:documentation>
+                    </xsd:annotation>
+                </xsd:attribute> 
             </xsd:extension>
         </xsd:complexContent>
          
@@ -335,7 +340,7 @@ column field may be specified.
     </xsd:element>
 
     <xsd:complexType name="Property">
-        <xsd:annotation><xsd:documentation>defines a property element with both content and attributes</xsd:documentation></xsd:annotation>
+        <xsd:annotation><xsd:documentation>Defines a property element with both content and attributes</xsd:documentation></xsd:annotation>
         <xsd:simpleContent>
             <xsd:extension base="xsd:string">
                 <xsd:attribute name="name" type="xsd:string" use="required"/>
@@ -378,5 +383,17 @@ column field may be specified.
             </xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
+    
+    <xsd:simpleType name="ConfigurationProperty">
+        <xsd:annotation>
+            <xsd:documentation>A property that can be used in a JVM command line or within various configuration (property) elements witin a configuration. System properties take precedence over all other configuration property instances and lower level (e.g. field level) configuration properties take precedence over higher level (e.g. table level) configuration properties.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+             <xsd:enumeration value="unique.checks">
+                <xsd:annotation><xsd:documentation>Whether to first check for an existing matching row key before creating/inserting new rows</xsd:documentation></xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
+            
 
 </xsd:schema>

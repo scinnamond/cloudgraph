@@ -47,6 +47,7 @@ import commonj.sdo.Type;
 public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
     private static Log log = LogFactory.getLog(FloatPartialRowKeyScanTest.class);
     private long INCREMENT = 1500;
+    private long WAIT_TIME = 10; 
     private String USERNAME = "float_test";
 
     public static Test suite() {
@@ -56,139 +57,124 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
     public void setUp() throws Exception {
         super.setUp();
     } 
-     
+       
     public void testEqual() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
-        log.info("equal id1:" + id1);
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + INCREMENT; 
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1, "g1");
+        Node root1 = this.createGraph(rootId, id1, now1, "AAA");
         service.commit(root1.getDataGraph(), USERNAME);
-        log.info("equal float id1:" + Float.valueOf(root1.getFloatField()).toString());
 
-        long id2 = System.currentTimeMillis();
-        log.info("equal id2:" + id2);
+        long id2 = id1 + INCREMENT; 
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2, "g2");
+        Node root2 = this.createGraph(rootId, id2, now2, "BBB");
         service.commit(root2.getDataGraph(), USERNAME);
-        log.info("equal float id2:" + Float.valueOf(root2.getFloatField()));
 
-        long id3 = System.currentTimeMillis();
-        log.info("equal id3:" + id3);
+        long id3 = id2 + INCREMENT; 
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3, "g3");
-        service.commit(root3.getDataGraph(), USERNAME);
-        log.info("equal float id3:" + Float.valueOf(root3.getFloatField()));
+        Node root3 = this.createGraph(rootId, id3, now3, "CCC");
+        service.commit(root3.getDataGraph(), USERNAME);        
         
         // fetch a slice
         String sliceName = root1.getChild(3).getName();
-        Node fetched = this.fetchSingleGraph(root1.getFloatField(), 
+        Node fetched = this.fetchSingleGraph(rootId, root1.getFloatField(), 
         		sliceName);
-        logGraph(fetched.getDataGraph());
+        debugGraph(fetched.getDataGraph());
         assertTrue(fetched.getChildCount() == 1); // expect single slice
-        assertTrue(fetched.getRootId() == id1);
+        assertTrue(fetched.getRootId() == rootId);
         String name = fetched.getString(
         		"child[@name='"+sliceName+"']/@name");
         assertTrue(name.equals(sliceName));         
-    }  
+    } 
+  
      
     public void testBetween() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
-        log.info("between id1:" + id1);
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + INCREMENT; 
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1, "g1");
+        Node root1 = this.createGraph(rootId, id1, now1, "AAA");
         service.commit(root1.getDataGraph(), USERNAME);
-        log.info("between float id1:" + Float.valueOf(root1.getFloatField()));
 
-        long id2 = id1 + INCREMENT;
-        log.info("between id2:" + id2);
+        long id2 = id1 + INCREMENT; 
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2, "g2");
+        Node root2 = this.createGraph(rootId, id2, now2, "BBB");
         service.commit(root2.getDataGraph(), USERNAME);
-        log.info("between float id2:" + Float.valueOf(root2.getFloatField()));
 
-        long id3 = id2 + INCREMENT;
-        log.info("between id3:" + id3);
+        long id3 = id2 + INCREMENT; 
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3, "g3");
-        service.commit(root3.getDataGraph(), USERNAME);
-        log.info("between float id3:" + Float.valueOf(root3.getFloatField()));
+        Node root3 = this.createGraph(rootId, id3, now3, "CCC");
+        service.commit(root3.getDataGraph(), USERNAME);        
         
-        Node[] fetched = this.fetchGraphsBetween(
+        Node[] fetched = this.fetchGraphsBetween(rootId, 
         		root1.getFloatField(), root3.getFloatField());
         assertTrue(fetched.length == 3);
 
-        logGraph(fetched[0].getDataGraph());
-        logGraph(fetched[1].getDataGraph());
-        logGraph(fetched[2].getDataGraph());
+        debugGraph(fetched[0].getDataGraph());
+        debugGraph(fetched[1].getDataGraph());
+        debugGraph(fetched[2].getDataGraph());
         
     } 
-      
+           
     public void testInclusive() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
-        log.info("inclusive id1:" + id1);
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + INCREMENT; 
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1, "g1");
+        Node root1 = this.createGraph(rootId, id1, now1, "AAA");
         service.commit(root1.getDataGraph(), USERNAME);
-        log.info("inclusive float id1:" + Float.valueOf(root1.getFloatField()));
 
-        long id2 = id1 + INCREMENT;
-        log.info("inclusive id2:" + id2);
+        long id2 = id1 + INCREMENT; 
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2, "g2");
+        Node root2 = this.createGraph(rootId, id2, now2, "BBB");
         service.commit(root2.getDataGraph(), USERNAME);
-        log.info("inclusive float id2:" + Float.valueOf(root2.getFloatField()));
 
-        long id3 = id2 + INCREMENT;
-        log.info("inclusive id3:" + id3);
+        long id3 = id2 + INCREMENT; 
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3, "g4");
-        service.commit(root3.getDataGraph(), USERNAME);
-        log.info("inclusive float id3:" + Float.valueOf(root3.getFloatField()));
+        Node root3 = this.createGraph(rootId, id3, now3, "CCC");
+        service.commit(root3.getDataGraph(), USERNAME);        
         
-        Node[] fetched = this.fetchGraphsInclusive(
+        Node[] fetched = this.fetchGraphsInclusive(rootId, 
         		root1.getFloatField(), root3.getFloatField());
         assertTrue(fetched.length == 3);
-        logGraph(fetched[0].getDataGraph());
-        logGraph(fetched[1].getDataGraph());
-        logGraph(fetched[2].getDataGraph());
+        debugGraph(fetched[0].getDataGraph());
+        debugGraph(fetched[1].getDataGraph());
+        debugGraph(fetched[2].getDataGraph());
     }  
-
+ 
      
     public void testExclusive() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
-        log.info("exclusive id1:" + id1);
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + INCREMENT; 
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1, "g1");
+        Node root1 = this.createGraph(rootId, id1, now1, "AAA");
         service.commit(root1.getDataGraph(), USERNAME);
-        log.info("exclusive float id1:" + Float.valueOf(root1.getFloatField()));
 
-        long id2 = id1 + INCREMENT;
-        log.info("exclusive id2:" + id2);
+        long id2 = id1 + INCREMENT; 
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2, "g2");
+        Node root2 = this.createGraph(rootId, id2, now2, "BBB");
         service.commit(root2.getDataGraph(), USERNAME);
-        log.info("exclusive float id2:" + Float.valueOf(root2.getFloatField()));
 
-        long id3 = id2 + INCREMENT;
-        log.info("exclusive id3:" + id3);
+        long id3 = id2 + INCREMENT; 
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3, "g3");
-        service.commit(root3.getDataGraph(), USERNAME);
-        log.info("exclusive float id3:" + Float.valueOf(root3.getFloatField()));
+        Node root3 = this.createGraph(rootId, id3, now3, "CCC");
+        service.commit(root3.getDataGraph(), USERNAME);        
         
-        Node[] fetched = this.fetchGraphsExclusive(
+        Node[] fetched = this.fetchGraphsExclusive(rootId, 
         		root1.getFloatField(), root3.getFloatField());
         assertTrue(fetched.length == 1);
-        logGraph(fetched[0].getDataGraph());
+        debugGraph(fetched[0].getDataGraph());
     }    
-   
-    protected Node fetchSingleGraph(Float id, String name) {    	
+    
+    protected Node fetchSingleGraph(long rootId, Float id, String name) {    	
     	QFloatNode root = createSelect(name);
-    	root.where(root.floatField().eq(id));
+    	root.where(root.rootId().eq(rootId).and(root.floatField().eq(id)));
     	
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
@@ -197,9 +183,9 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return (Node)result[0].getRootObject();
     }
 
-    protected Node[] fetchGraphsBetween(Float min, Float max) {    	
+    protected Node[] fetchGraphsBetween(long rootId, Float min, Float max) {    	
     	QFloatNode root = createSelect();
-    	root.where(root.floatField().between(min, max));
+    	root.where(root.rootId().eq(rootId).and(root.floatField().between(min, max)));
     	
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
@@ -210,10 +196,10 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return profiles;
     }
 
-    protected Node[] fetchGraphsInclusive(Float min, Float max) {    	
+    protected Node[] fetchGraphsInclusive(long rootId, Float min, Float max) {    	
     	QFloatNode root = createSelect();
-    	root.where(root.floatField().ge(min)
-        		.and(root.floatField().le(max)));
+    	root.where(root.rootId().eq(rootId).and(root.floatField().ge(min)
+        		.and(root.floatField().le(max))));
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
     	
@@ -223,10 +209,10 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return profiles;
     }
     
-    protected Node[] fetchGraphsExclusive(Float min, Float max) {    	
+    protected Node[] fetchGraphsExclusive(long rootId, Float min, Float max) {    	
     	QFloatNode root = createSelect();
-    	root.where(root.floatField().gt(min)
-        		.and(root.floatField().lt(max)));
+    	root.where(root.rootId().eq(rootId).and(root.floatField().gt(min)
+        		.and(root.floatField().lt(max))));
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
     	
@@ -259,12 +245,12 @@ public class FloatPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return root;
     }
     
-    protected FloatNode createGraph(long id, Date now, String namePrefix) {
+    protected FloatNode createGraph(long rootId, long id, Date now, String namePrefix) {
         DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
         dataGraph.getChangeSummary().beginLogging(); // log changes from this point
     	Type rootType = PlasmaTypeHelper.INSTANCE.getType(FloatNode.class);
     	FloatNode root = (FloatNode)dataGraph.createRootObject(rootType);
-    	fillNode(root, id, now, namePrefix, 0, 0);
+    	fillNode(root, rootId, id, now, namePrefix, 0, 0);
     	fillGraph(root, id, now, namePrefix);
         return root;
     }

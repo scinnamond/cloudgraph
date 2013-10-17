@@ -412,28 +412,32 @@ public class GraphAssembler extends JDBCSupport
 		PropertyPair[] pairs = new PropertyPair[row.size()];
 		row.toArray(pairs);
 		Arrays.sort(pairs, this.nameComparator);
-		int result = type.getQualifiedName().hashCode();
+		int pkHash = type.getQualifiedName().hashCode();
+		int fallBackHash = type.getQualifiedName().hashCode();
 		
 		int pks = 0;
 		for (int i = 0; i < pairs.length; i++) {
+			Object value = pairs[i].getValue();
+			if (value == null) {
+				log.warn("null voue for property, " + pairs[i].getProp().toString());
+				continue;
+			}
 			if (pairs[i].getProp().isKey(KeyType.primary)) {
-				Object value = pairs[i].getValue();
-				result = result ^ value.hashCode();
+				pkHash = pkHash ^ value.hashCode();
+				fallBackHash = fallBackHash ^ value.hashCode();
 				pks++;
 			}
+			else {
+				fallBackHash = fallBackHash ^ value.hashCode();
+			}
 		}
-		if (pks == 0)
-			throw new IllegalStateException("cannot create hash key - no primary keys found for type, "
-					+ type.toString());
-		List<Property> pkProps = type.findProperties(KeyType.primary);
-		if (pkProps.size() != pks)
-			throw new IllegalStateException("cannot create hash key - expected "+pkProps.size()
-					+"primary keys found "+pks+" for type, "
-					+ type.toString());
-		//if (log.isDebugEnabled())
-		//	log.debug("created "+pks+" pk hash key, " + result + " for type, "
-		//			+ type.toString());
-		return result;
+		if (pks > 0) {
+		    List<Property> pkProps = type.findProperties(KeyType.primary);
+		    if (pkProps.size() == pks)
+		    	return pkHash;
+		}
+		
+		return fallBackHash;
 	}
 	
 	/**

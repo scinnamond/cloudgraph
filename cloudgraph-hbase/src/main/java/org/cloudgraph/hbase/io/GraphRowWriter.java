@@ -219,35 +219,33 @@ public class GraphRowWriter extends GraphRow
     	GraphState graphState;
 		// --ensure row exists unless a new row/graph
 		// --use empty get with only necessary "state" management columns
-		Get existing = new Get(rowKey);
-		existing.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
-				Bytes.toBytes(GraphState.STATE_COLUMN_NAME));
-		existing.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
-				Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME));
-		
-		Result result = con.get(existing);
 		
 		// if entirely new graph for the given 
 		// federated or sub-graph root
 		if (changeSummary.isCreated(dataObject)) {
-    		if (!result.isEmpty()) {
-    			if (!result.containsColumn(
-    					tableConfig.getDataColumnFamilyNameBytes(), 
-    					Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME))) {
-    			    throw new DuplicateRowException("no row for id '"
-    				    + Bytes.toString(rowKey) + "' expected when creating new row for table '"
-    				    + tableConfig.getTable().getName() + "'"); 
-    			}
-    			else {
-    			    throw new ToumbstoneRowException("no toumbstone row for id '"
-        				    + Bytes.toString(rowKey) + "' expected when creating new row for table '"
-        				    + tableConfig.getTable().getName() + "' - cannot overwrite toumbstone row"); 
-    			}
-    		}
+			
+			if (tableConfig.uniqueChecks()) {
+				Result result = getMinimalRow(rowKey, tableConfig, con);
+	    		if (!result.isEmpty()) {
+	    			if (!result.containsColumn(
+	    					tableConfig.getDataColumnFamilyNameBytes(), 
+	    					Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME))) {
+	    			    throw new DuplicateRowException("no row for id '"
+	    				    + Bytes.toString(rowKey) + "' expected when creating new row for table '"
+	    				    + tableConfig.getTable().getName() + "'"); 
+	    			}
+	    			else {
+	    			    throw new ToumbstoneRowException("no toumbstone row for id '"
+	        				    + Bytes.toString(rowKey) + "' expected when creating new row for table '"
+	        				    + tableConfig.getTable().getName() + "' - cannot overwrite toumbstone row"); 
+	    			}
+	    		}
+			}
     		graphState = new GraphState(
     			this.tableWriter.getFederatedOperation().getMarshallingContext());
         }
 		else {
+			Result result = getStateRow(rowKey, tableConfig, con);
     		if (result.isEmpty()) {
     			throw new MissingRowException(tableConfig.getTable().getName(),
     				Bytes.toString(rowKey));  
@@ -275,5 +273,23 @@ public class GraphRowWriter extends GraphRow
             		this.tableWriter.getFederatedOperation().getMarshallingContext());
     	}   		
     	return graphState;
+    }
+    
+    private Result getMinimalRow(byte[] rowKey, TableConfig tableConfig, HTableInterface con) throws IOException {
+		Get existing = new Get(rowKey);
+		existing.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
+				Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME));
+		existing.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
+				Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME));		
+		return con.get(existing);    	
+    }
+    
+    private Result getStateRow(byte[] rowKey, TableConfig tableConfig, HTableInterface con) throws IOException {
+		Get existing = new Get(rowKey);
+		existing.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
+				Bytes.toBytes(GraphState.STATE_COLUMN_NAME));
+		existing.addColumn(tableConfig.getDataColumnFamilyNameBytes(), 
+				Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME));		
+		return con.get(existing);    	
     }
 }

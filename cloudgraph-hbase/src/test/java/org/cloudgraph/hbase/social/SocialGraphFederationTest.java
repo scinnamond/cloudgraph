@@ -55,16 +55,16 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	GraphInfo info = createGraph();
     	
     	String xml = this.serializeGraph(info.actor.getDataGraph());
-    	log.info("inserting initial graph:");
-    	log.info(xml);
+    	log.debug("inserting initial graph:");
+    	log.debug(xml);
     	this.service.commit(info.actor.getDataGraph(), 
     			"test1");    	
     	
-    	log.info("fetching initial graph");
+    	log.debug("fetching initial graph");
     	Actor fetchedActor = fetchGraph(
     		createGraphQuery(info.actor.getName()));    	
     	xml = this.serializeGraph(fetchedActor.getDataGraph());
-    	log.info(xml);
+    	log.debug(xml);
 
     	assertTrue(fetchedActor.getTargetEdgeCount() == 1);
     	Actor fetchedFollower = (Actor)fetchedActor.getTargetEdge(0).getSource();
@@ -78,11 +78,11 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	assertTrue(fetchedTopic.getName() != null);
     	assertTrue(fetchedTopic.getName().equals(info.politics.getName()));
     	
-    	log.info("fetching follower graph");
+    	log.debug("fetching follower graph");
     	Actor fetchedFollowerRoot = fetchGraph(
     			createFollowerGraphQuery(info.follower.getName()));    	
         xml = this.serializeGraph(fetchedFollowerRoot.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
         //Since actor is a "bound" root type, there are always
         // two actor rows, and the edge between
         // actor and follower is created in the first/parent row.
@@ -93,12 +93,12 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
         assertTrue(fetchedFollowerRoot.getSourceEdgeCount() == 0);
         
         
-    	log.info("fetching blog slice");
+    	log.debug("fetching blog slice");
     	Actor fetchedActorSliceRoot = fetchGraph(
     			createBlogPredicateQuery(info.actor.getName(), 
     					info.electionBlog.getName()));    	
         xml = this.serializeGraph(fetchedActorSliceRoot.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
     	assertTrue(fetchedActorSliceRoot.getBlogCount() == 1);
     	fetchedBlog = (Blog)fetchedActorSliceRoot.get("blog[@name='"+info.electionBlog.getName()+"']");
     	assertTrue(fetchedBlog != null);
@@ -107,12 +107,12 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	assertTrue(fetchedFollower.getName() != null);
     	assertTrue(info.follower.getName().equals(fetchedFollower.getName()));
                 
-    	log.info("fetching photo slice");
+    	log.debug("fetching photo slice");
     	fetchedActorSliceRoot = fetchGraph(
     			createPhotoPredicateQuery(info.actor.getName(), 
     					info.photo2.getName()));    	
         xml = this.serializeGraph(fetchedActorSliceRoot.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
     	assertTrue(fetchedActorSliceRoot.getPhotoCount() == 1);
     	Photo fetchedPhoto = (Photo)fetchedActorSliceRoot.get("photo[@name='"+info.photo2.getName()+"']");
     	assertTrue(fetchedPhoto != null);
@@ -129,8 +129,8 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	GraphInfo info = createGraph();
     	
     	String xml = this.serializeGraph(info.actor.getDataGraph());
-    	log.info("inserting initial graph:");
-    	log.info(xml);
+    	log.debug("inserting initial graph:");
+    	log.debug(xml);
     	this.service.commit(info.actor.getDataGraph(), 
     			"test1"); 
     	
@@ -138,15 +138,15 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
         blog.setName("Fiscal Cliff");
         blog.setDescription("A blog about the fiscal \"cliff\" scenario post election");
         blog.addTopic(info.politics); 
-    	log.info("comitting blog update");
+    	log.debug("comitting blog update");
     	this.service.commit(info.actor.getDataGraph(), 
     		"test2"); 
         
-    	log.info("fetching follower graph");
+    	log.debug("fetching follower graph");
     	Actor fetchedFollowerRoot = fetchGraph(
     		createGraphQuery(info.follower.getName()));    	
         xml = this.serializeGraph(fetchedFollowerRoot.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
         
     	assertTrue(fetchedFollowerRoot.getBlogCount() == 1);
     	Blog fetchedBlog = (Blog)fetchedFollowerRoot.get("blog[@name='"+blog.getName()+"']");
@@ -158,31 +158,31 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
             	
     	//fetchedFollowerRoot.unsetBlog(); FIXME: isSet="true" in change summary
     	fetchedBlog.delete(); // note deletes topics fetched in containment graph with blog
-    	log.info("comitting blog remove update");
+    	log.debug("comitting blog remove update");
     	this.service.commit(fetchedFollowerRoot.getDataGraph(), 
     		"test2");     	
-    	log.info("fetching follower graph again");
+    	log.debug("fetching follower graph again");
     	fetchedFollowerRoot = fetchGraph(
     		createGraphQuery(info.follower.getName()));    	
         xml = this.serializeGraph(fetchedFollowerRoot.getDataGraph());
-        log.info(xml);        
+        log.debug(xml);        
     	assertTrue(fetchedFollowerRoot.getBlogCount() == 0);
     	
     	
-    	log.info("comitting follower graph delete");
+    	log.debug("comitting follower graph delete");
     	fetchedFollowerRoot.delete();
     	this.service.commit(fetchedFollowerRoot.getDataGraph(), 
     		"test2");     	
-    	log.info("fetching deleted follower graph");
+    	log.debug("fetching deleted follower graph");
     	fetchedFollowerRoot = findGraph(
         		createGraphQuery(info.follower.getName()));    	
         assertTrue(fetchedFollowerRoot == null);
 
-    	log.info("fetching actor graph");
+    	log.debug("fetching actor graph");
     	Actor fetchedRoot = fetchGraph(
     		createGraphQuery(info.actor.getName()));    	
         xml = this.serializeGraph(fetchedRoot.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
         
     	assertTrue(fetchedRoot.getTargetEdgeCount() == 1);
     	assertFalse(fetchedRoot.getTargetEdge(0).isSetSource());
@@ -236,7 +236,7 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	Actor fetchedActor = fetchGraph(
         		createGraphQuery(name));    	
         String xml = this.serializeGraph(fetchedActor.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
         
     	assertTrue(fetchedActor.getBlogCount() == 1);
     	Blog fetchedBlog = (Blog)fetchedActor.get("blog[@name='"+physicsBlog.getName()+"']");
@@ -303,7 +303,7 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	Actor fetchedActor = fetchGraph(
     			createActorBlogGraphQuery(name));    	
         String xml = this.serializeGraph(fetchedActor.getDataGraph());
-        log.info(xml);  
+        log.debug(xml);  
         // FIXME: pending graph writer fix 
     	assertTrue(fetchedActor.getBlogCount() == 2);
 
@@ -320,7 +320,7 @@ public class SocialGraphFederationTest extends SocialGraphModelTest {
     	fetchedActor = fetchGraph(
     			createActorBlogGraphQuery(name));    	
         xml = this.serializeGraph(fetchedActor.getDataGraph());
-        log.info(xml);        
+        log.debug(xml);        
         // FIXME: pending graph writer fix 
     	assertTrue(fetchedActor.getBlogCount() == 3);
         

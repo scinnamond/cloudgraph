@@ -194,11 +194,7 @@ public class RDBGraphService implements PlasmaDataAccessService {
                 username, con);
        
         try {
-            for (int i = 0; i < dataGraphs.length; i++) { 
-                if (log.isDebugEnabled())
-                    log.debug("commiting: " + dataGraphs[i].getChangeSummary().toString());
-                dispatcher.commit(dataGraphs[i]);        
-            }  
+            dispatcher.commit(dataGraphs);        
             con.commit();
             return snapshotMap;
         }

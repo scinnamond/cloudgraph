@@ -67,6 +67,7 @@ public class CloudGraphConfig {
     private Map<QName, TableConfig> graphURIToTableMap = new HashMap<QName, TableConfig>();
     private Map<QName, DataGraphConfig> graphURIToGraphMap = new HashMap<QName, DataGraphConfig>();
     private Map<String, TableConfig> tableNameToTableMap = new HashMap<String, TableConfig>();
+    private Map<String, Property> propertyNameToPropertyMap = new HashMap<String, Property>();
         
     private CloudGraphConfig()
     {
@@ -84,8 +85,11 @@ public class CloudGraphConfig {
 	        
             config = unmarshalConfig(fileName, configBinding);
             
+            for (Property prop : config.getProperties())
+            	propertyNameToPropertyMap.put(prop.getName(), prop);
+            
             for (Table table : config.tables) {
-            	TableConfig tableConfig = new TableConfig(table);
+            	TableConfig tableConfig = new TableConfig(table, this);
         		if (this.tableNameToTableMap.get(tableConfig.getName()) != null)
         			throw new CloudGraphConfigurationException("a table definition already exists for table '"
         					+ table.getName() + "'");
@@ -188,6 +192,10 @@ public class CloudGraphConfig {
     public List<Property> getProperties() {
         return config.properties;
     } 
+    
+    public Property findProperty(String name) {
+    	return this.propertyNameToPropertyMap.get(name);
+    }
     
     /**
      * Returns a table configuration for the given qualified SDO 

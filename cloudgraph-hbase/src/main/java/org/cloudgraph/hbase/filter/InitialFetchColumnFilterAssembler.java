@@ -24,6 +24,7 @@ package org.cloudgraph.hbase.filter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -41,11 +42,13 @@ import org.cloudgraph.state.GraphState;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelection;
+import org.plasma.query.collector.Selection;
 import org.plasma.query.model.Select;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.xml.sax.SAXException;
 
+import commonj.sdo.Property;
 import commonj.sdo.Type;
 
 
@@ -66,10 +69,10 @@ public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
 
 	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
-    private PropertySelection selection;
+    private Selection selection;
 
 	public InitialFetchColumnFilterAssembler( 
-			PropertySelection collector,
+			Selection collector,
 			PlasmaType rootType) {
 		super(rootType);
 		this.selection = collector;
@@ -118,9 +121,9 @@ public class InitialFetchColumnFilterAssembler extends FilterListAssembler {
         	if (!(rootType.getURI().equals(type.getURI()) &&
             	rootType.getName().equals(type.getName())))
             	continue; // interested in only root for "initial" fetch
-			List<String> names = this.selection.getInheritedProperties(type);
-            for (String name : names) {
-    			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
+			Set<Property> props = this.selection.getInheritedProperties(type);
+            for (Property p : props) {
+    			PlasmaProperty prop = (PlasmaProperty)p;
     	       	if (log.isDebugEnabled())
     	    		log.debug("collected " + type.getURI() + "#"
     	    				+ type.getName() + "." + prop.getName());        

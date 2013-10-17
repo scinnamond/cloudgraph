@@ -141,8 +141,9 @@ public class HBaseConnectionManager {
 	
 	private void createTable(String tableName) {
 
+		HBaseAdmin hbase = null;
     	try {
-    		HBaseAdmin hbase = new HBaseAdmin(CloudGraphContext.instance().getConfig());
+    		hbase = new HBaseAdmin(CloudGraphContext.instance().getConfig());
 	    	
     		TableConfig tableConfig = CloudGraphConfig.getInstance().getTable(tableName);
     		HTableDescriptor tableDesc = new HTableDescriptor(tableConfig.getName());
@@ -159,7 +160,14 @@ public class HBaseConnectionManager {
 			throw new StateException(e1);
 		} catch (IOException e) {
 			throw new StateException(e);
-		} 	
+		} finally {
+			if (hbase != null)
+				try {
+					hbase.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
+		}
     }
 
 }

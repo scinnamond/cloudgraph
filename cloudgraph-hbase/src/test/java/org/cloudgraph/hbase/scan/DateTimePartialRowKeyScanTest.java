@@ -61,123 +61,132 @@ public class DateTimePartialRowKeyScanTest extends DataTypeGraphModelTest {
     
     public void testEqual() throws IOException       
     {
-        long id = System.currentTimeMillis();
-        Date now = new Date(id);
-        Node root = this.createGraph(id, now);
-        service.commit(root.getDataGraph(), USERNAME);
+        long rootId = System.currentTimeMillis();
 
-        // create 2 more w/same id but new date
-        Date now2 = new Date(id + WAIT_TIME);
-        Node root2 = this.createGraph(id, now2);
+        long id1 = rootId + WAIT_TIME; 
+        Date now1 = new Date(id1);
+        Node root1 = this.createGraph(rootId, id1, now1);
+        service.commit(root1.getDataGraph(), USERNAME);
+
+        long id2 = id1 + WAIT_TIME; 
+        Date now2 = new Date(id2);
+        Node root2 = this.createGraph(rootId, id2, now2);
         service.commit(root2.getDataGraph(), USERNAME);
 
-        Date now3 = new Date(id + WAIT_TIME + WAIT_TIME);
-        Node root3 = this.createGraph(id, now3);
+        long id3 = id2 + WAIT_TIME; 
+        Date now3 = new Date(id3);
+        Node root3 = this.createGraph(rootId, id3, now3);
         service.commit(root3.getDataGraph(), USERNAME);        
         
         // fetch a slice
-        Node fetched = this.fetchSingleGraph(id, 
-        		root.getChild(3).getName(), root.getDateTimeField());
-        logGraph(fetched.getDataGraph());
+        Node fetched = this.fetchSingleGraph(rootId, id2, 
+        		root2.getChild(3).getName(), root2.getDateTimeField());
+        debugGraph(fetched.getDataGraph());
     }  
     
     public void testBetween() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + WAIT_TIME; 
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1);
+        Node root1 = this.createGraph(rootId, id1, now1);
         service.commit(root1.getDataGraph(), USERNAME);
 
-        long id2 = id1 + WAIT_TIME;
+        long id2 = id1 + WAIT_TIME; 
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2);
+        Node root2 = this.createGraph(rootId, id2, now2);
         service.commit(root2.getDataGraph(), USERNAME);
 
-        long id3 = id2 + WAIT_TIME;
+        long id3 = id2 + WAIT_TIME; 
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3);
-        service.commit(root3.getDataGraph(), USERNAME);
+        Node root3 = this.createGraph(rootId, id3, now3);
+        service.commit(root3.getDataGraph(), USERNAME);        
         
-        Node[] fetched = this.fetchGraphsBetween(
+        Node[] fetched = this.fetchGraphsBetween(rootId,
         		id1, id3,  
         		root1.getDateTimeField(), root3.getDateTimeField());
         assertTrue(fetched.length == 3);
 
         //assertTrue(fetchedProfiles[0].getProfileId() == id1);
-        logGraph(fetched[0].getDataGraph());
-        logGraph(fetched[1].getDataGraph());
-        logGraph(fetched[2].getDataGraph());
+        debugGraph(fetched[0].getDataGraph());
+        debugGraph(fetched[1].getDataGraph());
+        debugGraph(fetched[2].getDataGraph());
     } 
      
     public void testInclusive() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + WAIT_TIME; 
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1);
+        Node root1 = this.createGraph(rootId, id1, now1);
         service.commit(root1.getDataGraph(), USERNAME);
 
-        long id2 = id1 + WAIT_TIME;
+        long id2 = id1 + WAIT_TIME; 
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2);
+        Node root2 = this.createGraph(rootId, id2, now2);
         service.commit(root2.getDataGraph(), USERNAME);
 
-        long id3 = id2 + WAIT_TIME;
+        long id3 = id2 + WAIT_TIME; 
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3);
-        service.commit(root3.getDataGraph(), USERNAME);
+        Node root3 = this.createGraph(rootId, id3, now3);
+        service.commit(root3.getDataGraph(), USERNAME);        
         
-        Node[] fetched = this.fetchGraphsInclusive(
+        Node[] fetched = this.fetchGraphsInclusive(rootId,
         		id1, id3,  
         		root1.getDateTimeField(), root3.getDateTimeField());
         assertTrue(fetched.length == 3);
 
-        logGraph(fetched[0].getDataGraph());
-        logGraph(fetched[1].getDataGraph());
-        logGraph(fetched[2].getDataGraph());
+        debugGraph(fetched[0].getDataGraph());
+        debugGraph(fetched[1].getDataGraph());
+        debugGraph(fetched[2].getDataGraph());
     }  
     
     public void testExclusive() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + WAIT_TIME; 
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1);
+        Node root1 = this.createGraph(rootId, id1, now1);
         service.commit(root1.getDataGraph(), USERNAME);
 
-        long id2 = id1 + WAIT_TIME;
+        long id2 = id1 + WAIT_TIME; 
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2);
+        Node root2 = this.createGraph(rootId, id2, now2);
         service.commit(root2.getDataGraph(), USERNAME);
 
-        long id3 = id2 + WAIT_TIME;
+        long id3 = id2 + WAIT_TIME; 
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3);
-        service.commit(root3.getDataGraph(), USERNAME);
+        Node root3 = this.createGraph(rootId, id3, now3);
+        service.commit(root3.getDataGraph(), USERNAME);        
         
         Node[] fetched = this.fetchGraphsExclusive(
         		id1, id3,  
         		root1.getDateTimeField(), root3.getDateTimeField());
         assertTrue(fetched.length == 1);
 
-        logGraph(fetched[0].getDataGraph());
+        debugGraph(fetched[0].getDataGraph());
     }    
  
-    protected Node fetchSingleGraph(long id, String name, Object date) {    	
-    	QDateTimeNode profile = createSelect(name);
+    protected Node fetchSingleGraph(long rootId, long id, String name, Object date) {    	
+    	QDateTimeNode root = createSelect(name);
     	
-    	profile.where(profile.dateTimeField().eq(date));
-    	this.marshal(profile.getModel(), id);
+    	root.where(root.rootId().eq(rootId).and(
+    			root.dateTimeField().eq(date)));
     	
-    	DataGraph[] result = service.find(profile);
+    	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
     	assertTrue(result.length == 1);
     	
     	return (Node)result[0].getRootObject();
     }
 
-    protected Node[] fetchGraphsBetween(long min, long max,
+    protected Node[] fetchGraphsBetween(long rootId, long min, long max,
     		Object minDate, Object maxDate) {    	
     	QDateTimeNode root = createSelect();
-    	root.where(root.dateTimeField().between(minDate, maxDate));
+    	root.where(root.rootId().eq(rootId).and(root.dateTimeField().between(minDate, maxDate)));
     	
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
@@ -188,11 +197,11 @@ public class DateTimePartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return profiles;
     }
 
-    protected Node[] fetchGraphsInclusive(long min, long max,
+    protected Node[] fetchGraphsInclusive(long rootId, long min, long max,
     		Object minDate, Object maxDate) {    	
     	QDateTimeNode root = createSelect();
-    	root.where(root.dateTimeField().ge(minDate)
-        		.and(root.dateTimeField().le(maxDate)));
+    	root.where(root.rootId().eq(rootId).and(root.dateTimeField().ge(minDate)
+        		.and(root.dateTimeField().le(maxDate))));
     	
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
@@ -240,12 +249,12 @@ public class DateTimePartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return root;
     }
     
-    protected DateTimeNode createGraph(long id, Date now) {
+    protected DateTimeNode createGraph(long rootId, long id, Date now) {
         DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
         dataGraph.getChangeSummary().beginLogging(); // log changes from this point
     	Type rootType = PlasmaTypeHelper.INSTANCE.getType(DateTimeNode.class);
     	DateTimeNode root = (DateTimeNode)dataGraph.createRootObject(rootType);
-    	fillNode(root, id, now, "datetime", 0, 0);
+    	fillNode(root, rootId, id, now, "datetime", 0, 0);
     	fillGraph(root, id, now, "datetime");
         return root;
     }

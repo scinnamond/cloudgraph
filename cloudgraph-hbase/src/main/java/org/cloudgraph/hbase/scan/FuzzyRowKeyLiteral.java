@@ -30,10 +30,10 @@ package org.cloudgraph.hbase.scan;
  * formatting, padding and other features.
  * @author Scott Cinnamond
  * @since 0.5.3
- * @see PartialRowKeyScan
- * @see FuzzyRowKeyLiteral
+ * @see PartialRowKey
+ * @see FuzzyRowKey
  */
 public interface FuzzyRowKeyLiteral {
-	public byte[] getKeyBytes();
+	public byte[] getFuzzyKeyBytes();
 	public byte[] getFuzzyInfoBytes();
 }

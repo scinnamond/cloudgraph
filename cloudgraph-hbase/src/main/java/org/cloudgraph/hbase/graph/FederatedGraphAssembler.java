@@ -24,6 +24,7 @@ package org.cloudgraph.hbase.graph;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
@@ -39,10 +40,13 @@ import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
 import org.plasma.query.collector.PropertySelection;
+import org.plasma.query.collector.Selection;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreNode;
+
+import commonj.sdo.Property;
 
 /**
  * Constructs a data graph starting with a given root SDO type based on
@@ -84,7 +88,7 @@ public class FederatedGraphAssembler extends FederatedAssembler
 	 * into every data object in the result data graph. 
 	 */
 	public FederatedGraphAssembler(PlasmaType rootType,
-			PropertySelection selection, 
+			Selection selection, 
 			FederatedReader federatedReader,			
 			Timestamp snapshotDate) 
 	{
@@ -95,29 +99,37 @@ public class FederatedGraphAssembler extends FederatedAssembler
 			PlasmaDataObject source, PlasmaProperty sourceProperty, 
 			RowReader rowReader, int level) throws IOException
     {		 
-		CoreNode targetDataNode = (CoreNode)target;
-        
+		Set<Property> props = null;
+		if (sourceProperty != null) {
+			//props = this.selection.getInheritedProperties(target.getType(), sourceProperty, level);
+			props = this.selection.getInheritedProperties(target.getType(), level);
+			if (props.size() == 0) {
+		        if (log.isDebugEnabled())
+		        	log.debug("no properties for " + target.toString() + " at level: " + level 
+		        		+ " for source edge, " + sourceProperty.toString() + " - aborting traversal");
+				return;
+			}
+		}
+		else {
+			props = this.selection.getInheritedProperties(target.getType(), level);
+			if (props.size() == 0) {
+		        if (log.isDebugEnabled())
+		        	log.debug("no properties for " + target.toString() + " at level: " + level 
+		        		+ " - aborting traversal");
+				return;
+			}
+		}
         if (log.isDebugEnabled())
-			log.debug("assembling: ("
-				+ targetDataNode.getUUIDAsString() + ") "
-					+ target.getType().getURI() + "#" 
-					+ target.getType().getName());
+			log.debug("assembling("+level+"): " + target.toString() + ": " + props.toString());
 		
-		List<String> names = this.selection.getInheritedProperties(target.getType());
-		if (names == null)
-			throw new GraphServiceException("expected selection property names for type, "
-					+ target.getType().getURI() + "#" + target.getType().getName());
-		if (log.isDebugEnabled())
-			log.debug(target.getType().getName() + " names: " + names.toString());
-		
-		assembleData(target, names, rowReader);		
+		assembleData(target, props, rowReader);		
 		
 		TableReader tableReader = rowReader.getTableReader();
 		TableConfig tableConfig = tableReader.getTable();
 
 		// reference props
-		for (String name : names) {
-			PlasmaProperty prop = (PlasmaProperty)target.getType().getProperty(name);
+		for (Property p : props) {
+			PlasmaProperty prop = (PlasmaProperty)p;
 			if (prop.getType().isDataType())
 				continue;
 			

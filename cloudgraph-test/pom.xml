@@ -30,7 +30,7 @@
         <dependency>
             <groupId>plasma</groupId>
             <artifactId>plasma-sdo</artifactId>
-            <version>1.1.4</version>
+            <version>1.1.5</version>
         </dependency>
         <dependency>
             <groupId>cloudgraph</groupId>
@@ -60,18 +60,18 @@
             <plugin>
                 <groupId>plasma</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
-                <version>1.1.4</version>
+                <version>1.1.5</version>
                 <executions>
                     <execution>
                         <id>sdo-create</id>
                         <configuration>
                             <action>create</action>
                             <dialect>java</dialect>
-                            <systemProperties>
-                                <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
-                                <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
-                            </systemProperties>
+                            <systemPropertyVariables>
+                                <log4j.configuration>log4j.properties</log4j.configuration>
+                                <fuml.configuration>fuml-config.xml</fuml.configuration> 
+                                <plasma.configuration>plasma-config.xml</plasma.configuration>
+                            </systemPropertyVariables>
                             <additionalClasspathElements>
                                 <param>${basedir}/src/main/resources</param>
                             </additionalClasspathElements>
@@ -86,11 +86,11 @@
                         <configuration>
                             <action>create</action>
                             <dialect>java</dialect>
-                            <systemProperties>
-                                <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
-                                <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
-                            </systemProperties>
+                            <systemPropertyVariables>
+                                <log4j.configuration>log4j.properties</log4j.configuration>
+                                <fuml.configuration>fuml-config.xml</fuml.configuration> 
+                                <plasma.configuration>plasma-config.xml</plasma.configuration>
+                            </systemPropertyVariables>
                             <additionalClasspathElements>
                                 <param>${basedir}/src/main/resources</param>
                             </additionalClasspathElements>
@@ -166,7 +166,7 @@
 											plasma-maven-plugin
 										</artifactId>
 										<versionRange>
-											[1.1.4,)
+											[1.1.5,)
 										</versionRange>
 										<goals>
 											<goal>dsl</goal>

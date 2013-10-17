@@ -21,25 +21,29 @@
  */
 package org.cloudgraph.rdb.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
+import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.plasma.provisioning.rdb.oracle.g11.sys.Constraint.PROPERTY;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
-import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.helper.DataConverter;
 import org.plasma.sdo.profile.KeyType;
 
@@ -261,6 +265,7 @@ public class RDBDataConverter {
 			result = java.sql.Types.DECIMAL;
 			break;
 		case Bytes:
+			// FIXME: how do we know whether a Blob here
 			result = java.sql.Types.VARBINARY;
 			break;
 		case Byte:
@@ -354,7 +359,31 @@ public class RDBDataConverter {
 			result = rs.getBigDecimal(columnIndex);
 			break;
 		case Bytes:
-			result = rs.getBytes(columnIndex);
+			if (sourceType != Types.BLOB) {
+			    result = rs.getBytes(columnIndex);
+			}
+			else if (sourceType == Types.BLOB) {
+				Blob blob = rs.getBlob(columnIndex);
+				long blobLen = blob.length(); // for debugging
+				// Note: blob.getBytes(columnIndex, blob.length()); is somehow truncating the array
+				// by something like 14 bytes (?!!) even though blob.length() returns the expected length
+				// using getBinaryStream which is preferred anyway
+				InputStream is = blob.getBinaryStream();
+				try {
+					byte[] bytes = IOUtils.toByteArray(is);
+					long len = bytes.length; // for debugging 
+					result = bytes;
+				} catch (IOException e) {
+					throw new RDBServiceException(e);
+				}
+				finally {
+					try {
+						is.close();
+					} catch (IOException e) {
+						log.error(e.getMessage(), e);
+					}
+				}
+			}
 			break;
 		case Byte:
 			result = rs.getByte(columnIndex);

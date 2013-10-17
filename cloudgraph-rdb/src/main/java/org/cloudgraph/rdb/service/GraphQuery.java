@@ -507,10 +507,14 @@ public class GraphQuery extends JDBCSupport
 	        break;
         case MYSQL:
              if (query.getStartRange() != null && query.getEndRange() != null) {
-        	     sqlQuery.append(" LIMIT ");
-        	     sqlQuery.append(String.valueOf(query.getStartRange()));
+        	     long offset = query.getStartRange() - 1; // inclusive
+        	     if (offset < 0)
+        	    	 offset = 0;
+        	     long rowcount = query.getEndRange() - offset;
+        	     sqlQuery.append(" LIMIT "); // e.g. LIMIT offset,numrows
+        	     sqlQuery.append(String.valueOf(offset));
         	     sqlQuery.append(",");
-        	     sqlQuery.append(String.valueOf(query.getEndRange()-query.getStartRange()));
+       	     sqlQuery.append(String.valueOf(rowcount));
              }  
         	 break;
 	    default:

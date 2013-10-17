@@ -4,29 +4,31 @@
     <parent>
         <groupId>org.cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.4</version>
+        <version>0.5.5</version>
     </parent>
     <groupId>org.cloudgraph</groupId>
     <artifactId>cloudgraph-hbase</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.4</version>
+    <version>0.5.5</version>
     <name>CloudGraph HBase Service</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
-    <url>http://cloudgraph.org</url>
-    <properties>
+	<properties>
+		<cloudgraph.version>0.5.5</cloudgraph.version>
+		<plasma.version>1.1.5</plasma.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.6.1</slf4j.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+ 	</properties>
+    <url>http://cloudgraph.org</url>
     <dependencies>
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-common</artifactId>
-            <version>0.5.4</version>
+            <version>0.5.5</version>
         </dependency>
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-config</artifactId>
-            <version>0.5.4</version>
+            <version>0.5.5</version>
         </dependency>
         <!-- 
              sl4j (note: slf4j must be present or causes Zookeeper 
@@ -47,12 +49,24 @@
         <dependency>
             <groupId>org.terrameta</groupId>
             <artifactId>plasma-common</artifactId>
-            <version>1.1.4</version>
+            <version>1.1.5</version>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>jaxb-api</artifactId>
+            		<groupId>javax.xml.bind</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.terrameta</groupId>
             <artifactId>plasma-sdo</artifactId>
-            <version>1.1.4</version>
+            <version>1.1.5</version>
+            <exclusions>
+            	<exclusion>
+            		<artifactId>jaxb-api</artifactId>
+            		<groupId>javax.xml.bind</groupId>
+            	</exclusion>
+            </exclusions>
         </dependency>
 
         <!-- HBase Dependencies -->
@@ -65,6 +79,46 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-core</artifactId>
             <version>1.0.2</version>
+            <exclusions>
+                   
+            	<exclusion>
+            		<artifactId>jsp-api-2.1</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jasper-compiler</artifactId>
+            		<groupId>tomcat</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jasper-runtime</artifactId>
+            		<groupId>tomcat</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jetty-util</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jsp-2.1</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>core</artifactId>
+            		<groupId>org.eclipse.jdt</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>ant</artifactId>
+            		<groupId>ant</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jackson-mapper-asl</artifactId>
+            		<groupId>org.codehaus.jackson</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jetty</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	 
+            </exclusions>
         </dependency>
         <!--  
         <dependency>
@@ -78,10 +132,88 @@
             <artifactId>hbase</artifactId>
             <version>0.94.10</version>
             <exclusions>
+                  
             	<exclusion>
             		<artifactId>asm</artifactId>
             		<groupId>asm</groupId>
             	</exclusion>
+            	<exclusion>
+            		<artifactId>libthrift</artifactId>
+            		<groupId>org.apache.thrift</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jsp-api-2.1</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jasper-compiler</artifactId>
+            		<groupId>tomcat</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jasper-runtime</artifactId>
+            		<groupId>tomcat</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jetty-util</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jsp-2.1</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>avro</artifactId>
+            		<groupId>org.apache.avro</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>avro-ipc</artifactId>
+            		<groupId>org.apache.avro</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jackson-mapper-asl</artifactId>
+            		<groupId>org.codehaus.jackson</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>snappy-java</artifactId>
+            		<groupId>org.xerial.snappy</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jetty</artifactId>
+            		<groupId>org.mortbay.jetty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>netty</artifactId>
+            		<groupId>org.jboss.netty</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jruby-complete</artifactId>
+            		<groupId>org.jruby</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jamon-runtime</artifactId>
+            		<groupId>org.jamon</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jersey-core</artifactId>
+            		<groupId>com.sun.jersey</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jersey-json</artifactId>
+            		<groupId>com.sun.jersey</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jersey-server</artifactId>
+            		<groupId>com.sun.jersey</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>jaxb-api</artifactId>
+            		<groupId>javax.xml.bind</groupId>
+            	</exclusion>
+            	<exclusion>
+            		<artifactId>stax-api</artifactId>
+            		<groupId>stax</groupId>
+            	</exclusion>
+            	  
             </exclusions>
         </dependency>
     </dependencies>
@@ -106,7 +238,7 @@
             <plugin>
                 <groupId>org.terrameta</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
-                <version>1.1.4</version>
+                <version>1.1.5</version>
                 <executions>
                     <execution>
                         <id>sdo-create</id>
@@ -115,7 +247,7 @@
                             <dialect>java</dialect>
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
                                 <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
@@ -134,7 +266,7 @@
                             <dialect>java</dialect>
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
                                 <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
@@ -159,7 +291,7 @@
                             <destNamespacePrefix>tx</destNamespacePrefix>
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
                                 <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
@@ -199,7 +331,7 @@
                 <executions>
                       
                    <execution>
-                    <id>non-federated-tests</id>
+                    <id>partial-key-scan-tests</id>
                     <goals>
                       <goal>test</goal>
                     </goals>
@@ -210,17 +342,65 @@
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
                         </additionalClasspathElements>                  
                         <forkMode>once</forkMode>
-                        <systemProperties>
-                            <property><name>cloudgraph.configuration</name><value>simple-cloudgraph-config.xml</value></property>
-                            <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
-                            <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
-                            <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                        </systemProperties>
+                        <systemPropertyVariables>
+                            <cloudgraph.configuration>test-partial-key-cloudgraph-config.xml</cloudgraph.configuration>
+                            <plasma.configuration>plasma-config.xml</plasma.configuration>
+                            <fuml.configuration>fuml-config.xml</fuml.configuration>
+                            <log4j.configuration>log4j.properties</log4j.configuration>
+                        </systemPropertyVariables>
+                        <includes>     
+                             <include>**/StringPartialRowKeyScanTest*</include>     
+                             <include>**/DatePartialRowKeyScanTest*</include>    
+                             <include>**/DateTimePartialRowKeyScanTest*</include>     
+                             <include>**/LongPartialRowKeyScanTest*</include>    
+                             <include>**/FloatPartialRowKeyScanTest*</include>   
+                             <include>**/*SocialGraphNonFederatedTest*</include>                      
+                        </includes> 
+                    </configuration>
+                  </execution>
+                  <execution>
+                    <id>fuzzy-key-scan-tests</id>
+                    <goals>
+                      <goal>test</goal>
+                    </goals>
+                    <configuration>
+                        <skip>false</skip>
+                        <additionalClasspathElements>
+                            <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
+                            <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
+                        </additionalClasspathElements>                  
+                        <forkMode>once</forkMode>
+                        <systemPropertyVariables>
+                            <cloudgraph.configuration>test-fuzzy-key-cloudgraph-config.xml</cloudgraph.configuration>
+                            <plasma.configuration>plasma-config.xml</plasma.configuration>
+                            <fuml.configuration>fuml-config.xml</fuml.configuration>
+                            <log4j.configuration>log4j.properties</log4j.configuration>
+                        </systemPropertyVariables>
                         <includes>               
-                            <include>**/*SocialGraphNonFederatedTest*</include>                      
-                            <include>**/*PartialRowKeyScanTest*</include>   
-                            <include>**/*DatePredicateSliceTest*</include>   
-                            
+                            <include>**/StringFuzzyRowKeyScanTest*</include>  
+                        </includes> 
+                    </configuration>
+                  </execution>
+                  <execution>
+                    <id>complete-key-tests</id>
+                    <goals>
+                      <goal>test</goal>
+                    </goals>
+                    <configuration>
+                        <skip>false</skip>
+                        <additionalClasspathElements>
+                            <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
+                            <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
+                        </additionalClasspathElements>                  
+                        <forkMode>once</forkMode>
+                        <systemPropertyVariables>
+                            <cloudgraph.configuration>test-get-key-cloudgraph-config.xml</cloudgraph.configuration>
+                            <plasma.configuration>plasma-config.xml</plasma.configuration>
+                            <fuml.configuration>fuml-config.xml</fuml.configuration>
+                            <log4j.configuration>log4j.properties</log4j.configuration>
+                        </systemPropertyVariables>
+                        <includes>               
+                            <include>**/StringRowKeyGetTest*</include>  
                         </includes> 
                     </configuration>
                   </execution>
@@ -237,15 +417,16 @@
 	                        <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
 	                    </additionalClasspathElements>                  
 	                    <forkMode>once</forkMode>
-	                    <systemProperties>
-	                        <property><name>cloudgraph.configuration</name><value>federated-cloudgraph-config.xml</value></property>
-	                        <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
-	                        <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
-	                        <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-	                    </systemProperties>
+	                    <systemPropertyVariables>
+	                        <cloudgraph.configuration>federated-cloudgraph-config.xml</cloudgraph.configuration>
+	                        <plasma.configuration>plasma-config.xml</plasma.configuration>
+	                        <fuml.configuration>fuml-config.xml</fuml.configuration>
+	                        <log4j.configuration>log4j.properties</log4j.configuration>
+	                    </systemPropertyVariables>
 	                    <includes>               
 	                        <include>**/*SocialGraphFederationTest*</include>
 	                        <include>**/*SocialGraphScanTest*</include>                      
+                            <include>**/*DatePredicateSliceTest*</include>   
 	                    </includes> 
                     </configuration>
                   </execution>
@@ -257,9 +438,9 @@
                     <argLine>-Xms128M -Xmx500M</argLine>                      
                       --> 
                     <!-- debugging -->  
-                        <!--
+                       <!--   
                     <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
-                          -->
+                           --> 
                     <!-- profiling  -->
                     <!--
                     <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  
@@ -300,7 +481,7 @@
                                             plasma-maven-plugin
                                         </artifactId>
                                         <versionRange>
-                                            [1.1.4,)
+                                            [1.1.5,)
                                         </versionRange>
                                         <goals>
                                             <goal>sdo</goal>

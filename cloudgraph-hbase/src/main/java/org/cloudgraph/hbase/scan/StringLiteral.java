@@ -34,15 +34,19 @@ import org.plasma.sdo.PlasmaType;
  * segments and fields of composite (scan start/stop) row keys 
  * under various relational and logical operator and
  * various configurable composite key-field hashing, formatting, padding 
- * and other features.
+ * and other features. A string literal does not contain or involve wildcards, see {@link WildcardStringLiteral}, but
+ * nevertheless may "participate" in a fuzzy scan as part of a composite row key and
+ * therefore implements {@link FuzzyRowKeyLiteral} supplying only default key and
+ * info bytes.  
  * 
  * @see org.cloudgraph.config.TableConfig
  * @see org.cloudgraph.hbase.service.HBaseDataConverter
+ * @see WildcardStringLiteral
  * @author Scott Cinnamond
  * @since 0.5
  */
 public class StringLiteral extends ScanLiteral 
-    implements PartialRowKeyLiteral, FuzzyRowKeyLiteral {
+    implements PartialRowKeyLiteral, FuzzyRowKeyLiteral, CompleteRowKeyLiteral {
 
 	// FIXME: appending the first lexicographic ASCII char
 	// to the row key "works" as a stop key. But need
@@ -291,7 +295,7 @@ public class StringLiteral extends ScanLiteral
 	}
 
 	@Override
-	public byte[] getKeyBytes() {
+	public byte[] getFuzzyKeyBytes() {
 		byte[] keyBytes = null;
 		String keyValueStr = this.literal;
 		
@@ -319,4 +323,21 @@ public class StringLiteral extends ScanLiteral
 		Arrays.fill(infoBytes, (byte)0); // fixed char 
 		return infoBytes;
 	}
+	
+	/**
+	 * Returns the bytes 
+	 * used to represent "equals" relational operator 
+	 * under an HBase row-key 'Get' operation for this string (data flavor) literal under 
+	 * the various optionally configurable hashing, 
+	 * formatting and padding features.
+	 * @return the "start row" bytes 
+	 * used to represent "equals" relational operator 
+	 * under an HBase partial row-key scan for this string (data flavor) literal under 
+	 * the various optionally configurable hashing, 
+	 * formatting and padding features.
+	 */
+	@Override
+	public byte[] getEqualsBytes() {
+		return getEqualsStartBytes();
+	}	
 }

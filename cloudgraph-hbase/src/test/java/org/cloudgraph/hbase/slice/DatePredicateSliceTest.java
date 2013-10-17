@@ -71,7 +71,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
         
         // fetch a slice
         Node fetched = this.fetchSliceEquals(now.getTime());
-        logGraph(fetched.getDataGraph());
+        debugGraph(fetched.getDataGraph());
         assertNotNull(fetched);
         assertTrue(fetched.getChildCount() == 1);
         assertNotNull(fetched.getChild(0).getDateField());
@@ -91,7 +91,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
         // fetch a slice
         Node fetched = this.fetchSliceGreaterThan(now.getTime());
         assertNotNull(fetched);
-        logGraph(fetched.getDataGraph());
+        debugGraph(fetched.getDataGraph());
         assertTrue(fetched.getChildCount() == maxRows - 1);
         for (Node node : fetched.getChild())
             assertTrue(node.getDateField().compareTo(now.getTime()) > 0);
@@ -128,7 +128,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
         		now.getTime(),
         		start.getTime(), end.getTime());
         assertNotNull(fetched);
-        logGraph(fetched.getDataGraph());
+        debugGraph(fetched.getDataGraph());
         assertTrue(fetched.getChildCount() == (endIndex - startIndex) + 1);
         assertNotNull(fetched.getChild(startIndex-1).getDateField());
         assertTrue(fetched.getChild(startIndex-1).getDateField().compareTo(start.getTime()) == 0);
@@ -148,7 +148,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
         Node fetched = this.fetchSliceLike(now.getTime(), 
         		"*date*", "*3");
         assertNotNull(fetched);
-        logGraph(fetched.getDataGraph());
+        debugGraph(fetched.getDataGraph());
         assertTrue(fetched.getChildCount() == 1);
         assertNotNull(fetched.getChild(0).getStringField());
         assertTrue(fetched.getChild(0).getStringField().contains("date"));

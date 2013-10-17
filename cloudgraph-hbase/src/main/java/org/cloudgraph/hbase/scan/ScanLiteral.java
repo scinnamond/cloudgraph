@@ -56,6 +56,7 @@ public abstract class ScanLiteral {
 	protected final int HASH_INCREMENT = 1;
 
 	protected String literal;
+	@Deprecated
 	protected RelationalOperator relationalOperator;
 	protected UserDefinedRowKeyFieldConfig fieldConfig;
 	protected DataConverter dataConverter = DataConverter.INSTANCE;

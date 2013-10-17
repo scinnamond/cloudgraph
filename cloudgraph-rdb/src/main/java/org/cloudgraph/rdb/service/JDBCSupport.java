@@ -21,11 +21,16 @@
  */
 package org.cloudgraph.rdb.service;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,6 +42,9 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.rdb.filter.FilterAssembler;
+import org.plasma.config.DataAccessProviderName;
+import org.plasma.config.PlasmaConfig;
+import org.plasma.config.RDBMSVendorName;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -128,13 +136,20 @@ public abstract class JDBCSupport {
         	sql.append(propValue.getProp().getPhysicalName());
         	sql.append(" = "); 
         	appendValue(propValue, sql);
-       }
-        // FIXME: vendor specific checks
-        // if Oracle
-        sql.append(" FOR UPDATE WAIT ");
-        sql.append(String.valueOf(waitSeconds));
-        // if MySql
-        //sql.append(" FOR UPDATE");
+        }
+        RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
+        switch (vendor) {
+        case ORACLE:
+            sql.append(" FOR UPDATE WAIT ");
+            sql.append(String.valueOf(waitSeconds));
+	        break;
+        case MYSQL:
+            sql.append(" FOR UPDATE");
+	        break;
+	    default:
+            sql.append(" FOR UPDATE WAIT");
+            sql.append(String.valueOf(waitSeconds));
+        }
 
 		return sql;
 	}
@@ -661,6 +676,7 @@ public abstract class JDBCSupport {
 			Connection con)
 	{
         PreparedStatement statement = null;
+        List<InputStream> streams = null;
         try {		
             if (log.isDebugEnabled() ){
                 log.debug("execute: " + sql.toString());
@@ -671,8 +687,19 @@ public abstract class JDBCSupport {
     		for (PropertyPair pair : values.values()) {
     			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
     			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
-    			statement.setObject(pair.getColumn(), 
+    			if (jdbcType != Types.BLOB && jdbcType != Types.VARBINARY) {
+    			    statement.setObject(pair.getColumn(), 
     					jdbcValue, jdbcType);
+    			}
+    			else {
+    				byte[] bytes = (byte[])jdbcValue;
+    				long len = bytes.length;
+    				ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+        			statement.setBinaryStream(pair.getColumn(), is, len); 
+        			if (streams == null)
+        				streams = new ArrayList<InputStream>();
+        			streams.add(is);
+    			}    			
     		}
             statement.executeUpdate();
         }
@@ -686,6 +713,14 @@ public abstract class JDBCSupport {
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
 			}
+			if (streams != null)
+				try {
+					for (InputStream stream : streams)
+					    stream.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
+					
         }
  	}
 	
@@ -694,6 +729,7 @@ public abstract class JDBCSupport {
 			Connection con)
 	{
         PreparedStatement statement = null;
+        List<InputStream> streams = null;
         try {
 		
             if (log.isDebugEnabled() ){
@@ -707,8 +743,19 @@ public abstract class JDBCSupport {
     		for (PropertyPair pair : values.values()) {
     			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
     			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
-    			statement.setObject(pair.getColumn(), 
+    			if (jdbcType != Types.BLOB && jdbcType != Types.VARBINARY) {
+    			    statement.setObject(pair.getColumn(), 
     					jdbcValue, jdbcType);
+    			}
+    			else {
+    				byte[] bytes = (byte[])jdbcValue;
+    				long len = bytes.length;
+    				ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+        			statement.setBinaryStream(pair.getColumn(), is, len);    				
+        			if (streams == null)
+        				streams = new ArrayList<InputStream>();
+        			streams.add(is);
+    			}    			
     		}
             
             statement.execute();
@@ -723,6 +770,14 @@ public abstract class JDBCSupport {
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
 			}
+			if (streams != null)
+				try {
+					for (InputStream stream : streams)
+					    stream.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
+					
         }
  	}
 	
@@ -732,6 +787,7 @@ public abstract class JDBCSupport {
 	{
 		List<PropertyPair> resultKeys = new ArrayList<PropertyPair>();
         PreparedStatement statement = null;
+        List<InputStream> streams = null;
         ResultSet generatedKeys = null;
         try {
 		
@@ -747,15 +803,23 @@ public abstract class JDBCSupport {
     		for (PropertyPair pair : values.values()) {
     			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
     			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
-    			statement.setObject(pair.getColumn(), 
+    			if (jdbcType != Types.BLOB && jdbcType != Types.VARBINARY) {
+    			    statement.setObject(pair.getColumn(), 
     					jdbcValue, jdbcType);
+    			}
+    			else {
+    				byte[] bytes = (byte[])jdbcValue;
+    				long len = bytes.length;
+    				ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+        			statement.setBinaryStream(pair.getColumn(), is, len);    				
+        			if (streams == null)
+        				streams = new ArrayList<InputStream>();
+        			streams.add(is);
+   			    }    			
     		}
             
             statement.execute();
             generatedKeys = statement.getGeneratedKeys();
-            //if (generatedKeys.next()) {
-            //	resultKeys.add(generatedKeys.getObject(1));
-            //}
             ResultSetMetaData rsMeta = generatedKeys.getMetaData();
             int numcols = rsMeta.getColumnCount();
             if (log.isDebugEnabled())
@@ -801,6 +865,13 @@ public abstract class JDBCSupport {
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
 			}
+			if (streams != null)
+				try {
+					for (InputStream stream : streams)
+					    stream.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
         }
         
         return resultKeys;

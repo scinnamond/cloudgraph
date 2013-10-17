@@ -94,6 +94,15 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     		Node node, long id,
     		Date now, String namePrefix,
     		long level, long sequence) {
+    	return fillNode(node, id, id,
+        		now, namePrefix,
+        		level, sequence);
+    }
+    
+    protected Node fillNode(
+    		Node node, long rootId, long id,
+    		Date now, String namePrefix,
+    		long level, long sequence) {
     	String name = namePrefix + "_" +level + "_" + sequence;
     	
     	long temp = id - (long)1357000000000L;
@@ -103,7 +112,7 @@ public abstract class DataTypeGraphModelTest extends HBaseTestCase {
     	double doubleId = (double)temp * (double)0.001;
     	float floatId = Double.valueOf(doubleId).floatValue();
     	
-	    node.setRootId(id);	
+	    node.setRootId(rootId);	
     	node.setLevelNum(level);
     	node.setSequenceNum(sequence);
     	

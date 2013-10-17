@@ -57,54 +57,62 @@ public class LongPartialRowKeyScanTest extends DataTypeGraphModelTest {
     public void setUp() throws Exception {
         super.setUp();
     } 
-    
+     
     public void testEqual() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
+        long rootId = System.currentTimeMillis();
+        
+        long id1 = rootId + WAIT_TIME;
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1, "g1");
+        Node root1 = this.createGraph(rootId, id1, now1, "g1");
         service.commit(root1.getDataGraph(), USERNAME);
-
-        long id2 = System.currentTimeMillis();
+        log.info("BEFORE: " + serializeGraph(root1.getDataGraph()));
+         
+        long id2 = id1 + WAIT_TIME;;
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2, "g2");
+        Node root2 = this.createGraph(rootId, id2, now2, "g2");
         service.commit(root2.getDataGraph(), USERNAME);
 
-        long id3 = System.currentTimeMillis();
+        long id3 = id2 + WAIT_TIME;;
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3, "g3");
+        Node root3 = this.createGraph(rootId, id3, now3, "g3");
         service.commit(root3.getDataGraph(), USERNAME);
-        
+         
         // fetch a slice
         String sliceName = root1.getChild(3).getName();
-        Node fetched = this.fetchSingleGraph(id1, sliceName, 
+        Node fetched = this.fetchSingleGraph(rootId, id1, sliceName, 
         		root1.getDateTimeField());
-        logGraph(fetched.getDataGraph());
+        log.info(serializeGraph(fetched.getDataGraph()));
+        debugGraph(fetched.getDataGraph());
         assertTrue(fetched.getChildCount() == 1); // expect single slice
-        assertTrue(fetched.getRootId() == id1);
+        assertTrue(fetched.getRootId() == rootId);
+        assertTrue(fetched.getLongField() == id1);
         String name = fetched.getString(
         		"child[@name='"+sliceName+"']/@name");
         assertTrue(name.equals(sliceName));         
     }  
-    
+      
     public void testBetween() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
+       long rootId = System.currentTimeMillis();
+        
+        long id1 = rootId + WAIT_TIME;
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1, "g1");
+        Node root1 = this.createGraph(rootId, id1, now1, "g1");
         service.commit(root1.getDataGraph(), USERNAME);
-
-        long id2 = id1 + WAIT_TIME;
+        log.info("BEFORE: " + serializeGraph(root1.getDataGraph()));
+         
+        long id2 = id1 + WAIT_TIME;;
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2, "g2");
+        Node root2 = this.createGraph(rootId, id2, now2, "g2");
         service.commit(root2.getDataGraph(), USERNAME);
 
-        long id3 = id2 + WAIT_TIME;
+        long id3 = id2 + WAIT_TIME;;
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3, "g3");
+        Node root3 = this.createGraph(rootId, id3, now3, "g3");
         service.commit(root3.getDataGraph(), USERNAME);
         
-        Node[] fetched = this.fetchGraphsBetween(
+        Node[] fetched = this.fetchGraphsBetween(rootId,
         		id1, id3);
         assertTrue(fetched.length == 3);
 
@@ -113,58 +121,65 @@ public class LongPartialRowKeyScanTest extends DataTypeGraphModelTest {
         logGraph(fetched[2].getDataGraph());
         
     } 
-     
+        
     public void testInclusive() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
+        long rootId = System.currentTimeMillis();
+        
+        long id1 = rootId + WAIT_TIME;
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1, "g1");
+        Node root1 = this.createGraph(rootId, id1, now1, "g1");
         service.commit(root1.getDataGraph(), USERNAME);
-
-        long id2 = id1 + WAIT_TIME;
+        log.info("BEFORE: " + serializeGraph(root1.getDataGraph()));
+         
+        long id2 = id1 + WAIT_TIME;;
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2, "g2");
+        Node root2 = this.createGraph(rootId, id2, now2, "g2");
         service.commit(root2.getDataGraph(), USERNAME);
 
-        long id3 = id2 + WAIT_TIME;
+        long id3 = id2 + WAIT_TIME;;
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3, "g4");
+        Node root3 = this.createGraph(rootId, id3, now3, "g3");
         service.commit(root3.getDataGraph(), USERNAME);
         
-        Node[] fetched = this.fetchGraphsInclusive(
+        Node[] fetched = this.fetchGraphsInclusive(rootId,
         		id1, id3);
         assertTrue(fetched.length == 3);
         logGraph(fetched[0].getDataGraph());
         logGraph(fetched[1].getDataGraph());
         logGraph(fetched[2].getDataGraph());
     }  
-    
+     
     public void testExclusive() throws IOException       
     {
-        long id1 = System.currentTimeMillis();
+       long rootId = System.currentTimeMillis();
+        
+        long id1 = rootId + WAIT_TIME;
         Date now1 = new Date(id1);
-        Node root1 = this.createGraph(id1, now1, "g1");
+        Node root1 = this.createGraph(rootId, id1, now1, "g1");
         service.commit(root1.getDataGraph(), USERNAME);
-
-        long id2 = id1 + WAIT_TIME;
+        log.info("BEFORE: " + serializeGraph(root1.getDataGraph()));
+         
+        long id2 = id1 + WAIT_TIME;;
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(id2, now2, "g2");
+        Node root2 = this.createGraph(rootId, id2, now2, "g2");
         service.commit(root2.getDataGraph(), USERNAME);
 
-        long id3 = id2 + WAIT_TIME;
+        long id3 = id2 + WAIT_TIME;;
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(id3, now3, "g3");
+        Node root3 = this.createGraph(rootId, id3, now3, "g3");
         service.commit(root3.getDataGraph(), USERNAME);
         
-        Node[] fetched = this.fetchGraphsExclusive(
+        Node[] fetched = this.fetchGraphsExclusive(rootId,
         		id1, id3);
         assertTrue(fetched.length == 1);
         logGraph(fetched[0].getDataGraph());
     }    
- 
-    protected Node fetchSingleGraph(long id, String name, Object date) {    	
+      
+    protected Node fetchSingleGraph(long rootId, long id, String name, Object date) {    	
     	QLongNode root = createSelect(name);
-    	root.where(root.longField().eq(id));
+    	root.where(root.rootId().eq(rootId)
+    		.and(root.longField().eq(id)));
     	this.marshal(root.getModel(), id);
     	
     	DataGraph[] result = service.find(root);
@@ -174,9 +189,10 @@ public class LongPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return (Node)result[0].getRootObject();
     }
 
-    protected Node[] fetchGraphsBetween(long min, long max) {    	
+    protected Node[] fetchGraphsBetween(long rootId, long min, long max) {    	
     	QLongNode root = createSelect();
-    	root.where(root.longField().between(min, max));
+    	root.where(root.rootId().eq(rootId)
+        		.and(root.longField().between(min, max)));
     	
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
@@ -187,10 +203,10 @@ public class LongPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return profiles;
     }
 
-    protected Node[] fetchGraphsInclusive(long min, long max) {    	
+    protected Node[] fetchGraphsInclusive(long rootId, long min, long max) {    	
     	QLongNode root = createSelect();
-    	root.where(root.longField().ge(min)
-        		.and(root.longField().le(max)));
+    	root.where(root.rootId().eq(rootId).and(root.longField().ge(min)
+        		.and(root.longField().le(max))));
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
     	
@@ -200,10 +216,10 @@ public class LongPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return profiles;
     }
     
-    protected Node[] fetchGraphsExclusive(long min, long max) {    	
+    protected Node[] fetchGraphsExclusive(long rootId, long min, long max) {    	
     	QLongNode root = createSelect();
-    	root.where(root.longField().gt(min)
-        		.and(root.longField().lt(max)));
+    	root.where(root.rootId().eq(rootId).and(root.longField().gt(min)
+        		.and(root.longField().lt(max))));
     	DataGraph[] result = service.find(root);
     	assertTrue(result != null);
     	
@@ -236,12 +252,12 @@ public class LongPartialRowKeyScanTest extends DataTypeGraphModelTest {
     	return root;
     }
     
-    protected LongNode createGraph(long id, Date now, String namePrefix) {
+    protected LongNode createGraph(long rootId, long id, Date now, String namePrefix) {
         DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
         dataGraph.getChangeSummary().beginLogging(); // log changes from this point
     	Type rootType = PlasmaTypeHelper.INSTANCE.getType(LongNode.class);
     	LongNode root = (LongNode)dataGraph.createRootObject(rootType);
-    	fillNode(root, id, now, namePrefix, 0, 0);
+    	fillNode(root, rootId, id, now, namePrefix, 0, 0);
     	fillGraph(root, id, now, namePrefix);
         return root;
     }

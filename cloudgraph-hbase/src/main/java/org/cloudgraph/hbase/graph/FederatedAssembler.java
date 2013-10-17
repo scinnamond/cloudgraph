@@ -37,6 +37,7 @@ import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState.Edge;
 import org.plasma.query.collector.PropertySelection;
+import org.plasma.query.collector.Selection;
 import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -76,7 +77,7 @@ public abstract class FederatedAssembler extends DefaultAssembler
 	 * @param snapshotDate the query snapshot date
 	 */
 	public FederatedAssembler(PlasmaType rootType,
-			PropertySelection selection,
+			Selection selection,
 			FederatedReader federatedReader,
 			Timestamp snapshotDate) {
 		super(rootType, selection, 

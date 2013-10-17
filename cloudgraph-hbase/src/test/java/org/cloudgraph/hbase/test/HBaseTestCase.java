@@ -80,10 +80,16 @@ public abstract class HBaseTestCase extends CommonTest {
         return xml;
     }
     
+    protected void debugGraph(DataGraph dataGraph) throws IOException 
+    {
+        String xml = serializeGraph(dataGraph);
+        log.debug("GRAPH: " + xml);    	
+    }
+    
     protected void logGraph(DataGraph dataGraph) throws IOException 
     {
         String xml = serializeGraph(dataGraph);
-        log.info("GRAPH: " + xml);    	
+        log.debug("GRAPH: " + xml);    	
     }
     
     protected Query marshal(Query query, float id) {
@@ -98,11 +104,10 @@ public abstract class HBaseTestCase extends CommonTest {
 			String xml = binding.marshal(query);
 	        //log.info("query: " + xml);
 			String name = "query-" + id+ ".xml";
-			FileOutputStream fos = new FileOutputStream(
-					new File(name));
+			File file = new File(new File("./target"), name);
+			FileOutputStream fos = new FileOutputStream(file);
 			binding.marshal(query, fos);
-	        FileInputStream fis = new FileInputStream(
-	        		new File(name));
+	        FileInputStream fis = new FileInputStream(file);
 	        Query q2 = (Query)binding.unmarshal(fis);
 	    	return q2;
 		} catch (JAXBException e) {

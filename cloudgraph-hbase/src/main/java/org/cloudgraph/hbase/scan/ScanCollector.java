@@ -45,7 +45,7 @@ import org.plasma.sdo.PlasmaType;
 
 /**
  * Collector visitor which supports the "recognition" of one or more 
- * {@link PartialRowKeyScan partial}, {@link FuzzyRowKeyScan fuzzy} and other
+ * {@link PartialRowKey partial}, {@link FuzzyRowKey fuzzy} and other
  * scan constructs within the context of a binary 
  * {@link Expr expression} syntax tree encapsulating operator precedence
  * and other factors. 
@@ -54,7 +54,7 @@ import org.plasma.sdo.PlasmaType;
  * expressions across the key fields. So
  * for {@link org.cloudgraph.hbase.expr.RelationalBinaryExpr relational binary} expressions
  * linked within a query syntax tree by one or more logical binary 'AND', 
- * expressions, a single {@link PartialRowKeyScan partial} or {@link FuzzyRowKeyScan fuzzy}
+ * expressions, a single {@link PartialRowKey partial} or {@link FuzzyRowKey fuzzy}
  * row key scan may be used. But for {@link org.cloudgraph.hbase.expr.RelationalBinaryExpr relational binary} expressions
  * linked by {@link org.cloudgraph.hbase.expr.LogicalBinaryExpr logical binary} 'OR' expressions
  * multiple scans must be used. Clients of this collector class may execute the
@@ -79,8 +79,9 @@ public class ScanCollector implements ExprVisitor {
     
 	private PlasmaType rootType;
 	private DataGraphConfig graph;
-	private List<PartialRowKeyScan> partialKeyScans;
-	private List<FuzzyRowKeyScan> fuzzyKeyScans;
+	private List<PartialRowKey> partialKeyScans;
+	private List<FuzzyRowKey> fuzzyKeyScans;
+	private List<CompleteRowKey> completeKeys;
 	private ScanLiteralFactory factory = new ScanLiteralFactory();
 	private boolean queryRequiresGraphRecognizer = false;
 	
@@ -92,25 +93,34 @@ public class ScanCollector implements ExprVisitor {
 	}
 	
 	private void init() {
-		if (partialKeyScans == null) {
-			partialKeyScans = new ArrayList<PartialRowKeyScan>(this.literals.size());
-			fuzzyKeyScans = new ArrayList<FuzzyRowKeyScan>(this.literals.size());
-			for (Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> existing : literals) {
-				ScanLiterals literalColl = new ScanLiterals();
+		if (this.partialKeyScans == null) {
+			this.partialKeyScans = new ArrayList<PartialRowKey>(this.literals.size());
+			this.fuzzyKeyScans = new ArrayList<FuzzyRowKey>(this.literals.size());
+			this.completeKeys = new ArrayList<CompleteRowKey>(this.literals.size());
+			for (Map<UserDefinedRowKeyFieldConfig, List<ScanLiteral>> existing : this.literals) {
+				ScanLiterals scanLiterals = new ScanLiterals();
 				for (List<ScanLiteral> literalList : existing.values()) {
 					for (ScanLiteral literal : literalList)
-					    literalColl.addLiteral(literal);
+						scanLiterals.addLiteral(literal);
 				}
 				
-				if (literalColl.supportPartialRowKeyScan(this.graph)) {
+				// gives precedence to complete keys over partial keys and to partial
+				// keys over fuzzy keys
+				
+				if (scanLiterals.supportCompleteRowKey(this.graph)) {
+					CompleteRowKeyAssembler assembler = new CompleteRowKeyAssembler(this.rootType);
+				    assembler.assemble(scanLiterals);
+				    this.completeKeys.add(assembler);	
+			    }
+				else if (scanLiterals.supportPartialRowKeyScan(this.graph)) {
 				    PartialRowKeyScanAssembler assembler = new PartialRowKeyScanAssembler(this.rootType);
-				    assembler.assemble(literalColl);
-				    partialKeyScans.add(assembler);	
+				    assembler.assemble(scanLiterals);
+				    this.partialKeyScans.add(assembler);	
 			    }
 				else {
 				    FuzzyRowKeyScanAssembler assembler = new FuzzyRowKeyScanAssembler(this.rootType);
-				    assembler.assemble(literalColl);
-				    fuzzyKeyScans.add(assembler);	
+				    assembler.assemble(scanLiterals);
+				    this.fuzzyKeyScans.add(assembler);	
 				}
 			}
 		}
@@ -120,14 +130,19 @@ public class ScanCollector implements ExprVisitor {
 		return queryRequiresGraphRecognizer;
 	}
 
-	public List<PartialRowKeyScan> getPartialRowKeyScans() {
+	public List<PartialRowKey> getPartialRowKeyScans() {
 		init();
-		return partialKeyScans;
+		return this.partialKeyScans;
 	}
 	
-	public List<FuzzyRowKeyScan> getFuzzyRowKeyScans() {
+	public List<FuzzyRowKey> getFuzzyRowKeyScans() {
 		init();
-		return fuzzyKeyScans;
+		return this.fuzzyKeyScans;
+	}
+	
+	public List<CompleteRowKey> getCompleteRowKeys() {
+		init();
+		return this.completeKeys;
 	}
 	
 	@Override

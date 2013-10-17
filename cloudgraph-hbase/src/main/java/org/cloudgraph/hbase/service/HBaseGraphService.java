@@ -197,20 +197,15 @@ public class HBaseGraphService implements PlasmaDataAccessService {
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
         
         try {
-            for (int i = 0; i < dataGraphs.length; i++) { 
-                if (log.isDebugEnabled())
-                    log.debug("commiting: " + dataGraphs[i].getChangeSummary().toString());
-                DataGraphDispatcher dispatcher = new GraphDispatcher(this.context,
-                		snapshotMap,
-                        username);
-                try {
-                    dispatcher.commit(dataGraphs[i]);        
-                }
-                finally {
-                    dispatcher.close();
-                }
-            }  
-            //con.commit();
+            DataGraphDispatcher dispatcher = new GraphDispatcher(this.context,
+            		snapshotMap,
+                    username);
+            try {
+                dispatcher.commit(dataGraphs);        
+            }
+            finally {
+                dispatcher.close();
+            }
             return snapshotMap;
         }
         catch (DataAccessException e) {

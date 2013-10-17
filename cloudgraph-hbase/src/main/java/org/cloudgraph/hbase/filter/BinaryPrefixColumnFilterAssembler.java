@@ -23,6 +23,7 @@ package org.cloudgraph.hbase.filter;
 
 
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,6 +35,8 @@ import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
+
+import commonj.sdo.Property;
 
 /**
  * Creates an HBase column filter list using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
@@ -68,14 +71,14 @@ public class BinaryPrefixColumnFilterAssembler extends FilterListAssembler
     		FilterList.Operator.MUST_PASS_ONE);        
 	}
 	
-	public void assemble(List<String> propertyNames, PlasmaType contextType) {
+	public void assemble(Set<Property> properties, PlasmaType contextType) {
     	// Note: using many binary prefix qualifier filters
     	// rather than a single MultipleColumnPrefixFilter under the
     	// assumption that the binary compare is more
     	// efficient than the string conversion
     	// required by the MultipleColumnPrefixFilter (?)
-    	for (String name : propertyNames) {
-    		PlasmaProperty prop = (PlasmaProperty)contextType.getProperty(name);
+    	for (Property p : properties) {
+    		PlasmaProperty prop = (PlasmaProperty)p;
     		byte[] key = this.columnKeyFac.createColumnKey(contextType, prop);
             QualifierFilter qualFilter = new QualifierFilter(
                 CompareFilter.CompareOp.EQUAL,

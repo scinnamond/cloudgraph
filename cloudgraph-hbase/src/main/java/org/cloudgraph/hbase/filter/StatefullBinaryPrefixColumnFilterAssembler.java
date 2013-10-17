@@ -24,6 +24,7 @@ package org.cloudgraph.hbase.filter;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +37,8 @@ import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.cloudgraph.state.GraphState;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
+
+import commonj.sdo.Property;
 
 /**
  * Creates an HBase column filter list using <a target="#" href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/QualifierFilter.html">QualifierFilter</a> 
@@ -74,7 +77,7 @@ public class StatefullBinaryPrefixColumnFilterAssembler extends FilterListAssemb
         this.columnKeyFac = new StatefullColumnKeyFactory(rootType, this.graphState);  
 	} 
 	
-	public void assemble(List<String> propertyNames, Collection<Integer> sequences,
+	public void assemble(Set<Property> properies, Collection<Integer> sequences,
 		PlasmaType contextType) 
 	{
     	// Note: using many binary prefix qualifier filters
@@ -83,8 +86,8 @@ public class StatefullBinaryPrefixColumnFilterAssembler extends FilterListAssemb
     	// efficient than the string conversion
     	// required by the MultipleColumnPrefixFilter (?)
         for (Integer seq : sequences) {
-        	for (String name : propertyNames) {
-        		PlasmaProperty prop = (PlasmaProperty)contextType.getProperty(name);
+        	for (Property p : properies) {
+        		PlasmaProperty prop = (PlasmaProperty)p;
         	    byte[] key = this.columnKeyFac.createColumnKey(contextType, 
         		    seq, prop);
                 QualifierFilter qualFilter = new QualifierFilter(

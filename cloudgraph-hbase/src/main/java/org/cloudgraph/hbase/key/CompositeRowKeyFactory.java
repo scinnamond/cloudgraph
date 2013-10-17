@@ -28,11 +28,13 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.key.GraphRowKeyFactory;
+import org.cloudgraph.common.key.KeyFieldOverflowException;
 import org.cloudgraph.common.key.KeyValue;
 import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.plasma.sdo.DataFlavor;
+import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataGraph;
@@ -162,9 +164,17 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 			else {
 				if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
 					UserDefinedRowKeyFieldConfig userField = (UserDefinedRowKeyFieldConfig)fieldConfig;
+					PlasmaProperty endpointProp = userField.getEndpointProperty();
+					int delta = userField.getMaxLength() - keyValue.length;
+			    	if (delta < 0)
+			    		throw new KeyFieldOverflowException("user-defined field value '" 
+			    	        + new String(keyValue, this.charset)
+			    	        + "' for path endpoint (property), " + endpointProp
+			    			+ ", with dataflavor, " + endpointProp.getDataFlavor() + ", exceeded max length ("
+			    			+ String.valueOf(userField.getMaxLength()) + ")");
 				    paddedKeyValue = padding.pad(keyValue, 
 						    userField.getMaxLength(), 
-	    				    userField.getEndpointProperty().getDataFlavor());
+						    endpointProp.getDataFlavor());
 				}
 				else {
 					paddedKeyValue = padding.pad(keyValue, 
@@ -208,10 +218,13 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
     			KeyValue keyValue = this.keySupport.findKeyValue(userFieldConfig, values);
     			
     			if (keyValue != null) {
+    				
         			// FIXME: do we want to invoke a converter here?
         			// FIXME: do we want to transform this value somehow?
      				String stringValue = String.valueOf(keyValue.getValue());
     				fieldValue = stringValue.getBytes(this.charset);
+    				
+    				
     			}
     			else {
     				continue; // could be a partial row key scan
@@ -228,6 +241,15 @@ public class CompositeRowKeyFactory extends ByteBufferKeyFactory
 			else {
 				if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
 					UserDefinedRowKeyFieldConfig userField = (UserDefinedRowKeyFieldConfig)fieldConfig;
+					PlasmaProperty endpointProp = userField.getEndpointProperty();
+					int delta = userField.getMaxLength() - fieldValue.length;
+			    	if (delta < 0)
+			    		throw new KeyFieldOverflowException("user-defined field value '" 
+			    	        + new String(fieldValue, this.charset)
+			    	        + "' for path endpoint (property), " + endpointProp
+			    			+ ", with dataflavor, " + endpointProp.getDataFlavor() + ", exceeded max length ("
+			    			+ String.valueOf(userField.getMaxLength()) + ")");
+   				
 					paddedKeyValue = padding.pad(fieldValue, 
 						userField.getMaxLength(), 
 	    				userField.getEndpointProperty().getDataFlavor());			

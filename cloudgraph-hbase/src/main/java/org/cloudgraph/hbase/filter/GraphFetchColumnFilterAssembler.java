@@ -24,6 +24,7 @@ package org.cloudgraph.hbase.filter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.JAXBException;
 
@@ -41,11 +42,13 @@ import org.cloudgraph.state.GraphState;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelection;
+import org.plasma.query.collector.Selection;
 import org.plasma.query.model.Select;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.xml.sax.SAXException;
 
+import commonj.sdo.Property;
 import commonj.sdo.Type;
 
 /**
@@ -66,10 +69,10 @@ public class GraphFetchColumnFilterAssembler extends FilterListAssembler
 
 	private GraphColumnKeyFactory columnKeyFac;
 	private Map<String, byte[]> prefixMap = new HashMap<String, byte[]>();
-    private PropertySelection propertySelection;
+    private Selection propertySelection;
 	
 	public GraphFetchColumnFilterAssembler( 
-			PropertySelection selection,
+			Selection selection,
 			PlasmaType rootType) {
 		
 		super(rootType);
@@ -120,11 +123,10 @@ public class GraphFetchColumnFilterAssembler extends FilterListAssembler
 	 */
 	private void collect() {
 		for (Type type : this.propertySelection.getInheritedTypes()) {
-			List<String> names = this.propertySelection.getInheritedProperties(type);
-            for (String name : names) {
-    			PlasmaProperty prop = (PlasmaProperty)type.getProperty(name);
+			Set<Property> props = this.propertySelection.getInheritedProperties(type);
+            for (Property prop : props) {
                 byte[] colKey = this.columnKeyFac.createColumnKey(
-                    (PlasmaType)type, prop);
+                    (PlasmaType)type, (PlasmaProperty)prop);
                 String colKeyStr = Bytes.toString(colKey);
                 this.prefixMap.put(colKeyStr, colKey);
             }

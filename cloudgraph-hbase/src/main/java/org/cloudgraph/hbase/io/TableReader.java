@@ -49,7 +49,7 @@ public interface TableReader extends TableOperation {
 	 * @return the table name associated with this reader. 
 	 */
 	public String getTableName();
-	
+		
 	/**
 	 * Returns the row reader context for the given UUID or null
 	 * if null exists

@@ -21,11 +21,13 @@
  */
 package org.cloudgraph.hbase.scan;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.service.HBaseDataConverter;
 import org.plasma.query.model.RelationalOperator;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaType;
 
@@ -35,13 +37,16 @@ import org.plasma.sdo.PlasmaType;
  * segments and fields of composite (scan start/stop) row keys 
  * under various relational and logical operator and
  * various configurable composite key-field hashing, formatting, padding 
- * and other features.
+ * and other features. A temporal literal does not contain or involve wildcards but
+ * nevertheless may "participate" in a fuzzy scan as part of a composite row key and
+ * therefore implements {@link FuzzyRowKeyLiteral} supplying only default key and
+ * info bytes.  
  * 
  * @see org.cloudgraph.config.TableConfig
  * @see org.cloudgraph.hbase.service.HBaseDataConverter
  */
 public class TemporalLiteral extends ScanLiteral 
-    implements PartialRowKeyLiteral {
+    implements PartialRowKeyLiteral, FuzzyRowKeyLiteral, CompleteRowKeyLiteral {
 
     public static final int INCREMENT = 1;
     public static final int DATE_INCREMENT = 1000; // SDO Date data type resolution is seconds
@@ -85,9 +90,15 @@ public class TemporalLiteral extends ScanLiteral
 		if (fieldConfig.isHash()) {
 			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
 			startBytes = this.hashing.toStringBytes(startBytes);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.temporal);
 		}
 		else {
 			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.temporal);
 		}
 		return startBytes;
 	}
@@ -121,6 +132,9 @@ public class TemporalLiteral extends ScanLiteral
 		if (this.fieldConfig.isHash()) {
 			stopBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
 			stopBytes = this.hashing.toStringBytes(stopBytes, HASH_INCREMENT);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.temporal);
 		}
 		else {
 			Long stopLongValue = longValue + getIncrement(dataType);
@@ -130,6 +144,9 @@ public class TemporalLiteral extends ScanLiteral
 			// re format the string under its native type
 			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);			
 			stopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.temporal);
 		}
 		return stopBytes;
 	}	
@@ -160,6 +177,9 @@ public class TemporalLiteral extends ScanLiteral
 		if (this.fieldConfig.isHash()) {
 			startBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
 			startBytes = this.hashing.toStringBytes(startBytes, HASH_INCREMENT);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.temporal);
 		}
 		else {
 			Long startLongValue = longValue + getIncrement(dataType);
@@ -170,6 +190,9 @@ public class TemporalLiteral extends ScanLiteral
 			String startValueStr = this.dataConverter.toString(property.getType(), startValue);
 			
 			startBytes = startValueStr.getBytes(this.charset);
+			startBytes = this.padding.pad(startBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.temporal);
 		}
 		return startBytes;
 	}
@@ -254,6 +277,9 @@ public class TemporalLiteral extends ScanLiteral
 		if (this.fieldConfig.isHash()) {
 			stopBytes = HBaseDataConverter.INSTANCE.toBytes(property, value);
 			stopBytes = this.hashing.toStringBytes(stopBytes);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.temporal);
 		}
 		else {
 			Long stopLongValue = longValue;
@@ -264,6 +290,9 @@ public class TemporalLiteral extends ScanLiteral
 			String stopValueStr = this.dataConverter.toString(property.getType(), stopValue);
 			
 			stopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = this.padding.pad(stopBytes, 
+					this.fieldConfig.getMaxLength(), 
+					DataFlavor.temporal);
 		}
 		return stopBytes;
 	}
@@ -294,5 +323,34 @@ public class TemporalLiteral extends ScanLiteral
 	 */	
 	public byte[] getLessThanEqualStopBytes() {
 	    return this.getEqualsStopBytes();
+	}
+	
+	/**
+	 * Returns the bytes 
+	 * used to represent an "equals" relational operator 
+	 * for a specific composite row key field, under an HBase 'Get' operation for 
+	 * the various optionally configurable hashing, 
+	 * formatting and padding features.
+	 * @return the bytes 
+	 * used to represent an "equals" relational operator 
+	 * for a specific composite row key field, under an HBase 'Get' operation for 
+	 * the various optionally configurable hashing, 
+	 * formatting and padding features.
+	 */
+	@Override
+	public byte[] getEqualsBytes() {
+		return getEqualsStartBytes();
+	}
+
+	@Override
+	public byte[] getFuzzyKeyBytes() {
+		return getEqualsStartBytes();
+	}
+
+	@Override
+	public byte[] getFuzzyInfoBytes() {
+		byte[] infoBytes = new byte[this.fieldConfig.getMaxLength()];
+		Arrays.fill(infoBytes, (byte)0); // fixed char 
+		return infoBytes;
 	}
 }

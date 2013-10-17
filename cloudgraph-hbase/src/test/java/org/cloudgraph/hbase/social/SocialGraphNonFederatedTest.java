@@ -58,15 +58,15 @@ public class SocialGraphNonFederatedTest extends SocialGraphModelTest
     {
     	GraphInfo info = createGraph();
     	
-    	log.info("inserting initial graph:");
+    	log.debug("inserting initial graph:");
     	this.service.commit(info.actor.getDataGraph(), 
     			"test1");
     	    	
-    	log.info("fetching initial graph");
+    	log.debug("fetching initial graph");
     	Actor fetchedActor = fetchGraph(
     		createGraphQuery(info.actor.getName()));    	
     	String xml = this.serializeGraph(fetchedActor.getDataGraph());
-    	log.info(xml);
+    	log.debug(xml);
     	
     	assertTrue(fetchedActor.getTargetEdgeCount() == 1);
     	Actor fetchedFollower = (Actor)fetchedActor.getTargetEdge(0).getSource();
@@ -81,11 +81,11 @@ public class SocialGraphNonFederatedTest extends SocialGraphModelTest
     	assertTrue(fetchedTopic.getName() != null);
     	assertTrue(fetchedTopic.getName().equals(info.politics.getName()));
     	
-    	log.info("fetching follower");
+    	log.debug("fetching follower");
     	Actor fetchedFollowerRoot = fetchGraph(
     		createFollowerGraphQuery(info.follower.getName()));    	
         xml = this.serializeGraph(fetchedFollowerRoot.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
         //Since actor is a "bound" root type, there are always
         // two actor rows, and the edge between
         // actor and follower is created in the first row.
@@ -95,12 +95,12 @@ public class SocialGraphNonFederatedTest extends SocialGraphModelTest
         assertTrue(fetchedFollowerRoot != null);
         assertTrue(fetchedFollowerRoot.getSourceEdgeCount() == 0);
         
-    	log.info("fetching blog slice");
+    	log.debug("fetching blog slice");
     	Actor fetchedActorSliceRoot = fetchGraph(
     			createBlogPredicateQuery(info.actor.getName(), 
     					info.electionBlog.getName()));    	
         xml = this.serializeGraph(fetchedActorSliceRoot.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
     	assertTrue(fetchedActorSliceRoot.getBlogCount() == 1);
     	fetchedBlog = (Blog)fetchedActorSliceRoot.get("blog[@name='"+info.electionBlog.getName()+"']");
     	assertTrue(fetchedBlog != null);
@@ -109,12 +109,12 @@ public class SocialGraphNonFederatedTest extends SocialGraphModelTest
     	assertTrue(fetchedFollower.getName() != null);
     	assertTrue(info.follower.getName().equals(fetchedFollower.getName()));
                 
-    	log.info("fetching photo slice");
+    	log.debug("fetching photo slice");
     	fetchedActorSliceRoot = fetchGraph(
     			createPhotoPredicateQuery(info.actor.getName(), 
     					info.photo2.getName()));    	
         xml = this.serializeGraph(fetchedActorSliceRoot.getDataGraph());
-        log.info(xml);
+        log.debug(xml);
     	assertTrue(fetchedActorSliceRoot.getPhotoCount() == 1);
     	Photo fetchedPhoto = (Photo)fetchedActorSliceRoot.get("photo[@name='"+info.photo2.getName()+"']");
     	assertTrue(fetchedPhoto != null);

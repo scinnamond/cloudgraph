@@ -25,7 +25,7 @@ import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaType;
 
 /**
- * Assembles a composite partial row (start/stop) key pair where each
+ * Assembles a complete composite or partial composite partial row (start/stop) key pair where each
  * field within the composite start and stop row keys are constructed 
  * based a set of query predicates.   
  * @author Scott Cinnamond

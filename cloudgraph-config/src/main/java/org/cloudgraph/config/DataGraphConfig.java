@@ -48,6 +48,7 @@ public class DataGraphConfig {
 	private Map<String, UserDefinedRowKeyFieldConfig> pathToUserDefinedRowKeyMap = new HashMap<String, UserDefinedRowKeyFieldConfig>();
 	private Map<commonj.sdo.Property, UserDefinedRowKeyFieldConfig> propertyToUserDefinedRowKeyMap = new HashMap<commonj.sdo.Property, UserDefinedRowKeyFieldConfig>();
     private List<KeyFieldConfig> rowKeyFieldList = new ArrayList<KeyFieldConfig>(); 
+    private Map<String, Property> propertyNameToPropertyMap = new HashMap<String, Property>();
 
 	
 	private byte[] rowKeyFieldDelimiterBytes;
@@ -60,6 +61,8 @@ public class DataGraphConfig {
 		super();
 		this.graph = graph;
 		this.table = table;
+        for (Property prop : graph.getProperties())
+        	propertyNameToPropertyMap.put(prop.getName(), prop);
 		
 		int seqNum = 1;
 		for (RowKeyField rowKeyField : this.graph.getRowKeyModel().getRowKeyFields()) {
@@ -107,6 +110,14 @@ public class DataGraphConfig {
 		return PlasmaTypeHelper.INSTANCE.getType(
 				this.graph.getUri(), this.graph.getType());
 	}
+	
+	public List<Property> getProperties() {
+	    return this.graph.properties;
+	} 
+	    
+	public Property findProperty(String name) {
+	    return this.propertyNameToPropertyMap.get(name);
+	}	
 	
 	public List<PreDefinedKeyFieldConfig> getPreDefinedRowKeyFields()
 	{

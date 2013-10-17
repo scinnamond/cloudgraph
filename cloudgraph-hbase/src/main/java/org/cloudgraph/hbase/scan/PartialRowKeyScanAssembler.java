@@ -59,7 +59,7 @@ import org.plasma.sdo.PlasmaType;
  * @since 0.5
  */
 public class PartialRowKeyScanAssembler  
-    implements RowKeyScanAssembler, PartialRowKeyScan
+    implements RowKeyScanAssembler, PartialRowKey
 {
     private static Log log = LogFactory.getLog(PartialRowKeyScanAssembler.class);
 	protected int bufsize = 4000;
@@ -193,93 +193,69 @@ public class PartialRowKeyScanAssembler
         	    this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());
     		}
     		
-    		byte[] startValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
-       	    		hashing, preDefinedField);
-       	    byte[] paddedStartValue = null;
-       	    if (preDefinedField.isHash()) {
-       	    	paddedStartValue = this.padding.pad(startValue, preDefinedField.getMaxLength(), 
-    				DataFlavor.integral);
-       	    }
-       	    else {
-       	    	paddedStartValue = this.padding.pad(startValue, preDefinedField.getMaxLength(), 
-       	    			preDefinedField.getDataFlavor());
-       	    }
+       	    byte[] paddedStartValue = getStartBytes(preDefinedField);
     		
     		this.startKey.put(paddedStartValue);
        	    startRowFieldCount++;
        	    
-       	    byte[] stopValue = null;
-       	    if (i < (fieldCount -1)) {
-       		    stopValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
-       		    		hashing, preDefinedField);       	    	
-       	    }
-       	    else { // if last use stop key
-    		    stopValue = this.keySupport.getPredefinedFieldValueStopBytes(this.rootType, 
-    		    		hashing, preDefinedField);
-       	    }
-       	    
-       	    byte[] paddedStopValue = null;
-       	    if (preDefinedField.isHash()) {
-       	    	paddedStopValue = this.padding.pad(stopValue, preDefinedField.getMaxLength(), 
-    				DataFlavor.integral);
-       	    }
-       	    else {
-       	    	paddedStopValue = this.padding.pad(stopValue, preDefinedField.getMaxLength(), 
-       	    			preDefinedField.getDataFlavor());
-       	    }
-       	    
+       	    byte[] paddedStopValue = getStopBytes(preDefinedField, i >= (fieldCount -1));
        	    this.stopKey.put(paddedStopValue);
        	    stopRowFieldCount++;
         }				
 	}
 	
 	private void assembleLiterals()
-	{		
-		for (KeyFieldConfig fieldConfig : this.graph.getRowKeyFields()) {
+	{
+		// first collect the set of field configs which have literals or
+		// predefined field config value(s), such that we can determine the
+		// last field value.
+    	List<KeyFieldConfig> resultFields = new ArrayList<KeyFieldConfig>();        
+    	for (KeyFieldConfig fieldConfig : this.graph.getRowKeyFields()) {
+    		if (fieldConfig instanceof PreDefinedKeyFieldConfig) {
+    			PreDefinedKeyFieldConfig predefinedConfig = (PreDefinedKeyFieldConfig)fieldConfig;
+       		    switch (predefinedConfig.getName()) {
+        		case UUID:
+        			if (this.rootUUID != null) 
+            			resultFields.add(fieldConfig);
+       				break;
+        		default:	
+        			resultFields.add(fieldConfig);
+        			break;
+        		}        		
+    		}
+    		else {
+    			UserDefinedRowKeyFieldConfig userFieldConfig = (UserDefinedRowKeyFieldConfig)fieldConfig;
+    			List<ScanLiteral> scanLiterals = this.scanLiterals.getLiterals(userFieldConfig);    				 
+    			if (scanLiterals != null)
+    				resultFields.add(fieldConfig);
+    		}
+        }    			
+		
+    	int fieldCount = resultFields.size();
+    	for (int i = 0; i < fieldCount; i++) {
+    		KeyFieldConfig fieldConfig = resultFields.get(i);
     		if (fieldConfig instanceof PreDefinedKeyFieldConfig) {
     			PreDefinedKeyFieldConfig predefinedConfig = (PreDefinedKeyFieldConfig)fieldConfig;
         		
-        		byte[] tokenValue = null;
-        		switch (predefinedConfig.getName()) {
-        		case UUID:
-        			if (this.rootUUID != null) {
-        				tokenValue = this.rootUUID.getBytes(this.charset);
-        				break;
-        			}
-        			else
-        				continue;        			
-        		default:	
-        		    tokenValue = predefinedConfig.getKeyBytes(this.rootType);
-        			break;
-        		}        		
-        		//FIXME: if predefined field is last, need stop bytes
-        		
-        		byte[] paddedTokenValue = null;
-        		if (fieldConfig.isHash()) {
-        			tokenValue = hashing.toStringBytes(tokenValue);
-            		paddedTokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
-            				DataFlavor.integral);
-    			} 
-        		else {
-        			paddedTokenValue = this.padding.pad(tokenValue, predefinedConfig.getMaxLength(), 
-            				predefinedConfig.getDataFlavor());
-        		}
+        		byte[] paddedStartValue = getStartBytes(predefinedConfig);
+        		byte[] paddedStopValue = getStopBytes(predefinedConfig, 
+        				i >= (fieldCount -1));        		
         		
         		if (startRowFieldCount > 0) 
             	    this.startKey.put(graph.getRowKeyFieldDelimiterBytes());
         		if (stopRowFieldCount > 0) 
             	    this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());
     			
-           	    this.startKey.put(paddedTokenValue);
-           	    this.stopKey.put(paddedTokenValue);
+           	    this.startKey.put(paddedStartValue);
+           	    this.stopKey.put(paddedStopValue);
            	    this.startRowFieldCount++;
            	    this.stopRowFieldCount++;
     		}
     		else if (fieldConfig instanceof UserDefinedRowKeyFieldConfig) {
     			UserDefinedRowKeyFieldConfig userFieldConfig = (UserDefinedRowKeyFieldConfig)fieldConfig;
     			List<ScanLiteral> scanLiterals = this.scanLiterals.getLiterals(userFieldConfig);    				 
-    			if (scanLiterals == null)
-    				continue;
+    			// We may have multiple literals but all may not have start/stop bytes, e.g.
+    			// a String literal with a less-than-equal '<=' operator will not have a start bytes.
     			for (ScanLiteral scanLiteral : scanLiterals) {
     				byte[] startBytes = scanLiteral.getStartBytes();
     				if (startBytes.length > 0) {
@@ -290,7 +266,16 @@ public class PartialRowKeyScanAssembler
     					this.startRowFieldCount++;
     				}
     				
-    				byte[] stopBytes = scanLiteral.getStopBytes();
+    				byte[] stopBytes = null;
+        			// if not last field
+        			if (i < (fieldCount -1)) {
+        				stopBytes = scanLiteral.getStartBytes();
+               	    }
+               	    else {
+               	    	// only use stop bytes is last field in (compound) key
+               	    	stopBytes = scanLiteral.getStopBytes();
+               	    }
+    				
     				if (stopBytes.length > 0) {
     					if (this.stopRowFieldCount > 0) {
     						this.stopKey.put(graph.getRowKeyFieldDelimiterBytes());		
@@ -301,6 +286,62 @@ public class PartialRowKeyScanAssembler
     			}
     		}
 		}			
+	}
+	
+	private byte[] getStartBytes(PreDefinedKeyFieldConfig preDefinedField)
+	{
+		byte[] startValue = null;
+		switch (preDefinedField.getName()) {
+		case UUID:
+			if (this.rootUUID != null) {
+				startValue = this.rootUUID.getBytes(this.charset);
+			}
+			break;
+		default:	
+			startValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
+       	    		hashing, preDefinedField);
+			break;
+		}        		
+   	    byte[] paddedStartValue = null;
+   	    if (preDefinedField.isHash()) {
+   	    	paddedStartValue = this.padding.pad(startValue, preDefinedField.getMaxLength(), 
+				DataFlavor.integral);
+   	    }
+   	    else {
+   	    	paddedStartValue = this.padding.pad(startValue, preDefinedField.getMaxLength(), 
+   	    			preDefinedField.getDataFlavor());
+   	    }
+		return paddedStartValue;
+	}
+
+	private byte[] getStopBytes(PreDefinedKeyFieldConfig preDefinedField, boolean lastField)
+	{
+		byte[] stopValue = null;
+		switch (preDefinedField.getName()) {
+		case UUID:
+			if (this.rootUUID != null) {
+				stopValue = this.rootUUID.getBytes(this.charset);
+			}
+			break;
+		default:	
+			if (!lastField)
+			    stopValue = this.keySupport.getPredefinedFieldValueStartBytes(this.rootType, 
+       	    		hashing, preDefinedField);
+			else
+				stopValue = this.keySupport.getPredefinedFieldValueStopBytes(this.rootType, 
+	       	    		hashing, preDefinedField);
+			break;
+		}        		
+   	    byte[] paddedStopValue = null;
+   	    if (preDefinedField.isHash()) {
+   	    	paddedStopValue = this.padding.pad(stopValue, preDefinedField.getMaxLength(), 
+				DataFlavor.integral);
+   	    }
+   	    else {
+   	    	paddedStopValue = this.padding.pad(stopValue, preDefinedField.getMaxLength(), 
+   	    			preDefinedField.getDataFlavor());
+   	    }
+		return paddedStopValue;
 	}
 	
 	/**

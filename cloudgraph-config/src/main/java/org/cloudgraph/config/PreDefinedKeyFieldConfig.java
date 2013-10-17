@@ -183,7 +183,7 @@ public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
 		case URI: 
 			return 12;
 		case TYPE:
-			return 8;
+			return 32;
 		case UUID:
 			return 36;
 		default:

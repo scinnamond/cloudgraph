@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.4</version>
+        <version>0.5.5</version>
     </parent>
 	<groupId>org.cloudgraph</groupId>
 	<artifactId>cloudgraph-web</artifactId>
 	<packaging>war</packaging>
-	<version>0.5.4</version>
+	<version>0.5.5</version>
 	<name>CloudGraph Web</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
     <url>http://cloudgraph.org</url>
@@ -39,12 +39,12 @@
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-config</artifactId>
-            <version>0.5.4</version>
+            <version>0.5.5</version>
         </dependency>
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-rdb</artifactId>
-            <version>0.5.4</version>
+            <version>0.5.5</version>
             <exclusions>
             	<exclusion>
             		<artifactId>jaxb-api</artifactId>
@@ -65,101 +65,7 @@
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-hbase</artifactId>
-            <version>0.5.4</version>
-            <exclusions>
-            	<exclusion>
-            		<artifactId>libthrift</artifactId>
-            		<groupId>org.apache.thrift</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jsp-api-2.1</artifactId>
-            		<groupId>org.mortbay.jetty</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jasper-compiler</artifactId>
-            		<groupId>tomcat</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jasper-runtime</artifactId>
-            		<groupId>tomcat</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jetty-util</artifactId>
-            		<groupId>org.mortbay.jetty</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jsp-2.1</artifactId>
-            		<groupId>org.mortbay.jetty</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>core</artifactId>
-            		<groupId>org.eclipse.jdt</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>ant</artifactId>
-            		<groupId>ant</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>avro</artifactId>
-            		<groupId>org.apache.avro</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jackson-mapper-asl</artifactId>
-            		<groupId>org.codehaus.jackson</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>snappy-java</artifactId>
-            		<groupId>org.xerial.snappy</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>avro-ipc</artifactId>
-            		<groupId>org.apache.avro</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jetty</artifactId>
-            		<groupId>org.mortbay.jetty</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>netty</artifactId>
-            		<groupId>org.jboss.netty</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>velocity</artifactId>
-            		<groupId>org.apache.velocity</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jruby-complete</artifactId>
-            		<groupId>org.jruby</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jamon-runtime</artifactId>
-            		<groupId>org.jamon</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>protobuf-java</artifactId>
-            		<groupId>com.google.protobuf</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jersey-core</artifactId>
-            		<groupId>com.sun.jersey</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jersey-json</artifactId>
-            		<groupId>com.sun.jersey</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jersey-server</artifactId>
-            		<groupId>com.sun.jersey</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>jaxb-api</artifactId>
-            		<groupId>javax.xml.bind</groupId>
-            	</exclusion>
-            	<exclusion>
-            		<artifactId>stax-api</artifactId>
-            		<groupId>stax</groupId>
-            	</exclusion>
-            </exclusions>
+            <version>0.5.5</version>
         </dependency>
 
         <dependency>

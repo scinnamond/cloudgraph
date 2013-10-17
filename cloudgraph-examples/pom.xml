@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.4</version>
+        <version>0.5.5</version>
     </parent>
 	<groupId>org.cloudgraph</groupId>
 	<artifactId>cloudgraph-examples</artifactId>
 	<packaging>war</packaging>
-	<version>0.5.4</version>
+	<version>0.5.5</version>
 	<name>CloudGraph Examples</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
     <url>http://cloudgraph.org</url>
@@ -53,20 +53,20 @@
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-common</artifactId>
-            <version>0.5.4</version>
+            <version>0.5.5</version>
             <!--  <scope>provided</scope>-->
         </dependency>       
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-hbase</artifactId>
-            <version>0.5.4</version>
+            <version>0.5.5</version>
             <!-- <scope>provided</scope>-->
         </dependency>       
 
         <dependency>
         	<groupId>org.terrameta</groupId>
         	<artifactId>plasma-maven-plugin</artifactId>
-        	<version>1.1.4</version>
+        	<version>1.1.5</version>
         	<scope>provided</scope>
         	<exclusions>
         		<exclusion>
@@ -120,7 +120,7 @@
             <plugin>
                 <groupId>org.terrameta</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
-                <version>1.1.4</version>
+                <version>1.1.5</version>
                 <executions>   
                                           
                     <execution>
@@ -133,7 +133,6 @@
                             <destNamespaceURI>http://org.cloudgraph/examples/cml</destNamespaceURI>
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>log4j.debug</name><value>false</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
                                 <param>${basedir}/src/main/resources</param>
@@ -156,7 +155,6 @@
                             <destNamespaceURI>http://org.cloudgraph/examples/bioxsd</destNamespaceURI>
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>log4j.debug</name><value>false</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
                                 <param>${basedir}/src/main/resources</param>
@@ -176,7 +174,7 @@
                             <dialect>java</dialect>
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
                                 <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
@@ -196,7 +194,7 @@
                             <dialect>java</dialect>
                             <systemProperties>
                                 <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property> 
+                                <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
                                 <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
                             </systemProperties>
                             <additionalClasspathElements>
@@ -247,12 +245,12 @@
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
                         </additionalClasspathElements>                  
                         <forkMode>once</forkMode>
-                        <systemProperties>
-                            <property><name>cloudgraph.configuration</name><value>cloudgraph-config.xml</value></property>
-                            <property><name>plasma.configuration</name><value>plasma-config.xml</value></property>
-                            <property><name>fuml.configuration</name><value>fuml-config.xml</value></property>
-                            <property><name>log4j.configuration</name><value>log4j.properties</value></property>
-                        </systemProperties>
+                        <systemPropertyVariables>
+                            <cloudgraph.configuration>cloudgraph-config.xml</cloudgraph.configuration>
+                            <plasma.configuration>plasma-config.xml</plasma.configuration>
+                            <fuml.configuration>fuml-config.xml</fuml.configuration>
+                            <log4j.configuration>log4j.properties</log4j.configuration>
+                        </systemPropertyVariables>
                         <includes>               
                             <include>**/**</include>                      
                         </includes> 
@@ -346,7 +344,7 @@
 											plasma-maven-plugin
 										</artifactId>
 										<versionRange>
-											[1.1.4,)
+											[1.1.5,)
 										</versionRange>
 										<goals>
 											<goal>xsd</goal>

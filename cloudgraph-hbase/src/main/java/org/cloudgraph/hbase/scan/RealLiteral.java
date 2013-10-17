@@ -22,8 +22,10 @@
 package org.cloudgraph.hbase.scan;
 
 import java.math.BigDecimal;
+import java.util.Arrays;
 
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.DataType;
@@ -37,7 +39,11 @@ import commonj.sdo.Type;
  * segments and fields of composite (scan start/stop) row keys 
  * under various relational and logical operator and
  * various configurable composite key-field hashing, formatting, padding 
- * and other features.
+ * and other features. A real literal does not contain or involve wildcards but
+ * nevertheless may "participate" in a fuzzy scan as part of a composite row key and
+ * therefore implements {@link FuzzyRowKeyLiteral} supplying only default key and
+ * info bytes.  
+ * 
  * 
  * @see org.cloudgraph.config.TableConfig
  * @see org.cloudgraph.hbase.service.HBaseDataConverter
@@ -45,7 +51,7 @@ import commonj.sdo.Type;
  * @since 0.5
  */
 public class RealLiteral extends ScanLiteral 
-    implements PartialRowKeyLiteral {
+    implements PartialRowKeyLiteral, FuzzyRowKeyLiteral, CompleteRowKeyLiteral {
 
 	public static final float INCREMENT_FLOAT = Float.MIN_VALUE;
 	public static final double INCREMENT_DOUBLE = Double.MIN_VALUE;
@@ -314,6 +320,35 @@ public class RealLiteral extends ScanLiteral
 		return stopBytes;
 	}
 	
+	/**
+	 * Returns the bytes 
+	 * used to represent an "equals" relational operator 
+	 * for a specific composite row key field, under an HBase 'Get' operation for 
+	 * the various optionally configurable hashing, 
+	 * formatting and padding features.
+	 * @return the bytes 
+	 * used to represent an "equals" relational operator 
+	 * for a specific composite row key field, under an HBase 'Get' operation for 
+	 * the various optionally configurable hashing, 
+	 * formatting and padding features.
+	 */
+	@Override
+	public byte[] getEqualsBytes() {
+		return getEqualsStartBytes();
+	}
+	
+	@Override
+	public byte[] getFuzzyKeyBytes() {
+		return getEqualsStartBytes();
+	}
+
+	@Override
+	public byte[] getFuzzyInfoBytes() {
+		byte[] infoBytes = new byte[this.fieldConfig.getMaxLength()];
+		Arrays.fill(infoBytes, (byte)0); // fixed char 
+		return infoBytes;
+	}
+	
 	private String incrementHash(Type type, Object value) {
 		String valueStr = this.dataConverter.toString(property.getType(), value);
 		String result = this.hashing.toString(valueStr, HASH_INCREMENT);
@@ -353,5 +388,7 @@ public class RealLiteral extends ScanLiteral
         }
         return result;
 	}
+
+
 
 }

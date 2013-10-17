@@ -22,6 +22,9 @@
 package org.cloudgraph.config;
 
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.plasma.sdo.core.CoreConstants;
 
@@ -33,15 +36,20 @@ import org.plasma.sdo.core.CoreConstants;
  */
 public class TableConfig {
     private Table table;
+    private CloudGraphConfig config;
     private Charset charset;
+    private Map<String, Property> propertyNameToPropertyMap = new HashMap<String, Property>();
     
     @SuppressWarnings("unused")
 	private TableConfig() {}
     
-	public TableConfig(Table table) {
+	public TableConfig(Table table, CloudGraphConfig config) {
 		super();
 		this.table = table;
+		this.config = config;
 		this.charset = Charset.forName( CoreConstants.UTF8_ENCODING );
+        for (Property prop : table.getProperties())
+        	propertyNameToPropertyMap.put(prop.getName(), prop);
 		
 	}
 
@@ -84,5 +92,43 @@ public class TableConfig {
 		return charset;
 	}
 	
+	public List<Property> getProperties() {
+	    return table.properties;
+	} 
+	    
+	public Property findProperty(String name) {
+	    return this.propertyNameToPropertyMap.get(name);
+	}	
+	
+	private Boolean uniqueChecksVar = null;
+	public boolean uniqueChecks() {
+		if (uniqueChecksVar == null) {
+			String value = System.getProperty(ConfigurationProperty.UNIQUE___CHECKS.value());
+			if (value != null) {
+				this.uniqueChecksVar = Boolean.valueOf(value);
+			}
+			else {		
+				if (!this.table.isUniqueChecks()) { // default (true) overridden
+				    this.uniqueChecksVar = Boolean.valueOf(this.table.uniqueChecks);	
+				}
+				else { // check for table level generic prop
+					Property tableProp = this.findProperty(ConfigurationProperty.UNIQUE___CHECKS.value());
+					if (tableProp != null) {
+						this.uniqueChecksVar = Boolean.valueOf(tableProp.getValue());
+					}
+					else { // check for global config prop
+						Property globalProp = this.config.findProperty(ConfigurationProperty.UNIQUE___CHECKS.value()); 
+						if (globalProp != null) {
+							this.uniqueChecksVar = Boolean.valueOf(globalProp.getValue());
+						}
+						else { // otherwise use schema default
+							this.uniqueChecksVar = Boolean.valueOf(this.table.isUniqueChecks());
+						}
+					}
+				}
+			}
+		}
+		return this.uniqueChecksVar.booleanValue();
+	}
 
-}
+ }

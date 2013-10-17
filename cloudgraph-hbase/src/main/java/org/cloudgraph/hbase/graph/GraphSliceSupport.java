@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -50,9 +51,11 @@ import org.cloudgraph.hbase.util.FilterUtil;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaType;
 
+import commonj.sdo.Property;
+
 /**
- * Delegate class for various graph slice fetch and post processing
- * relations operations. Supports graph assemblers and
+ * Delegate class for various graph slice fetch and edge post processing
+ * operations. Supports graph assemblers and
  * other clients. 
  * @author Scott Cinnamond
  * @since 0.5.1
@@ -137,6 +140,35 @@ public class GraphSliceSupport {
         long after = System.currentTimeMillis();
         if (log.isDebugEnabled() ) 
             log.debug("returned 1 results ("
+        	    + String.valueOf(after - before) + ")");
+        
+        return result;
+	}
+	
+	/**
+	 * Runs the given get and returns the result.  
+	 * @param gets the list of row get operations
+	 * @return the result.
+	 * @throws IOException 
+	 */
+	public Result[] fetchResult(List<Get> gets, TableOperation tableOperation, 
+			DataGraphConfig graphConfig) throws IOException
+	{
+        if (log.isDebugEnabled() )
+			try {
+				log.debug("get filter: " + FilterUtil.printFilterTree(gets.get(0).getFilter()));
+			} catch (IOException e1) {
+			}
+        
+    	long before = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("executing "+gets.size()+" gets...");
+        
+        Result[] result = tableOperation.getConnection().get(gets);
+    	
+        long after = System.currentTimeMillis();
+        if (log.isDebugEnabled() ) 
+            log.debug("returned "+result.length+" results ("
         	    + String.valueOf(after - before) + ")");
         
         return result;
@@ -253,7 +285,16 @@ public class GraphSliceSupport {
         return result;
 	}
 
-	public void load(List<String> propertyNames,
+	/**
+	 * Loads the columns resulting from a {@link BinaryPrefixColumnFilterAssembler} based on the 
+	 * given properties into the given row reader.
+	 * @param properties the properties to fetch
+	 * @param contextType the current type
+	 * @param rowReader the row reader
+	 * @throws IOException
+	 * @see BinaryPrefixColumnFilterAssembler
+	 */
+	public void load(Set<Property> properties,  
 			PlasmaType contextType, RowReader rowReader) throws IOException
 	{
         Get get = new Get(rowReader.getRowKey());
@@ -261,7 +302,7 @@ public class GraphSliceSupport {
         PlasmaType rootType = (PlasmaType)rowReader.getRootType();        
         BinaryPrefixColumnFilterAssembler columnFilterAssembler = 
         	new BinaryPrefixColumnFilterAssembler(rootType);
-        columnFilterAssembler.assemble(propertyNames,
+        columnFilterAssembler.assemble(properties,
         		contextType);
         Filter filter = columnFilterAssembler.getFilter();
         get.setFilter(filter);
@@ -269,7 +310,16 @@ public class GraphSliceSupport {
         load(get, rowReader);
 	}
 	
-	public void loadBySequenceList(Collection<Integer> sequences, List<String> propertyNames,
+	/**
+	 * Loads the columns resulting from a {@link StatefullBinaryPrefixColumnFilterAssembler} based on the 
+	 * given properties and the given state sequences into the given row reader.
+	 * @param sequences the sequences
+	 * @param properties the properties to fetch
+	 * @param contextType the current type
+	 * @param rowReader the row reader
+	 * @throws IOException
+	 */
+	public void loadBySequenceList(Collection<Integer> sequences, Set<Property> properties,
 			PlasmaType contextType, RowReader rowReader) throws IOException
 	{
         Scan scan = new Scan();
@@ -280,12 +330,18 @@ public class GraphSliceSupport {
         StatefullBinaryPrefixColumnFilterAssembler columnFilterAssembler = 
         	new StatefullBinaryPrefixColumnFilterAssembler( 
         		rowReader.getGraphState(), rootType);
-        columnFilterAssembler.assemble(propertyNames, sequences, contextType);
+        columnFilterAssembler.assemble(properties, sequences, contextType);
         Filter filter = columnFilterAssembler.getFilter();
         scan.setFilter(filter);
         load(scan, rowReader);
 	}
 
+	/**
+	 * Loads columns returned with the given get and its column filter into the existing row reader. 
+	 * @param get the Get operations
+	 * @param rowReader the existing row reader 
+	 * @throws IOException
+	 */
 	public void load(Get get, RowReader rowReader) throws IOException
 	{        
         if (log.isDebugEnabled() )

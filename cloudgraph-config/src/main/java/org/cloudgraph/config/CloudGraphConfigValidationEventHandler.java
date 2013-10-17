@@ -27,7 +27,6 @@ import javax.xml.bind.ValidationEventLocator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.common.bind.BindingValidationEventHandler;
-import org.plasma.config.ConfigurationException;
 
 /**
  * Configuration parsing (JAXB) event handler.
@@ -65,7 +64,7 @@ public class CloudGraphConfigValidationEventHandler implements BindingValidation
         case ValidationEvent.ERROR:
         case ValidationEvent.FATAL_ERROR:
             log.fatal(message);
-            throw new ConfigurationException(message);
+            throw new CloudGraphConfigurationException(message);
         default:
             log.error(message);
         }

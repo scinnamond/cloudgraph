@@ -242,6 +242,7 @@ public class ScanLiteralAssembler extends DefaultQueryVisitor
 		}
 	}		
     
+	@Override
 	public void start(RelationalOperator operator) {
 		switch (operator.getValue()) {
 		case EQUALS:

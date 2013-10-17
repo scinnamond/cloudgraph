@@ -26,7 +26,7 @@ import org.cloudgraph.hbase.expr.EvaluationContext;
 
 /**
  * Context which supports the "recognition" of one or more 
- * {@link PartialRowKeyScan partial}, {@link FuzzyRowKeyScan fuzzy} and other
+ * {@link PartialRowKey partial}, {@link FuzzyRowKey fuzzy} and other
  * and other scan constructs within the context of a binary 
  * {@link Expr expression} syntax tree. 
  * <p>
@@ -34,7 +34,7 @@ import org.cloudgraph.hbase.expr.EvaluationContext;
  * expressions across the key fields. So
  * for {@link org.cloudgraph.hbase.expr.RelationalBinaryExpr relational binary} expressions
  * linked within a query syntax tree by one or more logical binary 'AND', 
- * expressions, a single {@link PartialRowKeyScan partial} or {@link FuzzyRowKeyScan fuzzy}
+ * expressions, a single {@link PartialRowKey partial} or {@link FuzzyRowKey fuzzy}
  * row key scan may be used. But for {@link org.cloudgraph.hbase.expr.RelationalBinaryExpr relational binary} expressions
  * linked by {@link org.cloudgraph.hbase.expr.LogicalBinaryExpr logical binary} 'OR' expressions
  * multiple scans must be used. Clients of this context class may execute the

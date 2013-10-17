@@ -51,26 +51,26 @@ public class SocialGraphScanTest extends SocialGraphModelTest {
     {
     	GraphInfo graph1 = createSimpleGraph();    	
     	String xml = this.serializeGraph(graph1.actor.getDataGraph());
-    	log.info("inserting graph1:");
-    	log.info(xml);
+    	log.debug("inserting graph1:");
+    	log.debug(xml);
     	this.service.commit(graph1.actor.getDataGraph(), 
     			"test1");    	
     	
     	GraphInfo graph2 = createSimpleGraph();    	
     	xml = this.serializeGraph(graph2.actor.getDataGraph());
-    	log.info("inserting graph2:");
-    	log.info(xml);
+    	log.debug("inserting graph2:");
+    	log.debug(xml);
     	this.service.commit(graph2.actor.getDataGraph(), 
     			"test2");    	
     	
     	GraphInfo graph3 = createSimpleGraph();    	
     	xml = this.serializeGraph(graph3.actor.getDataGraph());
-    	log.info("inserting graph3:");
-    	log.info(xml);
+    	log.debug("inserting graph3:");
+    	log.debug(xml);
     	this.service.commit(graph3.actor.getDataGraph(), 
     			"test3");    	
     	
-    	log.info("fetching initial graphs");
+    	log.debug("fetching initial graphs");
     	Actor[] fetchedActors = fetchGraphs(
     			createTopicScanQuery(graph1.actor.getName(),
     					graph2.actor.getName(),
@@ -79,14 +79,14 @@ public class SocialGraphScanTest extends SocialGraphModelTest {
     	assertTrue(fetchedActors != null && fetchedActors.length == 3);
     	for (Actor actor : fetchedActors) {
     	    xml = this.serializeGraph(actor.getDataGraph());
-    	    //log.info(xml);
+    	    log.debug(xml);
     	}
     	
     	/*
     	fetchedActor = fetchGraph(
     			createTopicWildcardScanQuery(graph1.actor.getName()));    	
     	xml = this.serializeGraph(fetchedActor.getDataGraph());
-    	log.info(xml);
+    	log.debug(xml);
     	*/
     	
     } 

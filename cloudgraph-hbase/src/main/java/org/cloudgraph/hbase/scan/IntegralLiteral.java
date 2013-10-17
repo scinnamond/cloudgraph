@@ -39,7 +39,10 @@ import commonj.sdo.Type;
  * segments and fields of composite (scan start/stop) row keys 
  * under various relational and logical operator and
  * various configurable composite key-field hashing, formatting, padding 
- * and other features.
+ * and other features. An integral literal does not contain or involve wildcards but
+ * nevertheless may "participate" in a fuzzy scan as part of a composite row key and
+ * therefore implements {@link FuzzyRowKeyLiteral} supplying only default key and
+ * info bytes.  
  * 
  * @see org.cloudgraph.config.TableConfig
  * @see org.cloudgraph.hbase.service.HBaseDataConverter
@@ -47,7 +50,7 @@ import commonj.sdo.Type;
  * @since 0.5
  */
 public class IntegralLiteral extends ScanLiteral 
-    implements PartialRowKeyLiteral, FuzzyRowKeyLiteral  {
+    implements PartialRowKeyLiteral, FuzzyRowKeyLiteral, CompleteRowKeyLiteral  {
 
 	public static final int INCREMENT = 1;
 	
@@ -308,7 +311,7 @@ public class IntegralLiteral extends ScanLiteral
 	}
 
 	@Override
-	public byte[] getKeyBytes() {
+	public byte[] getFuzzyKeyBytes() {
 		byte[] keyBytes = null;
 		byte[] paddedKeyBytes = null;
 		Object value = this.dataConverter.convert(property.getType(), this.literal);
@@ -332,8 +335,25 @@ public class IntegralLiteral extends ScanLiteral
 	@Override
 	public byte[] getFuzzyInfoBytes() {
 		byte[] infoBytes = new byte[this.fieldConfig.getMaxLength()];
-		Arrays.fill(infoBytes, (byte)0); // fixed char 
+		Arrays.fill(infoBytes, (byte)0); // fuzzy filter fixed char 
 		return infoBytes;
+	}
+	
+	/**
+	 * Returns the bytes 
+	 * used to represent an "equals" relational operator 
+	 * for a specific composite row key field, under an HBase 'Get' operation for 
+	 * the various optionally configurable hashing, 
+	 * formatting and padding features.
+	 * @return the bytes 
+	 * used to represent an "equals" relational operator 
+	 * for a specific composite row key field, under an HBase 'Get' operation for 
+	 * the various optionally configurable hashing, 
+	 * formatting and padding features.
+	 */
+	@Override
+	public byte[] getEqualsBytes() {
+		return getEqualsStartBytes();
 	}
 	
 	private String increment(Type type, Object value) {

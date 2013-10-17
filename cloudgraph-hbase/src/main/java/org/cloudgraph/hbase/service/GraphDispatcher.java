@@ -29,11 +29,14 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -44,6 +47,7 @@ import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.hbase.connect.HBaseConnectionManager;
 import org.cloudgraph.hbase.io.FederatedGraphWriter;
 import org.cloudgraph.hbase.io.FederatedWriter;
 import org.cloudgraph.hbase.io.RowWriter;
@@ -75,6 +79,7 @@ import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
 
 import sorts.InsertionSort;
+import commonj.sdo.ChangeSummary;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
@@ -113,7 +118,7 @@ public class GraphDispatcher
     private SnapshotMap snapshotMap;
     private String username;
     private ServiceContext context;
-    private FederatedWriter graphWriter;
+    //private FederatedWriter graphWriter;
     
     @SuppressWarnings("unused")
     private GraphDispatcher() {}
@@ -133,7 +138,7 @@ public class GraphDispatcher
     /**
      * Propagates changes to the given <a href="http://docs.plasma-sdo.org/api/org/plasma/sdo/PlasmaDataGraph.html" target="#">data graph</a> including
      * any number of creates (inserts), modifications (updates) and deletes
-     * to a single HBase table row. 
+     * to a single or multiple HBase tables and table rows. 
      * @return a map of internally managed concurrency property values and data 
      * store generated keys.
      * @throws DuplicateRowException if for a new data graph, the generated row key
@@ -178,13 +183,13 @@ public class GraphDispatcher
 				new TableWriterCollector(dataGraph, 
 					created, modified, deleted);
 			
-	        this.graphWriter = new FederatedGraphWriter( 
+			FederatedWriter graphWriter = new FederatedGraphWriter( 
 	        	dataGraph, collector,
 	        	this.context.getMarshallingContext());
 	        
-    		this.create(dataGraph, created, this.graphWriter);    		    		
-    		this.modify(dataGraph, modified, this.graphWriter);
-    		this.delete(dataGraph, deleted, this.graphWriter);
+    		this.create(dataGraph, created, graphWriter);    		    		
+    		this.modify(dataGraph, modified, graphWriter);
+    		this.delete(dataGraph, deleted, graphWriter);
             
     		// marshal state
             for (TableWriter tableWriter : graphWriter.getTableWriters()) {
@@ -211,9 +216,14 @@ public class GraphDispatcher
             }
 
     		// commit to HBase
-    		for (TableWriter tableWriter : this.graphWriter.getTableWriters()) {
+    		for (TableWriter tableWriter : graphWriter.getTableWriters()) {
+    			if (log.isDebugEnabled())
+    				log.debug("commiting table: " + tableWriter.getTable().getName());
         		List<Row> actions = new ArrayList<Row>(); 
     			for (RowWriter rowWriter : tableWriter.getAllRowWriters()) {
+        			if (log.isDebugEnabled())
+        				log.debug("commiting data object: " + rowWriter.getRootDataObject().toString());   				
+    				
     				if (!rowWriter.isRootDeleted()) {
     				    actions.add(rowWriter.getRow());
     				    if (rowWriter.hasRowDelete())
@@ -248,6 +258,160 @@ public class GraphDispatcher
             throw new DataAccessException(e);                         
         }               
     }
+ 
+    /**
+     * Propagates changes to the given array of <a href="http://docs.plasma-sdo.org/api/org/plasma/sdo/PlasmaDataGraph.html" target="#">data graphs</a> including
+     * any number of creates (inserts), modifications (updates) and deletes
+     * to a single or multiple HBase tables and table rows. The given graphs may be heterogeneous, with
+     * different root data objects any 'shape' or depth.  
+     * @return a map of internally managed concurrency property values and data 
+     * store generated keys.
+     * @throws DuplicateRowException if for a new data graph, the generated row key
+     * already exists in the HBase table configured . 
+     */
+    public SnapshotMap commit(DataGraph[] dataGraphs) {
+        
+        if (username == null || username.length() == 0)
+            throw new IllegalArgumentException("expected username param not, '" + String.valueOf(username) + "'");
+        else
+            if (log.isDebugEnabled()) {
+                log.debug("current user is '" + username + "'");
+            }
+        
+        
+        try {
+        	for (DataGraph dataGraph : dataGraphs) {
+                PlasmaChangeSummary changeSummary = (PlasmaChangeSummary)dataGraph.getChangeSummary();
+                if (log.isDebugEnabled())
+                    log.debug(changeSummary.toString());
+	            for (DataObject changed : changeSummary.getChangedDataObjects()) 
+	        	    this.checkConcurrency(dataGraph, (PlasmaDataObject)changed);
+        	}
+            	    
+        	List<FederatedWriter> graphWriters = new ArrayList<FederatedWriter>();
+        	for (DataGraph dataGraph : dataGraphs) {
+                PlasmaChangeSummary changeSummary = (PlasmaChangeSummary)dataGraph.getChangeSummary();
+                if (log.isDebugEnabled())
+                    log.debug(changeSummary.toString());
+
+                List<CoreDataObject> createdList = new ArrayList<CoreDataObject>();
+		        for (DataObject changed : changeSummary.getChangedDataObjects()) {
+		            if (changeSummary.isCreated(changed))
+		            	createdList.add((CoreDataObject)changed);
+		        }
+		        CoreDataObject[] createdArray = new CoreDataObject[createdList.size()];
+		        createdList.toArray(createdArray);
+		        Comparator<CoreDataObject> comparator = new CreatedCommitComparator();
+		        InsertionSort sort = new InsertionSort();
+		        sort.sort(createdArray, comparator);
+	            PlasmaDataObject[] created = new PlasmaDataObject[createdArray.length];
+	            for (int i = 0; i < createdArray.length; i++)
+	            	created[i] = createdArray[i];
+		        
+		        ModifiedObjectCollector modified = new ModifiedObjectCollector(dataGraph);
+		        DeletedObjectCollector deleted = new DeletedObjectCollector(dataGraph);
+	
+				TableWriterCollector collector = 
+					new TableWriterCollector(dataGraph, 
+						created, modified, deleted);
+				
+				FederatedWriter graphWriter = new FederatedGraphWriter( 
+		        	dataGraph, collector,
+		        	this.context.getMarshallingContext());
+				graphWriters.add(graphWriter);
+		        
+	    		this.create(dataGraph, created, graphWriter);    		    		
+	    		this.modify(dataGraph, modified, graphWriter);
+	    		this.delete(dataGraph, deleted, graphWriter);
+	            
+	    		// marshal state
+	            for (TableWriter tableWriter : graphWriter.getTableWriters()) {
+	            	for (RowWriter rowWriter : tableWriter.getAllRowWriters()) {
+	            		
+	            		if (rowWriter.isRootCreated()) {
+	            			String rootUUID = ((PlasmaDataObject)rowWriter.getRootDataObject()).getUUIDAsString();
+	            		    rowWriter.getRow().add(tableWriter.getTable().getDataColumnFamilyNameBytes(), 
+	                            Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME),
+	                            Bytes.toBytes(rootUUID)); 
+	            		}
+	            		else if (rowWriter.isRootDeleted()) {
+	            			continue; // row goes away - no need to marshal state
+	            		}
+	            		
+	            		String xml = rowWriter.getGraphState().marshal();
+	                	if (log.isDebugEnabled())
+	                		log.debug("marshalled state: " + xml);
+	
+	            		rowWriter.getRow().add(Bytes.toBytes(tableWriter.getTable().getDataColumnFamilyName()), 
+	                            Bytes.toBytes(GraphState.STATE_COLUMN_NAME),
+	                            Bytes.toBytes(xml));    		        		
+	            	}
+	            }
+        	}
+
+        	// collect all actions by table name
+        	Map<String, List<Row>> actionMap = new HashMap<String, List<Row>>();    		
+        	for (FederatedWriter graphWriter : graphWriters) {
+        		
+	        	// commit to HBase
+	    		for (TableWriter tableWriter : graphWriter.getTableWriters()) {
+	    			if (log.isDebugEnabled())
+	    				log.debug("commiting table: " + tableWriter.getTable().getName());
+	    			List<Row> actions = actionMap.get(tableWriter.getTable().getName());
+	    			if (actions == null) {
+	    				actions = new ArrayList<Row>();
+	    				actionMap.put(tableWriter.getTable().getName(), actions);
+	    			}
+	    			
+	    			for (RowWriter rowWriter : tableWriter.getAllRowWriters()) {
+	        			if (log.isDebugEnabled())
+	        				log.debug("commiting data object: " + rowWriter.getRootDataObject().toString());   				
+	    				if (!rowWriter.isRootDeleted()) {
+	    				    actions.add(rowWriter.getRow());
+	    				    if (rowWriter.hasRowDelete())
+	    				    	actions.add(rowWriter.getRowDelete());
+	    				}
+	    				else {
+	    					// add a toumbstone column
+	    					if (log.isDebugEnabled())
+	    						log.debug("adding toumbstone for root "
+	    							+ rowWriter.getRootDataObject().toString());
+	    					rowWriter.getRow().add(
+	    						tableWriter.getTable().getDataColumnFamilyNameBytes(), 
+	    						Bytes.toBytes(GraphState.TOUMBSTONE_COLUMN_NAME), 
+	    						Bytes.toBytes(this.snapshotMap.getSnapshotDate().getTime()));
+	    					actions.add(rowWriter.getRow());     					 
+	    					actions.add(rowWriter.getRowDelete()); //     					
+	    				}
+	    			}
+	    		}
+        	}
+        	
+        	// commit
+        	Iterator<String> iter = actionMap.keySet().iterator();
+        	while (iter.hasNext()) {
+        		String tableName = iter.next();
+        		List<Row> actions = actionMap.get(tableName);
+        		if (actions != null && actions.size() > 0) {
+        		    HTableInterface table = HBaseConnectionManager.instance().getConnection(tableName);
+        		    table.batch(actions);
+        		    table.flushCommits();      
+        		}
+        	}
+    		
+            return snapshotMap;
+        }                                                         
+        catch(IOException e) {                         
+            throw new DataAccessException(e);                         
+        }                                                         
+        catch(InterruptedException e) {                         
+            throw new DataAccessException(e);                         
+        }        
+        catch(IllegalAccessException e) {                         
+            throw new DataAccessException(e);                         
+        }               
+    }
+    
     
     private void delete(
     		DataGraph dataGraph,
@@ -330,7 +494,7 @@ public class GraphDispatcher
         for (Property p : properties)
         {
         	PlasmaProperty property = (PlasmaProperty)p;
-            if (property.isKey(KeyType.primary))
+            if (property.isKey(KeyType.primary) && property.getType().isDataType())
                 continue; // processed above
             
             if (property.getConcurrent() != null)
@@ -414,6 +578,7 @@ public class GraphDispatcher
     {
     	List <PlasmaEdge> result = new ArrayList<PlasmaEdge>();
     	
+    	ChangeSummary changeSummary = dataObject.getChangeSummary();
 		Property oppositeProperty = property.getOpposite();
 		
 		PlasmaType dataObjectType = (PlasmaType)dataObject.getType();
@@ -440,24 +605,59 @@ public class GraphDispatcher
 	        // it is already linked within another row, 
 	        // don't write the edge. This graph does not
 	        // own it. 
-		    if (oppositeTypeBound || oppositeRowWriter.equals(rowWriter)) 
+		    if (oppositeTypeBound || oppositeRowWriter.equals(rowWriter)) {
 		    	result.add(edge);	        
+		    }
+		    else {
+		    	if (log.isDebugEnabled())
+		    		log.debug("ignoring non-owned edge for property, "
+		    				+ property.toString());
+		    }
 	        
 	        // maps opposite UUID to its row key
 		    // in the state for this row
-	        if (oppositeTypeBound)
+	        if (oppositeTypeBound) {
 	            rowWriter.getGraphState().addRowKey(opposite,
 	        	    oppositeTableWriter.getTable(),
 		            oppositeRowWriter.getRowKey());
+		    	if (log.isDebugEnabled())
+		    		log.debug("adding row key to this data-object state for opposite property, "
+		    				+ opposite.toString());
+	        }
+	        else {
+		    	if (log.isDebugEnabled())
+		    		log.debug("ignoring row key for this data-object state for unbound opposite property, "
+		    				+ opposite.toString());	        	
+	        }
 	        
 	        // Maps this DO uuid to current row key in opposite row
 	        // If this data object is not "bound" to a
 	        // table, disregard as it will have no opposite row
 	        // but will be contained within this row
 	        if (oppositeProperty != null && thisTypeBound) {
-	            oppositeRowWriter.getGraphState().addRowKey(dataObject,
-	            	tableWriter.getTable(),
-	        		rowWriter.getRowKey());
+	        	if (changeSummary.isCreated(opposite) || changeSummary.isModified(opposite)) {
+	                oppositeRowWriter.getGraphState().addRowKey(dataObject,
+	            	    tableWriter.getTable(),
+	        		    rowWriter.getRowKey());
+		    	    if (log.isDebugEnabled())
+		    		    log.debug("adding row key to opposite data-object state for property, "
+		    				+ property.toString());
+	        	}
+	        	// Otherwise we are just adding to the state for a DO who's ref property
+	        	// will never get updated
+	        	// And is this call even necessary as if the opposite's property IS modified
+	        	// it will get updated above. 
+	        }
+	        else {
+		    	if (log.isDebugEnabled()) {
+		    		if (oppositeProperty == null)
+		    		    log.debug("ignoring row key for opposite data-object state for property, "
+		    				+ property.toString() + " as no opposite property exists");
+		    		else
+		    		    log.debug("ignoring row key for opposite data-object state for property, "
+		    				+ property.toString() + " as this type is not bound");
+		    	}
+	        	
 	        }
 		}
 		return result;
@@ -649,10 +849,12 @@ public class GraphDispatcher
         }    
     }
     
+    
+    private static HashMap<String, DataObject> EMPTY_EDGE_MAP = new HashMap<String, DataObject>();
     private HashMap<String, DataObject> getOldEdgeMap(Object oldValue, 
     		Property property) 
     {
-		HashMap<String, DataObject> result = null;
+		HashMap<String, DataObject> result = EMPTY_EDGE_MAP;
 		if (!(oldValue instanceof NullValue)) {
 			if (oldValue instanceof List) {
 				@SuppressWarnings("unchecked")
@@ -663,8 +865,8 @@ public class GraphDispatcher
 							dataObject);
 			}
     		else {
-    			result = new HashMap<String, DataObject>(1);
     			PlasmaDataObject oldOpposite = (PlasmaDataObject)oldValue;
+    			result = new HashMap<String, DataObject>(1);
 				result.put(oldOpposite.getUUIDAsString(),
 						oldOpposite);
     		}
@@ -794,6 +996,9 @@ public class GraphDispatcher
         	return; // don't care for NOSQL services
 
         for (Property pkp : pkList) {
+        	if (!pkp.getType().isDataType())
+        		continue; // noop for non-data pks
+        	
             PlasmaProperty targetPriKeyProperty = (PlasmaProperty)pkp;
             Object pk = dataObject.get(targetPriKeyProperty);
             if (pk == null)

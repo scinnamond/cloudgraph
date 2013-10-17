@@ -41,7 +41,7 @@ import org.plasma.sdo.PlasmaType;
  * using an adapted shunting-yard algorithm and assembles a 
  * resulting binary tree structure with expression nodes specific
  * for detecting i.e. recognizing one or more 
- * {@link PartialRowKeyScan partial}, {@link FuzzyRowKeyScan fuzzy} and other
+ * {@link PartialRowKey partial}, {@link FuzzyRowKey fuzzy} and other
  * and other scan constructs. These are collected within the
  * specific evaluation {@link ScanRecognizerContext context} passed
  * to the assembled syntax tree.

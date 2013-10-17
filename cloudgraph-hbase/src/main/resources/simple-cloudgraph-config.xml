@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cloudgraph:CloudGraphConfiguration  
     xmlns:cloudgraph="http://www.cloudgraph.org/config">
-    <Property name="hbase.zookeeper.quorum">u16361628.onlinehome-server.com</Property>    
-<!-- 
-    <Property name="hbase.zookeeper.quorum">u16551142.onlinehome-server.com</Property>    
--->    
+    <Property name="hbase.zookeeper.quorum">u16548889.onlinehome-server.com:2222,u16677374.onlinehome-server.com</Property>
+    
     <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
 
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    
 
-    <Table name="TEMPORAL" dataColumnFamilyName="f1">
+    <Table name="TEST_TEMPORAL" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
          
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="DateTimeNode">
@@ -25,7 +23,7 @@
                     <UserDefinedField path="dateTimeField"/>
                 </RowKeyField>
                 <RowKeyField>
-                    <PredefinedField name="uuid"/>
+                    <UserDefinedField path="rootId"/>
                 </RowKeyField>
             </RowKeyModel>
             
@@ -48,7 +46,7 @@
                     <UserDefinedField path="dateField"/>
                 </RowKeyField>
                 <RowKeyField>
-                    <PredefinedField name="uuid"/>
+                    <UserDefinedField path="rootId"/>
                 </RowKeyField>
             </RowKeyModel>
             
@@ -60,9 +58,32 @@
         </DataGraph>
     </Table>  
 
-    <Table name="INTEGRAL" dataColumnFamilyName="f1">
+    <Table name="TEST_INTEGRAL" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
         
+         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="IntNode">
+            <RowKeyModel>
+                <RowKeyField>
+                    <PredefinedField name="uri" hash="true"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <PredefinedField name="type" hash="false"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="intField"/>
+                </RowKeyField>
+                <RowKeyField>
+                    <UserDefinedField path="rootId"/>
+                </RowKeyField>
+            </RowKeyModel>
+            
+            <ColumnKeyModel>
+                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="type"/>
+                <ColumnKeyField name="property"/>
+            </ColumnKeyModel>
+        </DataGraph>
+ 
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="LongNode">
             <RowKeyModel>
                 <RowKeyField>
@@ -75,7 +96,7 @@
                     <UserDefinedField path="longField"/>
                 </RowKeyField>
                 <RowKeyField>
-                    <PredefinedField name="uuid"/>
+                    <UserDefinedField path="rootId"/>
                 </RowKeyField>
             </RowKeyModel>
             
@@ -87,7 +108,7 @@
         </DataGraph>
     </Table>  
 
-    <Table name="REAL" dataColumnFamilyName="f1">
+    <Table name="TEST_REAL" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
         
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="FloatNode">
@@ -103,9 +124,8 @@
                 <RowKeyField>
                     <UserDefinedField path="floatField"/>
                 </RowKeyField>
-                 
                 <RowKeyField>
-                    <PredefinedField name="uuid"/>
+                    <UserDefinedField path="rootId"/>
                 </RowKeyField>
                 
             </RowKeyModel>
@@ -118,7 +138,7 @@
         </DataGraph>
     </Table>  
 
-    <Table name="STRING" dataColumnFamilyName="f1">
+    <Table name="TEST_STRING" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
         <DataGraph uri="http://cloudgraph.org/test/datatypes" type="StringNode">
             <RowKeyModel>
@@ -128,14 +148,11 @@
                 <RowKeyField>
                     <PredefinedField name="type" hash="false"/>
                 </RowKeyField>
-                <RowKeyField>
-                    <UserDefinedField path="rootId"/>
-                </RowKeyField>
                 <RowKeyField>    
                     <UserDefinedField path="stringField"/>
                 </RowKeyField>
                 <RowKeyField>
-                    <PredefinedField name="uuid"/>
+                    <UserDefinedField path="rootId"/>
                 </RowKeyField>
             </RowKeyModel>
             
@@ -148,7 +165,7 @@
 
     </Table>  
          
-    <Table name="SOCIAL" dataColumnFamilyName="f1">
+    <Table name="TEST_SOCIAL" dataColumnFamilyName="f1">
         <HashAlgorithm name="murmur"/>
         <DataGraph uri="http://cloudgraph.org/test/socialgraph/actor" type="Actor">
             <RowKeyModel>

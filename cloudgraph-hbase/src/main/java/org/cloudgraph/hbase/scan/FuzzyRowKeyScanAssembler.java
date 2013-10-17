@@ -45,6 +45,7 @@ import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.key.Hashing;
 import org.cloudgraph.hbase.key.KeySupport;
 import org.cloudgraph.hbase.key.Padding;
+import org.plasma.query.Wildcard;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaType;
@@ -64,7 +65,7 @@ import org.plasma.sdo.PlasmaType;
  * @since 0.5.3
  */
 public class FuzzyRowKeyScanAssembler  
-    implements RowKeyScanAssembler, FuzzyRowKeyScan, HBaseFilterAssembler
+    implements RowKeyScanAssembler, FuzzyRowKey, HBaseFilterAssembler
 {
     private static Log log = LogFactory.getLog(FuzzyRowKeyScanAssembler.class);
 	protected int bufsize = 4000;
@@ -228,9 +229,7 @@ public class FuzzyRowKeyScanAssembler
            	    		predefinedConfig.getDataFlavor());
            	    }
            	    this.keyBytes.put(paddedTokenValue);
-    			byte[] tokenMask = new byte[paddedTokenValue.length];
-        	    for (int i = 0; i < tokenMask.length; i++)
-        	    	tokenMask[i] = fixedMaskByte;
+    			byte[] tokenMask = getPredefinedTokenMask(predefinedConfig, paddedTokenValue.length);
     			this.infoBytes.put(tokenMask);
            	    
            	    this.fieldCount++;
@@ -255,7 +254,7 @@ public class FuzzyRowKeyScanAssembler
     					log.warn("expected single literal for user defined field - ignoring");
     				FuzzyRowKeyLiteral fuzzyLiteral = (FuzzyRowKeyLiteral)scanLiterals.get(0);
     				// note; already padded
-    				this.keyBytes.put(fuzzyLiteral.getKeyBytes());
+    				this.keyBytes.put(fuzzyLiteral.getFuzzyKeyBytes());
     				this.infoBytes.put(fuzzyLiteral.getFuzzyInfoBytes());
     			}
     			
@@ -270,10 +269,17 @@ public class FuzzyRowKeyScanAssembler
 		case UUID:
 			if (this.rootUUID != null) {
 				tokenValue = this.rootUUID.getBytes(this.charset);
-				break;
 			}
-			else
-				throw new IllegalStateException("expected root UUID");        			
+			else {
+				// no UUID available in this context, so return zero len array
+				// which will get padded with default wildcard bytes and associated
+				// with a variable info-mask bytes array
+				byte wc = (byte)Wildcard.WILDCARD_CHAR.charAt(0);
+				tokenValue = new byte[predefinedConfig.getMaxLength()];
+				for (int i = 0; i < tokenValue.length; i++)
+					tokenValue[i] = wc;
+			}
+			break;
 		default:	
 		    tokenValue = predefinedConfig.getKeyBytes(this.rootType);
 			break;
@@ -285,8 +291,26 @@ public class FuzzyRowKeyScanAssembler
 		return tokenValue;
 	}
 
+	private byte[] getPredefinedTokenMask(PreDefinedKeyFieldConfig predefinedConfig, int paddedTokenValueLength) {
+		byte[] tokenMask = new byte[paddedTokenValueLength];
+		switch (predefinedConfig.getName()) {
+		case UUID:
+			if (this.rootUUID != null) {
+				Arrays.fill(tokenMask, fixedMaskByte); 
+			}
+			else {
+				Arrays.fill(tokenMask, variableMaskByte); 
+			}
+			break;
+		default:	
+			Arrays.fill(tokenMask, fixedMaskByte); 
+			break;
+		}        		
+		return tokenMask;
+	}
+	
 	@Override
-	public byte[] getKeyBytes() {
+	public byte[] getFuzzyKeyBytes() {
 		if (this.keyBytes == null)
 			throw new IllegalStateException("row keys not assembled - first call assemble(...)");
 	    byte [] result = new byte[this.keyBytes.position()];
@@ -310,7 +334,7 @@ public class FuzzyRowKeyScanAssembler
 
 	@Override
 	public Filter getFilter() {
-		Pair<byte[], byte[]> pair = new Pair<byte[], byte[]>(this.getKeyBytes(), getFuzzyInfoBytes());
+		Pair<byte[], byte[]> pair = new Pair<byte[], byte[]>(this.getFuzzyKeyBytes(), getFuzzyInfoBytes());
 		List<Pair<byte[], byte[]>> list = new ArrayList<Pair<byte[], byte[]>>();
 		list.add(pair);
 		return new FuzzyRowFilter(list);
