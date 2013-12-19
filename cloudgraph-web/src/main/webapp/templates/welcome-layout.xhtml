@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui">
+<f:view contentType="text/html">
+    <h:head>
+        <title>Title</title>
+        <style type="text/css">
+          .ui-widget, .ui-widget .ui-widget {
+              font-size: 95% !important;
+          }        
+        /*
+        .ui-menubar  {  
+            height: 24px;                         
+            margin: 0px;
+            padding: 0px;
+            border: none;
+            background: transparent;
+            color: FFFFFF !important;           
+            font-weight: bolder !important;      
+        }          
+        */                                       
+        </style>
+        <!-- manual incluide makes primefaces panelmenu behave correctly using c:for-each -->
+        <h:outputScript library="primefaces" name="jquery/jquery.js"/>	
+        <h:outputScript library="primefaces" name="jquery/jquery-plugins.js"/>
+        <h:outputStylesheet library="css" name="cloudgraph-web.css"  /> 
+        <f:loadBundle basename="#{UserBean.bundleName}" var="bundle"/>
+    </h:head>
+    <h:body>   
+      <ui:include src="../ajaxloading.xhtml" />
+      <div class="MainDiv">
+      <h:panelGrid width="100%" columns="1" border="0">
+           <ui:include src="../TopNav.xhtml" />
+           <p:outputPanel id="main_content_pnl">
+           <h:panelGrid width="100%" columns="1" border="0"
+               columnClasses="AlignTop">
+               <ui:insert name="content">default content</ui:insert>
+           </h:panelGrid>
+           </p:outputPanel>
+      </h:panelGrid>
+      <ui:insert name="footer">default content</ui:insert>
+      </div>
+    </h:body>
+</f:view>
+</html>

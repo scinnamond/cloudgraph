@@ -3,6 +3,9 @@ package org.cloudgraph.web.model.administration;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.ErrorHandlerBean;
@@ -19,15 +22,19 @@ import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.richfaces.component.UITree;
-import org.richfaces.component.html.HtmlTree;
-import org.richfaces.model.ListRowKey;
+import org.primefaces.event.SelectEvent;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 
+@ManagedBean(name="TaxonomyEditBean")
+@SessionScoped
 public class TaxonomyEditBean extends ModelBean{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(TaxonomyEditBean.class);
 	private TreeNodeModel taxonomies;
 	private Taxonomy selectedTaxonomy;
@@ -35,9 +42,9 @@ public class TaxonomyEditBean extends ModelBean{
 	// this initialization hack makes RichFaces tree find it's tree state and
 	// be happy and not blow up even though the tree is not yet displayed 
 	private TaxonomyTreeBean selectedTaxonomyTree = new TaxonomyTreeBean();
-	private UITree selectedTaxonomyUITree;
+	//private UITree selectedTaxonomyUITree;
 	private DynamicTreeNodeModel selectedCategoryNode;
-	private ListRowKey selectedCategoryListRowKey;
+	//private ListRowKey selectedCategoryListRowKey;
 	private CategoryAdapter selectedCategory;
 	private long selectedCategorySeqId;
 	private DataGraph toDeleteCategoryGraph;
@@ -149,16 +156,16 @@ public class TaxonomyEditBean extends ModelBean{
 	    	child.setName("new child category");
 	    	this.selectedCategory = child;
 	    	// reflect new child in UI component tree
-	    	this.selectedTaxonomyTree.addChildrenNodes(this.selectedCategoryNode);	
+	    	//this.selectedTaxonomyTree.addChildrenNodes(this.selectedCategoryNode);	
 	    	this.selectedCategoryNode.setSelected(false);
 	    	this.selectedCategoryNode.setLeaf(false);
-	    	this.selectedTaxonomyTree.getTreeState().expandNode(this.selectedTaxonomyUITree, 
-	    			this.selectedCategoryListRowKey);
+	    	//this.selectedTaxonomyTree.getTreeState().expandNode(this.selectedTaxonomyUITree, 
+	    	//		this.selectedCategoryListRowKey);
 	    		    		   
-	    	Object id = this.selectedCategoryNode.getNodes().keySet().iterator().next();
-	    	DynamicTreeNodeModel uiChild = (DynamicTreeNodeModel)this.selectedCategoryNode.getChild(id);
-	    	uiChild.setLeaf(true);
-	    	uiChild.setSelected(true);
+	    	//Object id = this.selectedCategoryNode.getNodes().keySet().iterator().next();
+	    	//DynamicTreeNodeModel uiChild = (DynamicTreeNodeModel)this.selectedCategoryNode.getChild(id);
+	    	//uiChild.setLeaf(true);
+	    	//uiChild.setSelected(true);
     	}
     	catch (Throwable t) {
     		log.error(t.getMessage(), t);
@@ -183,7 +190,7 @@ public class TaxonomyEditBean extends ModelBean{
 	    	sibling.setName("new sibling category");
 	    	this.selectedCategory = sibling;
 	    	// reflect new child in UI component tree
-	    	this.selectedTaxonomyTree.addChildrenNodes((DynamicTreeNodeModel)this.selectedCategoryNode.getParent());	
+	    	//this.selectedTaxonomyTree.addChildrenNodes((DynamicTreeNodeModel)this.selectedCategoryNode.getParent());	
 	    	this.selectedCategoryNode.setSelected(false);
         }
     	catch (Throwable t) {
@@ -253,16 +260,16 @@ public class TaxonomyEditBean extends ModelBean{
     				this.selectedCategory.getDelegate());
 	        
 	    	// reflect new child in UI component tree
-	    	DynamicTreeNodeModel parentCategoryNode = (DynamicTreeNodeModel)this.selectedCategoryNode.getParent();
-	    	this.selectedTaxonomyTree.addChildrenNodes(parentCategoryNode);	
+	    	DynamicTreeNodeModel parentCategoryNode = null; //(DynamicTreeNodeModel)this.selectedCategoryNode.getParent();
+	    	//this.selectedTaxonomyTree.addChildrenNodes(parentCategoryNode);	
 	    	this.selectedCategoryNode.setSelected(false);
 	    	parentCategoryNode.setSelected(true);
-	    	this.selectedTaxonomyTree.getTreeState().collapseNode(this.selectedTaxonomyUITree, 
-	    			this.selectedCategoryListRowKey);
+	    	//this.selectedTaxonomyTree.getTreeState().collapseNode(this.selectedTaxonomyUITree, 
+	    	//		this.selectedCategoryListRowKey);
 	    	    	
 	    	this.selectedCategory = null;
 	    	this.selectedCategoryNode =null;
-	    	this.selectedCategoryListRowKey =null;
+	    	//this.selectedCategoryListRowKey =null;
 	    	this.selectedCategorySeqId = -1;
     	}
     	catch (Throwable t) {
@@ -275,18 +282,18 @@ public class TaxonomyEditBean extends ModelBean{
     public String cancelDelete() {
     	this.selectedCategory = null;
     	this.selectedCategoryNode =null;
-    	this.selectedCategoryListRowKey =null;
+    	//this.selectedCategoryListRowKey =null;
     	this.selectedCategorySeqId = -1;
     	this.toDeleteCategoryGraph = null;
     	return null; // maintains AJAX happiness
     }
     
-    public boolean categorySelectListener(org.richfaces.event.NodeSelectedEvent event) {
+    public boolean categorySelectListener(SelectEvent event) {
     	try {
-    		HtmlTree tree = (HtmlTree)event.getSource();	
-    		this.selectedTaxonomyUITree = tree;
-    		this.selectedCategoryListRowKey = (ListRowKey)tree.getRowKey();
-	        this.selectedCategoryNode = (DynamicTreeNodeModel)tree.getTreeNode(this.selectedCategoryListRowKey);
+    		//HtmlTree tree = (HtmlTree)event.getSource();	
+    		//this.selectedTaxonomyUITree = tree;
+    		//this.selectedCategoryListRowKey = (ListRowKey)tree.getRowKey();
+	        this.selectedCategoryNode = null; //(DynamicTreeNodeModel)tree.getTreeNode(this.selectedCategoryListRowKey);
 	        this.selectedCategory = new CategoryAdapter((org.cloudgraph.web.sdo.categorization.Category)selectedCategoryNode.getUserData());
 	        this.toDeleteCategoryGraph = null;
     	}
@@ -328,7 +335,7 @@ public class TaxonomyEditBean extends ModelBean{
         this.selectedTaxonomyTree = new TaxonomyTreeBean(this.selectedTaxonomy);
 	
 	    this.selectedCategory = null;
-	    this.selectedCategoryListRowKey = null;
+	    //this.selectedCategoryListRowKey = null;
 	    this.selectedCategoryNode = null;
 	    this.toDeleteCategoryGraph = null;		
 	}

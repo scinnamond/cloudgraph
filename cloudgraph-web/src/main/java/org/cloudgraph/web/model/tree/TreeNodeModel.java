@@ -2,6 +2,7 @@ package org.cloudgraph.web.model.tree;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -9,7 +10,7 @@ import java.util.TreeMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.OperationName;
-import org.richfaces.model.TreeNode;
+import org.primefaces.model.TreeNode;
 
 
 @SuppressWarnings({ "serial", "unchecked" })
@@ -65,9 +66,9 @@ public class TreeNodeModel implements TreeNode {
         return (TreeNode) getNodes().get(String.valueOf(id));
     }
 
-    public Iterator getChildren() {
-        return getNodes().entrySet().iterator();
-    }
+    //public Iterator getChildren() {
+    //    return getNodes().entrySet().iterator();
+    //}
 
     public Object getData() {
         return this; // RichFaces rendering seems to desperately need this
@@ -165,9 +166,9 @@ public class TreeNodeModel implements TreeNode {
 	public void clearSelection()
 	{
 		this.selected = false;
-		Iterator<TreeNode> iter = this.getChildren();
-		while (iter.hasNext())
-			((TreeNodeModel)iter.next()).clearSelection();
+		//Iterator<TreeNode> iter = this.getChildren();
+		//while (iter.hasNext())
+		//	((TreeNodeModel)iter.next()).clearSelection();
 	}
 
 	public String getAction() {
@@ -184,6 +185,42 @@ public class TreeNodeModel implements TreeNode {
 
 	public void setOperation(OperationName operation) {
 		this.operation = operation;
+	}
+
+	@Override
+	public boolean isExpanded() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setExpanded(boolean expanded) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public int getChildCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public boolean isSelectable() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void setSelectable(boolean selectable) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<TreeNode> getChildren() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 	   

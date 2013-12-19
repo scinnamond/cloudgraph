@@ -20,6 +20,8 @@ public enum Action {
     topnav_news,
     topnav_email,
     topnav_blog,
+    topnav_forum,
+    topnav_contact,
     
     
     

@@ -42,7 +42,7 @@ implements Serializable {
     	Object[] result = new Object[this.propertyList.size()];
 		int i = 0;
     	for (PropertyAdapter prop : this.propertyList) {
-    		Object value = values.get(prop.getName());
+    		Object value = this.values.get(prop.getName());
 			if (value != null) 
 				result[i] = value;
 			else

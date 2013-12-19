@@ -11,9 +11,8 @@ import org.cloudgraph.web.ErrorHandlerBean;
 import org.cloudgraph.web.model.CommonSessionBean;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.model.configuration.ClassEditBean;
-import org.cloudgraph.web.model.dashboard.DashboardBean;
 import org.cloudgraph.web.model.demo.DemoBean;
-import org.cloudgraph.web.model.navigation.TreeNavigationBean;
+import org.cloudgraph.web.model.navigation.NavigationBean;
 import org.cloudgraph.web.model.profile.UserBean;
 import org.cloudgraph.web.model.search.SearchBean;
 
@@ -36,14 +35,9 @@ public class BeanFinder
         return (ErrorHandlerBean) findClassBean(ErrorHandlerBean.class);
     }
     
-    public DashboardBean findDashboardBean()
+    public NavigationBean findNavigationBean()
     {                  
-        return (DashboardBean) findClassBean(DashboardBean.class);
-    }
-
-    public TreeNavigationBean findTreeNavigationBean()
-    {                  
-        return (TreeNavigationBean) findClassBean(TreeNavigationBean.class);
+        return (NavigationBean) findClassBean(NavigationBean.class);
     }
 
     public CommonSessionBean findCommonSessionBean()

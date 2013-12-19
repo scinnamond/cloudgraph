@@ -1,0 +1,45 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+
+<p:dialog modal="true" id="exportTaxonomyModalPanel"
+    width="420" height="320"
+     resizeable="true">
+    <f:facet name="header">
+        <h:panelGroup>
+            <h:outputText value="Export Content"></h:outputText>
+        </h:panelGroup>
+    </f:facet>
+    <h:form  id="export_panel_form">
+        <h:panelGrid columns="1" width="400px" border="0"
+            cellpadding="2" cellspacing="2">  
+            <f:subview id="export_text_subview">
+                <div style="border-width: 1px; border-style: inset; width: 400px; height: 240px; overflow: auto; text-align: left;">
+                <pre>
+                <h:outputText 
+                    value="#{TaxonomyEditBean.exportXML}" />
+                </pre>
+                </div>
+            </f:subview>
+            <h:panelGrid columns="2" width="50%" border="0"
+                cellpadding="2" cellspacing="2"> 
+                <p:commandButton 
+                    onclick="Richfaces.hideModalPanel('exportTaxonomyModalPanel');" value="  Ok  ">
+                </p:commandButton>
+            </h:panelGrid>
+        </h:panelGrid>
+    </h:form>
+</p:dialog>
+</ui:composition>
+</body>
+</html>
+   

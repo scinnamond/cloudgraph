@@ -35,7 +35,8 @@ import org.cloudgraph.web.util.BeanFinder;
 
 /**
  */
-public class InstanceSpecificationAdapter implements Serializable, Comparable<InstanceSpecificationAdapter> {
+public class InstanceSpecificationAdapter extends QueueAdapter 
+    implements Serializable, Comparable<InstanceSpecificationAdapter> {
 	private static Log log = LogFactory.getLog(InstanceSpecificationAdapter.class);
 	private static final List<Object> EMPTY_LIST = new ArrayList<Object>();
 	private static final long serialVersionUID = 1L;
@@ -74,6 +75,7 @@ public class InstanceSpecificationAdapter implements Serializable, Comparable<In
 			this.properyMap.put(name, property);
 			
 			Object value = getValue(this.ins, property.getProperty());
+			// what the?
 			value = getValue(this.ins, property.getProperty());
 			if (value != null) {
 			    this.values.put(name, value);
@@ -285,7 +287,19 @@ public class InstanceSpecificationAdapter implements Serializable, Comparable<In
     
     protected Object getValue(InstanceSpecification owner, Slot slot) { 
     	try {
-	    	if ("*".equals(slot.getDefiningFeature().getUpperValue())) {
+    		Property slotProp = slot.getDefiningFeature();
+    		if (slotProp == null) {
+    			log.warn("cannot determine multiplicity for slot/property - exiting");
+    			return null;
+    		}
+    		// only assume property has a name at any particular instance level, and get its 
+    		// cached adapter for full info
+    		PropertyAdapter propAdapter = this.properyMap.get(slotProp.getName());
+        	if (propAdapter == null) {
+    			throw new IllegalStateException("cannot determine multiplicity for slot/property");        		
+        	}        	
+        	
+	    	if (propAdapter.getIsMany()) {
 	    		return getMultiValue(owner, slot);
 	    	}
 	    	else {
@@ -339,6 +353,7 @@ public class InstanceSpecificationAdapter implements Serializable, Comparable<In
     			}
     			if (props == null) { //FIXME: use its datatype
     				props = new ArrayList<PropertyAdapter>();
+    				// FIXME no class in query here 
     				List<Property> list = this.cache.getProperties(is.getClazz().getSeqId());
     				if (list != null)
     					for (Property p : list)
@@ -481,7 +496,17 @@ public class InstanceSpecificationAdapter implements Serializable, Comparable<In
 			}
 			else {
 				result = this.theMap.get(key);
-				if (result == null && property.getIsMany())
+				if (result != null) {
+					if (property.getIsMany())
+						if (!(result instanceof Collection || result instanceof Map || result instanceof Object[]))
+						{
+							Object value = result;
+							List<Object> list = new ArrayList<Object>();
+							list.add(value);	
+							result = list;
+						}
+				}
+				else
 					result = EMPTY_LIST; // keeps JSTL forEach happy
 			}
 			return result;

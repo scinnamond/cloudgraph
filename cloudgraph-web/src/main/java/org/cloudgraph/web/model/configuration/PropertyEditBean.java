@@ -8,8 +8,11 @@ import java.util.MissingResourceException;
 import java.util.UUID;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
@@ -49,6 +52,8 @@ import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 
+@ManagedBean(name="PropertyEditBean")
+@SessionScoped
 public class PropertyEditBean extends ModelBean {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(PropertyEditBean.class);
@@ -72,9 +77,12 @@ public class PropertyEditBean extends ModelBean {
 		create();
 		return null; // maintains AJAX happyness
 	}
+	
+	public void create(ActionEvent event) {
+		create();
+	}	
 
 	public String create() {
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
             dataGraph.getChangeSummary().beginLogging(); // log changes from this point
@@ -88,21 +96,23 @@ public class PropertyEditBean extends ModelBean {
         	
         	// default datatype to a primitive
         	this.type = PropertyType.PRIMITIVE.ordinal();
-        	
-        	return AppActions.CREATE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        }  
+        return null;
     }			
 	
 	public String editFromAjax() {
 		edit();
 		return null; // maintains AJAX happyness
 	}
+	
+	public void edit(ActionEvent event) {
+		edit();
+	}	
 
 	public String edit() {
     	BeanFinder beanFinder = new BeanFinder();
@@ -112,74 +122,77 @@ public class PropertyEditBean extends ModelBean {
 		    DataGraph[] result = service.find(PropertyQuery.createEditQuery(this.propertyId));
 	        this.property = (Property)result[0].getRootObject();
 	        this.initType();
-	        
-	        return AppActions.EDIT.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
-    }		
-
+        }
+        return null;
+    }	
+	
+	public void deleteConfirm(ActionEvent event) {
+		deleteConfirm();
+	}
+	
 	public String deleteConfirm() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
 		    SDODataAccessClient service = new SDODataAccessClient();
 		    DataGraph[] result = service.find(PropertyQuery.createDeleteQuery(this.propertyId));
 	        this.property = (Property)result[0].getRootObject();
 	        this.initType();
-	        	        
-	        return AppActions.DELETE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        }    
+        return null;
     }		
 
+	public void cancelDelete(ActionEvent event) {
+		cancelDelete();
+	}
+
 	public String cancelDelete() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	this.property = null;
 	        clear();
-	        	        
-	        return AppActions.SUCCESS.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        } 
+        return null;
     }	
 	
+	public void delete(ActionEvent event) {
+		delete();
+	}
+
 	public String delete() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] result = service.find(PropertyQuery.createDeleteQuery(this.propertyId));
+	        this.property = (Property)result[0].getRootObject();
+	        this.initType();
 	        this.property.delete();
 	        service.commit(property.getDataGraph(), 
 		    	    beanFinder.findUserBean().getName());
+	        FacesMessage msg = new FacesMessage("Deleted Successfully");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         	// we changed or created one
 	        beanFinder.findReferenceDataCache().expireProperties(
         			getOwnerClassId());
 	        clear();
-	        	        
-	        return AppActions.SUCCESS.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        }  
+        return null;
     }		
 	
 	private void initType() {
@@ -205,31 +218,37 @@ public class PropertyEditBean extends ModelBean {
 		save();
 		return null; // maintains AJAX happyness
 	}
-    	
+	
+	public void save(ActionEvent event) {
+		save();
+	}
+	
 	public String save() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	if (log.isDebugEnabled())
                 log.debug(((PlasmaDataObject)property).dump());
 		    SDODataAccessClient service = new SDODataAccessClient();
 	        service.commit(property.getDataGraph(), 
 		    	    beanFinder.findUserBean().getName());
+	        FacesMessage msg = new FacesMessage("Property Saved Successfully");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         	// we changed or created one
 	        beanFinder.findReferenceDataCache().expireProperties(
         			getOwnerClassId());
-	        clear();
-            return AppActions.SAVE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        }  
+        return null;
     }	
         
-    public String exit() {
+	public void exit(ActionEvent event) {
+		exit();
+	}
+
+	public String exit() {
     	try {
 	    	property.getDataGraph().getChangeSummary().endLogging(); // wipe any changes 
 	    	property.getDataGraph().getChangeSummary().beginLogging();
@@ -240,7 +259,11 @@ public class PropertyEditBean extends ModelBean {
         return null;
     }
 
-    public void clear() {
+	public void clear(ActionEvent event) {
+		clear();
+	}
+
+	public void clear() {
     	try {
     		this.property = null;
     		this.propertyId = null;

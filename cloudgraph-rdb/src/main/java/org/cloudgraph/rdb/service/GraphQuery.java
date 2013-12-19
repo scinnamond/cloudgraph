@@ -61,6 +61,7 @@ import org.plasma.query.model.Variable;
 import org.plasma.query.model.Where;
 import org.plasma.query.visitor.DefaultQueryVisitor;
 import org.plasma.query.visitor.QueryVisitor;
+import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -106,7 +107,7 @@ public class GraphQuery extends JDBCSupport
         		from.getEntity().getName());
         
         SelectionCollector collector = new SelectionCollector(
-            	query.getSelectClause(), type); 
+            	query.getSelectClause(), null, query.findOrderByClause(), type); 
         collector.setOnlySingularProperties(false);
         collector.setOnlyDeclaredProperties(false); // collect from superclasses
         List<List<PropertyPair>> queryResults = findResults(query, collector, type, con);
@@ -292,6 +293,18 @@ public class GraphQuery extends JDBCSupport
         StringBuilder sqlQuery = new StringBuilder();
         AliasMap aliasMap = new AliasMap(type);        
         
+        // construct a filter adding to alias map
+        FilterAssembler filterAssembler = null;
+        Where where = query.findWhereClause();
+        if (where != null)
+        {
+            filterAssembler = new FilterAssembler(where, type, aliasMap);
+            params = filterAssembler.getParams();               
+            if (log.isDebugEnabled() ){
+                log.debug("filter: " + filterAssembler.getFilter());
+            }
+        }  
+        
         sqlQuery.append("SELECT COUNT(*)");
 
         // construct a FROM clause from alias map
@@ -308,18 +321,11 @@ public class GraphQuery extends JDBCSupport
     		sqlQuery.append(alias);
     		count++;
     	}
-        Where where = query.findWhereClause();
-        FilterAssembler filterAssembler = null;
-        if (where != null)
+    	
+        if (filterAssembler != null)
         {
-            filterAssembler = new FilterAssembler(where, type, aliasMap);
             sqlQuery.append(" ");
             sqlQuery.append(filterAssembler.getFilter());
-            params = filterAssembler.getParams();
-            
-            if (log.isDebugEnabled() ){
-                log.debug("filter: " + filterAssembler.getFilter());
-            }
         }
         
     	if(query.getStartRange() != null && query.getEndRange() != null)
@@ -418,7 +424,7 @@ public class GraphQuery extends JDBCSupport
         
         OrderingDeclarationAssembler orderingDeclAssembler = null;
         OrderBy orderby = query.findOrderByClause();
-        if (orderby != null)
+        if (orderby != null) 
             orderingDeclAssembler = new OrderingDeclarationAssembler(orderby, type, 
             		aliasMap);
         GroupingDeclarationAssembler groupingDeclAssembler = null;
@@ -443,11 +449,13 @@ public class GraphQuery extends JDBCSupport
 	    default:
         }
         
+        // FIXME: determine if any selected column(s) are LOB and don't use DISTINCT in this case
+        boolean hasLob = false;
         int i = 0;
         Set<Property> props = collector.getProperties(type);
         for (Property prop : props) {
 			if (prop.isMany() && !prop.getType().isDataType())
-				continue;
+				continue;			
 			if (i > 0)
         		sqlQuery.append(", ");
         	sqlQuery.append(rootAlias);
@@ -569,16 +577,28 @@ public class GraphQuery extends JDBCSupport
             	row = new ArrayList<PropertyPair>();
             	rows.add(row);                
             	for(i=1;i<=numcols;i++) {
-            		String columnName = rsMeta.getColumnName(i);
+            		String columnName = rsMeta.getColumnLabel(i); // mysql 5.5 returns original table col name for views
+            		if (columnName == null)
+            		    columnName = rsMeta.getColumnName(i);
             		if (ROWNUM.equals(columnName))
             			continue;
             		int columnType = rsMeta.getColumnType(i);
+            		
             		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
+            		PlasmaProperty valueProp = prop;
+            		while (!valueProp.getType().isDataType()) {
+            			valueProp = this.getOppositePriKeyProperty(valueProp);
+            		}
+            		
             		Object value = converter.fromJDBCDataType(rs, 
-            				i, columnType, prop);
-            		pair = new PropertyPair(prop, value);
-            		pair.setColumn(i);
-            		row.add(pair);
+            				i, columnType, valueProp);
+            		if (value != null) {
+            		    pair = new PropertyPair(prop, value);
+            		    pair.setColumn(i);
+            		    if (!valueProp.equals(prop))
+            		    	pair.setValueProp(valueProp);
+            		    row.add(pair);
+            		}
                 }
             }
         }

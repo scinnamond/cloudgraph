@@ -10,8 +10,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ApplicationScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.security.auth.Subject;
@@ -52,13 +56,15 @@ import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Type;
 
+@ManagedBean(name="UserBean")
+@SessionScoped
 public class UserBean implements Serializable {
 	 
 	private static final long serialVersionUID = 1L;
 
 	private static Log log = LogFactory.getLog(UserBean.class);
 	
-	private String defaultUserName = "sbear"; // fallback user for Tomcat or other non-auth testing	
+	private String defaultUserName = "anonymous"; // fallback user for Tomcat or other non-auth testing	
 	private String name = defaultUserName;
     private RoleName roleName = RoleName.ANONYMOUS; // fallback role name in the event we cannot even lookup a Role from DB
     private Role role;
@@ -85,7 +91,7 @@ public class UserBean implements Serializable {
 		    AppMessageUtils.setMessageBundle(this.getBundleName());		
 	    } catch (Throwable t) {
 	        log.error(t.getMessage(), t);
-	        throw new RuntimeException("could not load bundle");
+	        //throw new RuntimeException("could not load bundle");
 	    }  
 		
 	    SDODataAccessClient service = new SDODataAccessClient();	
@@ -115,7 +121,10 @@ public class UserBean implements Serializable {
     		this.user.setExternalId(UUID.randomUUID().toString());
         	UserRole userRole = this.user.createUserRole();  
         	
-        	this.role = getRole(RoleName.ANONYMOUS, service);
+        	Role role = getRole(RoleName.ANONYMOUS, service);
+        	Role roleCopy = (Role)PlasmaCopyHelper.INSTANCE.copyShallow(role);
+        	
+        	this.role = roleCopy;
     		userRole.setRole(this.role);
     		this.profile = user.createProfile();
     		 
@@ -306,8 +315,6 @@ public class UserBean implements Serializable {
 	        throw new IllegalStateException("multiple person information found for username, "
 			    + this.getName());
 	    User result = (User)results[0].getRootObject();
-    	// disonnect it to use as a reference in another graph
-        ((PlasmaDataGraph)result.getDataGraph()).removeRootObject();        
 	    return result;
 	}
 
@@ -319,8 +326,6 @@ public class UserBean implements Serializable {
 	        log.warn("multiple role information found for user, "
 			    + this.getName());
 	    Role result = (Role)results[0].getRootObject();
-    	// disonnect it to use as a reference in another graph
-        ((PlasmaDataGraph)result.getDataGraph()).removeRootObject();        
 	    return result;
 	}
 
@@ -335,8 +340,6 @@ public class UserBean implements Serializable {
 	        log.warn("multiple role information found for role, "
 			    + roleName.getInstanceName());
 	    Role result = (Role)results[0].getRootObject();
-    	// disonnect it to use as a reference in another graph
-        ((PlasmaDataGraph)result.getDataGraph()).removeRootObject();        
 	    return result;
 	}
 	
@@ -470,6 +473,10 @@ public class UserBean implements Serializable {
 		    this.user.getPerson(0).setEmailAddress(addr);
 	}
 	
+	public void initializeProfile(ActionEvent event) {
+		initializeProfile();
+	}
+
 	public Profile initializeProfile() {
 		
 		if (this.profile != null)
@@ -484,6 +491,10 @@ public class UserBean implements Serializable {
 		return this.profile;
 	}
 	
+	public void commitProfile(ActionEvent event) {
+		commitProfile();
+	}
+	
 	public String commitProfile() {
         try {
     		if (this.profile == null)
@@ -493,7 +504,8 @@ public class UserBean implements Serializable {
     		this.role = getRole(RoleName.USER, service);
 		    this.roleName = RoleName.USER;
     		this.name = this.user.getUsername();
-    		this.user.getUserRole(0).setRole(this.role);
+    		Role roleCopy = (Role)PlasmaCopyHelper.INSTANCE.copyShallow(this.role);
+    		this.user.getUserRole(0).setRole(roleCopy);
     		
 		    service.commit(profile.getDataGraph(), this.name);		    
 		    
@@ -506,6 +518,10 @@ public class UserBean implements Serializable {
 	public String cancelCommitProfile() {
         return null;
 	}	
+	
+	public void login(ActionEvent event) {
+		login();
+	}
 
 	public String login() {
 		if (this.profile == null)
@@ -537,11 +553,15 @@ public class UserBean implements Serializable {
 		try {
 		    lc.login();
 		} catch (LoginException le) {
+			log.error(le.getMessage(), le);
             String msg = "Invalid username or password";
-			log.error(msg);
+	        FacesContext.getCurrentInstance().addMessage(null, 
+	        		new FacesMessage(msg));  
+	        return null;
+		} finally {
+		    this.stagingUsername = null;
+		    this.stagingPassword = null;   
 		}
-		this.stagingUsername = null;
-		this.stagingPassword = null;    	    		
 
 		try {
 			subject = lc.getSubject();

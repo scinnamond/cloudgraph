@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+<p:ajaxStatus onstart="statusDialog.show();" onsuccess="statusDialog.hide();"> 
+    <!--
+    <f:facet name="prestart">
+        <h:outputText value="Starting..." /> 
+    </f:facet>
+    <f:facet name="error"> <h:outputText value="Error" />
+    </f:facet>
+    <f:facet name="success"> <h:outputText value="Success" />
+    </f:facet>
+    <f:facet name="default"> <h:outputText value="Idle" />
+    </f:facet>
+    <f:facet name="start"> <h:outputText value="Loading..." />
+    </f:facet>
+    <f:facet name="complete"> <h:outputText value="Done" />
+    </f:facet> 
+    -->
+</p:ajaxStatus>
+<p:dialog modal="false" widgetVar="statusDialog" 
+    height="35" width="110" id="ajaxloading" 
+    resizeable="false" draggable="false" closable="false">
+    <h:panelGrid columns="3" border="0">        
+          <h:graphicImage width="16" height="16" 
+                url="/images/ajax-loader3.gif"/>
+          <h:outputText value=""/>
+          <h:outputText value="Loading..."/>
+    </h:panelGrid>
+</p:dialog> 
+</ui:composition>
+</body>
+</html>	

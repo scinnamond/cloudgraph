@@ -1,0 +1,57 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+<p:dialog modal="true" id="loginModalPanel" widgetVar="loginModalPanel_wgt"
+     resizeable="false" width="300" height="170">
+    <f:facet name="header">
+        <h:panelGroup>
+            <h:outputText value="Login"></h:outputText>
+        </h:panelGroup>
+    </f:facet>
+    <h:form id="login_frm">
+        <h:panelGrid columns="1" width="95%" 
+            cellpadding="2" cellspacing="2">  
+            <p:messages id="dataEntryError" 
+                autoUpdate="true"/>
+            <h:panelGrid columns="2" width="80%" 
+                columnClasses="FormLabelColumn,FormControlColumn,FormLabelColumn,FormControlColumn">
+                <h:outputText value="Username:" />
+                <p:inputText value="#{UserBean.stagingUsername}" 
+                    required="true"
+                    validator="#{UserBean.validateStagingUsername}"/>
+                
+                <h:outputText value="Password:" />
+                <h:inputSecret value="#{UserBean.stagingPassword}" 
+                    required="true"
+                    validator="#{UserBean.validateStagingPassword}"/>
+            </h:panelGrid>          
+            <h:panelGrid columns="2" width="95%" 
+            cellpadding="2" cellspacing="2"> 
+            <p:commandButton id="loginPanel_ok_btn" 
+                actionListener="#{UserBean.login}"
+                oncomplete="if (!args.validationFailed) {loginModalPanel_wgt.hide()}"
+                update=":topnav_form"
+                value="  OK  ">
+            </p:commandButton>
+            <p:commandButton id="loginPanel_cncl_btn" value="Cancel"
+                immediate="true"
+                action="#{UserBean.cancelLogin}"
+                onclick="loginModalPanel_wgt.hide()">
+            </p:commandButton> 
+            </h:panelGrid>
+    </h:panelGrid>
+    </h:form>
+</p:dialog>
+	        
+ </ui:composition>
+ </body>
+ </html>  	

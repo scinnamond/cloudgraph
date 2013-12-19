@@ -3,8 +3,9 @@
     xmlns:cfg="urn:org.cloudgraph.web/config">
    
  
-    <DataImport name="core-metadata" providerName="JDBC">  
-         
+    <DataImport name="core-metadata" providerName="JDBC"> 
+          
+        <!-- note: packages egtting exported with child packageable elements causing dup PK when real PE'e are loaded   -->  
         <ImportLoader className="org.cloudgraph.web.etl.loader.RoleLoader">
             <DataEntity sourceDir="import/roles" 
                 source="role*.xml"/>
@@ -13,7 +14,7 @@
             <DataEntity sourceDir="import/users" 
                 source="user*.xml"/>
         </ImportLoader>
-        <ImportLoader className="org.cloudgraph.web.etl.loader.TaxonomyLoader">
+         <ImportLoader className="org.cloudgraph.web.etl.loader.TaxonomyLoader">
             <DataEntity sourceDir="import/taxonomyies" 
                 source="taxonomomy*.xml"/>
         </ImportLoader>
@@ -33,6 +34,9 @@
             <DataEntity sourceDir="import/enumerations" 
                 source="enumeration*.xml"/>
         </ImportLoader>
+        
+          
+           
         <ImportLoader className="org.cloudgraph.web.etl.loader.PropertyLoader">
             <DataEntity sourceDir="import/properties" 
                 source="property*.xml"/>
@@ -46,6 +50,7 @@
             <DataEntity sourceDir="import/slots" 
                 source="slot*.xml"/>
         </ImportLoader>                           
+         
              
     </DataImport>
 

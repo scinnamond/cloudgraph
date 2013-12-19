@@ -1,0 +1,178 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<ui:composition template="/templates/main-layout.xhtml"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<ui:define name="leftnav">
+<h:form id="leftnav_form">
+    <h:panelGrid columns="1" width="230" border="0">
+    <f:subview id="news_link_sv">
+        <div class="NewsNav"> 
+        <p:commandLink value="News:" 
+            style="text-align:left; text-decoration:underline;"
+            action="topnav_news">
+            <f:setPropertyActionListener value="true"   
+                 target="#{NavigationBean.newsSelected}" /> 
+        </p:commandLink>  
+        </div>
+    </f:subview>
+    <p:panel style="max-height:200px; vscroll:auto">
+    <c:forEach var="news" items="#{DataListBean.dataMap['NewsItem']}" begin="0" end="2" >
+        <div class="NewsNav">
+        <h:commandLink   
+            action="topnav_news">
+            <h:outputText value="#{news.values['EventDate']}"> 
+               <f:convertDateTime format="MM/dd/yyyy"/>
+            </h:outputText>           
+            <h:outputText value=" | #{news.values['Title']}"/>            
+            <f:setPropertyActionListener value="true"   
+                 target="#{NavigationBean.newsSelected}" /> 
+            <f:setPropertyActionListener value="#{news.id}"   
+                target="#{NewsBean.id}" />                                             
+        </h:commandLink>
+        </div>        
+    </c:forEach>
+    </p:panel>                                          
+    </h:panelGrid>
+
+    <p:panelMenu style="width:230px" >
+        <c:forEach var="product" items="#{DataListBean.dataMap['Software Product']}">
+        <p:submenu 
+            label="#{product.values['Name']} Releases">
+            <c:forEach var="release" items="#{product.values['Releases']}">
+                <p:menuitem value="Release #{release.values['Version Number']}"
+                    update=":dnld_cntnt_form">
+                     <f:setPropertyActionListener value="Software Product Release"   
+                        target="#{InstanceBean.classifierName}" />                                             
+                     <f:setPropertyActionListener value="#{release.id}"   
+                        target="#{InstanceBean.id}" />                                             
+                </p:menuitem>
+            </c:forEach>
+        </p:submenu>
+        </c:forEach>
+    </p:panelMenu>
+</h:form>
+</ui:define> 
+
+<ui:define name="content">
+<h:form id="dnld_cntnt_form">
+  <p:outputPanel id="dnld_cntnt_pnl">
+  <p:panel>
+  <h:panelGrid rowClasses="AlignLeft" columns="1" width="100%" border="0"> 
+      <h:graphicImage value="/images/caption_downloads.png"/>
+      
+      <p:panel>
+      <b>For Maven Users</b> 
+      <br></br>
+      <p>All code artifacts are developed using Maven and are hosted on the Maven Central Repository under the below group ids. Manual source and binary downloads are listed below but are recommended only for study purposes as many third party dependencies are required.</p> 
+      <br></br>
+      <p><b>CloudGraph</b>- org.cloudgraph</p> 
+      <p><b>PlasmaSDO</b>- org.terrameta</p> 
+      <p><b>PlasmaQuery</b>- org.terrameta</p> 
+      <p><b>FUML RI</b>- org.modeldriven</p> 
+      </p:panel>
+      
+        <h:dataTable style="width:100%;"
+            rendered="#{!InstanceBean.hasItem}"
+            var="product" value="#{DataListBean.dataMap['Software Product']}">                                                                                            
+         <h:column>  
+            <p:panel style="text-align:left;">
+            
+            <h:outputText style="font-weight:bold; font-size:14px; font-family: Arial, Helvetica, sans-serif;"
+                value="#{product.values['Name']}"/>
+            <br></br> 
+            <p:spacer height="10" />
+            <br></br> 
+            <p>
+            <h:outputText value="#{product.values['Description']}"/>
+            </p>
+            
+            
+            <p:spacer width="600" height="10"/>        
+            
+            <h:dataTable width="100%"                                                                     
+                value="#{product.values['Releases']}"                                   
+                var="rel">                                                                                        
+             <h:column> 
+                <p:panel style="text-align:left;">                                                                      
+                <h:outputText escape="false" value="#{rel.values['Name']}"/>
+                
+                
+                <h:panelGrid rowClasses="AlignLeft" columns="6" width="100%" border="0">
+                <p:commandButton value="License Agreement" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{rel.values['License URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Release Notes" type="button" ajax="false" 
+                     onclick="javascript:window.location.href='#{rel.values['Release Notes URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Source (.ZIP) Download" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{rel.values['Source Download ZIP URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Source (.TAR.GZ) Download" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{rel.values['Source Download GZIP URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Binary (.ZIP) Download" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{rel.values['Binary Download ZIP URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Binary (TAR.GZ) Download" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{rel.values['Binary Download GZIP URL']}';">
+                </p:commandButton>
+                </h:panelGrid>
+                </p:panel>  
+             </h:column>                                                                      
+            </h:dataTable>                                                                    
+            <p:spacer height="10" /> 
+                                                              
+            </p:panel>
+         </h:column>
+        </h:dataTable>
+        
+        <h:panelGrid rendered="#{InstanceBean.hasItem}"
+            rowClasses="AlignLeft" columns="1" width="100%" border="0">
+            <p:panel>
+            <h:outputText style="font-weight:bold; font-size:14px; font-family: Arial, Helvetica, sans-serif;"
+                value="#{InstanceBean.instance.values['Product']} #{InstanceBean.instance.values['Version Number']}"/>
+            <br></br> 
+            <p:spacer height="10" />
+            <br></br> 
+            <p>
+            <h:outputText value="#{InstanceBean.instance.values['Product'].values['Description']}"/>
+            </p>
+            </p:panel>
+            
+            <p:panel>
+                <h:panelGrid rowClasses="AlignLeft" columns="2" width="100%" border="0">
+                <p:commandButton value="License Agreement" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{InstanceBean.instance.values['License URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Release Notes" type="button" ajax="false" 
+                     onclick="javascript:window.location.href='#{InstanceBean.instance.values['Release Notes URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Source (.ZIP) Download" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{InstanceBean.instance.values['Source Download ZIP URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Source (.TAR.GZ) Download" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{InstanceBean.instance.values['Source Download GZIP URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Binary (.ZIP) Download" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{InstanceBean.instance.values['Binary Download ZIP URL']}';">
+                </p:commandButton>
+                <p:commandButton value="Binary (TAR.GZ) Download" type="button" ajax="false"
+                    onclick="javascript:window.location.href='#{InstanceBean.instance.values['Binary Download GZIP URL']}';">
+                </p:commandButton>
+                </h:panelGrid>
+            </p:panel>
+            
+        </h:panelGrid>
+        
+  </h:panelGrid>
+  </p:panel>
+  </p:outputPanel>
+</h:form>
+</ui:define> 
+</ui:composition>

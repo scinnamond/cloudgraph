@@ -9,9 +9,12 @@ import java.io.InputStream;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.config.imex.DataImport;
+import org.cloudgraph.web.sdo.meta.PrimitiveType;
+import org.plasma.sdo.PlasmaChangeSummary;
 import org.plasma.sdo.helper.PlasmaQueryHelper;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
+import org.cloudgraph.web.sdo.meta.Package;
 
 import commonj.sdo.helper.XMLDocument;
 
@@ -54,6 +57,9 @@ public class PackageLoader extends AbstractLoader
 			xmlloadis = new FileInputStream(file);
 			XMLDocument doc = PlasmaXMLHelper.INSTANCE.load(xmlloadis, 
 					null, options);
+			Package pkg = (Package)doc.getRootObject();
+			PlasmaChangeSummary changeSummary = (PlasmaChangeSummary)pkg.getDataGraph().getChangeSummary();
+			pkg.unsetPackageableType(); // HACK getting children in export query
 			
 			service.commit(doc.getRootObject().getDataGraph(), 
 					"dataloader");

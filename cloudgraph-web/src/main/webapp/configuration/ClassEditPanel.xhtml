@@ -1,0 +1,110 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+
+ 
+ <h:panelGrid id="class_content_panel" width="100%" columns="1" border="0"
+      rowClasses="AlignTop" columnClasses="AlignTop"> 
+
+    <p:toolbar height="34" style="border:none; background:transparent;">
+        <p:toolbarGroup align="left">
+        <p:commandButton value="Refresh"
+             icon="ui-icon-refresh"
+             title="Refresh this component">
+        </p:commandButton>
+        <p:commandButton value="Create"
+            icon="ui-icon-copy"
+            action="#{ClassEditBean.create}"
+            update=":admin_form">
+        </p:commandButton>
+        <p:commandButton 
+          value="#{bundle.aplsClassEdit_save_label}"
+          title="#{bundle.aplsClassEdit_save_tooltip}" 
+          action="#{ClassEditBean.saveFromAjax}"
+          update=":admin_form"/>
+        <p:commandButton 
+          value="#{bundle.aplsClassEdit_exit_label}"
+          title="#{bundle.aplsClassEdit_exit_tooltip}" 
+          action="#{ClassEditBean.exit}"
+          update=":admin_form"
+          immediate="true">
+        </p:commandButton>       
+      </p:toolbarGroup>
+   </p:toolbar>           
+  
+	
+	<p:outputPanel id="class_errors">
+            <p:messages autoUpdate="true"/>
+	</p:outputPanel>
+	
+	<p:tabView>
+	<p:tab title="Basic"
+	    rendered="true">
+
+	    <h:panelGrid id="basic_panel" rowClasses="FormPanelRow" 
+	        columnClasses="FormLabelColumn,FormControlColumn,FormLabelColumn,FormControlColumn" 
+	        columns="4" width="95%" border="0">  
+	        <h:outputText styleClass="labelBold" 
+	            value="#{bundle.aplsClassEdit_name_label}:" 
+	            title="#{bundle.aplsClassEdit_name_tooltip}"/>
+	        <h:inputText id="aplsClassEdit_name"
+	            required="true"
+	            maxlength="#{ClassEditBean.nameMaxLength}"
+	            value="#{ClassEditBean.clazz.classifier.name}"
+	            title="#{bundle.aplsClassEdit_name_tooltip}">
+	        </h:inputText>                
+	        <f:verbatim>&nbsp;</f:verbatim>    
+	        <f:verbatim>&nbsp;</f:verbatim>
+	        <h:outputText styleClass="labelBold" 
+	            value="#{bundle.aplsClassEdit_definition_label}:" 
+	            title="#{bundle.aplsClassEdit_definition_tooltip}"/>                             
+	        <p:editor 
+	            id="prop_defn_descr_editor"
+	            width="280" height="100"
+	            readonly="false"
+	            value="#{ClassEditBean.clazz.classifier.definition}" 
+	            validator="#{ClassEditBean.validateDefinitionLength}"
+	            validatorMessage="Definition text is longer than allowed maximum characters"
+	            controls="bold italic underline strikethrough subscript superscript | font size style | color highlight removeformat | bullets numbering"
+	            >
+	        </p:editor>
+	        <f:verbatim>&nbsp;</f:verbatim>    
+	        <f:verbatim>&nbsp;</f:verbatim>
+            <h:outputText  
+                value="#{bundle.aplsClassEdit_parentPackage_label}:" 
+                title="#{bundle.aplsClassEdit_parentPackage_tooltip}"/>
+	        <h:selectOneMenu id="aplsClassEdit_parentPackage"
+	            required="true"
+	            value="#{ClassEditBean.parentPackageId}"
+	            validator="#{ClassEditBean.validateParentPackageId}"
+	            disabled="false"
+	            disabledClass="color:gray">
+	            <f:selectItems value="#{ClassEditBean.parentPackageItems}" />
+                <p:tooltip value="#{bundle.aplsClassEdit_parentPackage_tooltip}"/>
+	        </h:selectOneMenu>
+	        <f:verbatim>&nbsp;</f:verbatim>    
+	        <f:verbatim>&nbsp;</f:verbatim>
+	 
+	    </h:panelGrid>
+    </p:tab>
+	<p:tab title="Categorization"
+	    rendered="true">
+        <ui:include src="/configuration/ClassCategorizationPanel.xhtml" />
+    </p:tab>
+    </p:tabView>
+ </h:panelGrid>
+
+</ui:composition>
+</body>
+</html>
+
+

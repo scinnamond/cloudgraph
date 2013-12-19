@@ -7,7 +7,8 @@ public class EnumerationQuery {
 
 	public static Query createQuery() {
 		QEnumeration query = QEnumeration.newQuery();
-		query.select(query.dataType().classifier().seqId())
+		query.select(query.wildcard())
+		     .select(query.dataType().classifier().seqId())
 		     .select(query.dataType().classifier().name())
 		     .select(query.dataType().classifier().definition())
 		     .select(query.ownedLiteral().seqId())

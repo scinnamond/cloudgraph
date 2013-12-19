@@ -290,10 +290,15 @@ public abstract class JDBCSupport {
      	} 
     	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(dataProperty, 
     			pair.getValue());
-     	*/        	
-    	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(pair.getProp(), 
+     	*/ 
+		PlasmaProperty valueProp = pair.getProp();
+		if (pair.getValueProp() != null)
+			valueProp = pair.getValueProp();
+		
+    	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(valueProp, 
     			pair.getValue());
-    	DataFlavor dataFlavor = RDBDataConverter.INSTANCE.toJDBCDataFlavor(pair.getProp());
+    	DataFlavor dataFlavor = RDBDataConverter.INSTANCE.toJDBCDataFlavor(valueProp);
+    	
     	switch (dataFlavor) {
     	case string:
     	case temporal:
@@ -363,23 +368,24 @@ public abstract class JDBCSupport {
 		sql.append("UPDATE ");		
 		sql.append(getQualifiedPhysicalName(type));
 		sql.append(" t0 SET ");
-		int i = 0;
+		int col = 0;
 		for (PropertyPair pair : values.values()) {
 			PlasmaProperty prop = pair.getProp();
 			if (prop.isMany() && !prop.getType().isDataType())
 				continue;
 			if (prop.isKey(KeyType.primary))
 				continue; // ignore keys here
-			if (i > 0)
+			if (col > 0)
 				sql.append(", ");
 			sql.append("t0.");
 			sql.append(prop.getPhysicalName());
         	sql.append(" = ?"); 
-        	pair.setColumn(i+1);
-			i++;
+        	pair.setColumn(col+1);
+			col++;
 		}
         // construct a 'where' continuing to append parameters
 		// for each pri-key
+		int key = 0;
 		sql.append(" WHERE ");
 		for (PropertyPair pair : values.values()) {
 			PlasmaProperty prop = pair.getProp();
@@ -387,11 +393,14 @@ public abstract class JDBCSupport {
 				continue;
 			if (!prop.isKey(KeyType.primary))
 				continue;
+			if (key > 0)
+				sql.append(" AND ");  
         	sql.append("t0.");  
         	sql.append(pair.getProp().getPhysicalName());
         	sql.append(" = ?"); 
-        	pair.setColumn(i+1);
-        	i++;
+        	pair.setColumn(col+1);
+        	col++; 
+        	key++;
         }
 		
 		return sql;
@@ -477,72 +486,20 @@ public abstract class JDBCSupport {
             		String columnName = rsMeta.getColumnName(i);
             		int columnType = rsMeta.getColumnType(i);
             		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
+            		PlasmaProperty valueProp = prop;
+			    	while (!valueProp.getType().isDataType()) {
+			    		valueProp = getOppositePriKeyProperty(valueProp);
+			    	}
               		Object value = converter.fromJDBCDataType(rs, 
-            				i, columnType, prop);
+            				i, columnType, valueProp);
             		if (value != null) {
             		    PropertyPair pair = new PropertyPair(
             			    (PlasmaProperty)prop, value);
+            		    if (!valueProp.equals(prop))
+            		    	pair.setValueProp(valueProp);
             		    if (!props.contains(prop))
             		    	pair.setQueryProperty(false);
             		    row.add(pair);
-            		}
-                }
-            	count++;
-            }
-            if (log.isDebugEnabled())
-                log.debug("returned "+ count + " results");
-        }
-        catch (Throwable t) {
-            throw new DataAccessException(t);
-        }
-        finally {
-			try {
-	        	if (rs != null)
-				    rs.close();
-	        	if (statement != null)
-				    statement.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
-        }
-        return result;
- 	}
-
-
-	protected List<PlasmaDataObject> fetch(PlasmaDataObject source, PlasmaProperty sourceProperty, StringBuilder sqlQuery, Connection con)
-	{
-		List<PlasmaDataObject> result = new ArrayList<PlasmaDataObject>();
-        PreparedStatement statement = null;
-        ResultSet rs = null; 
-        try {
-            if (log.isDebugEnabled() ){
-                log.debug("fetch: " + sqlQuery.toString());
-            } 
-            statement = con.prepareStatement(sqlQuery.toString(),
-               		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
-                    ResultSet.CONCUR_READ_ONLY);
-		            
-            statement.execute();
-            rs = statement.getResultSet();
-            ResultSetMetaData rsMeta = rs.getMetaData();
-            int numcols = rsMeta.getColumnCount();
-            int count = 0;
-            while(rs.next()) {
-            	PlasmaDataObject target = (PlasmaDataObject)source.createDataObject(sourceProperty);
-            	result.add(target);
-            	for(int i=1;i<=numcols;i++) {
-            		String columnName = rsMeta.getColumnName(i);
-            		int columnType = rsMeta.getColumnType(i);
-            		PlasmaProperty prop = (PlasmaProperty)target.getType().getProperty(columnName);
-              		Object value = converter.fromJDBCDataType(rs, 
-            				i, columnType, prop);
-      
-            		if (!prop.isReadOnly()) {
-            			target.set(prop, value);
-            		}
-            		else {
-            			CoreDataObject coreObject = (CoreDataObject)target;    			
-            			coreObject.setValue(prop.getName(), value);
             		}
                 }
             	count++;
@@ -590,11 +547,17 @@ public abstract class JDBCSupport {
             		String columnName = rsMeta.getColumnName(i);
             		int columnType = rsMeta.getColumnType(i);
             		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
+            		PlasmaProperty valueProp = prop;
+			    	while (!valueProp.getType().isDataType()) {
+			    		valueProp = getOppositePriKeyProperty(valueProp);
+			    	}
               		Object value = converter.fromJDBCDataType(rs, 
-            				i, columnType, prop);
+            				i, columnType, valueProp);
             		if (value != null) {
             		    PropertyPair pair = new PropertyPair(
             			    (PlasmaProperty)prop, value);
+            		    if (!valueProp.equals(prop))
+            		    	pair.setValueProp(valueProp);
             		    result.put(prop.getName(), pair);
             		}
                 }
@@ -642,11 +605,17 @@ public abstract class JDBCSupport {
             		String columnName = rsMeta.getColumnName(i);
             		int columnType = rsMeta.getColumnType(i);
             		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
+            		PlasmaProperty valueProp = prop;
+			    	while (!valueProp.getType().isDataType()) {
+			    		valueProp = getOppositePriKeyProperty(valueProp);
+			    	}
               		Object value = converter.fromJDBCDataType(rs, 
-            				i, columnType, prop);
+            				i, columnType, valueProp);
             		if (value != null) {
             		    PropertyPair pair = new PropertyPair(
             			    (PlasmaProperty)prop, value);
+            		    if (!valueProp.equals(prop))
+            		    	pair.setValueProp(valueProp);
             		    result.add(pair);
             		}
                 }
@@ -685,8 +654,11 @@ public abstract class JDBCSupport {
             } 
             statement = con.prepareStatement(sql.toString());
     		for (PropertyPair pair : values.values()) {
-    			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
-    			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
+    			PlasmaProperty valueProp = pair.getProp();
+    			if (pair.getValueProp() != null)
+    				valueProp = pair.getValueProp();
+    			int jdbcType = converter.toJDBCDataType(valueProp, pair.getValue());
+    			Object jdbcValue = converter.toJDBCDataValue(valueProp, pair.getValue());
     			if (jdbcType != Types.BLOB && jdbcType != Types.VARBINARY) {
     			    statement.setObject(pair.getColumn(), 
     					jdbcValue, jdbcType);
@@ -741,8 +713,11 @@ public abstract class JDBCSupport {
             statement = con.prepareStatement(sql.toString());
             
     		for (PropertyPair pair : values.values()) {
-    			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
-    			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
+    			PlasmaProperty valueProp = pair.getProp();
+    			if (pair.getValueProp() != null)
+    				valueProp = pair.getValueProp();
+    			int jdbcType = converter.toJDBCDataType(valueProp, pair.getValue());
+    			Object jdbcValue = converter.toJDBCDataValue(valueProp, pair.getValue());
     			if (jdbcType != Types.BLOB && jdbcType != Types.VARBINARY) {
     			    statement.setObject(pair.getColumn(), 
     					jdbcValue, jdbcType);
@@ -801,8 +776,11 @@ public abstract class JDBCSupport {
             		PreparedStatement.RETURN_GENERATED_KEYS);
             
     		for (PropertyPair pair : values.values()) {
-    			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
-    			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
+    			PlasmaProperty valueProp = pair.getProp();
+    			if (pair.getValueProp() != null)
+    				valueProp = pair.getValueProp();
+    			int jdbcType = converter.toJDBCDataType(valueProp, pair.getValue());
+    			Object jdbcValue = converter.toJDBCDataValue(valueProp, pair.getValue());
     			if (jdbcType != Types.BLOB && jdbcType != Types.VARBINARY) {
     			    statement.setObject(pair.getColumn(), 
     					jdbcValue, jdbcType);
@@ -841,7 +819,8 @@ public abstract class JDBCSupport {
                     throw new DataAccessException("multiple pri-key properties found for type '" 
                             + type.getName() + "' - cannot map to generated keys");
                 PlasmaProperty prop = (PlasmaProperty)pkPropList.get(0);
-
+                //FIXME: need to find properties per column by physical name alias
+                // in case where multiple generated pri-keys
             	for(int i=1; i<=numcols; i++) {
             		String columnName = rsMeta.getColumnName(i);
                     if (log.isDebugEnabled())
@@ -877,14 +856,42 @@ public abstract class JDBCSupport {
         return resultKeys;
  	}
 	
+	protected PlasmaProperty getOppositePriKeyProperty(Property targetProperty) {
+    	PlasmaProperty opposite = (PlasmaProperty)targetProperty.getOpposite();
+    	PlasmaType oppositeType = null;
+    	    	
+    	if (opposite != null) {
+    		oppositeType = (PlasmaType)opposite.getContainingType();
+    	}
+    	else {
+    		oppositeType = (PlasmaType)targetProperty.getType();
+    	}
+    	
+		List<Property> pkeyProps = oppositeType.findProperties(KeyType.primary);
+	    if (pkeyProps.size() == 0)
+	    	throw new DataAccessException("no opposite pri-key properties found"
+			        + " - cannot map from reference property, "
+			        + targetProperty.toString());			    				    	
+	    else if (pkeyProps.size() > 1)	
+	    	throw new DataAccessException("multiple opposite pri-key properties found"
+			        + " - cannot map from reference property, "
+			        + targetProperty.toString());	
+	    PlasmaProperty pkProp = (PlasmaProperty)pkeyProps.get(0);
+	    return pkProp;
+		
+	}
+	
 	private StringBuilder createParamDebug(Map<String, PropertyPair> values) throws SQLException {
 		StringBuilder paramBuf = new StringBuilder();
         paramBuf.append("[");
         paramBuf.append("[");
 		int i = 1;
 		for (PropertyPair pair : values.values()) {
-			int jdbcType = converter.toJDBCDataType(pair.getProp(), pair.getValue());
-			Object jdbcValue = converter.toJDBCDataValue(pair.getProp(), pair.getValue());
+			PlasmaProperty valueProp = pair.getProp();
+			if (pair.getValueProp() != null)
+				valueProp = pair.getValueProp();
+			int jdbcType = converter.toJDBCDataType(valueProp, pair.getValue());
+			Object jdbcValue = converter.toJDBCDataValue(valueProp, pair.getValue());
         	if (i > 1) {
         		paramBuf.append(", ");
         	}

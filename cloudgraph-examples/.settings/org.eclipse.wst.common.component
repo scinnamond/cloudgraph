@@ -6,13 +6,13 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/target/generated-sources/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
-        <dependent-module archiveName="cloudgraph-common-0.5.5.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-common/cloudgraph-common">
+        <dependent-module archiveName="cloudgraph-common-0.5.6.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-common/cloudgraph-common">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="cloudgraph-hbase-0.5.5.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-hbase/cloudgraph-hbase">
+        <dependent-module archiveName="cloudgraph-hbase-0.5.6.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-hbase/cloudgraph-hbase">
             <dependency-type>uses</dependency-type>
         </dependent-module>
-        <dependent-module archiveName="cloudgraph-config-0.5.5.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-config/cloudgraph-config">
+        <dependent-module archiveName="cloudgraph-config-0.5.6.jar" deploy-path="/WEB-INF/lib" handle="module:/resource/cloudgraph-config/cloudgraph-config">
             <dependency-type>uses</dependency-type>
         </dependent-module>
         <property name="context-root" value="cloudgraph-examples"/>

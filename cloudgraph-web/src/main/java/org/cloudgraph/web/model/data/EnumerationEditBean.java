@@ -129,15 +129,17 @@ public class EnumerationEditBean extends ModelBean {
 		    SDODataAccessClient service = new SDODataAccessClient();
 	        service.commit(this.enumeration.getDataGraph(), 
 		    	beanFinder.findUserBean().getName());
+	        FacesMessage msg = new FacesMessage("Saved Successfully");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
 	        clear();
             return AppActions.SAVE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        } 
+        return null;
     }	
         
     public String exit() {

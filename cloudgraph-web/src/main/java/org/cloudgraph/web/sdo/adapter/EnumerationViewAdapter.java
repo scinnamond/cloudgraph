@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.cloudgraph.web.sdo.core.EnumerationView;
 
-public class EnumerationViewAdapter implements Serializable {
+public class EnumerationViewAdapter extends QueueAdapter {
 	
 	private static final long serialVersionUID = 1L;
 	private EnumerationView enumView;

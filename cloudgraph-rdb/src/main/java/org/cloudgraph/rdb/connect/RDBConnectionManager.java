@@ -323,8 +323,8 @@ public class RDBConnectionManager {
 
 	public static void printDriverStats() throws Exception {
 		ObjectPool connectionPool = RDBConnectionManager._pool;
-		log.debug("NumActive: " + connectionPool.getNumActive());
-		log.debug("NumIdle: " + connectionPool.getNumIdle());
+		log.debug("NumActive: " + connectionPool.getNumActive() 
+			+ " NumIdle: " + connectionPool.getNumIdle());
 	}
 
 	/**

@@ -1,9 +1,14 @@
 package org.cloudgraph.web.model.documentation;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.common.InstanceBean;
 
+@ManagedBean(name="ChapterBean")
+@RequestScoped
 public class ChapterBean extends InstanceBean 
 {
 	private static final long serialVersionUID = 1L;

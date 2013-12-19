@@ -6,6 +6,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
@@ -21,6 +23,8 @@ import org.xml.sax.SAXException;
 
 import commonj.sdo.Type;
 
+@ManagedBean(name="DemoBean")
+@SessionScoped
 public class DemoBean extends ModelBean 
 {
 	private static final long serialVersionUID = 1L;

@@ -3,6 +3,8 @@ package org.cloudgraph.web.model.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
@@ -15,9 +17,11 @@ import org.cloudgraph.web.model.tree.TreeNodeModel;
 import org.cloudgraph.web.sdo.core.Organization;
 import org.cloudgraph.web.sdo.meta.Clazz;
 import org.cloudgraph.web.sdo.meta.Package;
-import org.richfaces.component.html.HtmlTree;
-import org.richfaces.model.ListRowKey;
+import org.primefaces.event.NodeSelectEvent;
 
+
+@ManagedBean(name="SearchBean")
+@SessionScoped
 public class SearchBean extends ModelBean implements Search {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(SearchBean.class);
@@ -290,14 +294,10 @@ public class SearchBean extends ModelBean implements Search {
 	    	return "";
 	}
     
-	public void orgSelectListener(org.richfaces.event.NodeSelectedEvent event) {
+	public void orgSelectListener(NodeSelectEvent event) {
     	try {
-	    	HtmlTree tree = (HtmlTree)event.getSource();
-	    	
-	        ListRowKey rowKey = (ListRowKey)tree.getRowKey();
-	        TreeNodeModel selectedNode = (TreeNodeModel)tree.getTreeNode(rowKey);
+    		Organization selected = (Organization)event.getTreeNode().getData();
 	        
-	        Organization selected = (Organization)selectedNode.getUserData();
 	        log.info("orgSelectListener: " + selected.getName());
 	        
 	    	ReferenceDataCache cache = this.beanFinder.findReferenceDataCache();

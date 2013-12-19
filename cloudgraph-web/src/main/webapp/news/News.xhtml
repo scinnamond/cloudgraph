@@ -1,0 +1,119 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<ui:composition template="/templates/main-layout.xhtml"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+     
+<ui:define name="leftnav">
+        <script type="text/javascript">
+        $(document).ready(function(){
+          $(".ui-panelmenu-content").css("display","block");
+          $(".ui-panelmenu-header").addClass("ui-state-active");
+          $(".ui-icon-triangle-1-e").removeClass("ui-icon-triangle-1-e").addClass("ui-icon-triangle-1-s");
+        });
+        </script>
+
+<h:form id="leftnav_form">
+    <p:spacer width="1" height="40"/>
+    <p:panelMenu style="width:230px">
+
+        <p:submenu 
+            label="Recent News">
+            <c:forEach var="news" items="#{DataListBean.dataMap['NewsItem']}">
+                <p:menuitem value="#{news.values['Title']}" update=":news_form">                                                                               
+                    <f:setPropertyActionListener value="#{news.id}"   
+                        target="#{NewsBean.id}" />                                             
+                </p:menuitem>
+            </c:forEach>
+        </p:submenu>
+        <p:submenu 
+            label="Upcoming Events">
+        </p:submenu>
+        <p:submenu 
+            label="News Archive">
+        </p:submenu>
+ 
+    </p:panelMenu> 
+</h:form> 
+</ui:define>     
+     
+<ui:define name="content">
+<h:form  id="news_form"> 
+  <h:panelGrid rowClasses="AlignLeft" columnClasses="AlignLeft" columns="1" width="100%" border="0"> 
+	  <p:panel>    
+        <h:graphicImage value="/images/caption_news.png"/>
+        <h:panelGrid width="100%" styleClass="AlignLeft" columns="1"
+            rendered="#{NewsBean.hasItem}">
+            <h:panelGrid columns="1" styleClass="AlignLeft">
+                <p:commandLink>
+                  <h:outputText value="#{NewsBean.newsItem.values['Type']}"/>
+                </p:commandLink>
+            </h:panelGrid>
+            <h:panelGrid columns="1" styleClass="AlignLeft">
+                <h:outputText style="font-size: 250%; font-weight: normal" 
+                    value="#{NewsBean.newsItem.values['Title']}"/>    
+            </h:panelGrid>
+            <h:panelGrid columns="6" styleClass="AlignLeft">
+                <h:outputText value="By:"/>
+                <p:commandLink>
+                  <h:outputText value="#{NewsBean.newsItem.values['Author']}"/>
+                </p:commandLink>
+                <f:verbatim>|</f:verbatim>
+                <h:outputText value="#{NewsBean.newsItem.values['EventDate']}">
+                    <f:convertDateTime format="MM/dd/yyyy"/>
+                </h:outputText>     
+                <f:verbatim>|</f:verbatim>
+                <p:commandLink>0 Comments</p:commandLink>
+            </h:panelGrid>
+            <p:spacer height="20" />          
+            <h:panelGrid columns="1" styleClass="AlignLeft">
+                <h:outputText escape="false" value="#{NewsBean.newsItem.values['Content']}"/>    
+            </h:panelGrid>
+        </h:panelGrid>
+        
+        <h:dataTable 
+            rendered="#{!NewsBean.hasItem}"
+            value="#{DataListBean.dataMap['NewsItem']}" 
+            var="news">                                                                                            
+         <h:column>
+            <p:panel>
+            <h:panelGrid columns="1" styleClass="AlignLeft">
+                <p:commandLink><h:outputText value="#{news.values['Type']}"/></p:commandLink>
+            </h:panelGrid>
+            <h:panelGrid columns="1" styleClass="AlignLeft">
+                <h:outputText style="font-size: 250%; font-weight: normal" 
+                    value="#{news.values['Title']}"/>    
+            </h:panelGrid>
+            <h:panelGrid columns="6" styleClass="AlignLeft">
+                <h:outputText value="By:"/>
+                <p:commandLink>
+                  <h:outputText value="#{news.values['Author']}"/>
+                </p:commandLink>
+                <f:verbatim>|</f:verbatim>
+                <h:outputText value="#{news.values['EventDate']}">
+                    <f:convertDateTime format="MM/dd/yyyy"/>
+                </h:outputText>         
+                <f:verbatim>|</f:verbatim>
+                <p:commandLink>0 Comments</p:commandLink>
+            </h:panelGrid>
+            <p:spacer height="20" />          
+            <h:panelGrid columns="1" styleClass="AlignLeft">
+                <h:outputText escape="false" value="#{news.values['Content']}"/>    
+            </h:panelGrid>
+            <p:spacer height="10" />  
+            </p:panel>        
+         </h:column>
+        </h:dataTable>
+  </p:panel>  	       
+  </h:panelGrid>
+  
+ 
+       
+</h:form>
+</ui:define>
+</ui:composition>    

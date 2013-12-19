@@ -9,6 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.faces.bean.ApplicationScoped;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
@@ -41,6 +44,8 @@ import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.helper.XMLDocument;
 
+@ManagedBean(name="ReferenceDataCache")
+@ApplicationScoped
 public class ReferenceDataCache 
     implements Serializable 
 {
@@ -147,6 +152,11 @@ public class ReferenceDataCache
 		    DataGraph[] results = service.find(TaxonomyQuery.createQuery(
 		    		name));
 		    DataGraph graph = results[0]; 
+		    if (log.isDebugEnabled())
+		    try {
+				log.debug(this.serializeGraph(graph));
+			} catch (IOException e) {
+			}
 		    final Taxonomy tax = (Taxonomy)graph.getRootObject();
 		    log.debug("Caching Taxonomy " + name);
 		    this.taxonomyMap.put(name, tax);

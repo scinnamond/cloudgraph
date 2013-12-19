@@ -16,11 +16,6 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.profile.KeyType;
-import org.richfaces.component.UITree;
-import org.richfaces.component.html.HtmlTreeNode;
-import org.richfaces.component.state.TreeState;
-import org.richfaces.event.NodeExpandedEvent;
-import org.richfaces.model.TreeRowKey;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -32,7 +27,7 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
 	private static Log log = LogFactory.getLog(DynamicGraphTreeBean.class);
     private long ids = 0;
     private GraphTreeNodeModel treeRoot;
-    private TreeState treeState;
+    //private TreeState treeState;
     protected TreeNodeTypeMap typeMap;
     protected NodeLabelFormat labelFormat;
     private boolean displayNodeHelpText = true;
@@ -49,15 +44,8 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
 		return this.treeRoot;
 	}
 	
-	public void setTreeState(TreeState treeState) {this.treeState = treeState;}
-    public TreeState getTreeState() {return treeState;}
-	public Set<Integer> getAjaxKeys() {
-		return ajaxKeys;
-	}
-
-	public void setAjaxKeys(Set<Integer> ajaxKeys) {
-		this.ajaxKeys = ajaxKeys;
-	}
+	//public void setTreeState(TreeState treeState) {this.treeState = treeState;}
+    //public TreeState getTreeState() {return treeState;}
     
     public boolean isDisplayNodeHelpText() {
 		return displayNodeHelpText;
@@ -125,6 +113,7 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
 	/** 
 	 * The tree expand expand listener method. 
 	 */  
+	/*
 	public void processExpansion(NodeExpandedEvent nodeExpandedEvent){  
 		// get the source or the component who fired this event.  
 		Object source = nodeExpandedEvent.getSource();  
@@ -167,10 +156,12 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
 			}  
 		}  
 	}  
+     */
 
 	/** 
 	 * Method for adding children nodes to a given tree model node. 
 	 */  
+	/*
 	public void addChildrenNodes(GraphTreeNodeModel parentNode){
 		DataObject parentDataObject = null;
 		if (parentNode.getUserData() instanceof DataObjectNode) {
@@ -186,7 +177,7 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
         if (parentNode.getChildren() != null && parentNode.getChildren().hasNext())
         {
             log.warn("found existing children - clearing and re-adding");
-            parentNode.getNodes().clear();
+            //parentNode.getNodes().clear();
         	//return;
         }
         for (CommonNode childObject : childObjects)
@@ -221,7 +212,8 @@ public abstract class DynamicGraphTreeBean extends ModelBean {
         	parentNode.addNode(childNode);
         }
 	}
-
+    */
+	
 	private CommonNode[] getChild(DataObject parent) {
 		List<CommonNode> list = new ArrayList<CommonNode>();
 		for (Property prop : parent.getType().getProperties()) {

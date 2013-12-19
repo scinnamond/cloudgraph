@@ -10,13 +10,13 @@
 <body>
   <%/* begin boilerplate header */%>  
   <div class="TopToolbarDiv">
-      <jsp:include page="/TopToolbar.jsp" flush="false"/>
+      <ui:include src="/TopToolbar.xhtml" />
   </div>    
-  <a4j:outputPanel id="top_nav_Panel">
+  <p:outputPanel id="top_nav_Panel">
       <f:verbatim><div class="TopNavDiv"></f:verbatim>
-      <jsp:include page="/TopNav.jsp" flush="false"/>
+      <ui:include src="/TopNav.xhtml" />
       <f:verbatim></div></f:verbatim>
-  </a4j:outputPanel>
+  </p:outputPanel>
   <%/* end boilerplate header */%> 
 
   <div class="ContentDiv">

@@ -1,18 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cloudgraph:CloudGraphConfiguration  
     xmlns:cloudgraph="http://www.cloudgraph.org/config">
-    
-    <!--
-    <Property name="hbase.zookeeper.quorum">u16551142.onlinehome-server.com</Property>    
-    <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
-      -->
-      
-    <Property name="hbase.zookeeper.quorum">ip-50-63-153-238.ip.secureserver.net</Property>    
+          
+    <Property name="hbase.zookeeper.quorum">u16548889.onlinehome-server.com,u16677374.onlinehome-server.com</Property>    
     <Property name="hbase.zookeeper.property.clientPort">2222</Property>  
      
      <!--
      does not seem to do anything 
-    <Property name="hbase.master">slphetad4002.phe.fs.fed.us:49302</Property>  
+    <Property name="hbase.master">...</Property>  
       -->
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize">1</Property>    
     <Property name="org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize">80</Property>    

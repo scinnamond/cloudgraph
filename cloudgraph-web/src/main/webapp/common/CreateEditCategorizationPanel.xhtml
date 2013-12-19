@@ -1,0 +1,68 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+
+  <p:dialog rendered="#{CategorizationEditBean.saveActionReRender != null}" 
+      header="Create/Edit Categorization" modal="true" closeable="true"
+      id="createEditCategorizationPanel" widgetVar="createEditCategorizationPanel_wgt"
+      style="width:390px;height:290px;" >
+        <h:panelGrid rendered="true" columns="1" width="100%" border="0">
+			<p:outputPanel id="catz_errors">
+				<h:messages id="dataEntryError" showDetail="true" showSummary="false" layout="table" errorClass="ErrorMessage" infoClass="ErrorMessage"/>
+			</p:outputPanel>
+            <h:panelGrid columns="1" width="100%" border="0">
+                <f:subview id="catz_status_sv">
+                    <h:outputText styleClass="labelBold" 
+                        value="Available Values: "/>
+                </f:subview>
+                <f:subview id="tree_sv">
+                    <div class="TaxonomyTreePanel">
+                    <p:tree id="taxTree" 
+                        value="#{CategorizationEditBean.model}" 
+                        var="item" dynamic="true" cache="true" 
+                        selectionMode="single" 
+                        selection="#{CategorizationEditBean.selectedNode}">
+        <p:ajax event="expand" listener="#{CategorizationEditBean.onNodeExpand}" />  
+        <p:ajax event="collapse" listener="#{CategorizationEditBean.onNodeCollapse}" />  
+        <p:ajax event="select" update=":admin_form:createEditCategorizationPanel_select_button" 
+            listener="#{CategorizationEditBean.onNodeSelect}" />  
+        <p:ajax event="unselect" listener="#{CategorizationEditBean.onNodeUnselect}" 
+            update=":admin_form:createEditCategorizationPanel_select_button"/>  
+                        
+                        <p:treeNode id="treeNodeAny">
+                            <h:outputText value="#{item.name}"/>
+                        </p:treeNode>
+                    </p:tree>
+                    </div> 
+                </f:subview>
+            </h:panelGrid>
+            <h:panelGrid id="catz_btn_pannel" columns="2" width="50%" border="0"
+                cellpadding="2" cellspacing="2"> 
+                <p:commandButton id="createEditCategorizationPanel_select_button" 
+                    value="    Select    "
+                    disabled="#{!CategorizationEditBean.hasSelectedNode}" 
+                    action="#{CategorizationEditBean.save}"
+                    update="#{CategorizationEditBean.saveActionReRender}"
+                    oncomplete="createEditCategorizationPanel_wgt.hide()">
+                </p:commandButton> 
+                <p:commandButton id="createEditCategorizationPanel_cancel_button" value="Cancel"
+                    immediate="true"
+                    action="#{CategorizationEditBean.cancel}"
+                    onclick="createEditCategorizationPanel_wgt.hide()">
+                </p:commandButton> 
+            </h:panelGrid>
+        </h:panelGrid>
+  </p:dialog>
+ </ui:composition>
+</body>
+</html>       
+  	

@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletRequest;
 
@@ -16,6 +18,8 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.common.InstanceBean;
 
+@ManagedBean(name="DocumentBean")
+@RequestScoped
 public class DocumentBean extends InstanceBean 
 {
 	private static final long serialVersionUID = 1L;

@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.cloudgraph.web.sdo.core.PropertyView;
 
-public class PropertyViewAdapter implements Serializable {
+public class PropertyViewAdapter extends QueueAdapter {
 	
 	private static final long serialVersionUID = 1L;
 	private PropertyView prop;

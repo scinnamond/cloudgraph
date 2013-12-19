@@ -1,0 +1,10 @@
+<f:view>
+<html>
+<head></head>
+<body>
+<%
+response.sendRedirect("documentation/Documentation.jsf");
+%>  
+</body>
+</html>
+</f:view>

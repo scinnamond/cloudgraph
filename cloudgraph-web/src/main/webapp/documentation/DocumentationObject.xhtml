@@ -1,0 +1,49 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<ui:composition template="/templates/main-layout.xhtml"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<ui:define name="content">
+  <p:outputPanel id="documentation_content_panel">
+  <f:verbatim><div class="ContentDiv"></f:verbatim>
+  <h:panelGrid rowClasses="AlignCenter" columns="1" width="100%" border="0"> 
+      <h:panelGrid width="100%" columns="1" styleClass="DashboardTable"
+          rowClasses="DashboardTable,DashboardTable,DashboardTable,DashboardTable,DashboardTable"
+          cellpadding="0" cellspacing="0"> 
+       
+          <f:subview id="help">
+          <f:verbatim>
+          <!--[if !IE]> <-->
+          <object id="frame_obj" 
+            name="the_frame_obj" type="text/html"
+            style="width=900px; overflow: hidden;" 
+            data="</f:verbatim><h:outputText value="#{DocumentBean.url}"/><f:verbatim>"/>
+            <p>content not found</p>
+          </object>
+          <!--> <![endif]-->
+          
+          <!--[if IE]>
+          <object id="frame_obj" 
+            name="the_frame_obj" classid="clsid:25336920-03F9-11CF-8FD0-00AA00686F13" 
+            width="900" height="200" 
+            style="border:0px;"
+            data="</f:verbatim><h:outputText value="#{DocumentBean.url}"/><f:verbatim>"/>
+            <p>content not found</p>
+          </object>
+          <![endif]-->
+           
+          </f:verbatim>
+          </f:subview>
+    
+      </h:panelGrid>
+  </h:panelGrid>
+  <f:verbatim></div></f:verbatim>
+  </p:outputPanel>
+</p:outputPanel>
+
+</ui:define>

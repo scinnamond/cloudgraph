@@ -11,18 +11,13 @@ import org.cloudgraph.web.model.ModelBean;
 import org.cloudgraph.web.model.tree.DynamicTreeNodeModel;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
 import org.cloudgraph.web.sdo.core.Organization;
-import org.richfaces.component.UITree;
-import org.richfaces.component.html.HtmlTreeNode;
-import org.richfaces.component.state.TreeState;
-import org.richfaces.event.NodeExpandedEvent;
-import org.richfaces.model.TreeRowKey;
 
 public abstract class DynamicOrganizationTreeBean extends ModelBean {
 
     private static Log log = LogFactory.getLog(DynamicOrganizationTreeBean.class);
     private long ids = 0;
     private DynamicTreeNodeModel treeRoot;
-    private TreeState treeState;
+    //private TreeState treeState;
     protected TreeNodeTypeMap typeMap;
     protected OrganizationLabelFormat labelFormat;
     private boolean displayNodeHelpText = true;
@@ -39,16 +34,6 @@ public abstract class DynamicOrganizationTreeBean extends ModelBean {
 		return this.treeRoot;
 	}
 	
-	public void setTreeState(TreeState treeState) {this.treeState = treeState;}
-    public TreeState getTreeState() {return treeState;}
-	public Set<Integer> getAjaxKeys() {
-		return ajaxKeys;
-	}
-
-	public void setAjaxKeys(Set<Integer> ajaxKeys) {
-		this.ajaxKeys = ajaxKeys;
-	}
-    
     public boolean isDisplayNodeHelpText() {
 		return displayNodeHelpText;
 	}
@@ -112,6 +97,7 @@ public abstract class DynamicOrganizationTreeBean extends ModelBean {
 	/** 
 	 * The tree expand expand listener method. 
 	 */  
+	/*
 	public void processExpansion(NodeExpandedEvent nodeExpandedEvent){  
 		// get the source or the component who fired this event.  
 		Object source = nodeExpandedEvent.getSource();  
@@ -153,11 +139,13 @@ public abstract class DynamicOrganizationTreeBean extends ModelBean {
 				}
 			}  
 		}  
-	}  
+	} 
+	*/ 
 
 	/** 
 	 * Method for adding children nodes to a given tree model node. 
 	 */  
+	/*
 	public void addChildrenNodes(DynamicTreeNodeModel parentNode){
 		Organization parentOrg = null;
 		if (parentNode.getUserData() instanceof Organization)
@@ -204,6 +192,7 @@ public abstract class DynamicOrganizationTreeBean extends ModelBean {
         	parentNode.addNode(childNode);
         }
 	}
+	*/
 
 	public OrganizationLabelFormat getLabelFormat() {
 		return labelFormat;

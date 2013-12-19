@@ -1,6 +1,9 @@
 package org.cloudgraph.web.model.common;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.faces.bean.ViewScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
@@ -19,12 +22,15 @@ import org.cloudgraph.web.sdo.categorization.Category;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaCopyHelper;
-import org.richfaces.component.html.HtmlTree;
-import org.richfaces.model.ListRowKey;
+import org.primefaces.event.NodeSelectEvent;
+import org.primefaces.event.SelectEvent;
+import org.primefaces.model.TreeNode;
 
 import commonj.sdo.ChangeSummary;
 import commonj.sdo.DataObject;
 
+@ManagedBean(name="CategorizationEditBean")
+@ViewScoped
 public class CategorizationEditBean extends DynamicTaxonomyTreeBean {
 	private static final long serialVersionUID = 1L;
 
@@ -34,7 +40,6 @@ public class CategorizationEditBean extends DynamicTaxonomyTreeBean {
 	protected TaxonomyAdapter taxonomy;
 	protected CategorizationAdapter categorization;
 	protected String saveActionReRender;
-    protected Category selectedCategory;
         
     public CategorizationEditBean() {
 		int foo = 0;
@@ -113,6 +118,8 @@ public class CategorizationEditBean extends DynamicTaxonomyTreeBean {
     public String save() {
         try {
 		    SDODataAccessClient service = new SDODataAccessClient();		    
+        	Category copy = (Category)PlasmaCopyHelper.INSTANCE.copyShallow(this.selectedCategory);
+        	this.categorization.setCategory(copy);
 		    service.commit(categorization.getDataGraph(), 
 		    	beanFinder.findUserBean().getName());           
         } catch (Throwable t) {
@@ -153,30 +160,6 @@ public class CategorizationEditBean extends DynamicTaxonomyTreeBean {
     	return null;
     } 
 
-    public boolean categorySelectedListener(org.richfaces.event.NodeSelectedEvent event) {
-    	try {
-	    	HtmlTree tree = (HtmlTree)event.getSource();
-	    	
-	        ListRowKey rowKey = (ListRowKey)tree.getRowKey();
-	        TreeNodeModel model = (TreeNodeModel)tree.getTreeNode(rowKey);
-	        if (model.getUserData() instanceof Category) {
-	        	this.selectedCategory = (Category)model.getUserData();
-	        	Category copy = (Category)PlasmaCopyHelper.INSTANCE.copyShallow(this.selectedCategory);
-	        	this.categorization.setCategory(copy);
-	        }
-	        else
-	        	log.error("expected instance of Category not, " + 
-	        			model.getUserData().getClass().getName());
-    	}
-    	catch (Throwable t) {
-    		log.error(t.getMessage(), t);
-    	}
-    	return false;
-    }
-    
-    public boolean getCategorySelected() {
-    	return this.selectedCategory != null;
-    }
  
     public String getSelectedCategoryName() {
     	if (this.selectedCategory != null)

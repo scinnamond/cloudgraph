@@ -8,16 +8,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
-import org.ajax4jsf.model.DataVisitor;
-import org.ajax4jsf.model.Range;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.web.sdo.adapter.QueueAdapter;
+import org.primefaces.model.SortOrder;
 
 
 /**
  */
+@ManagedBean(name="HBaseQueueBean")
+@SessionScoped
 public class HBaseQueueBean extends CloudQueueBean 
 {
 	private static final long serialVersionUID = 1L;
@@ -38,8 +42,8 @@ public class HBaseQueueBean extends CloudQueueBean
 	}
        
 	private boolean reQuery = true;
-	private List<CloudRow> data;
-    public List<CloudRow> getData() {
+	private List<QueueAdapter> data;
+    public List<QueueAdapter> getData() {
 		String type = this.beanFinder.findDemoBean().getModelRootType();
 		String uri = this.beanFinder.findDemoBean().getModelRootURI();
 		String tableName = this.beanFinder.findDemoBean().getSelectedTable();
@@ -60,7 +64,7 @@ public class HBaseQueueBean extends CloudQueueBean
 			}
 
     	if (this.reQuery && this.modelRootType != null && this.modelRootURI != null) {
-			this.data = new ArrayList<CloudRow>();
+			this.data = new ArrayList<QueueAdapter>();
 		    try {
 				HBaseClient client = new HBaseClient();
 				Map<String, Map<String, String>> results = null;
@@ -105,7 +109,6 @@ public class HBaseQueueBean extends CloudQueueBean
 					}
 					CloudRow cloudRow = new CloudRow(key, data);
 					this.data.add(cloudRow);
-		        	wrappedData.put(new Integer(i), cloudRow); // assumes flat results set
 				    i++;
 				}
 				this.reQuery = false;
@@ -117,18 +120,18 @@ public class HBaseQueueBean extends CloudQueueBean
     	return this.data;
     }
     
+
 	@Override
-	public void clear() {
-		if (this.data != null)
-			this.data.clear();
-		
-	}
-	
-	@Override
-	public void walk(FacesContext context, DataVisitor visitor, Range range,
-			Object argument) throws IOException {
+	public List<QueueAdapter> findResults(int startRow, int endRow,
+			String sortField, SortOrder sortOrder, Map<String, String> filters) {
 		// TODO Auto-generated method stub
-		
+		return getData();
+	}
+
+	@Override
+	public int countResults() {
+		// TODO Auto-generated method stub
+		return 0;
 	}
         
 }

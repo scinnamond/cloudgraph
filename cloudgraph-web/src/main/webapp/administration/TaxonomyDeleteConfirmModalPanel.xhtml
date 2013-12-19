@@ -1,0 +1,92 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+<p:dialog modal="true" id="deleteCategoryConfirmModalPanel"
+    width="440" height="310"
+     resizeable="false">
+    <f:facet name="header">
+        <h:panelGroup>
+            <h:outputText value="Delete Category Confirm?"></h:outputText>
+        </h:panelGroup>
+    </f:facet>
+    <h:form  id="delete_confirm_panel_form">
+        <h:panelGrid columns="1" width="420px" border="0"
+            cellpadding="2" cellspacing="2">  
+            <h:outputText style="width: 420px; word-wrap: yes; FONT-WEIGHT: bold;" 
+                    value="The following category will be deleted and all references to the category will be either deleted or removed. In addition all sub-categories and all referenced objects as indicated in the below table will be similarly deleted. Note: the 'Save' button on the main panel must be pressed before the delete is executed. Do you with to continue?" />
+	        <h:panelGrid rowClasses="FormPanelRow" 
+                columnClasses="FormLabelColumn,FormControlColumn" 
+                columns="2" width="95%" border="0">  
+                <h:outputText styleClass="labelBold" 
+                    value="#{bundle.aplsTaxonomyEdit_name_label}:" />
+                <h:outputText
+                    value="#{TaxonomyEditBean.selectedCategory.name}"/>
+                <h:outputText  
+                    styleClass="labelBold"
+                    value="#{bundle.aplsTaxonomyEdit_definition_label}:" />
+                <h:outputText
+                    value="#{TaxonomyEditBean.selectedCategory.truncatedDefinition}"/>
+            </h:panelGrid>
+            
+            <f:subview id="link_objs_table_subview">
+                <div style="HEIGHT: 100px; overflow-y: auto;">
+	         	    <p:dataTable  
+	         	        style="HEIGHT: 120px; overflow-x: auto;" 			                 
+		                width="100%" cellpadding="0" cellspacing="0" 
+		                rowKeyVar="row"
+		                var="obj" value="#{TaxonomyEditBean.deletedCatagoryGraphAsList}">	     	      	     	        
+	     	            <f:facet name="header">
+	     	                <h:outputText value="Linked Objects To Be Deleted" />	
+	     	            </f:facet> 
+		     	        <h:column>
+			                <h:outputText value="#{row}" />	              
+				        </h:column> 
+		     	        <h:column>
+		     	            <f:facet name="header">
+		     	                <h:outputText value="Type" />	
+		     	            </f:facet> 
+			                <h:outputText value="#{obj.type.name}" />	              
+				        </h:column> 
+		     	        <h:column>
+		     	            <f:facet name="header">
+		     	                <h:outputText value="Caption" />	
+		     	            </f:facet> 
+			                <h:outputText value="#{obj.caption}" />	              
+				        </h:column> 
+		     	        <h:column>
+		     	            <f:facet name="header">
+		     	                <h:outputText value="Description" />	
+		     	            </f:facet> 
+			                <h:outputText value="#{obj.description}" />	              
+				        </h:column> 
+				    </p:dataTable> 
+		        </div>
+		    </f:subview>
+      
+            <h:panelGrid columns="2" width="50%" border="0"
+                cellpadding="2" cellspacing="2"> 
+                <p:commandButton 
+                    action="#{TaxonomyEditBean.delete}"
+                    
+                    onclick="Richfaces.hideModalPanel('deleteCategoryConfirmModalPanel');" value="  Delete  ">
+                </p:commandButton>
+                <p:commandButton 
+                    action="#{TaxonomyEditBean.cancelDelete}"
+                    onclick="Richfaces.hideModalPanel('deleteCategoryConfirmModalPanel');" value="  Cancel  ">
+                </p:commandButton>
+            </h:panelGrid>
+        </h:panelGrid>
+    </h:form>
+</p:dialog>
+</ui:composition>
+</body>
+</html>

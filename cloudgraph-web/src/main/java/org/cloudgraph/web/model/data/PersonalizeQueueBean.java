@@ -3,6 +3,9 @@ package org.cloudgraph.web.model.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.ErrorHandlerBean;
@@ -17,6 +20,8 @@ import org.plasma.sdo.access.client.SDODataAccessClient;
 
 import commonj.sdo.DataGraph;
 
+@ManagedBean(name="PersonalizeQueueBean")
+@SessionScoped
 public class PersonalizeQueueBean extends ModelBean {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(PersonalizeQueueBean.class);

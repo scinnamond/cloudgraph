@@ -1,10 +1,19 @@
 package org.cloudgraph.web.model.data;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
+import javax.faces.event.AjaxBehaviorEvent;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -34,10 +43,15 @@ import org.cloudgraph.web.util.BeanFinder;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
+import org.plasma.sdo.helper.PlasmaXMLHelper;
+import org.plasma.sdo.xml.DefaultOptions;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
+import commonj.sdo.helper.XMLDocument;
 
+@ManagedBean(name="InstanceEditBean")
+@SessionScoped
 public class InstanceEditBean extends ModelBean {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(InstanceEditBean.class);
@@ -74,14 +88,11 @@ public class InstanceEditBean extends ModelBean {
 		this.saveActionReRender = saveActionReRender;
 	}
 
-	public String createFromAjax() {
+	public void create(ActionEvent event) {
 		create();
-		return null; // maintains AJAX happyness
-	}
-
+	}	 	
+	
 	public String create() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	this.isDelete = false;
 		    SDODataAccessClient service = new SDODataAccessClient();
@@ -100,137 +111,147 @@ public class InstanceEditBean extends ModelBean {
 	    	instType.set_package(pkg);
 		    
 		    clear();
-            return AppActions.CREATE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
         } finally {
-        }       
-    }			
+        } 
+        return null;
+    }	
 	
-	public String editFromAjax() {
+	public void edit(ActionEvent event) {
 		edit();
-		return null; // maintains AJAX happyness
 	}
-
+	
 	public String edit() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	this.isDelete = false;
 		    SDODataAccessClient service = new SDODataAccessClient();
 		    DataGraph[] result = service.find(InstanceSpecificationQuery.createEditQueryById(this.instanceId));
 	        this.instance = (InstanceSpecification)result[0].getRootObject();	
+	        if (log.isDebugEnabled())
+	            log.debug(this.serializeGraph(this.instance.getDataGraph()));
 	        clear();
-            return AppActions.EDIT.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
         } finally {
         }       
-    }		
+        return null;
+    }
 	
-	public String saveFromAjax() {
+	public void save(ActionEvent event) {
 		save();
-		return null; // maintains AJAX happyness
 	}
-    	
+	
 	public String save() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	if (log.isDebugEnabled())
                 log.debug(((PlasmaDataObject)this.instance).dump());
 		    SDODataAccessClient service = new SDODataAccessClient();
 	        service.commit(this.instance.getDataGraph(), 
 		    	    beanFinder.findUserBean().getName());
+	        FacesMessage msg = new FacesMessage("Instance Saved Successfully");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
 	        clear();
-            return AppActions.SAVE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
-    }	
+        } 
+        return null;
+    }
+	
+	public void cancelSelectInstance(AjaxBehaviorEvent event) {
+		cancelSelectInstance();
+	}
+
+	public void cancelSelectInstance(ActionEvent event) {
+		cancelSelectInstance();
+	}
 	
 	public String cancelSelectInstance() {
 		return null;
 	}
-        
+    
+	public void exit(ActionEvent event) {
+		exit();
+    }
+    
     public String exit() {
     	try {
     		this.instance.getDataGraph().getChangeSummary().endLogging(); // wipe any changes 
     		this.instance.getDataGraph().getChangeSummary().beginLogging();
-    		this.instance = null;   	
+    		this.instance = null;  
+    		this.instanceId = null;
         } catch (Throwable t) {
         } finally {
         }       
         return null;
     }
     
+	public void deleteConfirm(ActionEvent event) {
+		deleteConfirm();
+	}
+	
 	public String deleteConfirm() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	this.isDelete = true;
 		    SDODataAccessClient service = new SDODataAccessClient();
 		    DataGraph[] result = service.find(InstanceSpecificationQuery.createDeleteQueryById(this.instanceId));
 		    this.instance = (InstanceSpecification)result[0].getRootObject();
 	        	        
-	        return AppActions.DELETE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
         } finally {
-        }       
+        }  
+        return null;
     }		
 
+	public void cancelDelete(ActionEvent event) {
+		cancelDelete();
+	}
+	
 	public String cancelDelete() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	this.instance = null;
 	        clear();
-	        	        
-	        return AppActions.SUCCESS.value();
-        } catch (Throwable t) {
+       } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
         } finally {
-        }       
+        } 
+        return null;
     }	
 	
+	public void delete(ActionEvent event) {
+		delete();
+	}
+	
 	public String delete() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
 		    SDODataAccessClient service = new SDODataAccessClient();
+		    DataGraph[] result = service.find(InstanceSpecificationQuery.createDeleteQueryById(this.instanceId));
+		    this.instance = (InstanceSpecification)result[0].getRootObject();
 	        this.instance.delete();
 	        service.commit(this.instance.getDataGraph(), 
 		    	    beanFinder.findUserBean().getName());
+	        FacesMessage msg = new FacesMessage("Instance Deleted Successfully");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
 	        clear();
-	        	        
-	        return AppActions.SUCCESS.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
 	        this.instance = null;
-        }       
+	        this.instanceId = null;
+        } 
+        return null;
     }		
 
+	public void clear(ActionEvent event) {
+		clear();
+	}
+	
     public void clear() {
     	try {
     		this.propertySupport.clear();
@@ -413,4 +434,20 @@ public class InstanceEditBean extends ModelBean {
     	return result;
     }
 	
-}
+    protected String serializeGraph(DataGraph graph) throws IOException
+    {
+        DefaultOptions options = new DefaultOptions(
+        		graph.getRootObject().getType().getURI());
+        options.setRootNamespacePrefix("edit");
+        
+        XMLDocument doc = PlasmaXMLHelper.INSTANCE.createDocument(graph.getRootObject(), 
+        		graph.getRootObject().getType().getURI(), 
+        		null);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+	    PlasmaXMLHelper.INSTANCE.save(doc, os, options);        
+        os.flush();
+        os.close(); 
+        String xml = new String(os.toByteArray());
+        return xml;
+    }
+ }

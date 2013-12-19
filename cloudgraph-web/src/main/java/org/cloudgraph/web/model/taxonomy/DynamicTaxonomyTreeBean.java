@@ -1,5 +1,6 @@
 package org.cloudgraph.web.model.taxonomy;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -11,45 +12,63 @@ import org.cloudgraph.web.model.tree.DynamicTreeNodeModel;
 import org.cloudgraph.web.model.tree.TreeNodeTypeMap;
 import org.cloudgraph.web.sdo.categorization.Category;
 import org.cloudgraph.web.sdo.categorization.Taxonomy;
-import org.richfaces.component.UITree;
-import org.richfaces.component.html.HtmlTreeNode;
-import org.richfaces.component.state.TreeState;
-import org.richfaces.event.NodeExpandedEvent;
-import org.richfaces.model.TreeRowKey;
+import org.primefaces.event.NodeCollapseEvent;
+import org.primefaces.event.NodeExpandEvent;
+import org.primefaces.event.NodeSelectEvent;
+import org.primefaces.event.NodeUnselectEvent;
+import org.primefaces.model.DefaultTreeNode;
+import org.primefaces.model.TreeNode;
 
 public abstract class DynamicTaxonomyTreeBean extends ModelBean {
 
-    private static Log log = LogFactory.getLog(DynamicTaxonomyTreeBean.class);
-    private long ids = 0;
-    private DynamicTreeNodeModel treeRoot;
-    private TreeState treeState;
-    protected TreeNodeTypeMap typeMap;
-    protected CategoryLabelFormat labelFormat;
-    private boolean displayNodeHelpText = true;
+	private static Log log = LogFactory.getLog(DynamicTaxonomyTreeBean.class);
+	private long ids = 0;
+	private DefaultTreeNode treeRoot;
+	// private TreeState treeState;
+	protected TreeNodeTypeMap typeMap;
+	protected CategoryLabelFormat labelFormat;
+	private boolean displayNodeHelpText = true;
 	protected Set<Integer> ajaxKeys = new HashSet<Integer>();
-	
+	protected TreeNode selectedNode;
+    protected Category selectedCategory;
+
 	public DynamicTaxonomyTreeBean() {
+		treeRoot = new DefaultTreeNode("Root", null);
 	}
-	
+
 	public DynamicTaxonomyTreeBean(TreeNodeTypeMap typeMap) {
 		this.typeMap = typeMap;
 	}
 
-	public DynamicTreeNodeModel getModel() {
+	public TreeNode getModel() {
 		return this.treeRoot;
 	}
-	
-	public void setTreeState(TreeState treeState) {this.treeState = treeState;}
-    public TreeState getTreeState() {return treeState;}
-	public Set<Integer> getAjaxKeys() {
-		return ajaxKeys;
+
+	public TreeNode getSelectedNode() {
+		return selectedNode;
 	}
 
-	public void setAjaxKeys(Set<Integer> ajaxKeys) {
-		this.ajaxKeys = ajaxKeys;
+	public void setSelectedNode(TreeNode selectedNode) {
+		this.selectedNode = selectedNode;
+	}
+	
+	public boolean getHasSelectedNode() {
+		return this.selectedNode != null;
+	}
+	
+    public Category getSelectedCategory() {
+		return selectedCategory;
+	}
+
+	public void setSelectedCategory(Category selectedCategory) {
+		this.selectedCategory = selectedCategory;
 	}
     
-    public boolean isDisplayNodeHelpText() {
+    public boolean getCategorySelected() {
+    	return this.selectedCategory != null;
+    }
+
+	public boolean isDisplayNodeHelpText() {
 		return displayNodeHelpText;
 	}
 
@@ -66,142 +85,78 @@ public abstract class DynamicTaxonomyTreeBean extends ModelBean {
 	}
 
 	/**
-     * Init the tree structure. Load only the top-level nodes and then add/remove
-     * child tree nodes dynamically based on user input, instead of loading all of
-     * the nodes on instantiation.
-     * @param model - the data graph with all the pertinent db data.
-     */
-	protected void initTree(Taxonomy model)
-	{	
-		treeRoot = new DynamicTreeNodeModel(++ids);
-		treeRoot.setUserData(model);
-		treeRoot.setLevel(0);
+	 * Init the tree structure. Load only the top-level nodes and then
+	 * add/remove child tree nodes dynamically based on user input, instead of
+	 * loading all of the nodes on instantiation.
+	 * 
+	 * @param model
+	 *            - the data graph with all the pertinent db data.
+	 */
+	protected void initTree(Taxonomy model) {
+		
+		treeRoot.setData(model);
+		if (treeRoot.getChildren() != null)
+			treeRoot.getChildren().clear(); // rebuild it
 		if (model.getCategory() == null)
 			return;
-		
+
 		Category[] topcats = model.getCategory().getChild();
-		for (int i = 0; i < topcats.length; i++)
-		{
-			DynamicTreeNodeModel topNode = new DynamicTreeNodeModel(++ids);
-	        topNode.setEnabled(true);
-	        topNode.setName(topcats[i].getName());
-        	if (this.labelFormat == null) 
-        		topNode.setLabel(topcats[i].getName());
-
-	        else 
-	        	topNode.setLabel(
-	        			this.labelFormat.getLabel(topcats[i]));
-        	if (this.displayNodeHelpText)
-	            topNode.setTooltip(topcats[i].getDefinition());
-			topNode.setLevel(treeRoot.getLevel() + 1);
-	        topNode.setType(typeMap.getTreeNodeType(topNode.getLevel()));
-	        topNode.setUserData(topcats[i]);
-	        if (log.isDebugEnabled())
-	        	log.debug("created top node: " + "(" + topNode.getType() + ") " + topNode.getLabel());
-
-	        if (topcats[i].getChildCount() == 0)
-		        topNode.setLeaf(true);
-	        else
-	        	topNode.setLeaf(false);
-	        
-	        treeRoot.addNode(topNode);
+		for (int i = 0; i < topcats.length; i++) {
+			DefaultTreeNode topNode = new DefaultTreeNode(topcats[i], treeRoot);
+			DefaultTreeNode dummyNode = new DefaultTreeNode("loading...", topNode);
+			// topNode.setType(typeMap.getTreeNodeType(topNode.getLevel()));
 		}
 	}
-	
-	
-	/** 
-	 * The tree expand expand listener method. 
-	 */  
-	public void processExpansion(NodeExpandedEvent nodeExpandedEvent){  
-		// get the source or the component who fired this event.  
-		Object source = nodeExpandedEvent.getSource();  
-		if (source instanceof HtmlTreeNode) {  
-			// It should be a html tree node, if yes get  
-			// the ui tree which contains this node.  
-			UITree tree = ((HtmlTreeNode) source).getUITree();  
-			// avoid null pointer exceptions even though not needed. but safety first ;-)  
-			if (tree == null) {  
-				return;  
-			}  
-			
-			// get the row key i.e. id of the given node.  
-			Object rowKey = tree.getRowKey(); 
-			
-			// get node expanded state.
-			boolean isExpanded = false;
-			if (getTreeState() != null)
-				isExpanded = getTreeState().isExpanded((TreeRowKey) rowKey);
-			else
-				isExpanded = tree.isExpanded();
 
-			// get the model node of this node.  
-			DynamicTreeNodeModel selectedTreeModelNode =
-				(DynamicTreeNodeModel) tree.getTreeNode(rowKey);
-			
-			if(null != selectedTreeModelNode){  
-				if (isExpanded) {
-    				// add the children nodes.  
-	    			addChildrenNodes(selectedTreeModelNode);  
-				}
-				else {
-    				// remove the children nodes.  
-					Iterator<?> it = selectedTreeModelNode.getChildren();
-					while (it.hasNext()) {
-						it.next();
-						it.remove();
-					}
-				}
-			}  
-		}  
-	}  
+	public void onNodeExpand(NodeExpandEvent event) {
+		if (!event.getTreeNode().isLeaf() && !event.getTreeNode().isExpanded()) {
+			addChildrenNodes(event.getTreeNode());
+		}
+	}
 
-	/** 
-	 * Method for adding children nodes to a given tree model node. 
-	 */  
-	public void addChildrenNodes(DynamicTreeNodeModel parentNode){
+	public void onNodeCollapse(NodeCollapseEvent event) {
+	}
+
+	public void onNodeSelect(NodeSelectEvent event) {
+		this.selectedCategory = (Category)event.getTreeNode().getData();
+    }
+
+	public void onNodeUnselect(NodeUnselectEvent event) {
+		this.selectedCategory = null;
+	}
+
+	/**
+	 * Method for adding children nodes to a given tree model node.
+	 */
+
+	public void addChildrenNodes(TreeNode parentNode) {
 		Category parentCat = null;
-		if (parentNode.getUserData() instanceof Category)
-			parentCat = (Category) parentNode.getUserData();
-		else if (parentNode.getUserData() instanceof Taxonomy)
-			parentCat = ((Taxonomy) parentNode.getUserData()).getCategory();
+		if (parentNode.getData() instanceof Category)
+			parentCat = (Category) parentNode.getData();
+		else if (parentNode.getData() instanceof Taxonomy)
+			parentCat = ((Taxonomy) parentNode.getData()).getCategory();
 		else
-			throw new IllegalStateException("expected either a Catagory or Taxonomy as user-data");
-		
+			throw new IllegalStateException(
+					"expected either a Catagory or Taxonomy as user-data");
+
 		Category[] childCats = parentCat.getChild();
-        if (childCats == null || childCats.length == 0) 
-        	return;
-        if (parentNode.getChildren() != null && parentNode.getChildren().hasNext())
-        {
-            log.warn("found existing children - clearing and re-adding");
-            parentNode.getNodes().clear();
-        	//return;
-        }
-        for (Category childCat : childCats)
-        {
-        	DynamicTreeNodeModel childNode = new DynamicTreeNodeModel(++ids);
-        	childNode.setEnabled(true);
-        	childNode.setName(childCat.getName());
-        	if (this.labelFormat == null) 
-	        	childNode.setLabel(childCat.getName());
+		if (childCats == null || childCats.length == 0) {
+			if (parentNode.getChildren() != null)
+			    parentNode.getChildren().clear();
+			return;
+		}
+		if (parentNode.getChildren() != null
+				&& parentNode.getChildren().iterator().hasNext()) {
+			log.warn("found existing children - clearing and re-adding");
+			parentNode.getChildren().clear();
+			//return;
+		}
+		for (Category childCat : childCats) {
+			DefaultTreeNode childNode = new DefaultTreeNode(childCat,
+					parentNode);
+			DefaultTreeNode dummyNode = new DefaultTreeNode("loading...", childNode);
+		}
 
-	        else 
-	        	childNode.setLabel(
-	        			this.labelFormat.getLabel(childCat));
-        	if (this.displayNodeHelpText)
-        	    childNode.setTooltip(childCat.getDefinition());
-        	childNode.setLevel(parentNode.getLevel() + 2);
-        	childNode.setType(typeMap.getTreeNodeType(childNode.getLevel()));
-        	childNode.setUserData(childCat);
-        	if (log.isDebugEnabled())
-        		log.debug("created child node: " + "(" + childNode.getType() + ") " + childNode.getLabel());
-
-        	if (childCat.getChildCount() == 0)
-        		childNode.setLeaf(true);
-        	else
-        		childNode.setLeaf(false);
-
-        	parentNode.addNode(childNode);
-        }
 	}
 
 	public CategoryLabelFormat getLabelFormat() {
@@ -212,9 +167,4 @@ public abstract class DynamicTaxonomyTreeBean extends ModelBean {
 		this.labelFormat = labelFormat;
 	}
 
-  
-
-	
 }
-
-

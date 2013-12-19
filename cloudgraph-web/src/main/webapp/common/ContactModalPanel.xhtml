@@ -1,0 +1,60 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+
+<p:dialog modal="true" id="contactModalPanel" widgetVar="contactModalPanel_wgt"
+     resizeable="false"  width="400" height="260">
+    <f:facet name="header">
+        <h:panelGroup>
+            <h:outputText value="Contact By Email"></h:outputText>
+        </h:panelGroup>
+    </f:facet>
+    <h:form  id="contact_modalPanel1_form">
+        <h:panelGrid columns="1" width="95%" 
+            cellpadding="2" cellspacing="2">  
+                <p:messages id="dataEntryError" autoUpdate="true"/>
+                <h:panelGrid columns="2" width="80%" 
+                    columnClasses="FormLabelColumn,FormControlColumn,FormLabelColumn,FormControlColumn">
+                    <p:outputLabel for="eml_sbjct" value="Subject:" />
+                    <p:inputText id="eml_sbjct" value="#{EmailBean.subject}" 
+                        required="true"
+                        validator="#{EmailBean.validateSubject}"/>
+                    
+                    <p:outputLabel for="eml_msg" value="Message:" />
+                    <p:inputTextarea id="eml_msg" value="#{EmailBean.message}" 
+                        validator="#{EmailBean.validateMessage}"
+                        cols="30" rows="8"/>
+                    
+                    <p:outputLabel for="eml_frm" value="From Email Address:" />
+                    <p:inputText id="eml_frm" value="#{EmailBean.emailAddress}" 
+                        validator="#{EmailBean.validateEmailAddress}"/>
+                </h:panelGrid>          
+            <h:panelGrid columns="2" width="80%">
+            <p:commandButton 
+                action="#{EmailBean.send}"
+                oncomplete="if (!args.validationFailed) {contactModalPanel_wgt.hide()}"
+                update=":contact_modalPanel1_form"
+                value="  OK  ">
+            </p:commandButton>
+            <p:commandButton id="contactPanel_cancel_button" value="Cancel"
+                immediate="true"
+                action="#{EmailBean.cancel}"
+                onclick="contactModalPanel_wgt.hide()">
+            </p:commandButton> 
+            </h:panelGrid>
+    </h:panelGrid>
+    </h:form>
+</p:dialog>
+</ui:composition>
+</body>
+</html>          
+  	

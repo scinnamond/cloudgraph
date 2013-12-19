@@ -1,0 +1,67 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+<h:form id="toptoolbar_form">
+    <p:toolbar height="24" >
+         <p:toolbarGroup location="right"
+             rendered="#{!UserBean.isAuthenticated}">
+             <h:outputLink id="registerLink"
+                 value="#" 
+                 title="">
+                 <h:outputText value="Register"/>   
+                 <p:componentControl 
+                     for="settingsModalPanel" attachTo="registerLink" 
+                     operation="show" 
+                     event="onclick"/>
+             </h:outputLink>     
+         </p:toolbarGroup>
+         <p:toolbarGroup location="right"
+             rendered="#{UserBean.isAuthenticated}">
+             <h:outputLink id="settingsLink"
+                 value="#" 
+                 title="">
+                 <h:outputText value="Profile Settings"/>   
+                 <p:componentControl 
+                     for="settingsModalPanel" attachTo="settingsLink" 
+                     operation="show" 
+                     event="onclick"/>
+             </h:outputLink>     
+         </p:toolbarGroup>
+         <p:toolbarGroup location="right"
+             rendered="#{!UserBean.isAuthenticated}">
+             <h:outputLink id="loginLink"
+                 value="#" 
+                 title="">
+                 <h:outputText value="Login"/>   
+                 <p:componentControl 
+                     for="loginModalPanel" attachTo="loginLink" 
+                     operation="show" 
+                     event="onclick"/>
+             </h:outputLink>     
+         </p:toolbarGroup>
+         <p:toolbarGroup location="right">
+             <h:outputLink id="contactLink"
+                 value="#" 
+                 title="">
+                 <h:outputText value="Contact"/>   
+                 <p:componentControl 
+                     for="contactModalPanel" attachTo="contactLink" 
+                     operation="show" 
+                     event="onclick"/>
+             </h:outputLink>     
+         </p:toolbarGroup>
+    </p:toolbar>
+</h:form>
+</ui:composition>
+</body>
+</html>
+

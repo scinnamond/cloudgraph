@@ -11,6 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.ModelBean;
@@ -27,6 +31,8 @@ import org.plasma.sdo.xml.DefaultOptions;
 import commonj.sdo.DataGraph;
 import commonj.sdo.helper.XMLDocument;
 
+@ManagedBean(name="DataListBean")
+@RequestScoped
 public class DataListBean extends ModelBean{
 
 	private static final long serialVersionUID = 1L;
@@ -185,7 +191,8 @@ public class DataListBean extends ModelBean{
 
 		@Override
 		public Collection<List<Object>> values() {
-			return this.theMap.values();
+			Collection<List<Object>> result = this.theMap.values();
+			return result;
 		}
 
 		@Override

@@ -65,6 +65,7 @@ import commonj.sdo.Property;
 public abstract class DefaultAssembler {
 
     private static Log log = LogFactory.getLog(DefaultAssembler.class);
+	private static List<DataObject> EMPTY_DATA_OBJECT_LIST = new ArrayList<DataObject>();
 	
     protected PlasmaType rootType;
 	protected PlasmaDataObject root;
@@ -231,22 +232,38 @@ public abstract class DefaultAssembler {
                     + target.getType().getURI() + "#" + target.getType().getName());
         
         if (sourceProperty.isMany()) {
-			List<DataObject> list = source.getList(sourceProperty);
-            if (list == null) 
-                list = new ArrayList<DataObject>();
-            if (log.isDebugEnabled()) {
-                for (DataObject existingObject : list) {
-                    log.debug("existing: (" + 
-                            ((org.plasma.sdo.PlasmaNode)existingObject).getUUIDAsString()
-                            + ") " + existingObject.getType().getURI() + "#" + existingObject.getType().getName());
+        	PlasmaProperty opposite = (PlasmaProperty)sourceProperty.getOpposite();
+        	if (opposite != null && !opposite.isMany() && target.isSet(opposite)) {
+                PlasmaDataObject existingOpposite = (PlasmaDataObject)target.get(opposite);
+                if (existingOpposite != null) {
+                    log.warn("encountered existing opposite (" + existingOpposite.getType().getName()
+                            + ") value found while creating link " + source.toString()  
+                            + "." + sourceProperty.getName() + "->"
+                            + target.toString() + " - no link created");
+        		    return;
                 }
-            } 
+        	}
+
+        	List<DataObject> list = source.getList(sourceProperty);
+            if (list == null) 
+                list = EMPTY_DATA_OBJECT_LIST;
             if (!list.contains(target)) {
+            	// check if any existing list members already have the opposite property set
+            	for (DataObject existing : list) {
+                	if (opposite != null && !opposite.isMany() && existing.isSet(opposite)) {
+                        PlasmaDataObject existingOpposite = (PlasmaDataObject)existing.get(opposite);
+                        if (existingOpposite != null) {
+                        	log.warn("encountered existing opposite (" + existingOpposite.getType().getName()
+                                    + ") value found while creating link " + source.toString()  
+                                    + "." + sourceProperty.getName() + "->"
+                                    + target.toString() + " - no link created");
+                		    return;
+                        }
+                	}
+            	}
                 if (log.isDebugEnabled())
-                    log.debug("adding target  (" + source.getUUIDAsString() + ") "
-                        + source.getType().getURI() + "#" + source.getType().getName() 
-                        + "." + sourceProperty.getName() + "->(" + target.getUUIDAsString() + ") "
-                        + target.getType().getURI() + "#" + target.getType().getName());
+                    log.debug("adding target " + source.toString()  
+                        + "." + sourceProperty.getName() + "->" + target.toString());
                 if (target.getContainer() == null) {
                 	if (source.getDataGraph().getRootObject().equals(target)) {
                 		log.warn("linking root object, " + target.toString() + " to source, "
@@ -256,13 +273,7 @@ public abstract class DefaultAssembler {
                 	    throw new IllegalStateException("the given target has no container: " + target.toString());
                 }
                 list.add(target);   
-                // FIXME: HACK
-                try {
-                    source.setList(sourceProperty, list); 
-                }
-                catch (IllegalArgumentException e) {
-                	log.warn(e.getMessage());
-                }
+                source.setList(sourceProperty, list); 
             }
         }
         else {
@@ -279,13 +290,12 @@ public abstract class DefaultAssembler {
                 source.set(sourceProperty, target); 
             }
             else
-                if (!existing.getUUIDAsString().equals(target.getUUIDAsString()))
-                    log.warn("unexpected (" + existing.getType().getName()
-                        + ") value found while creating link (" + source.getUUIDAsString() + ") "
-                        + source.getType().getURI() + "#" + source.getType().getName() 
-                        + "." + sourceProperty.getName() + "->("
-                        + target.getUUIDAsString() + ") "
-                        + target.getType().getURI() + "#" + target.getType().getName());
+                if (!existing.equals(target))
+                	if (log.isDebugEnabled())
+                        log.debug("encountered existing (" + existing.getType().getName()
+	                        + ") value found while creating link " + source.toString() 
+	                        + "." + sourceProperty.getName() + "->"
+	                        + target.toString());
         }
     }
 	

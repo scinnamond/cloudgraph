@@ -65,6 +65,7 @@ public class DataTypeLoader extends AbstractLoader
             changeSummary.clear(pkg);
             pkg = this.fetchPackage(pkg.getExternalId());
             type.getDataType().getClassifier().getPackageableType().set_package(pkg);
+             
 
 			service.commit(doc.getRootObject().getDataGraph(), 
 					"dataloader");

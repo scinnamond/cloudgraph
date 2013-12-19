@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui">
+<f:view contentType="text/html">
+    <h:head>
+        <title></title>
+        <style type="text/css">
+          .ui-widget, .ui-widget .ui-widget {
+              font-size: 100% !important;
+          }        
+        </style>
+        
+        <!-- manual incluide makes primefaces panelmenu behave correctly using c:for-each -->
+        <h:outputScript library="primefaces" name="jquery/jquery.js"/>	
+        <h:outputScript library="primefaces" name="jquery/jquery-plugins.js"/>
+        <h:outputStylesheet library="css" name="cloudgraph-web.css"  /> 
+        <f:loadBundle basename="#{UserBean.bundleName}" var="bundle"/>
+    </h:head>
+    <h:body>   
+      <ui:include src="../ajaxloading.xhtml" />
+      <ui:include src="../TopNav.xhtml" />
+      <div class="TopDiv">
+      <h:panelGrid width="50%" columnClasses="AlignTop,AlignLeft" columns="2" border="0">
+          <h:panelGrid columns="1" border="0">
+              <p:spacer height="10" />
+              <h:graphicImage url="/images/text_logo_stack.png"/>
+          </h:panelGrid>
+          <h:panelGrid columns="1" border="0">
+              <p:spacer height="100" />
+              <h:graphicImage url="/images/header_text.png"/>
+          </h:panelGrid>
+      </h:panelGrid>
+      </div>
+      <div class="MainDiv">
+      <h:panelGrid width="100%" columns="1" border="0">
+           <p:outputPanel id="main_content_pnl">
+           <h:panelGrid width="100%" columns="2" border="0"
+               rowClasses="AlignTop"
+               columnClasses="LeftNavDiv,AlignLeft">
+               <h:panelGrid width="240" border="0">
+                   <ui:insert name="leftnav">default content</ui:insert>
+               </h:panelGrid>
+               <h:panelGrid columns="1">
+                   <p:spacer height="70" />
+                   <ui:insert name="content">default content</ui:insert>
+               </h:panelGrid>
+               
+           </h:panelGrid>
+           </p:outputPanel>
+      </h:panelGrid>
+      </div>
+    </h:body>
+</f:view>
+</html>

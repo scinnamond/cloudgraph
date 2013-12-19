@@ -1,39 +1,46 @@
-<%@ taglib uri="http://richfaces.org/a4j" prefix="a4j"%>
-<%@ taglib uri="http://richfaces.org/rich" prefix="rich"%>
-<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"%>
-<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"%>
-
- <a4j:form id="taxonomy_edit_content_form">   
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+ <h:form id="taxonomy_edit_content_form">   
  
     
   <h:panelGrid columns="6" width="100%" 
       columnClasses="ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv,ChartButtonDiv"
       cellpadding="3" cellspacing="3" border="0" > 
-  	  <a4j:commandLink 
+  	  <p:commandLink 
           reRender="admin_content_panel"
           title="Refresh this list">
           <h:graphicImage value="/images/refresh2_16_16.gif"/>
-          <rich:spacer width="18" height="1"/>
-      </a4j:commandLink>
-  	  <a4j:commandLink 
+          <p:spacer width="18" height="1"/>
+      </p:commandLink>
+  	  <p:commandLink 
           title="">
           <h:graphicImage value="/images/new_item.gif"/>
-          <rich:spacer width="18" height="1"/>
+          <p:spacer width="18" height="1"/>
 	      <f:setPropertyActionListener value="true"   
 		      target="#{NavigationBean.administrationSelected}" />
-      </a4j:commandLink>
-      <a4j:commandLink 
+      </p:commandLink>
+      <p:commandLink 
         value="#{bundle.aplsTaxonomyEdit_save_label}"
         title="#{bundle.aplsTaxonomyEdit_save_tooltip}" 
         action="#{TaxonomyEditBean.saveFromAjax}"
         reRender="taxonomy_content_panel"/>
-      <a4j:commandLink 
+      <p:commandLink 
         value="#{bundle.aplsTaxonomyEdit_export_label}"
         title="#{bundle.aplsTaxonomyEdit_export_tooltip}" 
         action="#{TaxonomyEditBean.export}"
         reRender="export_panel_form"
-        oncomplete="#{rich:component('exportTaxonomyModalPanel')}.show()"/>
-      <a4j:commandLink 
+        oncomplete="#{p:component('exportTaxonomyModalPanel')}.show()"/>
+      <p:commandLink 
         value="#{bundle.aplsTaxonomyEdit_exit_label}"
         title="#{bundle.aplsTaxonomyEdit_exit_tooltip}" 
         action="#{TaxonomyEditBean.exit}"
@@ -51,44 +58,44 @@
             <f:subview id="taxonomy_tree"
                 rendered="#{not empty TaxonomyEditBean.selectedTaxonomyTree}">
                 <f:verbatim><div class="EditableTaxonomyTreePanel"></f:verbatim>
-					<rich:tree id="taxonomyTree" 
+					<p:tree id="taxonomyTree" 
 					    componentState="#{TaxonomyEditBean.selectedTaxonomyTree.treeState}"
 					    switchType="ajax"
 						value="#{TaxonomyEditBean.selectedTaxonomyTree.model}" 
 						var="item" nodeFace="#{item.type}"
 						nodeSelectListener="#{TaxonomyEditBean.categorySelectListener}">
 
-						<rich:treeNode id="categoryNode"
+						<p:treeNode id="categoryNode"
 						    type="category"
 							iconLeaf="/images/orangedotleaf.gif" icon="/images/yellow-folder-open.png"
 							changeExpandListener="#{TaxonomyEditBean.selectedTaxonomyTree.processExpansion}">
-						    <a4j:commandLink id="tree_node_link" value="#{item.label}"
+						    <p:commandLink id="tree_node_link" value="#{item.label}"
 					            styleClass="LeftNavActive" 
 					            reRender="taxonomy_edit_panel"
 					            action="#{item.onAction}" 
 					            title="#{item.tooltip}"/>
-			                <rich:contextMenu event="oncontextmenu" attachTo="tree_node_link" submitMode="ajax">
-                                <rich:menuItem value="Add Child" id="add_child"
+			                <p:contextMenu event="oncontextmenu" attachTo="tree_node_link" submitMode="ajax">
+                                <p:menuItem value="Add Child" id="add_child"
                                     action="#{TaxonomyEditBean.addChild}"
                                     reRender="taxonomy_body_panel">
-                                    <a4j:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
-                                </rich:menuItem>
-                                <rich:menuItem value="Add Sibling" id="add_sib"
+                                    <p:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
+                                </p:menuItem>
+                                <p:menuItem value="Add Sibling" id="add_sib"
                                     action="#{TaxonomyEditBean.addSibling}"
                                     reRender="taxonomy_body_panel">
-                                    <a4j:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
-                                </rich:menuItem>
-                                <rich:menuItem value="Delete" id="delete"
+                                    <p:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
+                                </p:menuItem>
+                                <p:menuItem value="Delete" id="delete"
                                     action="#{TaxonomyEditBean.confirmDelete}"
                                     reRender="delete_confirm_panel_form"
-                                    oncomplete="#{rich:component('deleteCategoryConfirmModalPanel')}.show()">
-                                    <a4j:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
-                                </rich:menuItem>
-                            </rich:contextMenu>		            
+                                    oncomplete="#{p:component('deleteCategoryConfirmModalPanel')}.show()">
+                                    <p:actionparam name="cat_seq_id" assignTo="#{TaxonomyEditBean.selectedCategorySeqId}" value="#{item.userData.seqId}"/>
+                                </p:menuItem>
+                            </p:contextMenu>		            
 					            
-						</rich:treeNode>
+						</p:treeNode>
 					
-					</rich:tree>
+					</p:tree>
 						
 						
                 <f:verbatim></div></f:verbatim> 
@@ -154,7 +161,9 @@
 
 
  </h:panelGrid>
- </a4j:form>
-
+ </h:form>
+</ui:composition>
+</body>
+</html>
 
 

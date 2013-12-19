@@ -264,6 +264,31 @@ public class SlotAdapter implements Serializable {
 	}
 	
 	private Map<Long, InstanceSpecificationAdapter> classInstanceMap;
+	private void initClassInstanceMap() {
+		this.classInstanceMap = new HashMap<Long, InstanceSpecificationAdapter>();
+        		
+		Clazz clzz = getClassType();
+    	SDODataAccessClient service = new SDODataAccessClient();
+    	DataGraph[] results = service.find(
+    			PropertyQuery.createQueryBySourceClassId(clzz.getSeqId()));
+        List<PropertyAdapter> properties = new ArrayList<PropertyAdapter>();
+    	for (int i = 0; i < results.length; i++) {
+    		Property prop = (Property)results[i].getRootObject();
+    		properties.add(new PropertyAdapter(prop));
+        }
+		
+    	results = service.find(InstanceSpecificationQuery.createQueueQueryByClassId(
+				clzz.getSeqId())); 
+        
+    	for (int i = 0; i < results.length; i++) {
+        	InstanceSpecification inst = (InstanceSpecification)results[i].getRootObject();
+        	inst.setDataGraph(null);
+        	InstanceSpecificationAdapter adapter = 
+        		new InstanceSpecificationAdapter(inst, properties, 1, 2);
+        	classInstanceMap.put(adapter.getId(), adapter);
+        }
+	}	
+	
 	@SuppressWarnings("unchecked")
 	public List<SelectItem> getClassTypeItems() {
 		List<SelectItem> result = new ArrayList<SelectItem>();
@@ -274,31 +299,16 @@ public class SlotAdapter implements Serializable {
 					WebConstants.DEFAULT_SELECTION);
 			    result.add(defaultItem);
 			}
-			if (classInstanceMap == null)
-				classInstanceMap = new HashMap<Long, InstanceSpecificationAdapter>();
-			
-	    	SDODataAccessClient service = new SDODataAccessClient();
-	    	DataGraph[] results = service.find(
-	    			PropertyQuery.createQueryBySourceClassId(clzz.getSeqId()));
-	        List<PropertyAdapter> properties = new ArrayList<PropertyAdapter>();
-	    	for (int i = 0; i < results.length; i++) {
-	    		Property prop = (Property)results[i].getRootObject();
-	    		properties.add(new PropertyAdapter(prop));
-	        }
-			
-	    	results = service.find(InstanceSpecificationQuery.createQueueQueryByClassId(
-					clzz.getSeqId())); 
-	        
-	    	SelectItem[] items = new SelectItem[results.length];
-	    	for (int i = 0; i < results.length; i++) {
-	        	InstanceSpecification inst = (InstanceSpecification)results[i].getRootObject();
-	        	inst.setDataGraph(null);
-	        	InstanceSpecificationAdapter adapter = 
-	        		new InstanceSpecificationAdapter(inst, properties, 1, 2);
-	        	classInstanceMap.put(adapter.getId(), adapter);
+			if (this.classInstanceMap == null)
+				initClassInstanceMap(); 
+
+			SelectItem[] items = new SelectItem[this.classInstanceMap.size()];
+			int i = 0;
+	    	for (InstanceSpecificationAdapter adapter : this.classInstanceMap.values()) {
 	        	items[i] = new SelectItem(Long.valueOf(
-		        		inst.getSeqId()),
+	        			adapter.getInstanceSpecification().getSeqId()),
 		        		adapter.getCaption());
+	        	i++;
 	        }
 	    	Arrays.sort(items, new Comparator() {
 				public int compare(Object o1, Object o2) {
@@ -308,7 +318,7 @@ public class SlotAdapter implements Serializable {
 				}
 	    	});
 
-	    	for (int i = 0; i < items.length; i++)
+	    	for (i = 0; i < items.length; i++)
 	    	    result.add(items[i]);
 		}
 		return result;
@@ -326,8 +336,19 @@ public class SlotAdapter implements Serializable {
 		return this.property.getLowerValue() == 1;
 	}
 	
+	public List<Object> getValues() {
+	    if (getIsSingular()) {
+	    	log.error("expected multi-property for '"
+		    				+ this.getPropertyName() + "'");
+	    	return EMPTY_OBJECT_LIST;
+	    }
+		return (List)getValue();
+	}
+	
 	public Object getValue() {
 		Object result = null;
+		
+		try {
 	    if (getIsSingular()) {
 			if (this.slot != null) {
 		    	if (this.slot.getValueCount() > 0) {
@@ -337,15 +358,23 @@ public class SlotAdapter implements Serializable {
 		    		result = this.getSingularValue(this.slot.getValue(0));
 		    	}
 			}
+			else {
+				if (this.getIsClassType())
+					result = DEFAULT_ID;
+			}
 	    }
 	    else {
 			if (this.slot != null) {
 		    	if (this.slot.getValueCount() > 0) {
-		    		if (this.slot.getValueCount() > 1) {
-		    			log.warn("found multiple value specs for singular property '"
+		    		if (this.slot.getValueCount() > 1)
+		    			log.warn("found multiple value specs for multi property '"
 		    				+ this.getPropertyName() + "' - ignoring");
-		    		}
 		    		result = this.getMultiValue(this.slot.getValue(0));
+		    		if (result == null) {
+		    			log.warn("found a value spec for multi property '"
+			    				+ this.getPropertyName() + "' but no instance values - ignoring");
+		    			result = EMPTY_OBJECT_LIST;
+		    		}
 		    	}
 				else
 					result = EMPTY_OBJECT_LIST;
@@ -353,10 +382,23 @@ public class SlotAdapter implements Serializable {
 			else
 				result = EMPTY_OBJECT_LIST;
 	    }
+		}
+		catch (Throwable t) {
+			log.error(t.getMessage(), t);
+		}
 		return result;
 	}
 	
-    public void setValue(Object value) {
+	public void setValues(List<Object> value) {
+	    if (getIsSingular()) {
+	    	log.error("expected multi-property for '"
+		    				+ this.getPropertyName() + "'");
+	    	return;
+	    }
+		setValue(value);
+	}
+
+	public void setValue(Object value) {
     	try {
     	    if (this.getIsSingular()) {
     		    setSingularValue(value);
@@ -402,7 +444,7 @@ public class SlotAdapter implements Serializable {
 	    	if (vs.getInstanceValueCount() > 0) {
 	    		InstanceSpecification is = vs.getInstanceValue(0).getInstance();
 	    		if (is != null)
-	    		    return is.getSeqId(); 
+	    		    return Long.valueOf(is.getSeqId()); 
 	    		else
 	    			return DEFAULT_ID;
 	    	}
@@ -439,12 +481,7 @@ public class SlotAdapter implements Serializable {
 		    		InstanceSpecification is = iv.getInstance();
 		    		if (is != null)
 		    			result.add(new Long(is.getSeqId())); 
-		    		else
-		    			result.add(DEFAULT_ID);
 	    		}
-	    	}
-	    	else {
-	    		result.add(DEFAULT_ID);
 	    	}
 		}
 		else
@@ -499,6 +536,8 @@ public class SlotAdapter implements Serializable {
 	    	
 	    	if (instValue != null) {
 	    		if (id.longValue() != -1) {
+	    			if (this.classInstanceMap == null)
+	    				initClassInstanceMap(); 
 	    			InstanceSpecificationAdapter is = this.classInstanceMap.get(id);			    	    
 		    	    InstanceSpecification copy = (InstanceSpecification)PlasmaCopyHelper.INSTANCE.copyShallow(
 		    	    		is.getInstanceSpecification());
@@ -573,6 +612,8 @@ public class SlotAdapter implements Serializable {
 				InstanceValue instValue = null;
 		    	if (!exists) {
 		    		instValue = vs.createInstanceValue();	
+		    		if (this.classInstanceMap == null)
+		    			this.initClassInstanceMap();
 	    			InstanceSpecificationAdapter is = this.classInstanceMap.get(id);			    	    
 		    	    InstanceSpecification copy = (InstanceSpecification)PlasmaCopyHelper.INSTANCE.copyShallow(
 		    	    		is.getInstanceSpecification());
@@ -809,5 +850,7 @@ public class SlotAdapter implements Serializable {
 			log.warn("unknown type, " + name);
 	}
 	
-	
+	public String toString() {
+		return this.getPropertyName();
+	}
 }

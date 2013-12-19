@@ -1,0 +1,91 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+<h:form id="topnav_form">
+  <p:toolbar height="34" >
+      <p:toolbarGroup align="left">
+          <p:commandButton value="#{NavigationBean.documentationAction.label}" 
+              immediate="true"
+              icon="ui-icon-document" 
+              action="#{NavigationBean.documentationAction.onAction}"
+              styleClass="#{NavigationBean.documentationAction.selected ? 'ui-state-active' : ''}"
+              title="#{NavigationBean.documentationAction.tooltip}"/> 
+          <p:menuButton value="#{NavigationBean.demoAction.label}"
+                styleClass="#{NavigationBean.demoAction.selected ? 'ui-state-active' : ''}"
+                title="#{NavigationBean.demoAction.tooltip}">  
+            <p:menuitem value="HBase Wordnet"  
+                url="http://wordnet.cloudgraph.org" 
+                target="_blank"/>  
+          </p:menuButton>  
+          <p:commandButton value="#{NavigationBean.downloadAction.label}"
+              immediate="true" 
+              icon="ui-icon-transferthick-e-w" 
+              action="#{NavigationBean.downloadAction.onAction}"
+              styleClass="#{NavigationBean.downloadAction.selected ? 'ui-state-active' : ''}"
+              title="#{NavigationBean.downloadAction.tooltip}"/> 
+          <p:commandButton value="#{NavigationBean.forumAction.label}"
+              rendered="false"
+              immediate="true" 
+              icon="ui-icon-comment" 
+              action="#{NavigationBean.forumAction.onAction}"
+              styleClass="#{NavigationBean.forumAction.selected ? 'ui-state-active' : ''}"
+              title="#{NavigationBean.forumAction.tooltip}"/> 
+          <p:commandButton value="#{NavigationBean.newsAction.label}"
+              immediate="true" 
+              icon="ui-icon-signal-diag" 
+              action="#{NavigationBean.newsAction.onAction}"
+              styleClass="#{NavigationBean.newsAction.selected ? 'ui-state-active' : ''}"
+              title="#{NavigationBean.newsAction.tooltip}"/> 
+      </p:toolbarGroup>
+      
+      <p:toolbarGroup align="right">
+          <p:commandButton id="topnv_reg_btn" type="button" value="Register"
+             immediate="true"
+             rendered="#{!UserBean.isAuthenticated}"
+             onclick="settingsModalPanel_wgt.show()">
+          </p:commandButton>
+          <p:commandButton id="topnv_lgn_btn" type="button" value="Login"
+             immediate="true"
+             rendered="#{!UserBean.isAuthenticated}"
+             onclick="loginModalPanel_wgt.show()">
+          </p:commandButton>
+          <p:commandButton id="topnv_sttngs_btn" type="button" value="Profile Settings" 
+             immediate="true"
+             rendered="#{UserBean.isAuthenticated}"
+             onclick="settingsModalPanel_wgt.show()">
+          </p:commandButton>
+          <p:commandButton id="topnv_cntct_btn" value="Contact"
+              icon="ui-icon-person"
+              action="#{NavigationBean.contactAction.onAction}"
+              styleClass="#{NavigationBean.contactAction.selected ? 'ui-state-active' : ''}">
+          </p:commandButton>
+          <p:commandButton id="topnv_admin_btn" rendered="#{UserBean.roleName == 'SUPERUSER'}"
+              value="#{NavigationBean.administrationAction.label}" 
+              immediate="true"
+              icon="ui-icon-locked" 
+              action="#{NavigationBean.administrationAction.onAction}"
+              styleClass="#{NavigationBean.administrationAction.selected ? 'ui-state-active' : ''}"
+              title="#{NavigationBean.administrationAction.tooltip}"/> 
+              
+              
+              
+      </p:toolbarGroup>
+
+     </p:toolbar>
+
+</h:form>
+  <ui:include src="/common/SettingsModalPanel.xhtml" />
+  <ui:include src="/common/LoginModalPanel.xhtml" />
+
+</ui:composition>
+</body>
+</html>

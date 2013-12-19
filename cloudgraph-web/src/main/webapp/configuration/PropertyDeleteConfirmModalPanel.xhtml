@@ -1,0 +1,55 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+
+<p:dialog modal="true" id="deletePropertyConfirmModalPanel" 
+    widgetVar="deletePropertyConfirmModalPanel_wgt"
+    width="440" height="210"
+    resizeable="false">
+    <f:facet name="header">
+        <h:panelGroup>
+            <h:outputText value="Delete Property Confirm?"></h:outputText>
+        </h:panelGroup>
+    </f:facet>
+    <p:outputPanel>
+         <h:panelGrid columns="1" width="320px" border="0"
+            cellpadding="2" cellspacing="2">  
+            <h:outputText style="width: 420px; word-wrap: yes; FONT-WEIGHT: bold;" 
+                    value="The following property will be deleted and all instance 'slots' as well as values. Do you with to continue?" />
+	        <h:panelGrid rowClasses="FormPanelRow" 
+                columnClasses="FormLabelColumn,FormControlColumn" 
+                columns="2" width="95%" border="0">  
+                <h:outputText styleClass="labelBold" 
+                    value="#{bundle.aplsPropertyEdit_name_label}:" />
+                <h:outputText
+                    value="#{PropertyEditBean.property.name}"/>
+            </h:panelGrid>
+      
+            <h:panelGrid columns="2" width="50%" border="0"
+                cellpadding="2" cellspacing="2"> 
+                <p:commandButton 
+                    action="#{PropertyEditBean.delete}"
+                    immediate="true"
+                    update=":admin_form"
+                    onclick="deletePropertyConfirmModalPanel_wgt.hide()" value="  Delete  ">
+                </p:commandButton>
+                <p:commandButton 
+                    action="#{PropertyEditBean.cancelDelete}"
+                    onclick="deletePropertyConfirmModalPanel_wgt.hide()" value="  Cancel  ">
+                </p:commandButton>
+            </h:panelGrid>
+        </h:panelGrid>
+    </p:outputPanel>
+</p:dialog>
+</ui:composition>
+</body>
+</html>

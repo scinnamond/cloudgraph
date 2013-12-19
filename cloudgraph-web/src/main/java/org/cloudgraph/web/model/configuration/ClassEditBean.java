@@ -8,8 +8,11 @@ import java.util.MissingResourceException;
 import java.util.UUID;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 
@@ -50,6 +53,8 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 
+@ManagedBean(name="ClassEditBean")
+@SessionScoped
 public class ClassEditBean extends ModelBean {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(ClassEditBean.class);
@@ -89,9 +94,11 @@ public class ClassEditBean extends ModelBean {
 		return null; // maintains AJAX happyness
 	}
 
+	public void create(ActionEvent event) {
+		create();
+	}
+	
 	public String create() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	
 		    SDODataAccessClient service = new SDODataAccessClient();
@@ -103,20 +110,22 @@ public class ClassEditBean extends ModelBean {
 	    	this.clazz = classifier.createClazz();
 	    	this.clazz.setExternalId(UUID.randomUUID().toString());
 	    	classifier.setName("New Class");    	
-	        
-            return AppActions.CREATE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        }  
+        return null;
     }			
 	
 	public String editFromAjax() {
 		edit();
 		return null; // maintains AJAX happyness
+	}
+	
+	public void edit(ActionEvent event) {
+		edit();
 	}
 
 	public String edit() {
@@ -127,43 +136,49 @@ public class ClassEditBean extends ModelBean {
 		    DataGraph[] result = service.find(ClassQuery.createEditQuery(this.clazzId));
 	        this.clazz = (Clazz)result[0].getRootObject();	
 	        clear();
-            return AppActions.EDIT.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        }   
+        return null;
     }		
 	
 	public String saveFromAjax() {
 		save();
 		return null; // maintains AJAX happyness
 	}
-    	
+	
+	public void save(ActionEvent event) {
+		save();
+	}
+   	
 	public String save() {
-    	BeanFinder beanFinder = new BeanFinder();
-        ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
         	if (log.isDebugEnabled())
                 log.debug(((PlasmaDataObject)this.clazz).dump());
 		    SDODataAccessClient service = new SDODataAccessClient();
 	        service.commit(this.clazz.getDataGraph(), 
 		    	    beanFinder.findUserBean().getName());
+	        FacesMessage msg = new FacesMessage("Saved Successfully");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
 	        beanFinder.findReferenceDataCache().expireClasses();
 	        clear();
-            return AppActions.SAVE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
-            errorHandler.setError(t);
-            errorHandler.setRecoverable(false);
-            return AppActions.ERRORHANDLER.value();
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
         } finally {
-        }       
+        } 
+        return null;
     }	
         
-    public String exit() {
+	public void exit(ActionEvent event) {
+		exit();
+	}
+
+	public String exit() {
     	try {
     		this.clazz.getDataGraph().getChangeSummary().endLogging(); // wipe any changes 
     		this.clazz.getDataGraph().getChangeSummary().beginLogging();
@@ -174,7 +189,11 @@ public class ClassEditBean extends ModelBean {
         return null;
     }
 
-    public void clear() {
+	public void clear(ActionEvent event) {
+		clear();
+	}
+
+	public void clear() {
     	try {
     		otherProperties = null;
     		compliancesProperties = null;

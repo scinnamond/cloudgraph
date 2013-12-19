@@ -1,0 +1,114 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>                                                         
+<p:panel toggleable="true" header="#{SearchBean.clazzName} List">
+    <p:toolbar height="34" >
+    <p:toolbarGroup align="left">
+  	  <p:commandButton value="Refresh"
+  	      icon="ui-icon-refresh"
+          update="dataqueue_dtbl_pnl"
+          action="#{InstanceQueueBean.refresh}" 
+          title="Refresh the #{SearchBean.clazzName} list">
+      </p:commandButton>
+  	  <p:commandButton value="New Instance"
+  	      icon="ui-icon-copy"
+          action="#{InstanceEditBean.create}"
+          update=":admin_form" 
+          title="Create new #{SearchBean.clazzName}">
+      </p:commandButton>
+  	  <p:commandButton value="Personalize"
+  	      icon="ui-icon-person"
+          title="Personalize the #{SearchBean.clazzName} list">
+          <f:setPropertyActionListener value="dataqueue_dtbl"               
+                    target="#{InstanceQueueBean.saveActionReRender}" />                                        
+      </p:commandButton>      
+      </p:toolbarGroup>
+    </p:toolbar>    
+                                                                                                                                            
+  <h:panelGrid id="dataqueue_dtbl_pnl" rowClasses="AlignCenter" columns="1" border="0">                                                            
+  
+  <p:contextMenu for="dataqueue_dtbl">  
+        <p:menuitem value="Edit" icon="ui-icon-pencil" 
+            action="#{InstanceEditBean.edit}"
+            update=":admin_form:slots_tv :admin_form">
+            <f:setPropertyActionListener value="#{InstanceQueueBean.selectedInstance.id}"   
+                  target="#{InstanceEditBean.instanceId}" /> 
+        </p:menuitem>                                            
+          
+        <p:menuitem value="Delete" update="dataqueue_dtbl" icon="ui-icon-close"
+            action="#{InstanceEditBean.delete}">  
+            <f:setPropertyActionListener value="#{InstanceQueueBean.selectedInstance.id}"   
+                  target="#{InstanceEditBean.instanceId}" /> 
+                                                           
+        </p:menuitem>                                            
+  </p:contextMenu>
+      
+  <p:dataTable id="dataqueue_dtbl" 
+      var="item" value="#{InstanceQueueBean.model}"
+      rowKey="#{item.index}"
+      lazy="true" rows="10" paginator="true" effect="true"
+      paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+      rowsPerPageTemplate="10,20,30"
+      selection="#{InstanceQueueBean.selectedInstance}" selectionMode="single">   
+                                                                                                                                                                                                                                                         
+      <p:columnGroup rendered="true" type="header">
+         <p:row>
+           <p:column headerText="Identification"
+               rendered="#{InstanceQueueBean.identificationPropertiesCount > 0}" 
+               colspan="#{InstanceQueueBean.identificationPropertiesCount}">
+           </p:column>
+           <p:column headerText="Cost"
+               rendered="#{InstanceQueueBean.costPropertiesCount > 0}" 
+               colspan="#{InstanceQueueBean.costPropertiesCount}">
+           </p:column>
+           <p:column headerText="Hosting"
+               rendered="#{InstanceQueueBean.hostingPropertiesCount > 0}"
+               colspan="#{InstanceQueueBean.hostingPropertiesCount}">
+           </p:column>
+           <p:column headerText="Compliance"
+               rendered="#{InstanceQueueBean.compliancePropertiesCount > 0}" 
+               colspan="#{InstanceQueueBean.compliancePropertiesCount}">
+           </p:column>
+           <p:column headerText="Process"
+               rendered="#{InstanceQueueBean.processPropertiesCount > 0}" 
+               colspan="#{InstanceQueueBean.processPropertiesCount}">
+           </p:column>
+           <p:column headerText="Other"
+               rendered="#{InstanceQueueBean.otherPropertiesCount > 0}"
+               colspan="#{InstanceQueueBean.otherPropertiesCount}">
+           </p:column>
+         </p:row>
+           
+         <p:row>
+           <c:forEach var="col" items="#{InstanceQueueBean.properties}">
+               <p:column colspan="1" headerText="#{col.displayName}"/>
+           </c:forEach>
+         </p:row>           
+           
+      </p:columnGroup> 
+
+      <p:columns value="#{InstanceQueueBean.properties}" 
+          var="col" columnIndexVar="ind" 
+          sortBy="#{item.data[ind]}"
+          style="white-space:normal !important;">        
+          <h:outputText value="#{item.data[ind]} " />
+      </p:columns>
+       
+  </p:dataTable>                                                                                                                          
+          <div style="max-height:40px;scroll:auto;">
+          </div> 
+                                                                                                                                            
+  </h:panelGrid> 
+</p:panel>     
+</ui:composition>
+</body>
+</html>

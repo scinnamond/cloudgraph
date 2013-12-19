@@ -242,12 +242,15 @@ public class GraphDispatcher extends JDBCSupport
                     + dataObject.getType().getName() + "'");
 
         for (Property pkp : pkList) {
-            PlasmaProperty targetPriKeyProperty = (PlasmaProperty)pkp;
-            Object pk = dataObject.get(targetPriKeyProperty);
+            PlasmaProperty priKeyProperty = (PlasmaProperty)pkp;
+            if (!priKeyProperty.getType().isDataType())
+            	continue; 
+            
+            Object pk = dataObject.get(priKeyProperty.getName());
             if (pk == null)
             {
             	if (this.hasSequenceGenerator()) {
-	            	DataFlavor dataFlavor = targetPriKeyProperty.getDataFlavor();
+	            	DataFlavor dataFlavor = priKeyProperty.getDataFlavor();
 	            	switch (dataFlavor) {
 	            	case integral:
 	                    if (sequenceGenerator == null)
@@ -259,22 +262,22 @@ public class GraphDispatcher extends JDBCSupport
 	                        log.debug("getting seq-num for " + type.getName());
 	                    }
 	                    pk = sequenceGenerator.get(dataObject); 
-	                    entity.put(targetPriKeyProperty.getName(), 
-	                    		new PropertyPair(targetPriKeyProperty, pk));
+	                    PropertyPair pair = new PropertyPair(priKeyProperty, pk);
+	                    entity.put(priKeyProperty.getName(), pair);
 	                    //entity.set(targetPriKeyProperty.getName(), pk);                 
-	                    ((CoreDataObject)dataObject).setValue(targetPriKeyProperty.getName(), pk); // FIXME: bypassing modification detection on pri-key
+	                    ((CoreDataObject)dataObject).setValue(priKeyProperty.getName(), pk); // FIXME: bypassing modification detection on pri-key
 	            		break;
 	            	default:
 	                    throw new DataAccessException("found null primary key property '"
-	                    		+ targetPriKeyProperty.getName() + "' for type, "
+	                    		+ priKeyProperty.getName() + "' for type, "
 	                            + type.getURI() + "#" + type.getName());  
 	            	}
             	}
             }
             else
             {
-            	entity.put(targetPriKeyProperty.getName(),
-            			new PropertyPair(targetPriKeyProperty, pk));
+            	PropertyPair pair = new PropertyPair(priKeyProperty, pk);
+            	entity.put(priKeyProperty.getName(), pair);
                 //entity.set(targetPriKeyProperty.getName(), pk); 
             } 
             
@@ -283,7 +286,7 @@ public class GraphDispatcher extends JDBCSupport
 	                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(pk) + ")");
 	            }
 	             
-	            PropertyPair pkPair = new PropertyPair(targetPriKeyProperty, pk);
+	            PropertyPair pkPair = new PropertyPair(priKeyProperty, pk);
 	            snapshotMap.put(uuid, pkPair); // map new PK back to UUID
             }
         }
@@ -346,8 +349,8 @@ public class GraphDispatcher extends JDBCSupport
             if (property.isMany()) 
                 continue;
 
-            if (property.isKey(KeyType.primary))
-                continue;
+            if (property.isKey(KeyType.primary) && property.getType().isDataType())
+                continue; // handled above
             
             if (property.getConcurrent() != null)
                 continue;            
@@ -529,18 +532,36 @@ public class GraphDispatcher extends JDBCSupport
         List<PropertyPair> pkPairs = new ArrayList<PropertyPair>();
         for (Property pkp : pkList) {
             PlasmaProperty pkProperty = (PlasmaProperty)pkp;
-            Object pk = dataObject.get(pkProperty);
-            if (pk == null) {
+            PlasmaProperty priKeyValueProperty = pkProperty;
+            DataObject priKeyDataObject = dataObject;
+            Object pk = priKeyDataObject.get(pkProperty.getName());
+            if (pk == null) { // check the change summary - delete removes references
             	Setting setting = dataGraph.getChangeSummary().getOldValue(dataObject, pkProperty);
             	if (setting != null) {
             	    pk = setting.getValue();
             	}
                 if (pk == null)
                     throw new DataAccessException("found null primary key property '"
-                		+ pkProperty.getName() + "' for type, "
-                        + type.getURI() + "#" + type.getName());  
+                		+ pkProperty.toString());  
             }
-            pkPairs.add(new PropertyPair(pkProperty, pk));
+            while (!priKeyValueProperty.getType().isDataType()) {
+            	priKeyValueProperty = this.getOppositePriKeyProperty(priKeyValueProperty);
+            	priKeyDataObject = (DataObject)pk;
+            	pk = priKeyDataObject.get(priKeyValueProperty.getName());
+                if (pk == null) { // check the change summary - delete removes references
+                	Setting setting = dataGraph.getChangeSummary().getOldValue(priKeyDataObject, priKeyValueProperty);
+                	if (setting != null) {
+                	    pk = setting.getValue();
+                	}
+                    if (pk == null)
+                        throw new DataAccessException("found null primary key property '"
+                    		+ priKeyValueProperty.toString());  
+                }
+            }
+            PropertyPair pair = new PropertyPair(pkProperty, pk);
+            if (!priKeyValueProperty.equals(pkProperty))
+            	pair.setValueProp(priKeyValueProperty);
+            pkPairs.add(pair);
         }        
                        
        // FIXME: get rid of cast - define instance properties in 'base type'
@@ -822,6 +843,7 @@ public class GraphDispatcher extends JDBCSupport
         }
 
         // pull pk from value object target and use to find existing entity 
+        PlasmaProperty valueProperty = null;
         if (!property.getType().isDataType() && !(resultValue instanceof NullValue))
         {
             if (!(resultValue instanceof DataObject))
@@ -840,10 +862,14 @@ public class GraphDispatcher extends JDBCSupport
             if (pkList.size() > 1)
                 throw new DataAccessException("multiple pri-key properties found for type '" 
                         + property.getType().getName() + "' - not yet supported");
+            Object pk = null;
+            valueProperty = (PlasmaProperty)pkList.get(0);  
+            while (!valueProperty.getType().isDataType()) {
+            	resultDataObject = (CoreDataObject)resultDataObject.get(valueProperty.getName());
+            	valueProperty = this.getOppositePriKeyProperty(valueProperty);
+            }
             
-            Property targetPriKeyProperty = pkList.get(0);    
-            
-            Object pk = resultDataObject.get(targetPriKeyProperty.getName());   
+            pk = resultDataObject.get(valueProperty.getName());   
             if (pk == null)
             {
                 UUID uuid = resultCoreObject.getUUID();
@@ -851,12 +877,13 @@ public class GraphDispatcher extends JDBCSupport
                     throw new DataAccessException("found no UUID value for entity '" 
                             + property.getType().getName() + "' when setting property "
                             + dataObject.getType().toString() + "." + property.getName());
-                pk = this.snapshotMap.get(uuid, targetPriKeyProperty);
-                if (pk == null)
+                PropertyPair pkPair  = this.snapshotMap.get(uuid, valueProperty);
+                if (pkPair == null)
                     throw new DataAccessException("found no pri-key value found in entity or mapped to UUID '" + uuid 
                             + "' for entity '" 
                             + property.getType().getName() + "' when setting property "
                             + dataObject.getType().toString() + "." + property.getName());
+                pk = pkPair.getValue();
             }
             resultValue = pk;  
             if (log.isDebugEnabled()) {
@@ -874,9 +901,13 @@ public class GraphDispatcher extends JDBCSupport
      	PropertyPair result = null;
         if (!(value instanceof NullValue)) {  
         	result = new PropertyPair((PlasmaProperty)property, resultValue);
+        	if (valueProperty != null)
+        		result.setValueProp(valueProperty);
         }
         else  {
         	result = new PropertyPair((PlasmaProperty)property, null);
+        	if (valueProperty != null)
+        		result.setValueProp(valueProperty);
         }
         
         return result;

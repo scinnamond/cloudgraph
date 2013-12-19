@@ -1,14 +1,20 @@
 package org.cloudgraph.web.model.data;
 
 // java imports
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.query.InstanceSpecificationQuery;
 import org.plasma.query.Query;
+import org.plasma.sdo.access.client.SDODataAccessClient;
 
 
 /**
  */
+@ManagedBean(name="InstanceBrowserQueueBean")
+@SessionScoped
 public class InstanceBrowserQueueBean extends InstanceQueueBean {
 	private static final long serialVersionUID = 1L;
 
@@ -18,6 +24,7 @@ public class InstanceBrowserQueueBean extends InstanceQueueBean {
     
 
     public InstanceBrowserQueueBean() {
+    	this.service = new SDODataAccessClient();
     }
     
     public Long getClassId() {

@@ -1,0 +1,63 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+ <p:dialog modal="true" id="personalizeQueuePanel"  width="340">
+        <f:facet name="header">
+            <h:outputText value="Personalize Data List" 
+                style="padding-right:15px;"/>
+        </f:facet>
+        <h:form id="personalizeQueueForm">         
+
+        <h:panelGrid columns="1" width="100%" border="0">
+			<p:outputPanel ajaxRendered="true" id="enum_literal_errors">
+					<h:messages id="dataEntryError" showDetail="true" showSummary="false" layout="table" errorClass="ErrorMessage" infoClass="ErrorMessage"/>
+			</p:outputPanel>
+            <f:verbatim>&nbsp;</f:verbatim>    
+            <f:verbatim>&nbsp;</f:verbatim>    
+
+                <p:pickList id="propListShuttle" 
+                    value="#{InstanceQueueBean.availableProperties}" 
+                    effect="bounce"  
+                    itemValue="#{item}" itemLabel="#{name.name}" 
+                    var="item" converter="PropertyConverter">
+	                <p:column>
+	                    <f:facet name="header">
+	                        <h:outputText value="Name" />
+	                    </f:facet>
+	      		        <h:graphicImage value="/images/properties.png"/>
+	                    <h:outputText value="#{item.label}" />
+	                </p:column>
+                </p:pickList>
+                	        
+            <f:verbatim>&nbsp;</f:verbatim>    
+            <f:verbatim>&nbsp;</f:verbatim>    
+            <h:panelGrid columns="2" width="50%" border="0"
+                cellpadding="2" cellspacing="2"> 
+                <p:commandButton id="personalizeQueuePanel_create_button" 
+                    value="    Ok    " 
+                    action="#{InstanceQueueBean.save}"
+                    ajaxSingle="false"
+                    update="personalizeQueueForm,#{InstanceQueueBean.saveActionReRender}"
+                    oncomplete="javascript:closeLiteralPanel()">
+                </p:commandButton> 
+                <p:commandButton id="personalizeQueuePanel_cancel_button" value="Cancel"
+                    immediate="true"
+                    action="#{InstanceQueueBean.cancel}"
+                    onclick="Richfaces.hideModalPanel('personalizeQueuePanel');">
+                </p:commandButton> 
+            </h:panelGrid>
+        </h:panelGrid>
+        </h:form>
+  </p:dialog>
+</ui:composition>
+</body>
+</html>  	

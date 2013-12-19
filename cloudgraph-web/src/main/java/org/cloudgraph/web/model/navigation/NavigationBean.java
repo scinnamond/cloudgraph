@@ -1,5 +1,8 @@
 package org.cloudgraph.web.model.navigation;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.Action;
@@ -9,9 +12,13 @@ import org.cloudgraph.web.model.tree.TreeNodeAction;
 import org.cloudgraph.web.model.tree.TreeSelectionModel;
 
 
+@ManagedBean(name="NavigationBean")
+@SessionScoped
 public class NavigationBean extends ModelBean {
     
-    private static Log log = LogFactory.getLog(NavigationBean.class);
+	private static final long serialVersionUID = 1L;
+
+	private static Log log = LogFactory.getLog(NavigationBean.class);
     
     // RichFaces Toolbar cannot be loaded using a overview iterator such as overviewTable, i.e. dynamically without
     // using the 'binding' attribute which means we have to create all sub-components
@@ -25,6 +32,8 @@ public class NavigationBean extends ModelBean {
     private TreeNodeAction newsAction;
     private TreeNodeAction emailAction;
     private TreeNodeAction blogAction;
+    private TreeNodeAction forumAction;
+    private TreeNodeAction contactAction;
     
     private TreeNodeAction administrationAction;
         
@@ -56,6 +65,8 @@ public class NavigationBean extends ModelBean {
 				emailAction.setSelected(false); 
 				blogAction.setSelected(false); 
 				demoAction.setSelected(false);
+				forumAction.setSelected(false); 
+				contactAction.setSelected(false); 
 				administrationAction.setSelected(false);
 			}
 
@@ -91,6 +102,10 @@ public class NavigationBean extends ModelBean {
 	    emailAction = new TreeNodeAction(Action.topnav_email, 
 	    		topActionHandler, topSelectionModel);
 	    blogAction = new TreeNodeAction(Action.topnav_blog, 
+	    		topActionHandler, topSelectionModel);
+	    forumAction = new TreeNodeAction(Action.topnav_forum, 
+	    		topActionHandler, topSelectionModel);
+	    contactAction = new TreeNodeAction(Action.topnav_contact, 
 	    		topActionHandler, topSelectionModel);
 	    administrationAction = new TreeNodeAction(Action.topnav_administration, 
 	    		topActionHandler, topSelectionModel);
@@ -172,6 +187,22 @@ public class NavigationBean extends ModelBean {
 			this.blogAction.setSelected(false);
 	}
 	
+	public void setForumSelected(Object selected) {
+		Boolean b = new Boolean(String.valueOf(selected));
+		if (b.booleanValue())
+		    this.topSelectionModel.setSelection(this.forumAction);
+		else
+			this.forumAction.setSelected(false);
+	}
+	
+	public void setContactSelected(Object selected) {
+		Boolean b = new Boolean(String.valueOf(selected));
+		if (b.booleanValue())
+		    this.topSelectionModel.setSelection(this.contactAction);
+		else
+			this.contactAction.setSelected(false);
+	}
+	
 	public void setAdminitstrationSelected(Object selected) {
 		Boolean b = new Boolean(String.valueOf(selected));
 		if (b.booleanValue())
@@ -234,6 +265,22 @@ public class NavigationBean extends ModelBean {
 
 	public void setBlogAction(TreeNodeAction blogAction) {
 		this.blogAction = blogAction;
+	}
+	
+	public TreeNodeAction getForumAction() {
+		return forumAction;
+	}
+
+	public void setForumAction(TreeNodeAction forumAction) {
+		this.forumAction = forumAction;
+	}
+	
+	public TreeNodeAction getContactAction() {
+		return contactAction;
+	}
+
+	public void setContactAction(TreeNodeAction contactAction) {
+		this.contactAction = contactAction;
 	}
 	
 	public TreeNodeAction getDemoAction() {

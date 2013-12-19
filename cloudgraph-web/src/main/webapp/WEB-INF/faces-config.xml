@@ -1,6 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
-<faces-config xmlns="http://java.sun.com/JSF/Configuration">
+<?xml version="1.0" encoding="utf-8"?>
+<faces-config xmlns="http://java.sun.com/xml/ns/javaee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-facesconfig_2_0.xsd"
+    version="2.0">
   <!-- ================ Application Resources ================================== -->
   <application>
     <locale-config>
@@ -12,184 +14,6 @@
     -->
   </application>
 
-  <!-- ================ Managed Beans =========================================== -->
-  
-  <!-- ReferenceDataCache, Scope:application -->
-  <managed-bean>
-    <managed-bean-name>ReferenceDataCache</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.cache.ReferenceDataCache</managed-bean-class>
-    <managed-bean-scope>application</managed-bean-scope>
-  </managed-bean>
-
-  <!-- UserBean, Scope:session -->
-  <managed-bean>
-    <managed-bean-name>UserBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.profile.UserBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  
-  <!-- ErrorHandlerBean, Scope:session -->
-  <managed-bean>
-    <managed-bean-name>ErrorHandlerBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.ErrorHandlerBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <!-- SearchBean, Scope:session -->
-  <managed-bean>
-    <managed-bean-name>SearchBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.search.SearchBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  
-  <managed-bean>
-    <managed-bean-name>DashboardBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.dashboard.DashboardBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  
-  <managed-bean>
-    <managed-bean-name>PropertyEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.configuration.PropertyEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>PropertyQueueBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.configuration.PropertyQueueBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>PackageEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.configuration.PackageEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>ClassEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.configuration.ClassEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>EnumerationEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.configuration.EnumerationEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>EnumerationQueueBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.configuration.EnumerationQueueBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>EnumerationEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.configuration.EnumerationEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>CampaignEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.campaign.CampaignEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>CampaignQueueBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.campaign.CampaignQueueBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>TaxonomyEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.administration.TaxonomyEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>TaxonomyMapEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.administration.TaxonomyMapEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>CategorizationEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.common.CategorizationEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>EmailBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.common.EmailBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>InstanceEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.data.InstanceEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-   
-  <managed-bean>
-    <managed-bean-name>PersonalizeQueueBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.data.PersonalizeQueueBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-   
-    <managed-bean>
-		<managed-bean-name>NavigationBean</managed-bean-name>
-		<managed-bean-class>org.cloudgraph.web.model.navigation.TreeNavigationBean</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-    <managed-bean>
-		<managed-bean-name>ControlNavigationBean</managed-bean-name>
-		<managed-bean-class>org.cloudgraph.web.model.navigation.ControlNavigationBean</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-    <managed-bean>
-		<managed-bean-name>OrganizationTreeBean</managed-bean-name>
-		<managed-bean-class>org.cloudgraph.web.model.navigation.OrganizationTreeBean</managed-bean-class>
-		<managed-bean-scope>session</managed-bean-scope>
-	</managed-bean>
-
-  <managed-bean>
-    <managed-bean-name>DataListBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.data.DataListBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>DocumentBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.documentation.DocumentBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>ChapterBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.documentation.ChapterBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>NewsBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.news.NewsBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>InstanceBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.common.InstanceBean</managed-bean-class>
-    <managed-bean-scope>request</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>DemoBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.demo.DemoBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>HBaseQueueBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.demo.HBaseQueueBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>GraphEditBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.demo.GraphEditBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>InstanceQueueBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.data.InstanceQueueBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
-  <managed-bean>
-    <managed-bean-name>InstanceBrowserQueueBean</managed-bean-name>
-    <managed-bean-class>org.cloudgraph.web.model.data.InstanceBrowserQueueBean</managed-bean-class>
-    <managed-bean-scope>session</managed-bean-scope>
-  </managed-bean>
 	<converter>
 	    <converter-id>PropertyConverter</converter-id>
 	    <converter-class>org.cloudgraph.web.converter.PropertyConverter</converter-class>
@@ -201,7 +25,7 @@
     <navigation-rule>
       <navigation-case>
         <from-outcome>errorhandler</from-outcome>
-        <to-view-id>/ErrorHandler.jsp</to-view-id>
+        <to-view-id>/ErrorHandler.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
 
@@ -209,115 +33,72 @@
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_documentation</from-outcome>
-        <to-view-id>/documentation/Documentation.jsp</to-view-id>
+        <to-view-id>/documentation/Documentation.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_download</from-outcome>
-        <to-view-id>/download/Download.jsp</to-view-id>
+        <to-view-id>/download/Download.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_demo</from-outcome>
-        <to-view-id>/demo/Demo.jsp</to-view-id>
+        <to-view-id>/demo/Demo.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_data</from-outcome>
-        <to-view-id>/data/Data.jsp</to-view-id>
+        <to-view-id>/data/Data.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_configuration</from-outcome>
-        <to-view-id>/configuration/Configuration.jsp</to-view-id>
+        <to-view-id>/configuration/Configuration.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_news</from-outcome>
-        <to-view-id>/news/News.jsp</to-view-id>
+        <to-view-id>/news/News.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_email</from-outcome>
-        <to-view-id>/email/Email.jsp</to-view-id>
+        <to-view-id>/email/Email.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_blog</from-outcome>
-        <to-view-id>/blog/Blog.jsp</to-view-id>
+        <to-view-id>/blog/Blog.jsf</to-view-id>
+      </navigation-case>
+    </navigation-rule>
+    <navigation-rule>
+      <navigation-case>
+        <from-outcome>topnav_contact</from-outcome>
+        <to-view-id>/contact/Contact.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>
       <navigation-case>
         <from-outcome>topnav_administration</from-outcome>
-        <to-view-id>/administration/Administration.jsp</to-view-id>
+        <to-view-id>/administration/Administration.jsf</to-view-id>
       </navigation-case>
     </navigation-rule>
     <navigation-rule>                                                                               
 	    <description></description>
 	    <navigation-case>                                                                           
 	        <from-outcome>edit_taxonomy</from-outcome>                                              
-	        <to-view-id>/administration/TaxonomyEdit.jsp</to-view-id>                      
+	        <to-view-id>/administration/TaxonomyEdit.jsf</to-view-id>                      
 	    </navigation-case>                                                                          
     </navigation-rule>                                                                              
     
-    <!-- non-anonymous nav actions -->                                                                            
-     <navigation-rule>                                                                               
-	    <description></description>
-	    <from-view-id>/data/Data.jsp</from-view-id>                        
-	    <navigation-case>                                                                           
-	        <from-outcome>edit</from-outcome>                                              
-	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
-	    </navigation-case>                                                                          
-	    <navigation-case>                                                                           
-	        <from-outcome>create</from-outcome>                                              
-	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
-	    </navigation-case>                                                                          
-    </navigation-rule>                                                                              
-    <navigation-rule>                                                                               
-	    <description></description>
-	    <from-view-id>/configuration/Configuration.jsp</from-view-id>                        
-	    <navigation-case>                                                                           
-	        <from-outcome>edit</from-outcome>                                              
-	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
-	    </navigation-case>                                                                          
-	    <navigation-case>                                                                           
-	        <from-outcome>create</from-outcome>                                              
-	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
-	    </navigation-case>                                                                          
-    </navigation-rule>                                                                              
-    <navigation-rule>                                                                               
-	    <description></description>
-	    <from-view-id>/administration/Administration.jsp</from-view-id>                        
-	    <navigation-case>                                                                           
-	        <from-outcome>edit</from-outcome>                                              
-	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
-	    </navigation-case>                                                                          
-	    <navigation-case>                                                                           
-	        <from-outcome>create</from-outcome>                                              
-	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
-	    </navigation-case>                                                                          
-    </navigation-rule>                                                                              
-    <navigation-rule>                                                                               
-	    <description></description>
-	    <from-view-id>/campaign/Campaign.jsp</from-view-id>                        
-	    <navigation-case>                                                                           
-	        <from-outcome>edit</from-outcome>                                              
-	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
-	    </navigation-case>                                                                          
-	    <navigation-case>                                                                           
-	        <from-outcome>create</from-outcome>                                              
-	        <to-view-id>/administration/Administration.jsp</to-view-id>                      
-	    </navigation-case>                                                                          
-    </navigation-rule>                                                                              
-
+ 
 
     <!-- ================ Custom Components =========================================== -->
     <component>

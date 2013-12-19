@@ -1,149 +1,51 @@
-<web-app version="2.5" 
-         xmlns="http://java.sun.com/xml/ns/javaee" 
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
   <display-name>CloudGraph Web</display-name>
   <description>
         NOTE:  This web-app, deployed within the dps.ear, uses the dps-core.war as a shared library
         and inherits its web.xml for common deployment settings (e.g. login-config). 
   </description>    
-  <context-param>
-    <param-name>saveStateInClient</param-name>
-    <param-value>false</param-value>
-  </context-param>
-  <context-param>
-    <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
-    <param-value>server</param-value>
-  </context-param>
-  <context-param>
-     <param-name>com.sun.faces.numberOfViewsInSession</param-name>
-     <param-value>2</param-value>
-  </context-param>
-  <context-param>
-	<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
-	<param-value>.jsp</param-value>
-  </context-param>
-  <context-param>
-    <param-name>tree.control.images</param-name>
-    <param-value>/images</param-value>
-  </context-param>
+    <context-param>  
+        <param-name>primefaces.THEME</param-name>  
+        <param-value>cupertino</param-value>  
+    </context-param>
+    <context-param>
+        <param-name>com.sun.faces.expressionFactory</param-name>
+        <param-value>com.sun.el.ExpressionFactoryImpl</param-value>
+    </context-param>     
+    <filter>
+        <filter-name>PrimeFaces FileUpload Filter</filter-name>
+        <filter-class>org.primefaces.webapp.filter.FileUploadFilter</filter-class>
+        <!-- 
+        <init-param>
+            <param-name>uploadDirectory</param-name>
+            <param-value>/temp_files</param-value>
+        </init-param>
+         -->
+    </filter>
+    <filter-mapping>
+        <filter-name>PrimeFaces FileUpload Filter</filter-name>
+        <servlet-name>Faces Servlet</servlet-name>
+    </filter-mapping>
+    <servlet>
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+      <servlet-name>ErrorServlet</servlet-name>    
+      <jsp-file>/Error.jsp</jsp-file>
+    </servlet>
+    <servlet>
+        <description>Used for the back door login for development purposes only.</description>
+        <servlet-name>LoginServlet</servlet-name>
+        <jsp-file>/Login.jsp</jsp-file>
+    </servlet>    
 
-  
-  <!--
-  <context-param>
-    <param-name>org.apache.myfaces.ALLOW_JAVASCRIPT</param-name>
-    <param-value>true</param-value>    
-  </context-param>
-  <context-param>
-    <param-name>org.apache.myfaces.DETECT_JAVASCRIPT</param-name>
-    <param-value>false</param-value>
-  </context-param>
-  <context-param>
-    <param-name>org.apache.myfaces.PRETTY_HTML</param-name>
-    <param-value>true</param-value>   
-  </context-param>
-  <context-param>
-    <param-name>org.apache.myfaces.AUTO_SCROLL</param-name>
-    <param-value>false</param-value>   
-  </context-param>
-  -->
-
-  <context-param>
-    <param-name>org.richfaces.SKIN</param-name>
-    <param-value>glassX</param-value>
-  </context-param>
-  <!--
-  <context-param>
-	<param-name>org.richfaces.CONTROL_SKINNING</param-name>
-	<param-value>enable</param-value>
-  </context-param>  
-  --> 
-  
-  <filter> 
-    <display-name>RichFaces Filter</display-name> 
-    <filter-name>richfaces</filter-name> 
-    <filter-class>org.ajax4jsf.Filter</filter-class> 
-    <init-param>
-    	<param-name>forceparser</param-name>
-    	<param-value>false</param-value>
-    </init-param> 
-  </filter>
-
-  <!--
-  <filter>
-    <filter-name>MyFacesExtensionsFilter</filter-name>
-    <filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
-    <init-param>
-      <param-name>maxFileSize</param-name>
-      <param-value>20m</param-value>      
-    </init-param>
-  </filter>
-  -->
-  
-  <filter-mapping> 
-    <filter-name>richfaces</filter-name> 
-    <servlet-name>Faces Servlet</servlet-name>
-    <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
-    <dispatcher>INCLUDE</dispatcher>
-  </filter-mapping> 
-  
-  <!--
-  <filter-mapping>
-    <filter-name>MyFacesExtensionsFilter</filter-name>
-    <url-pattern>/faces/*</url-pattern>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>MyFacesExtensionsFilter</filter-name>
-    <url-pattern>*.faces</url-pattern>
-  </filter-mapping>
-  <listener>
-      <listener-class>org.apache.myfaces.webapp.StartupServletContextListener</listener-class>
-  </listener>
-  -->
-  <listener>
-    <listener-class>com.sun.faces.config.ConfigureListener</listener-class>
-  </listener>
-  
-	
-  
-  <servlet>
-    <servlet-name>Faces Servlet</servlet-name>
-    <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-  </servlet> 
-  <servlet>
-    <servlet-name>ErrorServlet</servlet-name>    
-    <jsp-file>/Error.jsp</jsp-file>
-  </servlet>
-	<servlet>
-		<description>Used for the back door login for development purposes only.</description>
-		<servlet-name>LoginServlet</servlet-name>
-		<jsp-file>/Login.jsp</jsp-file>
-	</servlet>    
-
-  <!-- extension mapping -->
-  <servlet-mapping>
-      <servlet-name>Faces Servlet</servlet-name>
-      <url-pattern>*.faces</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Faces Servlet</servlet-name>
-    <url-pattern>/faces/*</url-pattern>
-  </servlet-mapping>  
-  <servlet-mapping>
-      <servlet-name>Faces Servlet</servlet-name>
-      <url-pattern>*.xhtml</url-pattern>
-  </servlet-mapping>
-  <servlet-mapping>
-    <servlet-name>Faces Servlet</servlet-name>
-    <url-pattern>/xhtml/*</url-pattern>
-  </servlet-mapping>  
-  <servlet-mapping>
-    <servlet-name>ErrorServlet</servlet-name>
-    <url-pattern>/error</url-pattern>
-  </servlet-mapping>
-   
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>LoginServlet</servlet-name>
 		<url-pattern>/login</url-pattern>
@@ -152,12 +54,16 @@
 	<session-config>
 		<session-timeout>30</session-timeout>
 	</session-config>
+	
+	<!-- CRITICAL: that welcome file does not contain a '/' in front as goofs ajax requests with incorrect URL-->
 	<welcome-file-list>
-		<welcome-file>/documentation/Documentation.faces</welcome-file>
+		<welcome-file>documentation/Documentation.jsf</welcome-file>
 	</welcome-file-list>
+	
+    <!-- CRITICAL: error page location MUST start with a '/' or tomcat will barf on startup -->	
     <error-page>
         <exception-type>javax.faces.application.ViewExpiredException</exception-type>
-        <location>/documentation/Documentation.faces</location>
+        <location>/documentation/Documentation.jsf</location>
     </error-page>	
       
 	<security-constraint>

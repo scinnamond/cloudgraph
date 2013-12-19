@@ -92,7 +92,7 @@ public class PaymentRequestExample extends HL7Test {
     	contactPerson.setName("Albert Dunhurst");
     	contactPerson.setClassCode("PSN");
     	contactPerson.setDeterminerCode("INSTANCE");
-    	contactPerson.setTelecom("(540)364-2293");
+    	contactPerson.setTelecom("364-2293");
     	
     	PaymentRequestReason paymentReason = paymentRequest.createReasonOf();
     	paymentReason.setTypeCode("RSON");

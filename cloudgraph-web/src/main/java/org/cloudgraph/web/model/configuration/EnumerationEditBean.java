@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.faces.application.FacesMessage;
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
+import javax.faces.event.ActionEvent;
 import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +40,8 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
+@ManagedBean(name="EnumerationEditBean")
+@SessionScoped
 public class EnumerationEditBean extends ModelBean {
 	private static final long serialVersionUID = 1L;
 	private static Log log = LogFactory.getLog(EnumerationEditBean.class);
@@ -69,6 +74,10 @@ public class EnumerationEditBean extends ModelBean {
 		create();
 		return null; // maintains AJAX happyness
 	}
+	
+	public void create(ActionEvent event) {
+		create();
+	}
 
 	public String create() {
     	BeanFinder beanFinder = new BeanFinder();
@@ -100,6 +109,10 @@ public class EnumerationEditBean extends ModelBean {
 		edit();
 		return null; // maintains AJAX happyness
 	}
+	
+	public void edit(ActionEvent event) {
+		edit();
+	}
 
 	public String edit() {
     	BeanFinder beanFinder = new BeanFinder();
@@ -123,6 +136,10 @@ public class EnumerationEditBean extends ModelBean {
 		save();
 		return null; // maintains AJAX happyness
 	}
+	
+	public void save(ActionEvent event) {
+		save();
+	}
     	
 	public String save() {
     	BeanFinder beanFinder = new BeanFinder();
@@ -133,11 +150,15 @@ public class EnumerationEditBean extends ModelBean {
 		    SDODataAccessClient service = new SDODataAccessClient();
 	        service.commit(this.enumeration.getDataGraph(), 
 		    	beanFinder.findUserBean().getName());
+	        FacesMessage msg = new FacesMessage("Saved Successfully");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
 	        beanFinder.findReferenceDataCache().expireEnumerations();
 	        clear();
             return AppActions.SAVE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
+	        FacesMessage msg = new FacesMessage("Internal Error");  	       
+	        FacesContext.getCurrentInstance().addMessage(null, msg);  
             errorHandler.setError(t);
             errorHandler.setRecoverable(false);
             return AppActions.ERRORHANDLER.value();
@@ -145,6 +166,10 @@ public class EnumerationEditBean extends ModelBean {
         }       
     }	
         
+	public void exit(ActionEvent event) {
+		exit();
+	}
+	
     public String exit() {
     	try {
     		this.enumeration.getDataGraph().getChangeSummary().endLogging(); // wipe any changes 
@@ -157,7 +182,11 @@ public class EnumerationEditBean extends ModelBean {
         return null;
     }
     
-    public void clear() {
+	public void clear(ActionEvent event) {
+		clear();
+	}
+
+	public void clear() {
     	try {
 
         } catch (Throwable t) {

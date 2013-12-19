@@ -81,57 +81,31 @@ public class RDBDataConverter {
 	public Object fromJDBCDataType(ResultSet rs, int columnIndex,
 			int sourceType, PlasmaProperty targetProperty) throws SQLException {
 
-		Object result = null;
-		if (targetProperty.getType().isDataType()) {
-		    result = convertFrom(rs, columnIndex, sourceType, targetProperty);	
-		} else {
-		    Property pkProp = getOppositePriKeyProperty(targetProperty);
-		    result = convertFrom(rs, columnIndex, sourceType, pkProp);	
-		}
-
+		Object result = convertFrom(rs, columnIndex, sourceType, targetProperty);	 
 		return result;
 	}
 	
 	public int toJDBCDataType(PlasmaProperty sourceProperty, Object value)
 			throws SQLException {
 
-		int result;
-
-		if (sourceProperty.getType().isDataType()) {
-			result = convertToSqlType(sourceProperty, value);
-		} else {
-		    Property pkProp = getOppositePriKeyProperty(sourceProperty);
-			result = convertToSqlType(pkProp, value);
-		}
+		int result = convertToSqlType(sourceProperty, value);;
 		return result;
 	}
 	
 	public Object toJDBCDataValue(PlasmaProperty sourceProperty, Object value)
 			throws SQLException {
 
-		Object result;
-		if (sourceProperty.getType().isDataType()) {
-			result = convertToSqlValue(sourceProperty, value);
-		} else {
-			Property pkProp = getOppositePriKeyProperty(sourceProperty);
-			if (value instanceof DataObject) {
-			    DataObject dataObject = (DataObject)value;
-			    Object pk = dataObject.get(pkProp);
-			    result = convertToSqlValue(pkProp, pk);
-			}
-			else {
-				 result = convertToSqlValue(pkProp, value);
-			}
-		}
+		Object result = convertToSqlValue(sourceProperty, value);
+		
 		return result;
 	}
 	
 	public DataFlavor toJDBCDataFlavor(PlasmaProperty sourceProperty)
 	{
+		if (!sourceProperty.getType().isDataType())
+			throw new IllegalArgumentException("expected data type property, not " +
+					sourceProperty.toString());
 		PlasmaProperty dataProperty = sourceProperty;
-		if (!sourceProperty.getType().isDataType()) {
-			dataProperty = (PlasmaProperty)getOppositePriKeyProperty(sourceProperty);
-		}
     	return dataProperty.getDataFlavor();
 	}
 
@@ -302,28 +276,7 @@ public class RDBDataConverter {
 		}
 		return result;
 	}
-
 	
-	private Property getOppositePriKeyProperty(Property targetProperty) {
-    	PlasmaProperty opposite = (PlasmaProperty)targetProperty.getOpposite();
-    	if (opposite == null)
-	    	throw new DataAccessException("no opposite property found"
-		        + " - cannot map from reference property, "
-		        + targetProperty.getType() + "." + targetProperty.getName());			    				    	
-		List<Property> pkeyProps = ((PlasmaType)opposite.getContainingType()).findProperties(KeyType.primary);
-	    if (pkeyProps.size() == 0)
-	    	throw new DataAccessException("no opposite pri-key properties found"
-			        + " - cannot map from reference property, "
-			        + targetProperty.getType() + "." + targetProperty.getName());			    				    	
-	    else if (pkeyProps.size() > 1)	
-	    	throw new DataAccessException("multiple opposite pri-key properties found"
-			        + " - cannot map from reference property, "
-			        + targetProperty.getType() + "." + targetProperty.getName());	
-	    Property pkProp = pkeyProps.get(0);
-	    return pkProp;
-		
-	}
-		
 	private Object convertFrom(ResultSet rs, int columnIndex,
 			int sourceType, Property property) throws SQLException {
 		Object result = null;
@@ -364,23 +317,25 @@ public class RDBDataConverter {
 			}
 			else if (sourceType == Types.BLOB) {
 				Blob blob = rs.getBlob(columnIndex);
-				long blobLen = blob.length(); // for debugging
-				// Note: blob.getBytes(columnIndex, blob.length()); is somehow truncating the array
-				// by something like 14 bytes (?!!) even though blob.length() returns the expected length
-				// using getBinaryStream which is preferred anyway
-				InputStream is = blob.getBinaryStream();
-				try {
-					byte[] bytes = IOUtils.toByteArray(is);
-					long len = bytes.length; // for debugging 
-					result = bytes;
-				} catch (IOException e) {
-					throw new RDBServiceException(e);
-				}
-				finally {
+				if (blob != null) {
+					long blobLen = blob.length(); // for debugging
+					// Note: blob.getBytes(columnIndex, blob.length()); is somehow truncating the array
+					// by something like 14 bytes (?!!) even though blob.length() returns the expected length
+					// using getBinaryStream which is preferred anyway
+					InputStream is = blob.getBinaryStream();
 					try {
-						is.close();
+						byte[] bytes = IOUtils.toByteArray(is);
+						long len = bytes.length; // for debugging 
+						result = bytes;
 					} catch (IOException e) {
-						log.error(e.getMessage(), e);
+						throw new RDBServiceException(e);
+					}
+					finally {
+						try {
+							is.close();
+						} catch (IOException e) {
+							log.error(e.getMessage(), e);
+						}
 					}
 				}
 			}
@@ -414,11 +369,13 @@ public class RDBDataConverter {
 			break;
 		case Strings:
 			String value = rs.getString(columnIndex);
-			String[] values = value.split("\\s");
-			List<String> list = new ArrayList<String>(values.length);
-			for (int i = 0; i < values.length; i++)
-				list.add(values[i]); // what no Java 5 sugar for this ??
-			result = list;
+			if (value != null) {
+				String[] values = value.split("\\s");
+				List<String> list = new ArrayList<String>(values.length);
+				for (int i = 0; i < values.length; i++)
+					list.add(values[i]); // what no Java 5 sugar for this ??
+				result = list;
+			}
 			break;
 		case Object:
 		default:

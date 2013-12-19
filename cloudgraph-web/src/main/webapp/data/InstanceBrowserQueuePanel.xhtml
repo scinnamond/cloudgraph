@@ -1,0 +1,66 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>                                                        
+  <p:dialog modal="true" id="instBrowsePanel"  width="340">
+        <f:facet name="header">
+            <h:outputText value="Create/Edit List Value" 
+                style="padding-right:15px;"/>
+        </f:facet>
+    
+                                                                                                                                            
+  <h:form id="instBrowseForm">         
+	  <h:panelGrid id="inst_brs_queue_dtbl_pnl" rowClasses="AlignCenter" columns="1" border="0">                                                            
+	  <p:dataTable id="inst_brs_queue_dtbl" 
+	      var="item" 
+	      value="#{InstanceBrowserQueueBean.data}"
+	      rows="#{InstanceBrowserQueueBean.maxRows}">                                                                        
+	
+	      <p:columns value="#{InstanceBrowserQueueBean.properties}" 
+	          var="columns"
+	          index="ind" sortBy="#{item.data[ind]}">
+	         
+	          <f:facet name="header">
+	              <h:outputText value="#{columns.name}" />
+	          </f:facet>
+	    
+	          <h:outputText value="#{item.data[ind]} " />
+	       </p:columns>
+		   <p:column id="actionsColumn">                                                                                                                              
+		        <p:commandLink 
+		            title="select this item">                                                                               
+		            <h:outputText value="select"                                                                   
+		                title="select this item"/>                                                                         
+		        </p:commandLink>                                                                                                                    
+		   </p:column>  
+	                                                                                                                                                             
+	    </p:dataTable>                                                                                                                          
+	  </h:panelGrid> 
+    <h:panelGrid columns="2" width="50%" border="0"
+        cellpadding="2" cellspacing="2"> 
+        <p:commandButton id="instBrowsePanel_create_button" 
+            value="    Ok    " 
+            action="#{InstanceEditBean.save}"
+            ajaxSingle="false"
+            update="instBrowseForm,#{InstanceEditBean.saveActionReRender}"
+            oncomplete="javascript:closeLiteralPanel()">
+        </p:commandButton> 
+        <p:commandButton id="instBrowsePanel_cancel_button" value="Cancel"
+            immediate="true"
+            action="#{InstanceEditBean.cancelSelectInstance}"
+            onclick="Richfaces.hideModalPanel('instBrowsePanel');">
+        </p:commandButton> 
+    </h:panelGrid>
+  </h:form>
+  </p:dialog>
+ </ui:composition>
+</body>
+</html>

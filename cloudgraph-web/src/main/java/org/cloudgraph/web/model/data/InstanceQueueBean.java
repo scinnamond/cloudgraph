@@ -8,24 +8,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
 
-import org.ajax4jsf.model.DataVisitor;
-import org.ajax4jsf.model.Range;
-import org.ajax4jsf.model.SequenceRange;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.ErrorHandlerBean;
 import org.cloudgraph.web.config.web.AppActions;
 import org.cloudgraph.web.model.cache.ReferenceDataCache;
 import org.cloudgraph.web.model.common.CategorizedPropertySupport;
+import org.cloudgraph.web.model.common.PaginatedQueueBean;
 import org.cloudgraph.web.model.common.PropertySelector;
-import org.cloudgraph.web.model.common.QueueBean;
 import org.cloudgraph.web.model.configuration.PropertyItem;
 import org.cloudgraph.web.model.search.SearchBean;
 import org.cloudgraph.web.query.InstanceSpecificationQuery;
 import org.cloudgraph.web.sdo.adapter.InstanceSpecificationQueueAdapter;
 import org.cloudgraph.web.sdo.adapter.PropertyAdapter;
+import org.cloudgraph.web.sdo.adapter.PropertyViewAdapter;
+import org.cloudgraph.web.sdo.adapter.QueueAdapter;
+import org.cloudgraph.web.sdo.core.PropertyView;
 import org.cloudgraph.web.sdo.meta.InstanceSpecification;
 import org.cloudgraph.web.sdo.meta.Property;
 import org.cloudgraph.web.util.BeanFinder;
@@ -33,6 +35,7 @@ import org.plasma.query.Query;
 import org.plasma.sdo.access.client.SDODataAccessClient;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
+import org.primefaces.model.SortOrder;
 
 import commonj.sdo.DataGraph;
 import commonj.sdo.helper.XMLDocument;
@@ -40,14 +43,19 @@ import commonj.sdo.helper.XMLDocument;
 
 /**
  */
-public class InstanceQueueBean extends QueueBean 
+@ManagedBean(name="InstanceQueueBean")
+@SessionScoped
+public class InstanceQueueBean extends PaginatedQueueBean 
     implements PropertySelector
 {
 	private static final long serialVersionUID = 1L;
 
 	private static Log log =LogFactory.getLog(InstanceQueueBean.class);
+    private BeanFinder beanFinder = new BeanFinder();
 
     private CategorizedPropertySupport propertySupport;
+    protected SDODataAccessClient service;
+    protected InstanceSpecificationQueueAdapter selectedInstance;
 	
     protected ReferenceDataCache cache;     
 	private String saveActionReRender;
@@ -56,8 +64,22 @@ public class InstanceQueueBean extends QueueBean
     	this.cache = this.beanFinder.findReferenceDataCache();
     	this.cache.getInventoryPerspectiveModel(); // cache/load this
     	this.propertySupport = new CategorizedPropertySupport(this);
+    	this.service = new SDODataAccessClient();
     }
     
+	public InstanceSpecificationQueueAdapter getSelectedInstance() {
+		return selectedInstance;
+	}
+
+	public void setSelectedInstance(
+			InstanceSpecificationQueueAdapter selectedInstance) {
+		this.selectedInstance = selectedInstance;
+	}
+	
+	public boolean getHasSelectedInstance() {
+		return this.selectedInstance != null;
+	}	
+
 	public String getSaveActionReRender() {
 		return saveActionReRender;
 	}
@@ -75,7 +97,7 @@ public class InstanceQueueBean extends QueueBean
     	BeanFinder beanFinder = new BeanFinder();
         ErrorHandlerBean errorHandler = beanFinder.findErrorHandlerBean();
         try {
-        	this.data = null; 
+        	//this.data = null; 
             return AppActions.SAVE.value();
         } catch (Throwable t) {
             log.error(t.getMessage(), t);
@@ -105,7 +127,7 @@ public class InstanceQueueBean extends QueueBean
     }
         
     public void clear() {
-    	this.data.clear();
+    	super.clear();
     	this.propertySupport.clear();
 		SearchBean search = this.beanFinder.findSearchBean();
 		this.beanFinder.findReferenceDataCache().expireProperties(search.getClazzId());
@@ -170,35 +192,32 @@ public class InstanceQueueBean extends QueueBean
     
 	public Query getQuery() {
     	SearchBean searchBean = this.beanFinder.findSearchBean();
-    	Query query = InstanceSpecificationQuery.createQueueQueryByClassId(searchBean.getClazzId()); ;
+    	Query query = InstanceSpecificationQuery.createQueueQueryByClassId(searchBean.getClazzId());  
         return query; 
     }
 	
-    public List<Object> getData() {
-    	if (this.data == null || this.data.size() == 0) {
-			this.data = new ArrayList<Object>();
+    public List<InstanceSpecificationQueueAdapter> getData() {
+    	List<InstanceSpecificationQueueAdapter> data = new ArrayList<InstanceSpecificationQueueAdapter>();
 		    try {
 		    	Query qry = getQuery();
 		    			    	
-		    	SDODataAccessClient service = new SDODataAccessClient();
 		    	DataGraph[] results = service.find(qry);
 		    	
 		        for (int i = 0; i < results.length; i++) {
 		        	InstanceSpecification instance = (InstanceSpecification)results[i].getRootObject();
-		        	log.info("queue instance: " + instance.dump());
-		        	String xml = serializeGraph(results[i]);
-		        	log.info("list xml: " + xml); 
+		        	if (log.isDebugEnabled()) {
+		        	    String xml = serializeGraph(results[i]);
+		        	    log.debug("list xml: " + xml);
+		        	}
 		        	InstanceSpecificationQueueAdapter adapter = new InstanceSpecificationQueueAdapter(
 		        		instance, getProperties(), 1, 2);
 		        	data.add(adapter);
-		        	wrappedData.put(new Integer(i), adapter); // assumes flat results set
 		        }
 		    }   
 		    catch (Throwable t) {
 		    	log.error(t.getMessage(), t);
 		    }
-    	}
-    	return this.data;
+		    return data;
     }
     
     protected String serializeGraph(DataGraph graph) throws IOException
@@ -218,60 +237,6 @@ public class InstanceQueueBean extends QueueBean
         return xml;
     }
     
-    /**
-     * This is main part of Visitor pattern. Method called by framework many times
-     * during request processing. 
-     */
-    public void walk(FacesContext context, DataVisitor visitor, Range range, Object argument)
-       throws IOException {
-        int firstRow = ((SequenceRange)range).getFirstRow();
-        int numberOfRows = ((SequenceRange)range).getRows();
-		int lastRow = Math.min(firstRow + numberOfRows, getRowCount());
-		log.debug("walk from: " + firstRow + " to " + lastRow);
-		
-		boolean alreadyRead = true;
-		for (int i = firstRow; i < lastRow; i++)
-		{
-			if (wrappedData.get(new Integer(i)) == null)
-			{
-				alreadyRead = false;
-				break;
-			}
-		}
-		
-		if (alreadyRead)
-		{
-			log.debug("Rows " + firstRow + " Thru " + lastRow + " Found In Cache");
-		}
-		else
-//		if (!alreadyRead)
-		{
-			log.debug("Read DB For Rows " + firstRow + " Thru " + lastRow);
-		    try {
-		    	Query qry = getQuery();
-		    	
-		    	qry.setStartRange(firstRow);
-		    	qry.setEndRange(firstRow + numberOfRows);
-		    	
-		    	SDODataAccessClient service = new SDODataAccessClient();
-		    	DataGraph[] results = service.find(qry);
-		    	
-		        for (int i = 0; i < results.length; i++) {
-		        	InstanceSpecificationQueueAdapter adapter = new InstanceSpecificationQueueAdapter(
-		        			(InstanceSpecification)results[i].getRootObject(),
-		        			getProperties(), 1, 2);
-		        	data.add(adapter);
-		        	wrappedData.put(new Integer(i+firstRow), adapter); // assumes flat results set
-		        }
-		    }   
-		    catch (Throwable t) {
-		    	log.error(t.getMessage(), t);
-		    }
-		}
-		
-		for (int i = firstRow; i < lastRow; i++)
-			visitor.process(context, new Integer(i), argument);
-    }
 	 
     // FIXME: these maps need to be personalizations
 	private Map<Long,List<PropertyItem>> availablePropertiesMap = new HashMap<Long,List<PropertyItem>>();
@@ -332,5 +297,34 @@ public class InstanceQueueBean extends QueueBean
 	    	}
 	    }
 		return false;
+	}
+
+	@Override
+	public List<QueueAdapter> findResults(int startRow, int endRow,
+			String sortField, SortOrder sortOrder, Map<String, String> filters) {
+    	Query qry = getQuery();
+    	
+    	DataGraph[] graphs = service.find(qry);
+    	
+    	List<QueueAdapter> results = new ArrayList<QueueAdapter>();
+        for (int i = 0; i < graphs.length; i++) {
+        	InstanceSpecification instance = (InstanceSpecification)graphs[i].getRootObject();
+       	    InstanceSpecificationQueueAdapter adapter = new InstanceSpecificationQueueAdapter(
+	        		instance, getProperties(), 1, 2);
+       	    adapter.setIndex(i);
+        	results.add(adapter);
+        	if (log.isDebugEnabled())
+        	try {
+				log.debug(this.serializeGraph(instance.getDataGraph()));
+			} catch (IOException e) {
+			}
+        }
+        return results;
+	}
+
+	@Override
+	public int countResults() {
+    	Query qry = getQuery();
+    	return service.count(qry);
 	}
 }

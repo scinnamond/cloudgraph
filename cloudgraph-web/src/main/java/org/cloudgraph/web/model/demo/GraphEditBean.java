@@ -1,5 +1,8 @@
 package org.cloudgraph.web.model.demo;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.ErrorHandlerBean;
@@ -14,12 +17,12 @@ import org.plasma.query.model.Select;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.access.client.HBasePojoDataAccessClient;
 import org.plasma.sdo.access.client.SDODataAccessClient;
-import org.richfaces.component.UITree;
-import org.richfaces.component.html.HtmlTree;
-import org.richfaces.model.ListRowKey;
+import org.primefaces.event.SelectEvent;
 
 import commonj.sdo.DataGraph;
 
+@ManagedBean(name="GraphEditBean")
+@SessionScoped
 public class GraphEditBean extends ModelBean{
 
 	private static Log log = LogFactory.getLog(GraphEditBean.class);
@@ -28,9 +31,9 @@ public class GraphEditBean extends ModelBean{
 	// this initialization hack makes RichFaces tree find it's tree state and
 	// be happy and not blow up even though the tree is not yet displayed 
 	private GraphTreeBean graphTree = new GraphTreeBean();
-	private UITree selectedGraphUITree;
+	//private UITree selectedGraphUITree;
 	private DynamicTreeNodeModel selectedDataObjectNode;
-	private ListRowKey selectedDataObjectListRowKey;
+	//private ListRowKey selectedDataObjectListRowKey;
 	private DataObjectAdapter selectedDataObject;
 	private long selectedDataObjectSeqId;
 	private DataGraph toDeleteDataObjectGraph;
@@ -172,14 +175,14 @@ public class GraphEditBean extends ModelBean{
     	return this.exportXML;
     }
     
-    public boolean dataObjectSelectListener(org.richfaces.event.NodeSelectedEvent event) {
+    public boolean dataObjectSelectListener(SelectEvent event) {
     	try {
-    		HtmlTree tree = (HtmlTree)event.getSource();	
-    		this.selectedGraphUITree = tree;
-    		this.selectedDataObjectListRowKey = (ListRowKey)tree.getRowKey();
-	        this.selectedDataObjectNode = (DynamicTreeNodeModel)tree.getTreeNode(this.selectedDataObjectListRowKey);
-	        this.selectedDataObject = new DataObjectAdapter((commonj.sdo.DataObject)selectedDataObjectNode.getUserData());
-	        this.toDeleteDataObjectGraph = null;
+    		//HtmlTree tree = (HtmlTree)event.getSource();	
+    		//this.selectedGraphUITree = tree;
+    		//this.selectedDataObjectListRowKey = (ListRowKey)tree.getRowKey();
+	        //this.selectedDataObjectNode = (DynamicTreeNodeModel)tree.getTreeNode(this.selectedDataObjectListRowKey);
+	        //this.selectedDataObject = new DataObjectAdapter((commonj.sdo.DataObject)selectedDataObjectNode.getUserData());
+	        //this.toDeleteDataObjectGraph = null;
     	}
     	catch (Throwable t) {
     		log.error(t.getMessage(), t);
@@ -212,7 +215,7 @@ public class GraphEditBean extends ModelBean{
 	    this.selectedGraph = (DataGraph)results[0].getRootObject();
 	
 	    this.selectedDataObject = null;
-	    this.selectedDataObjectListRowKey = null;
+	    //this.selectedDataObjectListRowKey = null;
 	    this.selectedDataObjectNode = null;
 	    this.toDeleteDataObjectGraph = null;		
 	}

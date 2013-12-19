@@ -1,0 +1,105 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<html lang="en"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<body>
+<ui:composition>
+<h:panelGrid id="perspectives_panel" columns="1" width="100%" border="0">
+    <h:dataTable id="perspective_table" width="95%" border="0"
+        var="tax" value="#{PropertyEditBean.perspectives}">
+ 	    <h:column>
+ 	        <p:dataTable 
+ 	            id="tax_sub_table"
+	            var="categorization" value="#{tax.categorizations}">
+	          <f:facet name="header">
+	              <h:outputText value="#{tax.name} (#{tax.version})" />
+	          </f:facet>  
+              <p:column>
+                  <f:facet name="header">
+                      <h:outputText value="Code" />
+                  </f:facet>  
+                  <h:outputText value="#{categorization.parentCategoryId}:#{categorization.categoryId}" />                 
+              </p:column>
+              <p:column>
+                  <f:facet name="header">
+                      <h:outputText value="Parent Category Name" />
+                  </f:facet>  
+                  <h:outputText value="#{categorization.parentCategoryName}" />                 
+              </p:column>
+	 	      <p:column>
+	              <f:facet name="header">
+	                  <h:outputText value="Category Name" />
+	              </f:facet>  
+	              <h:outputText value="#{categorization.categoryName}" />	              
+		      </p:column>
+	          <p:column
+	              rendered="true">
+                  <f:facet name="header">
+                      <h:outputText value="Actions" />
+                  </f:facet>  
+                  <p:commandLink id="edit_catz_link" 
+                      value="edit"
+                      action="#{CategorizationEditBean.edit}"        
+                      oncomplete="createEditCategorizationPanel_wgt.show()"
+                      update=":admin_form">
+                      <f:setPropertyActionListener value="#{PropertyEditBean.propertyDataObject}"   
+                            target="#{CategorizationEditBean.target}" />                                           
+                      <f:setPropertyActionListener value="#{categorization}"   
+                            target="#{CategorizationEditBean.categorization}" />                                              
+                      <f:setPropertyActionListener value="#{tax}"   
+                            target="#{CategorizationEditBean.taxonomy}" />                                           
+                      <f:setPropertyActionListener value=":admin_form:prpty_edt_tv:perspective_table"   
+                            target="#{CategorizationEditBean.saveActionReRender}" />                                            
+                  </p:commandLink>    
+                  <f:verbatim>&nbsp;</f:verbatim>
+                  <p:commandLink id="delete_catz_link" 
+                      value="delete"
+                      action="#{CategorizationEditBean.delete}"      
+                      update=":admin_form">
+                      <f:setPropertyActionListener value="#{PropertyEditBean.propertyDataObject}"   
+                            target="#{CategorizationEditBean.target}" />                                           
+                      <f:setPropertyActionListener value="#{categorization}"   
+                            target="#{CategorizationEditBean.categorization}" />                                              
+                      <f:setPropertyActionListener value="#{tax}"   
+                            target="#{CategorizationEditBean.taxonomy}" />                                           
+                  </p:commandLink>    
+              </p:column>
+	 	      <p:column>
+	              <f:facet name="header">
+	                  <h:outputText value="Category Definition" />
+	              </f:facet>  
+	              <h:outputText value="#{categorization.categoryDefinition}" />	              
+		      </p:column>
+	       </p:dataTable>
+	       
+		   <h:panelGrid columns="2" width="10%" border="0">
+               <p:commandButton 
+                    rendered="true"
+				    value="#{bundle.aplsPropertyEdit_addCategorization_label}"
+				    title="#{bundle.aplsPropertyEdit_addCategorization_tooltip}" 
+				    action="#{CategorizationEditBean.create}"	    
+			        oncomplete="createEditCategorizationPanel_wgt.show()"
+			        update=":admin_form">
+			        <f:setPropertyActionListener value="#{PropertyEditBean.propertyDataObject}"   
+				            target="#{CategorizationEditBean.target}" />                      	                    
+                    <f:setPropertyActionListener value="#{tax}"   
+                            target="#{CategorizationEditBean.taxonomy}" />                                           
+			        <f:setPropertyActionListener value=":admin_form:prpty_edt_tv:perspective_table"   
+				            target="#{CategorizationEditBean.saveActionReRender}" />                      	                    
+				</p:commandButton>    
+		   </h:panelGrid>
+           <f:verbatim><p></p></f:verbatim>   
+	    </h:column>
+
+    </h:dataTable>   
+    
+</h:panelGrid> 	
+</ui:composition>
+</body>
+</html>

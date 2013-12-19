@@ -22,11 +22,17 @@ public class LoginCallbackHandler implements CallbackHandler {
     super();
     this.username = name;
     this.password = password;
+    if (this.username == null)
+    	throw new IllegalArgumentException("expected username argument");
+    if (this.password == null)
+    	throw new IllegalArgumentException("expected password argument");
   }
  
   public LoginCallbackHandler( String password) {
     super();
     this.password = password;
+    if (this.password == null)
+    	throw new IllegalArgumentException("expected password argument");
   }
  
   private String password;

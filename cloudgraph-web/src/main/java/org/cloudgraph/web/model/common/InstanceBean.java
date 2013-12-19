@@ -3,6 +3,10 @@ package org.cloudgraph.web.model.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.faces.bean.ManagedBean;
+import javax.faces.bean.RequestScoped;
+import javax.faces.bean.SessionScoped;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.web.model.ModelBean;
@@ -16,6 +20,8 @@ import org.plasma.sdo.access.client.SDODataAccessClient;
 
 import commonj.sdo.DataGraph;
 
+@ManagedBean(name="InstanceBean")
+@RequestScoped
 public class InstanceBean extends ModelBean 
 {
 	private static final long serialVersionUID = 1L;

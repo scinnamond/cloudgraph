@@ -36,12 +36,13 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.rdb.filter.FilterAssembler;
-import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.collector.SelectionCollector;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaDataGraph;
+import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -52,8 +53,6 @@ import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
 import org.plasma.sdo.core.TraversalDirection;
 import org.plasma.sdo.helper.PlasmaDataFactory;
-import org.plasma.sdo.helper.PlasmaDataHelper;
-import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.plasma.sdo.profile.KeyType;
 
 import commonj.sdo.DataGraph;
@@ -66,6 +65,7 @@ public class GraphAssembler extends JDBCSupport
 
     private static Log log = LogFactory.getLog(GraphAssembler.class);
 	private static Set<Property> EMPTY_PROPERTY_SET = new HashSet<Property>();
+	private static List<DataObject> EMPTY_DATA_OBJECT_LIST = new ArrayList<DataObject>();
 	private PlasmaType rootType;
 	private PlasmaDataObject root;
     private SelectionCollector collector;
@@ -73,9 +73,6 @@ public class GraphAssembler extends JDBCSupport
 	private Connection con;
 	private Map<Integer, PlasmaDataObject> dataObjectMap = new HashMap<Integer, PlasmaDataObject>();
 	private Comparator<PropertyPair> nameComparator;
-	// FIXME: local hash to capture traversal direction for properties since existing traversal 
-	// property map contains no traversal direction info
-	private HashSet<PlasmaProperty> rightTraversalProperties = new HashSet<PlasmaProperty>();
 	
 	@SuppressWarnings("unused")
 	private GraphAssembler() {}
@@ -108,6 +105,8 @@ public class GraphAssembler extends JDBCSupport
 	 */
 	public void assemble(List<PropertyPair> results) throws SQLException {
 		
+    	long before = System.currentTimeMillis();
+
     	DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
     	this.root = (PlasmaDataObject)dataGraph.createRootObject(this.rootType);		
 		if (log.isDebugEnabled())
@@ -165,9 +164,16 @@ public class GraphAssembler extends JDBCSupport
 				List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
 				List<Property> rootPkProps = ((PlasmaType)root.getType()).findProperties(KeyType.primary);
 			    if (rootPkProps.size() == 1) {
-			    	childKeyProps.add(
-			    		new PropertyPair(opposite,
-			    				root.get(rootPkProps.get(0))));
+			    	PlasmaProperty rootProp = (PlasmaProperty)rootPkProps.get(0);
+			    	Object value = root.get(rootProp);
+			    	if (value != null) {
+			    		PropertyPair pair = new PropertyPair(opposite, value);
+			    		pair.setValueProp(rootProp);
+			    	    childKeyProps.add(pair);
+			    	}
+			    	else
+			    		throw new GraphServiceException("no value found for key property, "  
+			    				+ rootProp.toString());
 			    }
 			    else
 				    throwPriKeyError(rootPkProps, 
@@ -177,6 +183,22 @@ public class GraphAssembler extends JDBCSupport
 						childKeyProps, 1);
 			}
 		}
+		
+    	long after = System.currentTimeMillis();
+    	
+    	rootNode.getValueObject().put(
+    		CloudGraphConstants.GRAPH_ASSEMBLY_TIME,
+    		Long.valueOf(after - before));    	
+    	
+    	GraphMetricVisitor visitor = new GraphMetricVisitor();
+    	this.root.accept(visitor);
+    	
+    	rootNode.getValueObject().put(
+        		CloudGraphConstants.GRAPH_NODE_COUNT,
+        		Long.valueOf(visitor.getCount()));
+    	rootNode.getValueObject().put(
+        		CloudGraphConstants.GRAPH_DEPTH,
+        		Long.valueOf(visitor.getDepth()));
 	}
 	
 	/**
@@ -261,15 +283,6 @@ public class GraphAssembler extends JDBCSupport
 				    continue; // only singular reference props
 				if (!pair.isQueryProperty())
 					continue; // property is a key or other property not explicitly cited in the source query, don't traverse it
-				// get traversal direction info
-		    	PlasmaProperty opposite = (PlasmaProperty)pair.getProp().getOpposite();
-		    	if (opposite != null) 
-			    	if (this.rightTraversalProperties.contains(opposite)) {
-						if (log.isDebugEnabled())
-							log.debug(String.valueOf(level) + ":skipping traversal for, " + pair.getProp().isMany() 
-									+ ") " + pair.getProp().toString() + " - opposite is a registered right traversal");
-						continue;
-			    	}
 				List<PropertyPair> nextKeyPairs = new ArrayList<PropertyPair>();
 				List<Property> nextKeyProps = ((PlasmaType)pair.getProp().getType()).findProperties(KeyType.primary);
 			    			
@@ -279,8 +292,8 @@ public class GraphAssembler extends JDBCSupport
 					if (log.isDebugEnabled())
 						log.debug(String.valueOf(level) + ":found single PK for type, " + pair.getProp().getType());
 					PlasmaProperty next = (PlasmaProperty)nextKeyProps.get(0);
-			    	nextKeyPairs.add(
-			    		new PropertyPair(next, pair.getValue()));
+					PropertyPair nextPair = new PropertyPair(next, pair.getValue());					
+					nextKeyPairs.add(nextPair);
 					if (log.isDebugEnabled())
 						log.debug(String.valueOf(level) + ":added single PK, " + next.toString());
 			    }
@@ -308,20 +321,27 @@ public class GraphAssembler extends JDBCSupport
 		    	PlasmaProperty opposite = (PlasmaProperty)prop.getOpposite();
 		    	if (opposite == null)
 			    	throw new DataAccessException("no opposite property found"
-				        + " - cannot map from many property, "
-				        + prop.getType() + "." + prop.getName());	
-		    	if (this.rightTraversalProperties.contains(opposite)) {
-					if (log.isDebugEnabled())
-						log.debug(String.valueOf(level) + ":skipping traversal for (" + prop.isMany() 
-								+ ") " + prop.toString() + " - opposite is a registered right traversal");
-					continue;
-		    	}
+			        + " - cannot map from many property, "
+			        + prop.getType() + "." + prop.getName());	
 				List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
 				List<Property> nextKeyProps = ((PlasmaType)targetType).findProperties(KeyType.primary);
 			    if (nextKeyProps.size() == 1) {
-			    	childKeyProps.add(
-			    		new PropertyPair(opposite,
-			    				target.get(nextKeyProps.get(0))));
+			    	PlasmaProperty nextProp = (PlasmaProperty)nextKeyProps.get(0);
+		    		PlasmaDataObject nextTarget = target;
+			    	Object value = nextTarget.get(nextProp.getName());
+			    	while (!nextProp.getType().isDataType()) {
+			    		nextTarget = (PlasmaDataObject)value;
+			    		nextProp = getOppositePriKeyProperty(nextProp);
+			    		value = nextTarget.get(nextProp.getName()); // FIXME use prop API
+			    	}
+			    	if (value != null) {
+			    		PropertyPair pair = new PropertyPair(opposite, value);
+			    		pair.setValueProp(nextProp);
+			    	    childKeyProps.add(pair);
+			    	}
+			    	else 
+			    		throw new GraphServiceException("no value found for key property, " 
+			    	       + nextProp.toString());
 			    }
 			    else
 				    throwPriKeyError(nextKeyProps, 
@@ -376,7 +396,6 @@ public class GraphAssembler extends JDBCSupport
         if (log.isDebugEnabled())
         	log.debug("mapping " + key + "->" + target);
         this.dataObjectMap.put(key, target);  
-        this.rightTraversalProperties.add(sourceProperty);
         
         return target;
 	}
@@ -466,33 +485,36 @@ public class GraphAssembler extends JDBCSupport
         	if (opposite != null && !opposite.isMany() && target.isSet(opposite)) {
                 PlasmaDataObject existingOpposite = (PlasmaDataObject)target.get(opposite);
                 if (existingOpposite != null) {
-                	if (log.isDebugEnabled())
-                        log.debug("encountered existing opposite (" + existingOpposite.getType().getName()
-                            + ") value found while creating link (" + source.getUUIDAsString() + ") "
-                            + source.getType().getURI() + "#" + source.getType().getName() 
-                            + "." + sourceProperty.getName() + "->("
-                            + target.getUUIDAsString() + ") "
-                            + target.getType().getURI() + "#" + target.getType().getName() + " - no link created");
+                    log.warn("encountered existing opposite (" + existingOpposite.getType().getName()
+                            + ") value found while creating link " + source.toString()  
+                            + "." + sourceProperty.getName() + "->"
+                            + target.toString() + " - no link created");
         		    return;
                 }
         	}
             @SuppressWarnings("unchecked")
 			List<DataObject> list = source.getList(sourceProperty);
             if (list == null) 
-                list = new ArrayList<DataObject>();
-            if (log.isDebugEnabled()) {
-                for (DataObject existingObject : list) {
-                    log.debug("existing: (" + 
-                            ((org.plasma.sdo.PlasmaNode)existingObject).getUUIDAsString()
-                            + ") " + existingObject.getType().getURI() + "#" + existingObject.getType().getName());
-                }
-            } 
+                list = EMPTY_DATA_OBJECT_LIST;
+             
             if (!list.contains(target)) {
+            	// check if any existing list members already have the opposite property set
+            	for (DataObject existing : list) {
+                	if (opposite != null && !opposite.isMany() && existing.isSet(opposite)) {
+                        PlasmaDataObject existingOpposite = (PlasmaDataObject)existing.get(opposite);
+                        if (existingOpposite != null) {
+                        	log.warn("encountered existing opposite (" + existingOpposite.getType().getName()
+                                    + ") value found while creating link " + source.toString()  
+                                    + "." + sourceProperty.getName() + "->"
+                                    + target.toString() + " - no link created");
+                		    return;
+                        }
+                	}
+            	}
+            	
                 if (log.isDebugEnabled())
-                    log.debug("adding target  (" + source.getUUIDAsString() + ") "
-                        + source.getType().getURI() + "#" + source.getType().getName() 
-                        + "." + sourceProperty.getName() + "->(" + target.getUUIDAsString() + ") "
-                        + target.getType().getURI() + "#" + target.getType().getName());
+                    log.debug("adding target " + source.toString()  
+                        + "." + sourceProperty.getName() + "->" + target.toString());
                 if (target.getContainer() == null) {
                     target.setContainer(source);
                     target.setContainmentProperty(sourceProperty);
@@ -533,17 +555,15 @@ public class GraphAssembler extends JDBCSupport
                 }
             }
             else
-                if (!existing.getUUIDAsString().equals(target.getUUIDAsString()))
+                if (!existing.equals(target))
                 	if (log.isDebugEnabled())
                         log.debug("encountered existing (" + existing.getType().getName()
-	                        + ") value found while creating link (" + source.getUUIDAsString() + ") "
-	                        + source.getType().getURI() + "#" + source.getType().getName() 
-	                        + "." + sourceProperty.getName() + "->("
-	                        + target.getUUIDAsString() + ") "
-	                        + target.getType().getURI() + "#" + target.getType().getName());
+	                        + ") value found while creating link " + source.toString() 
+	                        + "." + sourceProperty.getName() + "->"
+	                        + target.toString());
         }
     }
-	
+    	
 	private void throwPriKeyError(List<Property> rootPkProps, 
 			Type type, Property prop) {
 		if (prop.isMany())
@@ -577,7 +597,25 @@ public class GraphAssembler extends JDBCSupport
 	public void clear() {
 		this.root = null;
 		this.dataObjectMap.clear();
-		this.rightTraversalProperties.clear();
 	}
 	
+	private class GraphMetricVisitor implements PlasmaDataGraphVisitor {
+		
+		private long count = 0;
+		private long depth = 0;
+		@Override
+		public void visit(DataObject target, DataObject source,
+				String sourcePropertyName, int level) {
+			count++;
+			if (level > depth)
+				depth = level;
+			
+		}
+		public long getCount() {
+			return count;
+		}
+		public long getDepth() {
+			return depth;
+		}		
+	}
 }

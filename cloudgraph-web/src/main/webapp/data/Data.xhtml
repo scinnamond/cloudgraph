@@ -1,0 +1,170 @@
+<!DOCTYPE html [
+    <!ENTITY nbsp "&#160;"> 
+]>
+<ui:composition template="/templates/main-layout.xhtml"
+     xmlns="http://www.w3.org/1999/xhtml"
+     xmlns:f="http://java.sun.com/jsf/core"
+     xmlns:h="http://java.sun.com/jsf/html"
+     xmlns:ui="http://java.sun.com/jsf/facelets"
+     xmlns:p="http://primefaces.org/ui"
+     xmlns:c="http://java.sun.com/jsp/jstl/core">
+<ui:define name="content">
+  <p:outputPanel id="dashboard_content_panel">
+  <f:verbatim><div class="</f:verbatim><h:outputText value="#{ControlNavigationBean.datafiltersAction.selected ? 'ContentDiv' : 'ContentDivLeft'}"/><f:verbatim>"></f:verbatim>
+  <h:form id="project_list">                                                                                                                
+  <h:panelGrid rowClasses="AlignCenter" columns="1" width="100%" border="0"> 
+	     <h:panelGrid 
+	          width="100%" columns="1" styleClass="DashboardTable"
+	          rowClasses="DashboardTable,DashboardTable,DashboardTable,DashboardTable,DashboardTable"
+	          cellpadding="0" cellspacing="0"> 
+	          
+	          
+			  <h:panelGrid width="100%" columns="1"
+			      rendered="false">
+			      <p:panel style="width: 100%; height: 80px;" >
+			          <f:facet name="header">
+			              <h:outputText value="Current Data Filter Criteria"/>
+			          </f:facet>
+			      
+			      <f:subview id="crit_sv">	              
+			          <f:subview id="prm_sv_0" rendered="#{SearchBean.activeParameterCount > 0}">
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="#{SearchBean.activeParameters[0].valueIconName}"/>                              
+						  <p:commandLink 
+						      value="#{SearchBean.activeParameters[0].displayName}:"
+						      action="#{SearchBean.activeParameters[0].removeValue}"
+						      actionListener="#{DashboardBean.clearDataAction}"	    
+					          update="dashboard_content_panel,invst_panel,seg_panel,app_panel"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:outputText value="#{SearchBean.activeParameters[0].displayValue}"
+			                  styleClass="GlobalSearchCritValueDiv"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="/images/arrow_right.png" 
+			                  rendered="#{SearchBean.activeParameters[0].index < SearchBean.activeParameterCount}" />                              
+					  </f:subview>
+			          <f:subview id="prm_sv_1" rendered="#{SearchBean.activeParameterCount > 1}">                  
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="#{SearchBean.activeParameters[1].valueIconName}"/>                              
+						  <p:commandLink 
+						      value="#{SearchBean.activeParameters[1].displayName}:"
+						      action="#{SearchBean.activeParameters[1].removeValue}"
+						      actionListener="#{DashboardBean.clearDataAction}"	    
+					          update="dashboard_content_panel,invst_panel,seg_panel,app_panel"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:outputText value="#{SearchBean.activeParameters[1].displayValue}"
+			                  styleClass="GlobalSearchCritValueDiv"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="/images/arrow_right.png" 
+			                  rendered="#{SearchBean.activeParameters[1].index < SearchBean.activeParameterCount}" />                              
+				      </f:subview>
+			          <f:subview id="prm_sv_2" rendered="#{SearchBean.activeParameterCount > 2}">                  
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="#{SearchBean.activeParameters[2].valueIconName}"/>                              
+						  <p:commandLink 
+						      value="#{SearchBean.activeParameters[2].displayName}:"
+						      action="#{SearchBean.activeParameters[2].removeValue}"
+						      actionListener="#{DashboardBean.clearDataAction}"	    
+					          update="dashboard_content_panel,invst_panel,seg_panel,app_panel"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:outputText value="#{SearchBean.activeParameters[2].displayValue}"
+			                  styleClass="GlobalSearchCritValueDiv"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="/images/arrow_right.png" 
+			                  rendered="#{SearchBean.activeParameters[2].index < SearchBean.activeParameterCount}" />                              
+				      </f:subview>				  
+			          <f:subview id="prm_sv_3" rendered="#{SearchBean.activeParameterCount > 3}">                  
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="#{SearchBean.activeParameters[3].valueIconName}"/>                              
+						  <p:commandLink 
+						      value="#{SearchBean.activeParameters[3].displayName}:"
+						      action="#{SearchBean.activeParameters[3].removeValue}"
+						      actionListener="#{DashboardBean.clearDataAction}"	    
+					          update="dashboard_content_panel,invst_panel,seg_panel,app_panel"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:outputText value="#{SearchBean.activeParameters[3].displayValue}"
+			                  styleClass="GlobalSearchCritValueDiv"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="/images/arrow_right.png" 
+			                  rendered="#{SearchBean.activeParameters[3].index < SearchBean.activeParameterCount}" />                              
+				      </f:subview>
+			          <f:subview id="prm_sv_4" rendered="#{SearchBean.activeParameterCount > 4}">                  
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="#{SearchBean.activeParameters[4].valueIconName}"/>                              
+						  <p:commandLink 
+						      value="#{SearchBean.activeParameters[4].displayName}:"
+						      action="#{SearchBean.activeParameters[4].removeValue}"
+						      actionListener="#{DashboardBean.clearDataAction}"	    
+					          update="dashboard_content_panel,invst_panel,seg_panel,app_panel"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:outputText value="#{SearchBean.activeParameters[4].displayValue}"
+			                  styleClass="GlobalSearchCritValueDiv"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="/images/arrow_right.png" 
+			                  rendered="#{SearchBean.activeParameters[4].index < SearchBean.activeParameterCount}" />                              
+				      </f:subview>
+			          <f:subview id="prm_sv_5" rendered="#{SearchBean.activeParameterCount > 5}">                  
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="#{SearchBean.activeParameters[5].valueIconName}"/>                              
+						  <p:commandLink 
+						      value="#{SearchBean.activeParameters[5].displayName}:"
+						      action="#{SearchBean.activeParameters[5].removeValue}"
+						      actionListener="#{DashboardBean.clearDataAction}"	    
+					          update="dashboard_content_panel,invst_panel,seg_panel,app_panel"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:outputText value="#{SearchBean.activeParameters[5].displayValue}"
+			                  styleClass="GlobalSearchCritValueDiv"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="/images/arrow_right.png" 
+			                  rendered="#{SearchBean.activeParameters[5].index < SearchBean.activeParameterCount}" />                              
+				      </f:subview>
+			          <f:subview id="prm_sv_6" rendered="#{SearchBean.activeParameterCount > 6}">                  
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="#{SearchBean.activeParameters[6].valueIconName}"/>                              
+						  <p:commandLink 
+						      value="#{SearchBean.activeParameters[6].displayName}:"
+						      action="#{SearchBean.activeParameters[6].removeValue}"
+						      actionListener="#{DashboardBean.clearDataAction}"	    
+					          update="dashboard_content_panel,invst_panel,seg_panel,app_panel"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:outputText value="#{SearchBean.activeParameters[6].displayValue}"
+			                  styleClass="GlobalSearchCritValueDiv"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="/images/arrow_right.png" 
+			                  rendered="#{SearchBean.activeParameters[6].index < SearchBean.activeParameterCount}" />                              
+				      </f:subview>
+			          <f:subview id="prm_sv_7" rendered="#{SearchBean.activeParameterCount > 7}">                  
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="#{SearchBean.activeParameters[7].valueIconName}"/>                              
+						  <p:commandLink 
+						      value="#{SearchBean.activeParameters[7].displayName}:"
+						      action="#{SearchBean.activeParameters[7].removeValue}"
+						      actionListener="#{DashboardBean.clearDataAction}"	    
+					          update="dashboard_content_panel,invst_panel,seg_panel,app_panel"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:outputText value="#{SearchBean.activeParameters[7].displayValue}"
+			                  styleClass="GlobalSearchCritValueDiv"/>
+					      <f:verbatim>&nbsp;</f:verbatim>
+			              <h:graphicImage value="/images/arrow_right.png" 
+			                  rendered="#{SearchBean.activeParameters[7].index < SearchBean.activeParameterCount}" />                              
+				      </f:subview>
+				      
+			     </f:subview>
+			     </p:panel>
+			 </h:panelGrid>
+
+          <ui:include src="/data/DataQueue.xhtml" />
+
+
+      </h:panelGrid>
+  </h:panelGrid>
+  </h:form>     
+  <f:verbatim></div></f:verbatim>
+  </p:outputPanel>
+</p:outputPanel>
+  <ui:include src="/common/SettingsModalPanel.xhtml" />
+  <ui:include src="/common/LoginModalPanel.xhtml" />
+  <ui:include src="/common/ContactModalPanel.xhtml" />
+  <ui:include src="/data/PersonalizeQueuePanel.xhtml" />
+  <ui:include src="/data/InstanceDeleteConfirmModalPanel.xhtml" />
+</ui:define>
+</ui:composition>    
