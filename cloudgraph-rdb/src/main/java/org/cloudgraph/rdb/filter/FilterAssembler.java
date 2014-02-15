@@ -22,19 +22,25 @@
 package org.cloudgraph.rdb.filter;
 
 // java imports
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.annotation.XmlEnumValue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.rdb.service.AliasMap;
 import org.plasma.common.bind.DefaultValidationEventHandler;
+import org.plasma.config.DataAccessProviderName;
+import org.plasma.config.PlasmaConfig;
+import org.plasma.config.RDBMSVendorName;
 import org.plasma.query.QueryException;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.Expression;
 import org.plasma.query.model.From;
+import org.plasma.query.model.Function;
 import org.plasma.query.model.Literal;
 import org.plasma.query.model.Path;
 import org.plasma.query.model.PathElement;
@@ -46,6 +52,7 @@ import org.plasma.query.model.Where;
 import org.plasma.query.model.WildcardOperator;
 import org.plasma.query.model.WildcardPathElement;
 import org.plasma.query.visitor.Traversal;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
@@ -211,13 +218,16 @@ public class FilterAssembler extends SQLQueryFilterAssembler
 		filter.append("'");                                                                  
 	}
 
+	/**
+	 * Handles a property query node, traversing the property path appending 
+	 * SQL 'AND' expressions based on key relationships until the
+	 * property endpoint is reached. Superclass handlers deal with other query nodes such as
+	 * operators and literals.  
+	 */
 	@Override
     public void start(Property property)
     {                
-        org.plasma.query.model.FunctionValues function = property.getFunction();
-        if (function != null)
-            throw new DataAccessException("aggregate functions only supported in subqueries not primary queries");
-          
+         
         Path path = property.getPath();
 
         if (filter.length() > 0)
@@ -275,12 +285,253 @@ public class FilterAssembler extends SQLQueryFilterAssembler
                filter.append(" AND ");
             }
         }
+        
+
+        // process endpoint
         PlasmaProperty endpointProp = (PlasmaProperty)targetType.getProperty(property.getName());
         contextProperty = endpointProp;
-        filter.append(targetAlias + "." + endpointProp.getPhysicalName());
+        
+        // start functions
+        List<Function> functions = property.getFunctions();
+        if (functions == null || functions.size() == 0) {
+            filter.append(targetAlias + "." + endpointProp.getPhysicalName());
+        }
+        else {
+    		DataFlavor flavor = endpointProp.getDataFlavor();
+            RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
+    		StringBuilder buf = new StringBuilder();
+        	
+    		// for each function feed the results into the next
+    		String propertyArg = targetAlias + "." + endpointProp.getPhysicalName();
+            for (Function func : functions) {
+        		validateFunction(func, endpointProp, flavor);
+                switch (vendor) {
+                case ORACLE:
+                	propertyArg = beginFunctionOracle(func, endpointProp, propertyArg);
+        	        break;
+                case MYSQL:
+                	propertyArg = beginFunctionMySql(func, endpointProp, propertyArg);
+        	        break;
+        	    default:
+                }	       		
+        	}
+            
+            filter.append(propertyArg);
+        }
+        
+        
         super.start(property);
     }
-    	
+	
+	private String beginFunctionOracle(Function func, PlasmaProperty endpointProp, String propertyArg) {
+		StringBuilder buf = new StringBuilder();
+		
+		switch (func.getName()) {
+		case MIN:
+		case MAX:
+		case AVG:
+		case SUM:
+			break; // handled entirely above
+		case ABS:
+			buf.append("ABS(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case CEILING:
+			buf.append("CEIL(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case FLOOR:
+			buf.append("FLOOR(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case ROUND:
+			buf.append("ROUND(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case SUBSTRING_BEFORE:
+			String arg = func.getFunctionArgs().get(0).getValue(); // checked above
+			buf.append("SUBSTR(");
+			buf.append(propertyArg);
+			buf.append(",0, INSTR(");
+			buf.append(propertyArg);
+			buf.append(",'");
+			buf.append(arg);
+			buf.append("'))");
+			break;
+		case SUBSTRING_AFTER:
+			arg = func.getFunctionArgs().get(0).getValue(); // checked above
+			buf.append("SUBSTR(");
+			buf.append(propertyArg);
+			buf.append(",INSTR(");
+			buf.append(propertyArg);
+			buf.append(",'");
+			buf.append(arg);
+			buf.append("'))");
+			break;
+		case NORMALIZE_SPACE:
+			buf.append("REGEXP_REPLACE(");
+			buf.append(propertyArg);
+			buf.append(", '\\s*', '')");			
+			break;
+		case UPPER_CASE:
+			buf.append("UPPER(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case LOWER_CASE:
+			buf.append("LOWER(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case YEAR_FROM_DATE:
+		case MONTH_FROM_DATE:
+		case DAY_FROM_DATE:
+		}
+		
+		return buf.toString();
+    }
+
+	private String beginFunctionMySql(Function func, PlasmaProperty endpointProp, String propertyArg) {
+		StringBuilder buf = new StringBuilder();
+		switch (func.getName()) {
+		case MIN:
+		case MAX:
+		case AVG:
+		case SUM:
+			break; // handled entirely above
+		case ABS:
+			buf.append("ABS(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case CEILING:
+			buf.append("CEIL(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case FLOOR:
+			buf.append("FLOOR(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case ROUND:
+			buf.append("ROUND(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case SUBSTRING_BEFORE:
+			String arg = func.getFunctionArgs().get(0).getValue(); // checked above
+			buf.append("SUBSTRING_INDEX(");
+			buf.append(propertyArg);
+			buf.append(",'");
+			buf.append(arg);
+			buf.append("', 1)");
+			break;
+		case SUBSTRING_AFTER:
+			arg = func.getFunctionArgs().get(0).getValue(); // checked above
+			buf.append("SUBSTR(");
+			buf.append(propertyArg);
+			buf.append(",LOCATE(");
+			buf.append("'");
+			buf.append(arg);
+			buf.append("'");
+			buf.append(",");
+			buf.append(propertyArg);
+			buf.append("))");
+			break;
+		case NORMALIZE_SPACE:
+			buf.append("REPLACE(");
+			buf.append(propertyArg);
+			buf.append(", ' ', '')"); // note will not take a regexp			
+			break;
+		case UPPER_CASE:
+			buf.append("UPPER(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case LOWER_CASE:
+			buf.append("LOWER(");
+			buf.append(propertyArg);
+			buf.append(")");
+			break;
+		case YEAR_FROM_DATE:
+		case MONTH_FROM_DATE:
+		case DAY_FROM_DATE:
+		}
+		return buf.toString();
+    }
+	
+	/**
+	 * Performs pre checks on the given function ensuring the correct datatype and number of
+	 * arguments, etc..
+	 * @param func the function
+	 * @param endpointProp the property
+	 * @param flavor the property data flavor
+	 */
+	private void validateFunction(Function func, PlasmaProperty endpointProp, DataFlavor flavor) {
+
+		switch (func.getName()) {
+		case MIN:
+		case MAX:
+		case AVG:
+		case SUM:
+            throw new DataAccessException("aggregate function '" + func.getName() + "' not applicable in query Where clause");
+		case ABS:
+		case CEILING:
+		case FLOOR:
+		case ROUND:
+			if (!isNumber(flavor))
+	            throw new DataAccessException("function '" + func.getName() + "' not applicable for non numeric property, "
+	                	+ endpointProp.toString());
+			break;
+		case SUBSTRING_BEFORE:
+		case SUBSTRING_AFTER:
+			if (func.getFunctionArgs().size() != 1) {
+	            throw new DataAccessException("function '" + func.getName() + "' requires a single string argument - "
+	            	+ func.getFunctionArgs().size() + " argument(s) found");
+			}
+			break;
+		case NORMALIZE_SPACE:
+		case UPPER_CASE:
+		case LOWER_CASE:
+			if (!isString(flavor))
+	            throw new DataAccessException("function '" + func.getName() + "' not applicable for non-string property, "
+	                	+ endpointProp.toString());
+			break;
+		case YEAR_FROM_DATE:
+		case MONTH_FROM_DATE:
+		case DAY_FROM_DATE:
+			if (!isString(flavor))
+	            throw new DataAccessException("function '" + func.getName() + "' not applicable for non-temporal property, "
+	                	+ endpointProp.toString());
+			break;
+		}
+	}
+	
+	
+	private boolean isNumber(DataFlavor flavor) {
+		switch (flavor) {
+		case integral:
+		case real:
+			return true;
+        default:
+		}
+		return false;
+	}
+
+	private boolean isString(DataFlavor flavor) {
+		switch (flavor) {
+		case string:
+			return true;
+        default:
+		}
+		return false;
+	}
+	
     protected void log(Where root)
     {
     	String xml = "";

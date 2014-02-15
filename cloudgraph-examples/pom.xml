@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.6</version>
+        <version>0.5.7</version>
     </parent>
 	<groupId>org.cloudgraph</groupId>
 	<artifactId>cloudgraph-examples</artifactId>
 	<packaging>war</packaging>
-	<version>0.5.6</version>
+	<version>0.5.7</version>
 	<name>CloudGraph Examples</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
     <url>http://cloudgraph.org</url>
@@ -53,20 +53,20 @@
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-common</artifactId>
-            <version>0.5.6</version>
+            <version>0.5.7</version>
             <!--  <scope>provided</scope>-->
         </dependency>       
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-hbase</artifactId>
-            <version>0.5.6</version>
+            <version>0.5.7</version>
             <!-- <scope>provided</scope>-->
         </dependency>       
 
         <dependency>
         	<groupId>org.terrameta</groupId>
         	<artifactId>plasma-maven-plugin</artifactId>
-        	<version>1.1.6</version>
+        	<version>1.1.7</version>
         	<scope>provided</scope>
         	<exclusions>
         		<exclusion>
@@ -120,7 +120,7 @@
             <plugin>
                 <groupId>org.terrameta</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
-                <version>1.1.6</version>
+                <version>1.1.7</version>
                 <executions>   
                                           
                     <execution>
@@ -344,7 +344,7 @@
 											plasma-maven-plugin
 										</artifactId>
 										<versionRange>
-											[1.1.6,)
+											[1.1.7,)
 										</versionRange>
 										<goals>
 											<goal>xsd</goal>

@@ -130,10 +130,6 @@ public class RowPredicateVisitor extends PredicateVisitor {
 	@Override
     public void start(Property property)
     {                
-        org.plasma.query.model.FunctionValues function = property.getFunction();
-        if (function != null)
-            throw new GraphFilterException("aggregate functions only supported in subqueries not primary queries");
-          
         Path path = property.getPath();
         PlasmaType targetType = (PlasmaType)this.rootType;                
         if (path != null)

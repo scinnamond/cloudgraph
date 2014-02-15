@@ -24,7 +24,6 @@ package org.cloudgraph.rdb.service;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -46,14 +45,10 @@ import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
 import org.plasma.config.RDBMSVendorName;
 import org.plasma.sdo.DataFlavor;
-import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.provider.common.PropertyPair;
-import org.cloudgraph.rdb.service.AliasMap;
-import org.plasma.sdo.core.CoreDataObject;
-import org.cloudgraph.rdb.service.RDBDataConverter;
 import org.plasma.sdo.profile.ConcurrencyType;
 import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
@@ -805,7 +800,7 @@ public abstract class JDBCSupport {
             
             if (generatedKeys.next()) {
                 // FIXME; without metadata describing which properties
-            	// are actually a sequence, there us guess work
+            	// are actually a sequence, there is guess work
             	// involved in matching the values returned
             	// automatically from PreparedStatment as they
             	// are anonymous in terms of the column names
@@ -868,17 +863,24 @@ public abstract class JDBCSupport {
     	}
     	
 		List<Property> pkeyProps = oppositeType.findProperties(KeyType.primary);
-	    if (pkeyProps.size() == 0)
+	    if (pkeyProps.size() == 0) {
 	    	throw new DataAccessException("no opposite pri-key properties found"
 			        + " - cannot map from reference property, "
-			        + targetProperty.toString());			    				    	
-	    else if (pkeyProps.size() > 1)	
-	    	throw new DataAccessException("multiple opposite pri-key properties found"
-			        + " - cannot map from reference property, "
 			        + targetProperty.toString());	
-	    PlasmaProperty pkProp = (PlasmaProperty)pkeyProps.get(0);
-	    return pkProp;
-		
+	    }
+	    else if (pkeyProps.size() == 1) {
+	    	return (PlasmaProperty)pkeyProps.get(0);
+	    }
+	    else {
+	    	PlasmaProperty supplier = ((PlasmaProperty)targetProperty).getKeySupplier();
+	    	if (supplier != null) {
+	    		return supplier;
+	    	}
+	    	else
+	    	    throw new DataAccessException("multiple opposite pri-key properties found"
+			        + " - cannot map from reference property, "
+			        + targetProperty.toString() + " - please add a derivation supplier");
+	    }		
 	}
 	
 	private StringBuilder createParamDebug(Map<String, PropertyPair> values) throws SQLException {

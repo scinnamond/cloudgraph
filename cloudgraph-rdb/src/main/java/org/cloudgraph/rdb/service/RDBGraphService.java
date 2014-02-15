@@ -32,7 +32,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.rdb.connect.RDBConnectionManager;
+import org.cloudgraph.rdb.connect.ProviderManager;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.From;
@@ -65,17 +65,68 @@ public class RDBGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        GraphQuery dispatcher = new GraphQuery();
-        return dispatcher.count(query);
+        Connection con = null;
+		try {
+			con = ProviderManager.instance().getConnection();
+			if (con.getAutoCommit()) {
+				if (log.isDebugEnabled())
+				    log.debug("turning off connection autocommit for count query");
+	            con.setAutoCommit(false);
+			}
+			if (log.isDebugEnabled())
+			    log.debug("using transaction isolation level " 
+			        + con.getTransactionIsolation() + " for count query");
+	        //TODO: make transaction isolation configurable
+	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+		} catch (SQLException e2) {
+            throw new DataAccessException(e2);
+		}
+        GraphQuery dispatcher = new GraphQuery(con);
+        try {
+            return dispatcher.count(query);
+        }
+        finally {
+            try {
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
+        }
     }
     
     public int[] count(Query[] queries) {
         if (queries == null)
             throw new IllegalArgumentException("expected non-null 'queries' argument");
+        Connection con = null;
+		try {
+			con = ProviderManager.instance().getConnection();
+			if (con.getAutoCommit()) {
+				if (log.isDebugEnabled())
+				    log.debug("turning off connection autocommit for multi count query");
+	            con.setAutoCommit(false);
+			}
+			if (log.isDebugEnabled())
+			    log.debug("using transaction isolation level " 
+			        + con.getTransactionIsolation() + " for multi count query");
+	        //TODO: make transaction isolation configurable
+	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+		} catch (SQLException e2) {
+            throw new DataAccessException(e2);
+		}
+        GraphQuery dispatcher = new GraphQuery(con);
         int[] counts = new int[queries.length];
-        for (int i = 0; i < queries.length; i++)
-            counts[i] = count(queries[i]);
-        return counts;
+        try {
+            for (int i = 0; i < queries.length; i++)
+                counts[i] = dispatcher.count(queries[i]);
+            return counts;
+        }
+        finally {
+            try {
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
+        }
     }
 
     public DataGraph[] find(Query query) {
@@ -85,9 +136,34 @@ public class RDBGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        GraphQuery dispatcher = new GraphQuery();
+        Connection con = null;
+		try {
+			con = ProviderManager.instance().getConnection();
+			if (con.getAutoCommit()) {
+				if (log.isDebugEnabled())
+				    log.debug("turning off connection autocommit for graph query");
+	            con.setAutoCommit(false);
+			}
+			if (log.isDebugEnabled())
+			    log.debug("using transaction isolation level " 
+			        + con.getTransactionIsolation() + " for graph query");
+	        //TODO: make transaction isolation configurable
+	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+		} catch (SQLException e2) {
+            throw new DataAccessException(e2);
+		}
+        GraphQuery dispatcher = new GraphQuery(con);
         Timestamp snapshotDate = new Timestamp((new Date()).getTime());
-        return dispatcher.find(query, snapshotDate);
+        try {
+            return dispatcher.find(query, snapshotDate);
+        }
+        finally {
+            try {
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
+        }
     }
 
     public DataGraph[] find(Query query, int maxResults) {
@@ -97,27 +173,77 @@ public class RDBGraphService implements PlasmaDataAccessService {
         if (log.isDebugEnabled()) {
             log(query);
         }
-        GraphQuery dispatcher = new GraphQuery();
-        DataGraph[] results = dispatcher.find(query, -1, new Timestamp((new Date()).getTime()));
-        return results;
+        Connection con = null;
+		try {
+			con = ProviderManager.instance().getConnection();
+			if (con.getAutoCommit()) {
+				if (log.isDebugEnabled())
+				    log.debug("turning off connection autocommit for graph query");
+	            con.setAutoCommit(false);
+			}
+			if (log.isDebugEnabled())
+			    log.debug("using transaction isolation level " 
+			        + con.getTransactionIsolation() + " for graph query");
+	        //TODO: make transaction isolation configurable
+	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+		} catch (SQLException e2) {
+            throw new DataAccessException(e2);
+		}
+        GraphQuery dispatcher = new GraphQuery(con);
+        try {
+            DataGraph[] results = dispatcher.find(query, -1, new Timestamp((new Date()).getTime()));
+            return results;
+        }
+        finally {
+            try {
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
+        }
     }
 
     public List<DataGraph[]> find(Query[] queries) {
         if (queries == null)
             throw new IllegalArgumentException("expected non-null 'queries' argument");
-        GraphQuery dispatcher = new GraphQuery();
+        Connection con = null;
+		try {
+			con = ProviderManager.instance().getConnection();
+			if (con.getAutoCommit()) {
+				if (log.isDebugEnabled())
+				    log.debug("turning off connection autocommit for multi graph query");
+	            con.setAutoCommit(false);
+			}
+			if (log.isDebugEnabled())
+			    log.debug("using transaction isolation level " 
+			        + con.getTransactionIsolation() + " for multi graph query");
+	        //TODO: make transaction isolation configurable
+	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+		} catch (SQLException e2) {
+            throw new DataAccessException(e2);
+		}
+        GraphQuery dispatcher = new GraphQuery(con);
         List<DataGraph[]> list = new ArrayList<DataGraph[]>();
         Timestamp snapshotDate = new Timestamp((new Date()).getTime());
-        for (int i = 0; i < queries.length; i++)
-        {
-            validate(queries[i]);
-            if (log.isDebugEnabled()) {
-                log(queries[i]);
-            }
-            DataGraph[] results = dispatcher.find(queries[i], snapshotDate);
-            list.add(results);
+        try {
+	        for (int i = 0; i < queries.length; i++)
+	        {
+	            validate(queries[i]);
+	            if (log.isDebugEnabled()) {
+	                log(queries[i]);
+	            }
+	            DataGraph[] results = dispatcher.find(queries[i], snapshotDate);
+	            list.add(results);
+	        }
+	        return list;
         }
-        return list;
+        finally {
+            try {
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
+        }
     }
 
     public SnapshotMap commit(DataGraph dataGraph, String username) {
@@ -130,8 +256,17 @@ public class RDBGraphService implements PlasmaDataAccessService {
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
         Connection con = null;
 		try {
-			con = RDBConnectionManager.instance().getConnection();
-	        con.setAutoCommit(false);
+			con = ProviderManager.instance().getConnection();
+			if (con.getAutoCommit()) {
+				if (log.isDebugEnabled())
+				    log.debug("turning off connection autocommit for graph commit");
+	            con.setAutoCommit(false);
+			}
+			if (log.isDebugEnabled())
+			    log.debug("using transaction isolation level " 
+			        + con.getTransactionIsolation() + " forgraph commit");
+	        //TODO: make transaction isolation configurable
+	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}
@@ -184,8 +319,17 @@ public class RDBGraphService implements PlasmaDataAccessService {
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
         Connection con = null;
 		try {
-			con = RDBConnectionManager.instance().getConnection();
-	        con.setAutoCommit(false);
+			con = ProviderManager.instance().getConnection();
+			if (con.getAutoCommit()) {
+				if (log.isDebugEnabled())
+				    log.debug("turning off connection autocommit for multi graph commit");
+	            con.setAutoCommit(false);
+			}
+			if (log.isDebugEnabled())
+			    log.debug("using transaction isolation level " 
+			        + con.getTransactionIsolation() + " for multi graph commit");
+	        //TODO: make transaction isolation configurable
+	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}

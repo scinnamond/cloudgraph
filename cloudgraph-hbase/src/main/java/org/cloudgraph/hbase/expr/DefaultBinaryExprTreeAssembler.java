@@ -22,6 +22,7 @@
 package org.cloudgraph.hbase.expr;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -404,11 +405,7 @@ public abstract class DefaultBinaryExprTreeAssembler extends ExpresionVisitorSup
 	 */
 	@Override
     public void end(Property property)
-    {                
-        org.plasma.query.model.FunctionValues function = property.getFunction();
-        if (function != null)
-            throw new GraphFilterException("aggregate functions only supported in subqueries not primary queries");
-          
+    {                          
         Path path = property.getPath();
         PlasmaType targetType = this.rootType;                
         if (path != null)

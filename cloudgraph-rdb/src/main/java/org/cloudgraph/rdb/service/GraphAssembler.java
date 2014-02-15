@@ -292,16 +292,31 @@ public class GraphAssembler extends JDBCSupport
 					if (log.isDebugEnabled())
 						log.debug(String.valueOf(level) + ":found single PK for type, " + pair.getProp().getType());
 					PlasmaProperty next = (PlasmaProperty)nextKeyProps.get(0);
+					
 					PropertyPair nextPair = new PropertyPair(next, pair.getValue());					
 					nextKeyPairs.add(nextPair);
 					if (log.isDebugEnabled())
 						log.debug(String.valueOf(level) + ":added single PK, " + next.toString());
 			    }
 				else {
-					if (log.isDebugEnabled())
-						log.debug(String.valueOf(level) + ":found multiple PK's - throwing PK error");
-					throwPriKeyError(nextKeyProps, 
+			    	PlasmaProperty opposite = (PlasmaProperty)pair.getProp().getOpposite();
+			    	if (opposite == null)
+				    	throw new DataAccessException("no opposite property found"
+				        + " - cannot map from singular property, "
+				        + pair.getProp().toString());	
+			    	PlasmaProperty supplier = opposite.getKeySupplier();
+			    	if (supplier != null) {
+			    		PlasmaProperty nextProp = supplier;
+				    	PropertyPair nextPair = findNextKeyValue(target, 
+				    			nextProp, opposite);
+				    	nextKeyPairs.add(nextPair);
+			    	}
+				    else {
+					    if (log.isDebugEnabled())
+						    log.debug(String.valueOf(level) + ":found multiple PK's - throwing PK error");
+					    throwPriKeyError(nextKeyProps, 
 							pair.getProp().getType(), pair.getProp());
+				    }
 				}
 								    
 				if (log.isDebugEnabled())
@@ -326,26 +341,23 @@ public class GraphAssembler extends JDBCSupport
 				List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
 				List<Property> nextKeyProps = ((PlasmaType)targetType).findProperties(KeyType.primary);
 			    if (nextKeyProps.size() == 1) {
-			    	PlasmaProperty nextProp = (PlasmaProperty)nextKeyProps.get(0);
-		    		PlasmaDataObject nextTarget = target;
-			    	Object value = nextTarget.get(nextProp.getName());
-			    	while (!nextProp.getType().isDataType()) {
-			    		nextTarget = (PlasmaDataObject)value;
-			    		nextProp = getOppositePriKeyProperty(nextProp);
-			    		value = nextTarget.get(nextProp.getName()); // FIXME use prop API
-			    	}
-			    	if (value != null) {
-			    		PropertyPair pair = new PropertyPair(opposite, value);
-			    		pair.setValueProp(nextProp);
-			    	    childKeyProps.add(pair);
-			    	}
-			    	else 
-			    		throw new GraphServiceException("no value found for key property, " 
-			    	       + nextProp.toString());
+			    	PlasmaProperty nextProp = (PlasmaProperty)nextKeyProps.get(0);	
+			    	PropertyPair pair = findNextKeyValue(target, 
+			    			nextProp, opposite);
+			    	childKeyProps.add(pair);
 			    }
-			    else
-				    throwPriKeyError(nextKeyProps, 
-				    		targetType, prop);
+			    else { // lookup via key supplier
+			    	PlasmaProperty supplier = opposite.getKeySupplier();
+			    	if (supplier != null) {
+			    		PlasmaProperty nextProp = supplier;
+				    	PropertyPair pair = findNextKeyValue(target, 
+				    			nextProp, opposite);
+				    	childKeyProps.add(pair);
+			    	}
+				    else
+					    throwPriKeyError(nextKeyProps, 
+					    		targetType, prop);
+			    }
 				if (log.isDebugEnabled())
 					log.debug(String.valueOf(level) + ":traverse: (" + prop.isMany() 
 							+ ") " + prop.toString() + " - " + childKeyProps.toArray().toString());
@@ -354,6 +366,38 @@ public class GraphAssembler extends JDBCSupport
 						childKeyProps, level+1);
 			}				
 		}
+	}
+	
+	/**
+	 * If the given property is a datatype property, returns a property pair with the
+	 * given property set as the pair value property, otherwise traverses the data object graph 
+	 * via opposite property links until a datatype
+	 * property is found, then returns the property value pair with the traversal endpint
+	 * property set as the pair value property.
+	 * @param dataObject the data object
+	 * @param prop the property
+	 * @param opposite the opposite property
+	 * @return the property value pair
+	 */
+	private PropertyPair findNextKeyValue(PlasmaDataObject dataObject, PlasmaProperty prop, PlasmaProperty opposite)
+	{
+		PlasmaDataObject valueTarget = dataObject;
+		PlasmaProperty valueProp = prop;
+		
+    	Object value = valueTarget.get(valueProp.getName());
+    	while (!valueProp.getType().isDataType()) {
+    		valueTarget = (PlasmaDataObject)value;
+    		valueProp = getOppositePriKeyProperty(valueProp);
+    		value = valueTarget.get(valueProp.getName()); // FIXME use prop API
+    	}
+    	if (value != null) {
+    		PropertyPair pair = new PropertyPair(opposite, value);
+    		pair.setValueProp(valueProp);
+    		return pair;
+    	}
+    	else 
+    		throw new GraphServiceException("no value found for key property, " 
+    	       + valueProp.toString());
 	}
 	
 	/**

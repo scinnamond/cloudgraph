@@ -27,7 +27,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,20 +35,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.xml.bind.JAXBException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.rdb.connect.RDBConnectionManager;
+import org.cloudgraph.rdb.filter.FilterAssembler;
 import org.cloudgraph.rdb.filter.GroupingDeclarationAssembler;
 import org.cloudgraph.rdb.filter.OrderingDeclarationAssembler;
-import org.cloudgraph.rdb.filter.FilterAssembler;
-import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
 import org.plasma.config.RDBMSVendorName;
-import org.plasma.query.bind.PlasmaQueryDataBinding;
-import org.plasma.query.collector.Selection;
 import org.plasma.query.collector.SelectionCollector;
 import org.plasma.query.model.From;
 import org.plasma.query.model.GroupBy;
@@ -61,7 +54,6 @@ import org.plasma.query.model.Variable;
 import org.plasma.query.model.Where;
 import org.plasma.query.visitor.DefaultQueryVisitor;
 import org.plasma.query.visitor.QueryVisitor;
-import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -71,9 +63,7 @@ import org.plasma.sdo.access.MaxResultsExceededException;
 import org.plasma.sdo.access.QueryDispatcher;
 import org.plasma.sdo.access.provider.common.DataObjectHashKeyAssembler;
 import org.plasma.sdo.access.provider.common.PropertyPair;
-import org.cloudgraph.rdb.service.AliasMap;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
-import org.xml.sax.SAXException;
 
 import commonj.sdo.Property;
 import commonj.sdo.Type;
@@ -84,9 +74,13 @@ public class GraphQuery extends JDBCSupport
 {
     private static Log log = LogFactory.getLog(GraphQuery.class);
     private static final String ROWNUM = "R_NM";
+    private Connection con;
 
-    public GraphQuery()
+    @SuppressWarnings("unused")
+	private GraphQuery() {}
+    public GraphQuery(Connection con)
     {
+    	this.con = con;
     }
 
     public PlasmaDataGraph[] find(Query query, Timestamp snapshotDate)
@@ -96,12 +90,6 @@ public class GraphQuery extends JDBCSupport
 
     public PlasmaDataGraph[] find(Query query, int requestMax, Timestamp snapshotDate)  
     {
-        Connection con = null;
-		try {
-			con = RDBConnectionManager.instance().getConnection();
-		} catch (SQLException e2) {
-            throw new DataAccessException(e2);
-		}
         From from = query.getFromClause();
         PlasmaType type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(from.getEntity().getNamespaceURI(), 
         		from.getEntity().getName());
@@ -133,13 +121,6 @@ public class GraphQuery extends JDBCSupport
         catch (SQLException e) {
         	throw new RDBServiceException(e);
         }
-        finally {
-            try {
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
-        }
         
         return results;
     }
@@ -152,21 +133,10 @@ public class GraphQuery extends JDBCSupport
      */
     public int count(Query query)
     {
-        Connection con = null;
-		try {
-			con = RDBConnectionManager.instance().getConnection();
-		} catch (SQLException e2) {
-            throw new DataAccessException(e2);
-		}
         From from = query.getFromClause();
         PlasmaType type = (PlasmaType)PlasmaTypeHelper.INSTANCE.getType(from.getEntity().getNamespaceURI(), 
         		from.getEntity().getName());
         int size = this.countResults(con, query, type);
-        try {
-			con.close();
-		} catch (SQLException e) {
-            log.error(e.getMessage(), e);
-		}
         return size;
     }
 
@@ -406,10 +376,6 @@ public class GraphQuery extends JDBCSupport
     {
         Object[] params = new Object[0];
         RDBDataConverter converter = RDBDataConverter.INSTANCE;
-
-        if (log.isDebugEnabled() ){
-            log(query);
-        }
 
         AliasMap aliasMap = new AliasMap(type);
                
@@ -686,22 +652,6 @@ public class GraphQuery extends JDBCSupport
 		// TODO Auto-generated method stub
 		
 	}
-
-    protected void log(Query root)
-    {
-    	String xml = "";
-        PlasmaQueryDataBinding binding;
-		try {
-			binding = new PlasmaQueryDataBinding(
-			        new DefaultValidationEventHandler());
-	        xml = binding.marshal(root);
-		} catch (JAXBException e) {
-			log.debug(e);
-		} catch (SAXException e) {
-			log.debug(e);
-		}
-        log.debug("where: " + xml);
-    }
 
 }
 

@@ -21,7 +21,6 @@
  */
 package org.cloudgraph.rdb.service;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -42,12 +41,8 @@ import org.apache.commons.logging.LogFactory;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.DataType;
 import org.plasma.sdo.PlasmaProperty;
-import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.helper.DataConverter;
-import org.plasma.sdo.profile.KeyType;
 
-import commonj.sdo.DataObject;
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 

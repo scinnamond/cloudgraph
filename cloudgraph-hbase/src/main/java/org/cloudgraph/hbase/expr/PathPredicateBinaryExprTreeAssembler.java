@@ -109,11 +109,7 @@ public abstract class PathPredicateBinaryExprTreeAssembler extends DefaultBinary
 	 */
 	@Override
     public void end(Property property)
-    {                
-        org.plasma.query.model.FunctionValues function = property.getFunction();
-        if (function != null)
-            throw new GraphFilterException("aggregate functions only supported in subqueries not primary queries");
-          
+    {                          
         Path path = property.getPath();
         PlasmaType targetType = (PlasmaType)this.edgeType;                
         if (path != null)
