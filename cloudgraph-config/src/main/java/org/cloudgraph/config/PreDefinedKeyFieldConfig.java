@@ -44,8 +44,8 @@ public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
 	private PredefinedField field;
 	
 	public PreDefinedKeyFieldConfig(PredefinedField field, 
-		int seqNum) {
-		super(field, seqNum);
+		int seqNum, int totalFields) {
+		super(field, seqNum, totalFields);
 		this.field = field;
 	}
 

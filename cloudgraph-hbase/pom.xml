@@ -4,17 +4,17 @@
     <parent>
         <groupId>org.cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.5.7</version>
+        <version>0.5.8</version>
     </parent>
     <groupId>org.cloudgraph</groupId>
     <artifactId>cloudgraph-hbase</artifactId>
     <packaging>jar</packaging>
-    <version>0.5.7</version>
+    <version>0.5.8</version>
     <name>CloudGraph HBase Service</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
 	<properties>
-		<cloudgraph.version>0.5.7</cloudgraph.version>
-		<plasma.version>1.1.7</plasma.version>
+		<cloudgraph.version>0.5.8</cloudgraph.version>
+		<plasma.version>1.1.8</plasma.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <slf4j.version>1.6.1</slf4j.version>
  	</properties>
@@ -23,12 +23,12 @@
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-common</artifactId>
-            <version>0.5.7</version>
+            <version>0.5.8</version>
         </dependency>
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-config</artifactId>
-            <version>0.5.7</version>
+            <version>0.5.8</version>
         </dependency>
         <!-- 
              sl4j (note: slf4j must be present or causes Zookeeper 
@@ -49,7 +49,7 @@
         <dependency>
             <groupId>org.terrameta</groupId>
             <artifactId>plasma-common</artifactId>
-            <version>1.1.7</version>
+            <version>1.1.8</version>
             <exclusions>
             	<exclusion>
             		<artifactId>jaxb-api</artifactId>
@@ -60,7 +60,7 @@
         <dependency>
             <groupId>org.terrameta</groupId>
             <artifactId>plasma-sdo</artifactId>
-            <version>1.1.7</version>
+            <version>1.1.8</version>
             <exclusions>
             	<exclusion>
             		<artifactId>jaxb-api</artifactId>
@@ -224,6 +224,16 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.3</version>
+				<configuration>
+					<excludes>
+						<exclude>**/*.xml</exclude>
+                        <exclude>**/Plasma_SDO_Profile*.mdxml</exclude>
+						<exclude>**/*.mdxml</exclude>
+						<exclude>**/*.properties</exclude>
+						<exclude>com/*</exclude>
+						<exclude>**/test/*</exclude>
+					</excludes>
+				</configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -238,7 +248,7 @@
             <plugin>
                 <groupId>org.terrameta</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
-                <version>1.1.7</version>
+                <version>1.1.8</version>
                 <executions>
                     <execution>
                         <id>sdo-create</id>
@@ -364,7 +374,7 @@
                       <goal>test</goal>
                     </goals>
                     <configuration>
-                        <skip>false</skip>
+                        <skip>true</skip>
                         <additionalClasspathElements>
                             <additionalClasspathElement>${basedir}/src/main/resources</additionalClasspathElement>
                             <additionalClasspathElement>${basedir}/src/test/resources</additionalClasspathElement>
@@ -440,7 +450,7 @@
                     <!-- debugging -->  
                        <!--   
                     <argLine>-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8002,server=y,suspend=y</argLine>                      
-                           --> 
+                          -->  
                     <!-- profiling  -->
                     <!--
                     <argLine>-Xrunhprof:cpu=samples,depth=25</argLine>  
@@ -481,7 +491,7 @@
                                             plasma-maven-plugin
                                         </artifactId>
                                         <versionRange>
-                                            [1.1.7,)
+                                            [1.1.8,)
                                         </versionRange>
                                         <goals>
                                             <goal>sdo</goal>

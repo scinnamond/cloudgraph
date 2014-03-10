@@ -35,22 +35,29 @@ import commonj.sdo.DataObject;
  */
 public abstract class KeyFieldConfig {
     protected int sequenceNum;
+    /** the total number of fields in the row or column composite key */
+    protected int totalFields;
     protected Charset charset = Charset.forName( CoreConstants.UTF8_ENCODING );
     private KeyField field;
     
     @SuppressWarnings("unused")
 	private KeyFieldConfig() {}
     
- 	public KeyFieldConfig(KeyField field, int sequenceNum) {
+ 	public KeyFieldConfig(KeyField field, int sequenceNum, int totalFields) {
 		super();
 		this.field = field;
 		this.sequenceNum = sequenceNum;
+		this.totalFields = totalFields;
 	}
-
+ 	
 	public int getSeqNum() {
 		return sequenceNum;
 	}
 	
+	public int getTotalFields() {
+		return totalFields;
+	}
+
 	public boolean isHash() {
 		return this.field.isHash();
 	}

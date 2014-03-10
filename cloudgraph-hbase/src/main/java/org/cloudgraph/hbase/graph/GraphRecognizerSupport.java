@@ -21,12 +21,15 @@
  */
 package org.cloudgraph.hbase.graph;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.query.Wildcard;
 import org.plasma.query.model.AbstractPathElement;
@@ -51,6 +54,7 @@ import commonj.sdo.DataObject;
  * @since 0.5.3
  */
 public class GraphRecognizerSupport {
+    private static Log log = LogFactory.getLog(GraphRecognizerSupport.class);
 	@SuppressWarnings("rawtypes")
 	private NumberComparator numberComparator = 
  			new NumberComparator();
@@ -225,6 +229,7 @@ public class GraphRecognizerSupport {
 		switch (property.getDataFlavor()) {
 		case string:
 			String propertyStringValue = (String)propertyValue;
+			propertyStringValue = propertyStringValue.trim(); // as trailing newlines confuse regexp greatly
 			String literalStringValue = (String)this.dataConverter.convert(property.getType(), literal);
 			result = evaluate(propertyStringValue, 
 				operator,
@@ -280,13 +285,40 @@ public class GraphRecognizerSupport {
 		String literalValue) 
 	{
 		if (this.wildcardLiteralPattern == null) {
-			String pattern = literalValue.replace(
-				Wildcard.WILDCARD_CHAR, "." + Wildcard.WILDCARD_CHAR);
+			String pattern = wildcardToRegex(literalValue);
 			this.wildcardLiteralPattern = Pattern.compile(pattern);
 		}
 		Matcher matcher = this.wildcardLiteralPattern.matcher(propertyValue);
 		return matcher.matches();
 	}
+	
+    private String wildcardToRegex(String wildcard){
+        StringBuffer s = new StringBuffer(wildcard.length());
+        s.append('^');
+        for (int i = 0, is = wildcard.length(); i < is; i++) {
+            char c = wildcard.charAt(i);
+            switch(c) {
+                case '*':
+                    s.append(".*");
+                    break;
+                case '?':
+                    s.append(".");
+                    break;
+                    // escape special regexp-characters
+                case '(': case ')': case '[': case ']': case '$':
+                case '^': case '.': case '{': case '}': case '|':
+                case '\\':
+                    s.append("\\");
+                    s.append(c);
+                    break;
+                default:
+                    s.append(c);
+                    break;
+            }
+        }
+        s.append('$');
+        return(s.toString());
+    }
 	
 	private boolean evaluate(
 		RelationalOperatorValues operator,

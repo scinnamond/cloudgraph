@@ -288,10 +288,11 @@ public class GraphQuery
 	        GraphRecognizerSyntaxTreeAssembler recognizerAssembler = new GraphRecognizerSyntaxTreeAssembler(
 	        		where, type);
 	        graphRecognizerRootExpr = recognizerAssembler.getResult();
-	        ExprPrinter printer = new ExprPrinter();
-	        graphRecognizerRootExpr.accept(printer);
-	        if (log.isDebugEnabled())
+	        if (log.isDebugEnabled()) {
+		        ExprPrinter printer = new ExprPrinter();
+		        graphRecognizerRootExpr.accept(printer);
 	            log.debug("Graph Recognizer: " + printer.toString());
+	        }
 	        ScanCollector scanCollector = new ScanCollector(type);
 	        graphRecognizerRootExpr.accept(scanCollector);
 	        partialScans = scanCollector.getPartialRowKeyScans();
@@ -422,27 +423,34 @@ public class GraphQuery
     	return false;
     }
 
-    private List<PlasmaDataGraph> execute(PartialRowKey partialScan, 
+    private List<PlasmaDataGraph> execute(PartialRowKey partialRowKey, 
     		Integer startRange, Integer endRange,
     		TableReader rootTableReader,
     		Filter columnFilter,
     		HBaseGraphAssembler graphAssembler, 
-    		Expr graphRecognizerRootExpr) throws IOException {
-    	
+    		Expr graphRecognizerRootExpr) throws IOException {    	
+        Scan scan = createScan(partialRowKey, 
+        		startRange, endRange, columnFilter);
+  		return execute(scan,  
+  			rootTableReader, graphAssembler, 
+    		graphRecognizerRootExpr);
+    }
+    
+    private Scan createScan(PartialRowKey partialRowKey, 
+    		Integer startRange, Integer endRange,
+    		Filter columnFilter) {
         FilterList rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ALL);
         rootFilter.addFilter(columnFilter);
         Scan scan = new Scan();
         scan.setFilter(rootFilter);        
-		scan.setStartRow(partialScan.getStartKey()); // inclusive
-        scan.setStopRow(partialScan.getStopKey()); // exclusive
+		scan.setStartRow(partialRowKey.getStartKey()); // inclusive
+        scan.setStopRow(partialRowKey.getStopKey()); // exclusive
   		if (log.isDebugEnabled())
 			log.debug("using partial row key scan: (" 
   		        + "start: '" + Bytes.toString(scan.getStartRow())
   		        + "' stop: '" + Bytes.toString(scan.getStopRow()) + "')");	
-  		return execute(scan,  
-  			rootTableReader, graphAssembler, 
-    		graphRecognizerRootExpr);
+    	return scan;
     }
     
     private List<PlasmaDataGraph> execute(CompleteRowKey rowKey, 
@@ -469,8 +477,17 @@ public class GraphQuery
     		TableReader rootTableReader,
     		Filter columnFilter,
     		HBaseGraphAssembler graphAssembler, 
-    		Expr graphRecognizerRootExpr) throws IOException {
-    	
+    		Expr graphRecognizerRootExpr) throws IOException {    	
+        Scan scan = createScan(fuzzyScan,
+        		startRange, endRange, columnFilter);
+  		return execute(scan,   
+  			rootTableReader, graphAssembler, 
+    		graphRecognizerRootExpr);
+    }
+    
+    private Scan createScan(FuzzyRowKey fuzzyScan,
+    		Integer startRange, Integer endRange,
+    		Filter columnFilter) throws IOException {
         FilterList rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ALL);
         rootFilter.addFilter(columnFilter);
@@ -486,9 +503,8 @@ public class GraphQuery
         if (log.isDebugEnabled() ) 
         	log.debug("using fuzzy scan: " 
                 + FilterUtil.printFilterTree(fuzzyFilter));
-  		return execute(scan,   
-  			rootTableReader, graphAssembler, 
-    		graphRecognizerRootExpr);
+		
+		return scan;
     }
     
     private List<PlasmaDataGraph> execute(Get get, 
@@ -673,6 +689,7 @@ public class GraphQuery
      * @param snapshotDate the query snapshot date
      * @return the graph assembler
      */
+    //FIXME generalize
     private HBaseGraphAssembler createGraphAssembler(
     		PlasmaType type,
     		FederatedReader graphReader,

@@ -26,26 +26,31 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.plasma.query.Wildcard;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.query.model.RelationalOperatorValues;
 
 /**
  * A collection of scan literals which provides various accessor methods which
- * indicate the applicability of the collection under various scan operations. Given that a query
+ * indicate the applicability of the scan literal collection under various scan operations. Given that a query
  * may represent any number of scans or gets, clients should ensure that the collection is
  * populated with literals applicable for its query expression context. 
- * populate the collection with literals under 
  * @see ScanLiteral
  * @author Scott Cinnamond
  * @since 0.5
  */
 public class ScanLiterals {
+    private static Log log = LogFactory.getLog(ScanLiterals.class);
 	private Map<Integer, List<ScanLiteral>> literalMap = new HashMap<Integer, List<ScanLiteral>>();
 	private List<ScanLiteral> literalList = new ArrayList<ScanLiteral>();
-	private boolean hasWildcards = false;
+	private boolean hasWildcardLiterals = false;
+	private boolean hasMultipleWildcardLiterals = false;
+	private boolean hasOtherThanSingleTrailingWildcards = false;
 	private boolean hasOnlyEqualityRelationalOperators = true;
 	private Map<DataGraphConfig, Boolean> hasContiguousPartialKeyScanFieldValuesMap;
 	private Map<DataGraphConfig, Boolean> hasContiguousKeyFieldValuesMap;
@@ -66,8 +71,24 @@ public class ScanLiterals {
     }
     
     public void addLiteral(ScanLiteral scanLiteral) {
-    	if (scanLiteral instanceof WildcardStringLiteral)
-    		this.hasWildcards = true;
+    	if (scanLiteral instanceof WildcardStringLiteral) {
+    		if (this.hasWildcardLiterals)
+    			this.hasMultipleWildcardLiterals = true;
+    		this.hasWildcardLiterals = true;
+    		
+    		WildcardStringLiteral wildcardStringLiteral = (WildcardStringLiteral)scanLiteral;
+    		String content = wildcardStringLiteral.getContent().trim();
+    		if (!content.endsWith(Wildcard.WILDCARD_CHAR))
+    		{
+    			this.hasOtherThanSingleTrailingWildcards = true;
+    		}
+    		else {
+    			// it has another wildcard preceding the trailing one
+    			if (content.indexOf(Wildcard.WILDCARD_CHAR) < content.length()-1) {
+    				this.hasOtherThanSingleTrailingWildcards = true;
+    			}
+    		}
+    	}
     	
     	RelationalOperator oper = scanLiteral.getRelationalOperator();
 	    if (oper != null) {
@@ -98,8 +119,26 @@ public class ScanLiterals {
      */
     public boolean supportPartialRowKeyScan(DataGraphConfig graph)
     {
-    	if (this.hasWildcards)
+    	if (this.hasMultipleWildcardLiterals || this.hasOtherThanSingleTrailingWildcards)
     		return false;
+    	
+    	// ensure if there is a wildcard literal that its the last literal
+    	// in terms of sequence within the row key definition
+    	if (this.hasWildcardLiterals) {
+    		int maxLiteralSeq = 0;
+    		int wildcardLiteralSeq = 0;
+    		for (ScanLiteral literal : literalList) {
+    			if (literal.getFieldConfig().getSeqNum() > maxLiteralSeq)
+    				maxLiteralSeq = literal.getFieldConfig().getSeqNum();
+    			if (literal instanceof WildcardStringLiteral) {
+    				if (wildcardLiteralSeq > 0)
+    					log.warn("detected multiple wildcard literals - ignoring");
+    				wildcardLiteralSeq = literal.getFieldConfig().getSeqNum();
+    			}
+    		}
+    		if (wildcardLiteralSeq != maxLiteralSeq)
+    			return false;
+		}
     	
     	if (hasContiguousPartialKeyScanFieldValuesMap == null)
     		hasContiguousPartialKeyScanFieldValuesMap = new HashMap<DataGraphConfig, Boolean>();
@@ -118,7 +157,7 @@ public class ScanLiterals {
 	    	
 	    	this.hasContiguousPartialKeyScanFieldValuesMap.put(graph, hasContiguousPartialKeyScanFieldValues);
     	}
-    
+    	
     	return this.hasContiguousPartialKeyScanFieldValuesMap.get(graph).booleanValue();
     }
  
@@ -131,7 +170,7 @@ public class ScanLiterals {
      */
     public boolean supportCompleteRowKey(DataGraphConfig graph)
     {
-    	if (this.hasWildcards)
+    	if (this.hasWildcardLiterals)
     		return false;
     	
     	if (!this.hasOnlyEqualityRelationalOperators)

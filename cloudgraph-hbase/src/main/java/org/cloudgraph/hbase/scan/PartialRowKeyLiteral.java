@@ -36,6 +36,30 @@ package org.cloudgraph.hbase.scan;
 public interface PartialRowKeyLiteral {
 
 	/**
+	 * Returns the HBase scan "start-row" composite row-key field 
+	 * bytes for this literal under the various relational, logical 
+	 * operator and other optionally configurable hashing, 
+	 * formatting and padding features.
+	 * @return the HBase scan "start-row" composite row-key field 
+	 * bytes for this literal under the various relational, logical 
+	 * operator and other optionally configurable hashing, 
+	 * formatting and padding features.
+	 */
+	public byte[] getStartBytes();
+	
+	/**
+	 * Returns the HBase scan "stop-row" composite row-key field 
+	 * bytes for this literal under the various relational, logical 
+	 * operator and other optionally configurable hashing, 
+	 * formatting and padding features.
+	 * @return the HBase scan "stop-row" composite row-key field 
+	 * bytes for this literal under the various relational, logical 
+	 * operator and other optionally configurable hashing, 
+	 * formatting and padding features.
+	 */
+	public byte[] getStopBytes(); 
+
+    /**
 	 * Returns the "start row" bytes 
 	 * used to represent "equals" relational operator 
 	 * under an HBase partial row-key scan under 
@@ -174,4 +198,5 @@ public interface PartialRowKeyLiteral {
 	 * formatting and padding features.
 	 */	
 	public byte[] getLessThanEqualStopBytes();
+	
 }

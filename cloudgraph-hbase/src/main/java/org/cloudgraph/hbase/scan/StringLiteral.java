@@ -73,6 +73,7 @@ public class StringLiteral extends ScanLiteral
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
+	@Override
 	public byte[] getEqualsStartBytes() {
 		byte[] startBytes = null;
 		String startValueStr = this.literal;
@@ -96,13 +97,14 @@ public class StringLiteral extends ScanLiteral
 	 * used to represent "equals" relational operator 
 	 * under an HBase partial row-key scan for this string (data flavor) literal under 
 	 * the various optionally configurable hashing, 
-	 * formatting and padding features.
+	 * formatting and padding features. 
 	 * @return the "stop row" bytes 
 	 * used to represent "equals" relational operator 
 	 * under an HBase partial row-key scan for this string (data flavor) literal under 
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
+	@Override
 	public byte[] getEqualsStopBytes() {
 		byte[] stopBytes = null;
 		String stopValueStr = this.literal;
@@ -114,20 +116,13 @@ public class StringLiteral extends ScanLiteral
 					DataFlavor.integral);
 		}
 		else {
-			 
-			stopValueStr = stopValueStr + INCREMENT;  
-			stopBytes = stopValueStr.getBytes(this.charset);
-			stopBytes = this.padding.pad(stopBytes, 
-					this.fieldConfig.getMaxLength(), 
-					this.fieldConfig.getDataFlavor());
-			/* 
 			stopValueStr = this.padding.pad(stopValueStr, 
 					this.fieldConfig.getMaxLength(), 
-					this.fieldConfig.getDataFlavor());
-			
-			stopValueStr = stopValueStr + INCREMENT;
+					this.fieldConfig.getDataFlavor());			
+			stopValueStr = stopValueStr + INCREMENT; // add increment value after padding to
+			// screen out key fields with other suffixes
 			stopBytes = stopValueStr.getBytes(this.charset);
-			*/
+			 
 		}
 		return stopBytes;
 	}	
@@ -144,6 +139,7 @@ public class StringLiteral extends ScanLiteral
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
+	@Override
 	public byte[] getGreaterThanStartBytes() {
 		byte[] startBytes = null;
 		String startValueStr = this.literal;
@@ -172,6 +168,7 @@ public class StringLiteral extends ScanLiteral
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
+	@Override
 	public byte[] getGreaterThanStopBytes() {
 	    return new byte[0];
 	}
@@ -188,6 +185,7 @@ public class StringLiteral extends ScanLiteral
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
+	@Override
 	public byte[] getGreaterThanEqualStartBytes() {
 	    return this.getEqualsStartBytes();
 	}
@@ -200,6 +198,7 @@ public class StringLiteral extends ScanLiteral
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
+	@Override
 	public byte[] getGreaterThanEqualStopBytes() {
 	    return new byte[0];
 	}
@@ -212,6 +211,7 @@ public class StringLiteral extends ScanLiteral
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
+	@Override
 	public byte[] getLessThanStartBytes() {
 	    return new byte[0];
 	}
@@ -228,6 +228,7 @@ public class StringLiteral extends ScanLiteral
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
+	@Override
 	public byte[] getLessThanStopBytes() {
 		byte[] stopBytes = null;
 		String stopValueStr = this.literal;
@@ -256,6 +257,7 @@ public class StringLiteral extends ScanLiteral
 	 * @return an empty
 	 * byte array or "no-op". 
 	 */
+	@Override
 	public byte[] getLessThanEqualStartBytes() {
 	    return new byte[0];
 	}
@@ -272,6 +274,7 @@ public class StringLiteral extends ScanLiteral
 	 * the various optionally configurable hashing, 
 	 * formatting and padding features.
 	 */	
+	@Override
 	public byte[] getLessThanEqualStopBytes() {
 		byte[] stopBytes = null;
 		String stopValueStr = this.literal;

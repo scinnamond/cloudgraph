@@ -46,8 +46,8 @@ import org.plasma.sdo.PlasmaType;
 /**
  * Collector visitor which supports the "recognition" of one or more 
  * {@link PartialRowKey partial}, {@link FuzzyRowKey fuzzy} and other
- * scan constructs within the context of a binary 
- * {@link Expr expression} syntax tree encapsulating operator precedence
+ * scan constructs within the context of a binary (query) 
+ * {@link Expr expression} syntax tree, encapsulating operator precedence
  * and other factors. 
  * <p>
  * Composite row key scans represent only {@link org.cloudgraph.hbase.expr.LogicalBinaryExpr logical binary} 'AND'

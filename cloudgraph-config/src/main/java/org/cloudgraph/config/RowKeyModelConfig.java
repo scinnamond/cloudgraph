@@ -21,17 +21,26 @@
  */
 package org.cloudgraph.config;
 
-/**
- * The configuration for a column key.
- * @author Scott Cinnamond
- * @since 0.5.1
- */
-public class ColumnKeyFieldConfig extends PreDefinedKeyFieldConfig {
 
-	private ColumnKeyField columnKeyField;
+/**
+ * Encapsulates logic related to access of row key model
+ * configuration information.  
+ * @author Scott Cinnamond
+ * @since 0.5.8
+ */
+public class RowKeyModelConfig {
 	
-	public ColumnKeyFieldConfig(ColumnKeyField field, int seqNum, int totalFields) {
-		super(field, seqNum, totalFields);
-		this.columnKeyField = field;
+	private RowKeyModel rowKeyModel;
+    
+    @SuppressWarnings("unused")
+	private RowKeyModelConfig() {}
+    
+	public RowKeyModelConfig(RowKeyModel rowKeyModel) {
+		super();
+		this.rowKeyModel = rowKeyModel;
+	}
+
+	public int getRowKeyFieldCount() {
+		return rowKeyModel.rowKeyFields.size();
 	}
 }

@@ -124,7 +124,7 @@ public abstract class ScanLiteral {
 	 * operator and other optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	public final byte[] getStartBytes() {
+	public byte[] getStartBytes() {
 		switch (this.relationalOperator.getValue()) {
 		case EQUALS:
 			return getEqualsStartBytes();
@@ -154,7 +154,7 @@ public abstract class ScanLiteral {
 	 * operator and other optionally configurable hashing, 
 	 * formatting and padding features.
 	 */
-	public final byte[] getStopBytes() {
+	public byte[] getStopBytes() {
 		switch (this.relationalOperator.getValue()) {
 		case EQUALS:
 			return getEqualsStopBytes();

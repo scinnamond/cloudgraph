@@ -19,19 +19,23 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.config;
+package org.cloudgraph.hbase.mapreduce;
+
+import java.io.IOException;
+
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.plasma.query.Query;
 
 /**
- * The configuration for a column key.
- * @author Scott Cinnamond
- * @since 0.5.1
+ *
+ * @param <KEYIN>  The type of the input key.
+ * @param <VALUEIN>  The type of the input value.
+ * @param <KEYOUT>  The type of the output key.
+ * @see org.apache.hadoop.mapreduce.Reducer
  */
-public class ColumnKeyFieldConfig extends PreDefinedKeyFieldConfig {
+public abstract class GraphReducer<KEYIN, VALUEIN, KEYOUT>
+extends Reducer<KEYIN, VALUEIN, KEYOUT, Writable> {
 
-	private ColumnKeyField columnKeyField;
-	
-	public ColumnKeyFieldConfig(ColumnKeyField field, int seqNum, int totalFields) {
-		super(field, seqNum, totalFields);
-		this.columnKeyField = field;
-	}
 }

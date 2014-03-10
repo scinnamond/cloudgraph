@@ -56,7 +56,8 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
     public void setUp() throws Exception {
         super.setUp();
     } 
-    
+ 
+     
     public void testEqual() throws IOException       
     {
         long rootId = System.currentTimeMillis();
@@ -82,8 +83,63 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
         String xml = serializeGraph(fetched.getDataGraph());
         log.debug("GRAPH: " + xml);
         assertTrue(fetched.getRootId() == rootId);
+    } 
+    
+    public void testEqual2() throws IOException       
+    {
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + WAIT_TIME;
+        Date now1 = new Date(id1);
+        Node root1 = this.createGraph(rootId, id1, now1, "AAA");
+        service.commit(root1.getDataGraph(), USERNAME);
+
+        long id2 = id1 + WAIT_TIME;
+        Date now2 = new Date(id2);
+        Node root2 = this.createGraph(rootId, id2, now2, "AAA 222");
+        service.commit(root2.getDataGraph(), USERNAME);
+
+        long id3 = id2 + WAIT_TIME;
+        Date now3 = new Date(id3);
+        Node root3 = this.createGraph(rootId, id3, now3, "AAA 333");
+        service.commit(root3.getDataGraph(), USERNAME);                
+        
+        // fetch  
+        Node fetched = this.fetchSingleGraph(root1.getRootId(), 
+        		"AAA_0_0"); // note: root node gets '_0_0' suffix
+        // expecting only first node NOT 'AAA 222_0_0' or 'AAA 333_0_0' 
+        String xml = serializeGraph(fetched.getDataGraph());
+        log.debug("GRAPH: " + xml);
+        assertTrue(fetched.getRootId() == rootId);
     }  
-      
+  
+    public void testPartialKeyWildcard() throws IOException       
+    {
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + WAIT_TIME;
+        Date now1 = new Date(id1);
+        Node root1 = this.createGraph(rootId, id1, now1, "AAA 111");
+        service.commit(root1.getDataGraph(), USERNAME);
+
+        long id2 = id1 + WAIT_TIME;
+        Date now2 = new Date(id2);
+        Node root2 = this.createGraph(rootId, id2, now2, "AAA 112");
+        service.commit(root2.getDataGraph(), USERNAME);
+
+        long id3 = id2 + WAIT_TIME;
+        Date now3 = new Date(id3);
+        Node root3 = this.createGraph(rootId, id3, now3, "AAA 113");
+        service.commit(root3.getDataGraph(), USERNAME);                
+        
+        Node[] fetched = this.fetchGraphsLike(
+        		rootId, "AAA*");
+        assertTrue("expected 3 results not " + fetched.length, fetched.length == 3);
+        debugGraph(fetched[0].getDataGraph());
+        debugGraph(fetched[1].getDataGraph());
+        debugGraph(fetched[2].getDataGraph());
+      }  
+     
     public void testBetween() throws IOException       
     {
         long rootId = System.currentTimeMillis();
@@ -104,9 +160,9 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
         service.commit(root3.getDataGraph(), USERNAME);                
         
         Node[] fetched = this.fetchGraphsBetween(
-        		id1, id3, 
+        		rootId, 
         		root1.getStringField(), root3.getStringField());
-        assertTrue("expected 3 results", fetched.length == 3);
+        assertTrue("expected 3 results not " + fetched.length, fetched.length == 3);
         debugGraph(fetched[0].getDataGraph());
         debugGraph(fetched[1].getDataGraph());
         debugGraph(fetched[2].getDataGraph());
@@ -166,7 +222,7 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
 
         debugGraph(fetched[0].getDataGraph());
     }    
-   
+     
     protected Node fetchSingleGraph(long id, String name) {    	
     	QStringNode root = createSelect();
     	
@@ -183,11 +239,26 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
     	
     	return (Node)result[0].getRootObject();
     }
+    
+    protected Node[] fetchGraphsLike(long rootId,
+    		String nameWildcard) {    	
+    	QStringNode root = createSelect();
+    	root.where(root.rootId().eq(rootId)
+    		.and(root.stringField().like(nameWildcard)));
+    	
+    	DataGraph[] result = service.find(root);
+    	assertTrue(result != null);
+    	
+    	Node[] profiles = new Node[result.length];
+    	for (int i = 0; i < result.length; i++) 
+    		profiles[i] = (Node)result[i].getRootObject();
+    	return profiles;
+    }
 
-    protected Node[] fetchGraphsBetween(long min, long max,
+    protected Node[] fetchGraphsBetween(long rootId,
     		String minName, String maxName) {    	
     	QStringNode root = createSelect();
-    	root.where(root.rootId().between(min, max)
+    	root.where(root.rootId().eq(rootId)
     		.and(root.stringField().between(minName, maxName)));
     	
     	DataGraph[] result = service.find(root);

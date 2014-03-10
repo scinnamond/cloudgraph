@@ -30,7 +30,7 @@
         <dependency>
             <groupId>plasma</groupId>
             <artifactId>plasma-sdo</artifactId>
-            <version>1.1.7</version>
+            <version>1.1.8</version>
         </dependency>
         <dependency>
             <groupId>cloudgraph</groupId>
@@ -60,7 +60,7 @@
             <plugin>
                 <groupId>plasma</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
-                <version>1.1.7</version>
+                <version>1.1.8</version>
                 <executions>
                     <execution>
                         <id>sdo-create</id>
@@ -166,7 +166,7 @@
 											plasma-maven-plugin
 										</artifactId>
 										<versionRange>
-											[1.1.7,)
+											[1.1.8,)
 										</versionRange>
 										<goals>
 											<goal>dsl</goal>

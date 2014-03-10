@@ -37,10 +37,7 @@ import org.plasma.sdo.PlasmaType;
 
 /**
  * An {@link RelationalBinaryExpr} implementation which uses a specific 
- * evaluation {@link ScanRecognizerContext context} to 
- * 
- * 
- * evaluate
+ * evaluation {@link ScanRecognizerContext context} to evaluate
  * the value(s) of a data graph property along the query property
  * traversal path within the context of a binary expression (syntax) tree.       
  * 

@@ -236,7 +236,8 @@ public abstract class DefaultAssembler {
         	if (opposite != null && !opposite.isMany() && target.isSet(opposite)) {
                 PlasmaDataObject existingOpposite = (PlasmaDataObject)target.get(opposite);
                 if (existingOpposite != null) {
-                    log.warn("encountered existing opposite (" + existingOpposite.getType().getName()
+                	if (log.isDebugEnabled())
+                        log.debug("encountered existing opposite (" + existingOpposite.getType().getName()
                             + ") value found while creating link " + source.toString()  
                             + "." + sourceProperty.getName() + "->"
                             + target.toString() + " - no link created");
@@ -253,7 +254,8 @@ public abstract class DefaultAssembler {
                 	if (opposite != null && !opposite.isMany() && existing.isSet(opposite)) {
                         PlasmaDataObject existingOpposite = (PlasmaDataObject)existing.get(opposite);
                         if (existingOpposite != null) {
-                        	log.warn("encountered existing opposite (" + existingOpposite.getType().getName()
+                        	if (log.isDebugEnabled())
+                                log.debug("encountered existing opposite (" + existingOpposite.getType().getName()
                                     + ") value found while creating link " + source.toString()  
                                     + "." + sourceProperty.getName() + "->"
                                     + target.toString() + " - no link created");

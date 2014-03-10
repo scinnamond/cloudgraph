@@ -64,18 +64,20 @@ public class DataGraphConfig {
         for (Property prop : graph.getProperties())
         	propertyNameToPropertyMap.put(prop.getName(), prop);
 		
+        
+        int totalRowKeyFields = this.graph.getRowKeyModel().getRowKeyFields().size();
 		int seqNum = 1;
 		for (RowKeyField rowKeyField : this.graph.getRowKeyModel().getRowKeyFields()) {
 			if (rowKeyField.getPredefinedField() != null) {
 				PredefinedField predefinedField = rowKeyField.getPredefinedField();
-				PreDefinedKeyFieldConfig predefinedFieldConfig = new PreDefinedKeyFieldConfig(predefinedField, seqNum);
+				PreDefinedKeyFieldConfig predefinedFieldConfig = new PreDefinedKeyFieldConfig(predefinedField, seqNum, totalRowKeyFields);
 			    preDefinedRowKeyFieldMap.put(predefinedField.getName(), predefinedFieldConfig);
 			    preDefinedRowKeyFieldList.add(predefinedFieldConfig);
 			    this.rowKeyFieldList.add(predefinedFieldConfig);
 			}
 			else if (rowKeyField.getUserDefinedField() != null) {
 				UserDefinedField userField = rowKeyField.getUserDefinedField();
-		    	UserDefinedRowKeyFieldConfig userFieldConfig = new UserDefinedRowKeyFieldConfig(this, userField, seqNum);
+		    	UserDefinedRowKeyFieldConfig userFieldConfig = new UserDefinedRowKeyFieldConfig(this, userField, seqNum, totalRowKeyFields);
 		    	userDefinedRowKeyFieldList.add(userFieldConfig);
 		    	if (this.pathToUserDefinedRowKeyMap.get(userFieldConfig.getPropertyPath()) != null) 
 		    		throw new CloudGraphConfigurationException("a user defined token path '" 
@@ -94,9 +96,10 @@ public class DataGraphConfig {
 			seqNum++;
 		}
 		
+        int totalColumnKeyFields = this.graph.getColumnKeyModel().getColumnKeyFields().size();
 		seqNum = 1;
 		for (ColumnKeyField ctoken : this.graph.getColumnKeyModel().getColumnKeyFields()) {
-			ColumnKeyFieldConfig columnFieldConfig = new ColumnKeyFieldConfig(ctoken, seqNum);
+			ColumnKeyFieldConfig columnFieldConfig = new ColumnKeyFieldConfig(ctoken, seqNum, totalColumnKeyFields);
 			preDefinedColumnKeyFieldMap.put(ctoken.getName(), columnFieldConfig);
 			seqNum++;
 		}

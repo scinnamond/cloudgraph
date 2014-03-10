@@ -44,21 +44,21 @@ public class UserDefinedRowKeyFieldConfig extends KeyFieldConfig {
     private static Log log = LogFactory.getLog(UserDefinedRowKeyFieldConfig.class);
 	
     private DataGraphConfig dataGraph;
-    private UserDefinedField userToken;
+    private UserDefinedField userDefinedField;
     /** The simple property path with any XPath traversal elements removed */
     private String propertyPath;
     private PlasmaProperty endpointProperty;
     private int maxLength;
         
 	public UserDefinedRowKeyFieldConfig(DataGraphConfig dataGraph, 
-			UserDefinedField userToken,
-			int sequenceNum) {
-		super(userToken, sequenceNum);
+			UserDefinedField userDefinedField,
+			int sequenceNum, int totalFields) {
+		super(userDefinedField, sequenceNum, totalFields);
 		this.dataGraph = dataGraph;
-		this.userToken = userToken;
+		this.userDefinedField = userDefinedField;
 		
 		try {
-			construct(this.userToken.getPath());
+			construct(this.userDefinedField.getPath());
 		}
 		catch (IllegalArgumentException e) {
 			throw new CloudGraphConfigurationException(e);
@@ -259,15 +259,15 @@ public class UserDefinedRowKeyFieldConfig extends KeyFieldConfig {
 	}
 
 	public UserDefinedField getUserToken() {
-		return userToken;
+		return userDefinedField;
 	}
 
 	public String getPathExpression() {
-		return this.userToken.getPath();
+		return this.userDefinedField.getPath();
 	}
 	
 	public boolean isHash() {
-		return this.userToken.isHash();
+		return this.userDefinedField.isHash();
 	}
 
 	public String getPropertyPath() {

@@ -48,9 +48,9 @@ public class CloudGraphContext {
 	
 	private CloudGraphContext() {		
 		 
+	    String oldFactory = System.getProperty("javax.xml.parsers.DocumentBuilderFactory");
     	System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
 	        "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl");
-	    String oldFactory = System.getProperty("javax.xml.parsers.DocumentBuilderFactory");
 	    
 		if (log.isDebugEnabled())
 		    log.debug("creating config...");
@@ -70,7 +70,8 @@ public class CloudGraphContext {
 			log.error("Error when attempting to connect to DB ", e);
 		}
 		finally {
-			System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
+			if (oldFactory != null)
+			    System.setProperty("javax.xml.parsers.DocumentBuilderFactory",
 					oldFactory);
 		}
 	}
