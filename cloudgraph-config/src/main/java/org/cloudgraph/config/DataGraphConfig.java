@@ -48,6 +48,7 @@ public class DataGraphConfig {
 	private Map<String, UserDefinedRowKeyFieldConfig> pathToUserDefinedRowKeyMap = new HashMap<String, UserDefinedRowKeyFieldConfig>();
 	private Map<commonj.sdo.Property, UserDefinedRowKeyFieldConfig> propertyToUserDefinedRowKeyMap = new HashMap<commonj.sdo.Property, UserDefinedRowKeyFieldConfig>();
     private List<KeyFieldConfig> rowKeyFieldList = new ArrayList<KeyFieldConfig>(); 
+    private List<KeyFieldConfig> columnKeyFieldList = new ArrayList<KeyFieldConfig>(); 
     private Map<String, Property> propertyNameToPropertyMap = new HashMap<String, Property>();
 
 	
@@ -101,12 +102,17 @@ public class DataGraphConfig {
 		for (ColumnKeyField ctoken : this.graph.getColumnKeyModel().getColumnKeyFields()) {
 			ColumnKeyFieldConfig columnFieldConfig = new ColumnKeyFieldConfig(ctoken, seqNum, totalColumnKeyFields);
 			preDefinedColumnKeyFieldMap.put(ctoken.getName(), columnFieldConfig);
+			this.columnKeyFieldList.add(columnFieldConfig);
 			seqNum++;
 		}
 	}
 
 	public DataGraph getGraph() {
 		return this.graph;
+	}
+	
+	public ColumnKeyModel getColumnKeyModel() {
+		return this.graph.getColumnKeyModel();
 	}
 	
 	public Type getRootType() {
@@ -158,6 +164,11 @@ public class DataGraphConfig {
 	public List<KeyFieldConfig> getRowKeyFields()
 	{
 		return this.rowKeyFieldList;
+	}
+	
+	public List<KeyFieldConfig> getColumnKeyFields()
+	{
+		return this.columnKeyFieldList;
 	}
 
 	/**

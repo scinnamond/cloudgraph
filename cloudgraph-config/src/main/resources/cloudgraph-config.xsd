@@ -369,6 +369,9 @@ column field may be specified.
             <xsd:documentation>Composite pre-defined row key field names</xsd:documentation>
         </xsd:annotation>
         <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="pkg">
+                <xsd:annotation><xsd:documentation>The package pre-defined field name</xsd:documentation></xsd:annotation>
+            </xsd:enumeration>
             <xsd:enumeration value="uri">
                 <xsd:annotation><xsd:documentation>The universal resource identifier pre-defined field name</xsd:documentation></xsd:annotation>
             </xsd:enumeration>

@@ -28,6 +28,8 @@ import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.plasma.query.Query;
 
+import commonj.sdo.DataGraph;
+
 /**
  *
  * @param <KEYIN>  The type of the input key.
@@ -35,7 +37,21 @@ import org.plasma.query.Query;
  * @param <KEYOUT>  The type of the output key.
  * @see org.apache.hadoop.mapreduce.Reducer
  */
-public abstract class GraphReducer<KEYIN, VALUEIN, KEYOUT>
-extends Reducer<KEYIN, VALUEIN, KEYOUT, Writable> {
+public class GraphReducer<KEYIN, VALUEIN, KEYOUT>
+extends Reducer<KEYIN, VALUEIN, KEYOUT, Writable> implements GraphMutator, GraphAccessor {
+    private GraphServiceDelegate serviceDelegate;
+	public GraphReducer() {
+		this.serviceDelegate = new GraphServiceDelegate();
+	}
+	
+	@Override
+	public DataGraph[] find(Query query, JobContext context) throws IOException {
+		return this.serviceDelegate.find(query, context);
+	}
+	
+	@Override
+	public void commit(DataGraph graph, JobContext context) throws IOException {
+		this.serviceDelegate.commit(graph, context);
+	}
 
 }

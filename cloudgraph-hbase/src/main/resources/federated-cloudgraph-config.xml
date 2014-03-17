@@ -23,7 +23,7 @@
             </RowKeyModel>
             
             <ColumnKeyModel>
-                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="pkg"/>
                 <ColumnKeyField name="type"/>
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
@@ -45,7 +45,7 @@
             </RowKeyModel>
             
             <ColumnKeyModel>
-                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="pkg"/>
                 <ColumnKeyField name="type"/>
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
@@ -67,7 +67,7 @@
             </RowKeyModel>
             
             <ColumnKeyModel>
-                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="pkg"/>
                 <ColumnKeyField name="type"/>
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
@@ -91,7 +91,7 @@
             </RowKeyModel>
             
             <ColumnKeyModel>
-                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="pkg"/>
                 <ColumnKeyField name="type"/>
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
@@ -116,7 +116,7 @@
             </RowKeyModel>
             
             <ColumnKeyModel>
-                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="pkg"/>
                 <ColumnKeyField name="type"/>
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>
@@ -136,7 +136,7 @@
             </RowKeyModel>
             
             <ColumnKeyModel>
-                <ColumnKeyField name="uri" hash="true"/>
+                <ColumnKeyField name="pkg"/>
                 <ColumnKeyField name="type"/>
                 <ColumnKeyField name="property"/>
             </ColumnKeyModel>

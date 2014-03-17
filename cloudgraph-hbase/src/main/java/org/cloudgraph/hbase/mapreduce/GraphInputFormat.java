@@ -46,11 +46,12 @@ import org.apache.hadoop.util.StringUtils;
 
 /**
  * A graph based input-specification for MapReduce jobs which splits an
- * underlying root table by region for a given scan, then provides graph record
+ * underlying root table by region and by the scans resulting from a given 
+ * <a href="http://plasma-sdo.org/org/plasma/query/Query.html">query</a>, then provides graph record
  * {@link GraphRecordReader readers} for each <a href=
  * "http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/mapreduce/TableSplit.html"
  * >split</a> which assemble and serve data graphs to client {@link GraphMapper
- * mapper} implementations.
+ * mapper} extensions.
  * <p>
  * Data graphs are assembled within a record {@link GraphRecordReader reader}
  * based on the detailed selection criteria within a given <a

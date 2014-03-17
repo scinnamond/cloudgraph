@@ -81,44 +81,42 @@ import commonj.sdo.Type;
 /**
  * Iterates over HBase root table data for the current <code>TableSplit</code>, assembling data graphs based on the detailed selection criteria within a 
  * given <a href="http://plasma-sdo.org/org/plasma/query/Query.html">query</a>. Partially or fully
- * assembled data graphs may be passed to a {@link GraphRecordRecognizer} and potentially screened from
- * client {@link GraphMapper} extensions potentially illuminating business logic dedicated to identifying
+ * assembled data graphs may be passed to binary expression recognizer and potentially screened from
+ * client {@link GraphMapper} extensions, potentially illuminating business logic dedicated to identifying
  * specific records.   
  * <p>
- * 
+ * The recognizer uses a binary expression tree assembler 
+ * which constructs an operator 
+ * precedence map, then visits (traverses) 
+ * the given predicate expression syntax tree depth-first 
+ * using an adapted shunting-yard algorithm and assembles a 
+ * resulting binary tree structure with expression nodes specific
+ * for detecting i.e. recognizing a data graph. In typical usage 
+ * scenarios, a single expression tree is assembled once, and 
+ * then used to evaluate (recognize) any number of data graphs.
+ * <p>
+ * The adapted shunting-yard algorithm in general uses a stack of 
+ * operators and operands, and as new binary tree nodes are detected and 
+ * created they are pushed onto the operand stack based on operator precedence.
+ * The resulting binary expression tree reflects the syntax of the
+ * underlying query expression including the precedence of its operators.
  * </p>
+ * </p>
+ * @see GraphRecognizerSyntaxTreeAssembler
+ * @see GraphRecognizerContext
+ * @see GraphWritable
+ * @see HBaseGraphAssembler
+ * 
+ * @author Scott Cinnamond
+ * @since 0.5.8
  */
-public class GraphRecordRecognizer {
+public class GraphRecordRecognizer implements Counters {
 	public static final String LOG_PER_ROW_COUNT = "hbase.mapreduce.log.scanner.rowcount";
 
 	static final Log log = LogFactory.getLog(GraphRecordRecognizer.class);
 
-	/** Name of mapreduce counter group for CloudGraph */
-	private static final String CLOUDGRAPH_COUNTER_GROUP_NAME = "CloudGraph Counters";
-	
-	/** 
-	 * MapReduce counter which stores the number of data graphs successfully 
-	 * recognized by the current recognizer. Will remain zero if no recognizer
-	 * is required for the current query */
-	private static final String CLOUDGRAPH_COUNTER_NAME_NUM_RECOGNIZED_GRAPHS = "NUM_RECOGNIZED_GRAPHS";
-	
-	/** 
-	 * MapReduce counter which stores the number of data graphs not recognized by the 
-	 * current recognizer. Will remain zero if no recognizer
-	 * is required for the current query */
-	private static final String CLOUDGRAPH_COUNTER_NAME_NUM_UNRECOGNIZED_GRAPHS = "NUM_UNRECOGNIZED_GRAPHS";
-	
-	/** MapReduce counter which stores the total number of graph nodes assembled */
-	private static final String CLOUDGRAPH_COUNTER_NAME_NUM_GRAPH_NODES_ASSEMBLED = "NUM_GRAPH_NODES_ASSEMBLED";
-	
-	/** MapReduce counter which stores the total time in milliseconds taken for graph assembly */
-	private static final String CLOUDGRAPH_COUNTER_NAME_TOT_GRAPH_ASSEMBLY_TIME = "MILLIS_GRAPH_ASSEMBLY";	
-
-	/** MapReduce counter which stores the total time in milliseconds taken for graph recognition */
-	private static final String CLOUDGRAPH_COUNTER_NAME_TOT_GRAPH_RECOG_TIME = "MILLIS_GRAPH_RECOGNITION";	
 	
 	/** name of mapreduce counter group for HBase */
-	private static final String HBASE_COUNTER_GROUP_NAME = "HBase Counters";
 	private ResultScanner scanner = null;
 	private Scan scan = null;
 	private Scan currentScan = null;
@@ -223,7 +221,7 @@ public class GraphRecordRecognizer {
 			throws IOException, InterruptedException {
 		if (context != null) {
 			this.context = context;
-			getCounter = retrieveGetCounterWithStringsParams(context);
+			this.getCounter = retrieveGetCounterWithStringsParams(context);
 
 			String queryXml = context.getConfiguration().get(
 					GraphInputFormat.QUERY);
@@ -450,11 +448,6 @@ public class GraphRecordRecognizer {
 
 	/**
 	 * Updates various job counters.
-	 * If we are running on the new version of mapreduce, RecordReader has access to
-	 * counters thus can update counters based on scanMetrics. If we are running on
-	 * old version of mapreduce, it won't be able to get access to counters and
-	 * TableRecorderReader can't update counter values.
-	 * 
 	 * @throws IOException
 	 */
 	private void updateCounters() throws IOException {
@@ -517,7 +510,7 @@ public class GraphRecordRecognizer {
 				ct.increment(mlv.getCurrentIntervalValue());
 			}
 			((Counter) this.getCounter.invoke(context,
-					HBASE_COUNTER_GROUP_NAME, "NUM_SCANNER_RESTARTS"))
+					HBASE_COUNTER_GROUP_NAME, HBASE_COUNTER_NAME_NUM_SCANNER_RESTARTS))
 					.increment(numRestarts);
 		} catch (Exception e) {
 			log.debug("can't update counter."

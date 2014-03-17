@@ -137,15 +137,25 @@ public class GraphAssembler extends JDBCSupport
 			if (pair.getProp().isMany() || pair.getProp().getType().isDataType())
 			    continue;
 			List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
-			List<Property> childPkProps = ((PlasmaType)pair.getProp().getType()).findProperties(KeyType.primary);
-		    if (childPkProps.size() == 1) {
-		    	childKeyProps.add(
-		    		new PropertyPair((PlasmaProperty)childPkProps.get(0),
-		    			pair.getValue()));
-		    }
-		    else
-			    throwPriKeyError(childPkProps, 
-			    		pair.getProp().getType(), pair.getProp());
+			PlasmaProperty supplier = pair.getProp().getKeySupplier();
+			if (supplier != null) {
+				PropertyPair childPair = new PropertyPair(supplier,
+		    			pair.getValue());
+				childPair.setValueProp(supplier);
+		    	childKeyProps.add(childPair);
+			}
+			else {
+				List<Property> childPkProps = ((PlasmaType)pair.getProp().getType()).findProperties(KeyType.primary);
+			    if (childPkProps.size() == 1) {
+			    	childKeyProps.add(
+			    		new PropertyPair((PlasmaProperty)childPkProps.get(0),
+			    			pair.getValue()));
+			    }
+			    else
+				    throwPriKeyError(childPkProps, 
+				    		pair.getProp().getType(), pair.getProp());
+			}
+		    
 		    assemble((PlasmaType)pair.getProp().getType(), 
 				(PlasmaDataObject)this.root, pair.getProp(),
 				childKeyProps, 1);
@@ -178,6 +188,7 @@ public class GraphAssembler extends JDBCSupport
 			    else
 				    throwPriKeyError(rootPkProps, 
 				    		root.getType(), prop);
+			    
 			    assemble((PlasmaType)prop.getType(), 
 						(PlasmaDataObject)this.root, prop,
 						childKeyProps, 1);
@@ -225,16 +236,23 @@ public class GraphAssembler extends JDBCSupport
 		List<List<PropertyPair>> result = null;
 		Where where = this.collector.getPredicate(sourceProperty);
 		if (where == null) {        
-			StringBuilder query = createSelect(targetType, props, childKeyPairs);
-			result = fetch(targetType, query, props, this.con);
+			List<Object> params = new ArrayList<Object>();
+			StringBuilder query = createSelect(targetType, props, childKeyPairs, params);
+			Object[] paramArray = new Object[params.size()];
+			params.toArray(paramArray);
+			result = fetch(targetType, query, props, paramArray, this.con);
 		}
 		else {
 	        AliasMap aliasMap = new AliasMap(targetType);
 			FilterAssembler filterAssembler = new FilterAssembler(where, 
-					targetType, aliasMap);			
+					targetType, aliasMap);		
+			List<Object> params = new ArrayList<Object>();
+			
 			StringBuilder query = createSelect(targetType,
-		    	props, childKeyPairs, filterAssembler, aliasMap);
-			result = fetch(targetType, query, props, filterAssembler.getParams(),
+		    	props, childKeyPairs, filterAssembler, params, aliasMap);
+			Object[] paramArray = new Object[params.size()];
+			params.toArray(paramArray);
+			result = fetch(targetType, query, props, paramArray,
 				this.con);
 		}		
 		
@@ -286,9 +304,7 @@ public class GraphAssembler extends JDBCSupport
 				List<PropertyPair> nextKeyPairs = new ArrayList<PropertyPair>();
 				List<Property> nextKeyProps = ((PlasmaType)pair.getProp().getType()).findProperties(KeyType.primary);
 			    			
-				// FIXME: need UML profile link to target PK props 
-				// where there are multiple PKs !!
-				if (nextKeyProps.size() == 1) {
+		    	if (nextKeyProps.size() == 1) {
 					if (log.isDebugEnabled())
 						log.debug(String.valueOf(level) + ":found single PK for type, " + pair.getProp().getType());
 					PlasmaProperty next = (PlasmaProperty)nextKeyProps.get(0);
@@ -340,22 +356,21 @@ public class GraphAssembler extends JDBCSupport
 			        + prop.getType() + "." + prop.getName());	
 				List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
 				List<Property> nextKeyProps = ((PlasmaType)targetType).findProperties(KeyType.primary);
-			    if (nextKeyProps.size() == 1) {
+				PlasmaProperty supplier = opposite.getKeySupplier();
+				if (supplier != null) {
+		    		PlasmaProperty nextProp = supplier;
+			    	PropertyPair pair = findNextKeyValue(target, 
+			    			nextProp, opposite);
+			    	childKeyProps.add(pair);
+		    	}			    
+				else if (nextKeyProps.size() == 1) {
 			    	PlasmaProperty nextProp = (PlasmaProperty)nextKeyProps.get(0);	
 			    	PropertyPair pair = findNextKeyValue(target, 
 			    			nextProp, opposite);
 			    	childKeyProps.add(pair);
 			    }
-			    else { // lookup via key supplier
-			    	PlasmaProperty supplier = opposite.getKeySupplier();
-			    	if (supplier != null) {
-			    		PlasmaProperty nextProp = supplier;
-				    	PropertyPair pair = findNextKeyValue(target, 
-				    			nextProp, opposite);
-				    	childKeyProps.add(pair);
-			    	}
-				    else
-					    throwPriKeyError(nextKeyProps, 
+			    else {  
+				     throwPriKeyError(nextKeyProps, 
 					    		targetType, prop);
 			    }
 				if (log.isDebugEnabled())

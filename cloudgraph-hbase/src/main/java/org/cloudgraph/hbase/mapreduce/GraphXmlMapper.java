@@ -37,6 +37,7 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Mapper.Context;
@@ -53,25 +54,25 @@ import org.xml.sax.SAXException;
 
 import commonj.sdo.DataGraph;
 
-
 /**
+ * Supplies fully realized data {@link GraphWritable graphs} as the input value to MapReduce <code>Mapper</code> 
+ * client subclasses, the input key being an offset into the processed file and the 
+ * value being a {@link GraphWritable} assembled from a single SDO graph XML line read from the file. 
  * Supports detection of changes to the input data graph, and propagation of table mutations
- * to the underlying HBase table(s). For <code>Mapper</code> clients wishing to modify input graphs and 
+ * to the underlying HBase table(s). 
+ *    
+ * The data graphs supplied to the code>Mapper</code> are ready to further modify or simply commit as is, 
+ * for <code>Mapper</code> clients wishing to modify input graphs and 
  * commit changes within the map phase. See the below code sample based on the Wikipedia domain model
  * which adds a page link to each input graph.  
  *<p>
  *<pre>
- *public class PageLinkAdder extends GraphMutatorMapper<ImmutableBytesWritable, DataGraph> {
+ *public class PageGraphImporter extends GraphXmlMapper<LongWritable, GraphWritable> {
  *    @Override
- *    public void map(ImmutableBytesWritable row, GraphWritable graph, Context context) throws IOException {
- *    
- *        // track changes
- *        graph.getDataGraph().getChangeSummary().beginLogging();
+ *    public void map(LongWritable offset, GraphWritable graph, Context context) throws IOException {
  *    
  *        Page page = (Page)graph.getDataGraph().getRootObject();
- *        Categorylinks link = page.createCategorylinks();
- *        link.setClTo("Some Category Page");
- *        link.setClTimestamp((new Date()).toString());
+ *        page.setPageTitle("New Page1");
  *
  *        // commit above changes
  *        super.commit(row, graph, context);
@@ -79,6 +80,7 @@ import commonj.sdo.DataGraph;
  *}
  *</pre>
  *</p>
+ * 
  * <p>
  * Data graphs of any size of complexity may be supplied to MapReduce jobs including graphs where the underlying
  * domain model contains instances of multiple inheritance. The set of data graphs is provided to
@@ -86,72 +88,39 @@ import commonj.sdo.DataGraph;
  * supplied using {@link GraphMapReduceSetup}.    
  * </p>
  * <p>
- * Data graphs are assembled within a {@link GraphRecordReader} based on the detailed selection criteria within a given <a href="http://plasma-sdo.org/org/plasma/query/Query.html">query</a>, and
- * may be passed to a {@link GraphRecordRecognizer} and potentially screened from
- * client {@link GraphMapper} extensions potentially illuminating business logic dedicated to identifying
- * specific records.   
+ * Data graphs are assembled within a {@link GraphXmlRecordReader} based on the line oriented XML graph data read
+ * from an underlying file, and are passed to client {@link GraphXmlMapper} extensions.   
  * </p>
  * 
  * @param <KEYOUT> the output key type
  * @param <VALUEOUT> the output value type
  * 
  * @see org.cloudgraph.hbase.mapreduce.GraphWritable
- * @see org.cloudgraph.hbase.mapreduce.GraphRecordReader
+ * @see org.cloudgraph.hbase.mapreduce.GraphXmlRecordReader
  * @see org.cloudgraph.hbase.mapreduce.GraphMapReduceSetup
+ * 
+ * @author Scott Cinnamond
+ * @since 0.5.8
  */
-public class GraphMutatorMapper<KEYOUT, VALUEOUT>
-    extends GraphMapper<KEYOUT, VALUEOUT> implements GraphMutator {
+public class GraphXmlMapper<KEYOUT, VALUEOUT>
+extends Mapper<LongWritable, GraphWritable, KEYOUT, VALUEOUT> implements GraphMutator {
 	
-    private static Log log = LogFactory.getLog(GraphMutatorMapper.class);
-    private ServiceContext context;
+    private static Log log = LogFactory.getLog(GraphXmlMapper.class);
+    private GraphServiceDelegate serviceDelegate;
 	
-	public GraphMutatorMapper() {
-    	try {
-			StateMarshallingContext marshallingContext = new StateMarshallingContext(
-					new StatelNonValidatinglDataBinding());
-	    	this.context = new ServiceContext(marshallingContext);
-		} catch (JAXBException e) {
-			throw new GraphServiceException(e);
-		} catch (SAXException e) {
-			throw new GraphServiceException(e);
-		}    	
-	}	
-	 
+	public GraphXmlMapper() {
+		this.serviceDelegate = new GraphServiceDelegate();
+	}
+	
+	@Override
+	public void map(LongWritable row, GraphWritable graph,
+			Context context) throws IOException {
+        //no behavior
+	}
+	
 	@Override
 	public void commit(DataGraph graph,
 			JobContext jobContext) throws IOException {
-
-        SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
-		MutationCollector collector = new MutationCollector(this.context,
-				snapshotMap, jobContext.getJobName());
-
-		Map<TableWriter, List<Row>> mutations = new HashMap<TableWriter, List<Row>>();
-		try {
-			mutations = collector.collectChanges(graph);
-		} catch (IllegalAccessException e) {
-			throw new GraphServiceException(e);
-		}
-		Iterator<TableWriter> iter = mutations.keySet().iterator();
-		while (iter.hasNext()) {
-			TableWriter tableWriter = iter.next();
-			List<Row> tableMutations = mutations.get(tableWriter);
-			//if (log.isDebugEnabled())
-				log.info("commiting "+tableMutations.size()+" mutations to table: " + tableWriter.getTable().getName());
-			try {
-				tableWriter.getConnection().batch(tableMutations);
-			} catch (InterruptedException e) {
-				log.info(e.getMessage(), e);
-			}
-			tableWriter.getConnection().flushCommits();
-			/*
-			for (Row mutation : tableMutations)
-				try {
-					context.write(row, (Mutation)mutation);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-		    */
-		}
+		this.serviceDelegate.commit(graph, jobContext);
 	}
 }

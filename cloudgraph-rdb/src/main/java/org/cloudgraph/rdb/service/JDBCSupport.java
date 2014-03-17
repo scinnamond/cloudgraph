@@ -158,7 +158,7 @@ public abstract class JDBCSupport {
 	}
 	
 	protected StringBuilder createSelect(PlasmaType type, Set<Property> props, 
-			List<PropertyPair> keyValues) throws SQLException {
+			List<PropertyPair> keyValues, List<Object> params) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
 		
@@ -196,8 +196,9 @@ public abstract class JDBCSupport {
         	PropertyPair propValue = keyValues.get(count);
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
-        	sql.append(" = "); 
-        	appendValue(propValue, sql);
+        	sql.append(" = ?"); 
+        	params.add(this.getParamValue(propValue));
+        	//appendValue(propValue, sql);
         }
 		
 		return sql;
@@ -206,6 +207,7 @@ public abstract class JDBCSupport {
 	protected StringBuilder createSelect(PlasmaType type, Set<Property> props, 
 			List<PropertyPair> keyValues,
 			FilterAssembler filterAssembler,
+			List<Object> params,
 			AliasMap aliasMap) throws SQLException {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
@@ -251,8 +253,9 @@ public abstract class JDBCSupport {
         	PropertyPair propValue = keyValues.get(count);
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
-        	sql.append(" = "); 
-        	appendValue(propValue, sql);
+        	sql.append(" = ?"); 
+        	params.add(this.getParamValue(propValue));
+        	//appendValue(propValue, sql);
         }
         
         // add default ordering by given keys
@@ -270,22 +273,6 @@ public abstract class JDBCSupport {
 	
 	private void appendValue(PropertyPair pair, StringBuilder sql) throws SQLException
 	{
-		/* 
-    	PlasmaProperty dataProperty = pair.getProp();
-    	if (!pair.getProp().getType().isDataType()) {        		
-    		PlasmaType oppositeType = (PlasmaType)pair.getProp().getType();
-        	List<Property> pkPropList = oppositeType.findProperties(KeyType.primary);
-            if (pkPropList == null || pkPropList.size() == 0)
-                throw new DataAccessException("no pri-key properties found for type '" 
-                        + oppositeType.getName() + "'");
-            if (pkPropList.size() > 1)
-                throw new DataAccessException("multiple pri-key properties found for type '" 
-                        + oppositeType.getName() + "' - cannot map to generated keys");
-            dataProperty = (PlasmaProperty)pkPropList.get(0);
-     	} 
-    	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(dataProperty, 
-    			pair.getValue());
-     	*/ 
 		PlasmaProperty valueProp = pair.getProp();
 		if (pair.getValueProp() != null)
 			valueProp = pair.getValueProp();
@@ -306,7 +293,30 @@ public abstract class JDBCSupport {
     	    sql.append(jdbcValue);
      	   break;
     	}		
+	}
+	
+	private Object getParamValue(PropertyPair pair) throws SQLException
+	{
+		PlasmaProperty valueProp = pair.getProp();
+		if (pair.getValueProp() != null)
+			valueProp = pair.getValueProp();
+		
+    	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(valueProp, 
+    			pair.getValue());
+    	DataFlavor dataFlavor = RDBDataConverter.INSTANCE.toJDBCDataFlavor(valueProp);
+    	
+    	switch (dataFlavor) {
+    	case string:
+    	case temporal:
+    	case other:
+    	    break;
+    	default:
+     	   break;
+    	}	
+    	
+    	return jdbcValue;
 	}	
+	
 	
 	protected StringBuilder createInsert(PlasmaType type, 
 			Map<String, PropertyPair> values) {
@@ -465,7 +475,7 @@ public abstract class JDBCSupport {
                     ResultSet.CONCUR_READ_ONLY);
 		
             for (int i = 0; i < params.length; i++)
-            	statement.setString(i+1, 
+            	statement.setString(i+1, // FIXME
             			String.valueOf(params[i]));
             
             statement.execute();
@@ -868,18 +878,17 @@ public abstract class JDBCSupport {
 			        + " - cannot map from reference property, "
 			        + targetProperty.toString());	
 	    }
+    	PlasmaProperty supplier = ((PlasmaProperty)targetProperty).getKeySupplier();
+    	if (supplier != null) {
+    		return supplier;
+    	}
 	    else if (pkeyProps.size() == 1) {
 	    	return (PlasmaProperty)pkeyProps.get(0);
 	    }
 	    else {
-	    	PlasmaProperty supplier = ((PlasmaProperty)targetProperty).getKeySupplier();
-	    	if (supplier != null) {
-	    		return supplier;
-	    	}
-	    	else
-	    	    throw new DataAccessException("multiple opposite pri-key properties found"
-			        + " - cannot map from reference property, "
-			        + targetProperty.toString() + " - please add a derivation supplier");
+	    	throw new DataAccessException("multiple opposite pri-key properties found"
+			    + " - cannot map from reference property, "
+			    + targetProperty.toString() + " - please add a derivation supplier");
 	    }		
 	}
 	

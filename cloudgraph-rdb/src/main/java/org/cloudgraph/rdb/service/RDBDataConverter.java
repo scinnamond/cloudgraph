@@ -300,8 +300,11 @@ public class RDBDataConverter {
 			break;
 		case DateTime:
 			ts = rs.getTimestamp(columnIndex);
-			if (ts != null)
-			    result = new java.util.Date(ts.getTime());
+			if (ts != null) {
+				// format DateTime String for SDO
+				java.util.Date date = new java.util.Date(ts.getTime());
+				result = DataConverter.INSTANCE.getDateTimeFormat().format(date); 
+			}
 			break;
 		case Decimal:
 			result = rs.getBigDecimal(columnIndex);

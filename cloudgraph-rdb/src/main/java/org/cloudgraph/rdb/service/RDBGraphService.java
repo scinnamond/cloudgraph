@@ -191,7 +191,7 @@ public class RDBGraphService implements PlasmaDataAccessService {
 		}
         GraphQuery dispatcher = new GraphQuery(con);
         try {
-            DataGraph[] results = dispatcher.find(query, -1, new Timestamp((new Date()).getTime()));
+            DataGraph[] results = dispatcher.find(query, maxResults, new Timestamp((new Date()).getTime()));
             return results;
         }
         finally {

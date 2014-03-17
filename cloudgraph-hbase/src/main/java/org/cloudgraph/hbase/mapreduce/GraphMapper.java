@@ -37,6 +37,7 @@ import org.apache.hadoop.hbase.client.Mutation;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.cloudgraph.common.service.GraphServiceException;
@@ -50,14 +51,37 @@ import org.cloudgraph.state.StatelNonValidatinglDataBinding;
 import org.plasma.sdo.core.SnapshotMap;
 import org.xml.sax.SAXException;
 
+import commonj.sdo.DataGraph;
+
 /**
  * Supplies fully realized data {@link GraphWritable graphs} as the input value to MapReduce <code>Mapper</code> 
- * client subclasses, the input key being an HBase row key <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/io/ImmutableBytesWritable.html">bytes</a>. 
+ * client subclasses, the input key being an HBase row key <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/io/ImmutableBytesWritable.html">bytes</a> and the
+ * input value being a {@link GraphWritable} assembled from one or more underlying HBase table(s)/row(s).
  * 
- * Any <code>Mapper</code> clients wishing to modify input graphs and commit changes within the
- * map phase should extend {@link GraphMutatorMapper} which 
- * supports detection of changes to the input data graph, and propagation of table mutations
- * to the underlying HBase table(s).  
+ * The data graphs supplied to the code>Mapper</code> are ready to modify but the graph change
+ * summary must be set to track changes, so changes will be detected.    
+ * See the below code sample based on the Wikipedia domain model
+ * which adds a fictitious category page link to each input graph.  
+ *<p>
+ *<pre>
+ *public class PageGraphModifier extends GraphXmlMapper<ImmutableBytesWritable, GraphWritable> {
+ *    @Override
+ *    public void map(ImmutableBytesWritable offset, GraphWritable graph, Context context) throws IOException {
+ *    
+ *        // track changes
+ *        graph.getDataGraph().getChangeSummary().beginLogging();
+
+ *        Page page = (Page)graph.getDataGraph().getRootObject();
+ *        Categorylinks link = page.createCategorylinks();
+ *        link.setClTo("Some Category Page");
+ *        link.setClTimestamp((new Date()).toString());
+ *
+ *        // commit above changes
+ *        super.commit(row, graph, context);
+ *    }
+ *}
+ *</pre>
+ *</p>
  * 
  * <p>
  * Data graphs of any size of complexity may be supplied to MapReduce jobs including graphs where the underlying
@@ -76,24 +100,31 @@ import org.xml.sax.SAXException;
  * @param <VALUEOUT> the output value type
  * 
  * @see org.cloudgraph.hbase.mapreduce.GraphWritable
- * @see org.cloudgraph.hbase.mapreduce.GraphMutatorMapper
  * @see org.cloudgraph.hbase.mapreduce.GraphRecordReader
  * @see org.cloudgraph.hbase.mapreduce.GraphMapReduceSetup
  * 
  * @author Scott Cinnamond
  * @since 0.5.8
  */
-public abstract class GraphMapper<KEYOUT, VALUEOUT>
-extends Mapper<ImmutableBytesWritable, GraphWritable, KEYOUT, VALUEOUT> {
+public class GraphMapper<KEYOUT, VALUEOUT>
+extends Mapper<ImmutableBytesWritable, GraphWritable, KEYOUT, VALUEOUT> implements GraphMutator {
 	
     private static Log log = LogFactory.getLog(GraphMapper.class);
+    private GraphServiceDelegate serviceDelegate;
 	
 	public GraphMapper() {
+		this.serviceDelegate = new GraphServiceDelegate();
 	}
 	
 	@Override
 	public void map(ImmutableBytesWritable row, GraphWritable graph,
 			Context context) throws IOException {
-        //
+        //no behavior
+	}
+
+	@Override
+	public void commit(DataGraph graph,
+			JobContext jobContext) throws IOException {
+		this.serviceDelegate.commit(graph, jobContext);
 	}
 }

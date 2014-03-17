@@ -24,11 +24,19 @@ package org.cloudgraph.hbase.key;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.key.GraphColumnKeyFactory;
+import org.cloudgraph.common.key.KeyFieldOverflowException;
+import org.cloudgraph.config.ColumnKeyField;
 import org.cloudgraph.config.ColumnKeyFieldConfig;
 import org.cloudgraph.config.DataGraphConfig;
+import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.PreDefinedFieldName;
+import org.cloudgraph.config.PreDefinedKeyFieldConfig;
+import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
+
+import commonj.sdo.DataObject;
 
 
 /**
@@ -60,57 +68,36 @@ public class CompositeColumnKeyFactory extends ByteBufferKeyFactory
 
 	@Override
 	public byte[] createColumnKey( 
-		PlasmaType type, PlasmaProperty property)
-	{		
-		byte[] typeNameToken = type.getPhysicalNameBytes();
-		if (typeNameToken == null || typeNameToken.length == 0) {
-			if (log.isDebugEnabled())
-			    log.debug("no physical name for type, "
-			    		+ type.getURI() + "#" + type.getName() 
-			    		+ ", defined - using logical type name");
-			typeNameToken = type.getNameBytes();
+		PlasmaType type, PlasmaProperty property) {
+		
+		this.buf.clear();
+		
+		int i = 0;
+		for (KeyFieldConfig fieldConfig : this.graph.getColumnKeyFields()) {
+    		if (i > 0)
+        	    this.buf.put(graph.getColumnKeyFieldDelimiterBytes());
+			
+    		PreDefinedKeyFieldConfig predefinedFieldCOnfig = (PreDefinedKeyFieldConfig)fieldConfig;
+    		byte[] keyValue = predefinedFieldCOnfig.getKeyBytes(type, property);
+    		if (fieldConfig.isHash()) {
+				keyValue = this.hashing.toStringBytes(keyValue);
+			}
+			
+		    this.buf.put(keyValue);
+				
+			i++;
 		}
-		byte[] propertyNameToken = property.getPhysicalNameBytes();
-		if (propertyNameToken == null || propertyNameToken.length == 0) {
-			if (log.isDebugEnabled())
-			    log.debug("no physical name for property, "
-			    		+ type.getURI() + "#" + type.getName()
-			    		+ "." + property.getName()
-			    		+ ", defined - using logical property name");
-			propertyNameToken = property.getNameBytes();
-		}
-		
-		// URI
-		byte[] uriToken = configureTokenBytes(type.getURIBytes(), graph, hashing, PreDefinedFieldName.URI);
 
-		// local type name
-		byte[] typeToken = configureTokenBytes(typeNameToken, graph, hashing, PreDefinedFieldName.TYPE);
+		// ByteBuffer.array() returns unsized array so don't sent that back to clients
+		// to misuse. 
+		// Use native arraycopy() method as it uses native memcopy to create result array
+		// and because and
+		// ByteBuffer.get(byte[] dst,int offset, int length) is not native
+	    byte [] result = new byte[this.buf.position()];
+	    System.arraycopy(this.buf.array(), this.buf.arrayOffset(), result, 0, this.buf.position()); 
 
-		// property name
-		byte[] propToken = configureTokenBytes(propertyNameToken, graph, hashing, PreDefinedFieldName.PROPERTY);
-
-		int tokensLen = uriToken.length + typeToken.length + propToken.length;
-		byte[] delim = graph.getColumnKeyFieldDelimiterBytes();
-		 
-		byte[] result = new byte[tokensLen + (2 * delim.length)];
-		
-		int destPos = 0;
-		System.arraycopy(uriToken, 0, result, destPos, uriToken.length);
-		
-		destPos += uriToken.length;
-		System.arraycopy(delim, 0, result, destPos, delim.length);
-		
-		destPos += delim.length;
-		System.arraycopy(typeToken, 0, result, destPos, typeToken.length);
-		
-		destPos += typeToken.length;
-		System.arraycopy(delim, 0, result, destPos, delim.length);
-		
-		destPos += delim.length;
-		System.arraycopy(propToken, 0, result, destPos, propToken.length);		
-		
 		return result;
-	}
+	}		
 
 	protected byte[] configureTokenBytes(byte[] token, 
 			DataGraphConfig graph, Hashing hashing, 

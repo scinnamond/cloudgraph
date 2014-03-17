@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataGraph;
@@ -81,9 +82,19 @@ public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
 			if (result == null || result.length() == 0) {
 				if (log.isDebugEnabled())
 				    log.debug("no physical name for type, "
-				    		+ rootType.getQualifiedName().getNamespaceURI() + "#" + rootType.getName() 
+				    		+ rootType.toString()
 				    		+ ", defined - using logical name");
 				result = rootType.getName();
+			}
+			break;
+		case PKG:
+			result = rootType.getPackagePhysicalName();
+			if (result == null || result.length() == 0) {
+				if (log.isDebugEnabled())
+				    log.debug("no physical package name for type, "
+				    		+ rootType.toString()
+				    		+ ", defined - using URI");
+				result = rootType.getURI();
 			}
 			break;
 		case UUID:
@@ -126,10 +137,20 @@ public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
 			result = rootType.getPhysicalNameBytes();
 			if (result == null || result.length == 0) {
 				if (log.isDebugEnabled())
-				    log.debug("no physical name for type, "
-				    		+ rootType.getQualifiedName().getNamespaceURI() + "#" + rootType.getName() 
-				    		+ ", defined - using logical name");
+				    log.debug("no physical name bytes for type, "
+				    		+ rootType.toString()
+				    		+ ", defined - using logical name bytes");
 				result = rootType.getNameBytes();
+			}
+			break;
+		case PKG:
+			result = rootType.getPackagePhysicalNameBytes();
+			if (result == null || result.length == 0) {
+				if (log.isDebugEnabled())
+				    log.debug("no physical package name bytes for type, "
+				    		+ rootType.toString()
+				    		+ ", defined - using URI bytes");
+				result = rootType.getURIBytes();
 			}
 			break;
 		case UUID:
@@ -144,36 +165,91 @@ public class PreDefinedKeyFieldConfig extends KeyFieldConfig {
 	}
     
 	/**
-	 * Returns a key value from the given data object
-	 * @param dataObject the root data object 
+	 * Returns a key value from the given type
+	 * @param type the type 
 	 * @return the key value
 	 */
-	public byte[] getKeyBytes(PlasmaType rootType) 
+	public byte[] getKeyBytes(PlasmaType type, PlasmaProperty property) {
+		switch (this.getName()) {
+		case URI: 
+		case TYPE:
+		case PKG:
+			return getKeyBytes(type);
+		case PROPERTY:
+			return getKeyBytes(property);
+		default:
+		    throw new CloudGraphConfigurationException("invalid predefined key field name, "
+		    		+ this.getName().name() + " - cannot get this predefined field from a type or property");
+		}
+	}
+	
+	/**
+	 * Returns a key value from the given type
+	 * @param type the type 
+	 * @return the key value
+	 */
+	public byte[] getKeyBytes(PlasmaType type) 
 	{
 		byte[] result = null;
 		switch (this.getName()) {
 		case URI: 
-			result = rootType.getURIBytes();
+			result = type.getURIBytes();
 			break;
 		case TYPE:
-			QName qname = rootType.getQualifiedName();
-			
-			result = rootType.getPhysicalNameBytes();
+			result = type.getPhysicalNameBytes();
 			if (result == null || result.length == 0) {
 				if (log.isDebugEnabled())
 				    log.debug("no physical name for type, "
-				    		+ qname.getNamespaceURI() + "#" + rootType.getName() 
+				    		+ type.toString() 
 				    		+ ", defined - using logical name");
-				result = rootType.getNameBytes();
+				result = type.getNameBytes();
+			}
+			break;
+		case PKG:
+			result = type.getPackagePhysicalNameBytes();
+			if (result == null || result.length == 0) {
+				if (log.isDebugEnabled())
+				    log.debug("no physical package name bytes for type, "
+				    		+ type.toString() 
+				    		+ ", defined - using URI bytes");
+				result = type.getURIBytes();
 			}
 			break;
 		default:
-		    throw new CloudGraphConfigurationException("invalid row key field name, "
-		    		+ this.getName().name() + " - cannot get this field from a type");
+		    throw new CloudGraphConfigurationException("invalid predefined key field name, "
+		    		+ this.getName().name() + " - cannot get this predefined field from a type");
 		}
 		
 		return result;
 	}
+	
+	/**
+	 * Returns a key value from the given type
+	 * @param type the type 
+	 * @return the key value
+	 */
+	public byte[] getKeyBytes(PlasmaProperty property) 
+	{
+		byte[] result = null;
+		switch (this.getName()) {
+		case PROPERTY:
+			result = property.getPhysicalNameBytes();
+			if (result == null || result.length == 0) {
+				if (log.isDebugEnabled())
+				    log.debug("no physical name for type, "
+				    		+ property.toString() 
+				    		+ ", defined - using logical name");
+				result = property.getNameBytes();
+			}
+			break;
+		default:
+		    throw new CloudGraphConfigurationException("invalid predefined key field name, "
+		    		+ this.getName().name() + " - cannot get this predefined field from a property");
+		}
+		
+		return result;
+	}
+	
 
 	// FIXME: drive these from 
 	// global configuration settings
