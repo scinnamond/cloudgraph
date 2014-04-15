@@ -22,10 +22,12 @@ import org.cloudgraph.hbase.service.ServiceContext;
 import org.cloudgraph.state.StateMarshallingContext;
 import org.cloudgraph.state.StatelNonValidatinglDataBinding;
 import org.plasma.query.Query;
+import org.plasma.sdo.PlasmaNode;
 import org.plasma.sdo.core.SnapshotMap;
 import org.xml.sax.SAXException;
 
 import commonj.sdo.DataGraph;
+import commonj.sdo.DataObject;
 
 public class GraphServiceDelegate implements GraphAccessor, GraphMutator {
     private static Log log = LogFactory.getLog(GraphMapper.class);
@@ -70,13 +72,22 @@ public class GraphServiceDelegate implements GraphAccessor, GraphMutator {
 			}
 			tableWriter.getConnection().flushCommits();
 		}
+        List<DataObject> changedObjects = graph.getChangeSummary().getChangedDataObjects();
+        for (DataObject dataObject : changedObjects)
+            if (!graph.getChangeSummary().isDeleted(dataObject))
+                ((PlasmaNode)dataObject).getDataObject().reset(snapshotMap, jobContext.getJobName());
+        graph.getChangeSummary().endLogging();
+        graph.getChangeSummary().beginLogging();		
 	}
 
 	@Override
 	public DataGraph[] find(Query query, JobContext jobContext) throws IOException {
 		GraphQuery dispatcher = new GraphQuery(context);
 		Timestamp timestamp = new Timestamp((new Date()).getTime());
-		return dispatcher.find(query.getModel(), timestamp);
+		DataGraph[] results = dispatcher.find(query.getModel(), timestamp);
+		for (DataGraph graph : results)
+			graph.getChangeSummary().beginLogging();
+		return results;
 	}
 
 }

@@ -24,7 +24,7 @@
 
         <p:submenu 
             label="Recent News">
-            <c:forEach var="news" items="#{DataListBean.dataMap['NewsItem']}">
+            <c:forEach var="news" items="#{DataListBean.dataMap['NewsItem']}" begin="0" end="4">
                 <p:menuitem value="#{news.values['Title']}" update=":news_form">                                                                               
                     <f:setPropertyActionListener value="#{news.id}"   
                         target="#{NewsBean.id}" />                                             
@@ -36,6 +36,12 @@
         </p:submenu>
         <p:submenu 
             label="News Archive">
+            <c:forEach var="news" items="#{DataListBean.dataMap['NewsItem']}" begin="5">
+                <p:menuitem value="#{news.values['Title']}" update=":news_form">                                                                               
+                    <f:setPropertyActionListener value="#{news.id}"   
+                        target="#{NewsBean.id}" />                                             
+                </p:menuitem>
+            </c:forEach>
         </p:submenu>
  
     </p:panelMenu> 

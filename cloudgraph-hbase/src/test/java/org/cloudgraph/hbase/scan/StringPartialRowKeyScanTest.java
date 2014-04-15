@@ -57,7 +57,7 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
         super.setUp();
     } 
  
-     
+/*      
     public void testEqual() throws IOException       
     {
         long rootId = System.currentTimeMillis();
@@ -112,7 +112,7 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
         log.debug("GRAPH: " + xml);
         assertTrue(fetched.getRootId() == rootId);
     }  
-  
+   
     public void testPartialKeyWildcard() throws IOException       
     {
         long rootId = System.currentTimeMillis();
@@ -124,22 +124,22 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
 
         long id2 = id1 + WAIT_TIME;
         Date now2 = new Date(id2);
-        Node root2 = this.createGraph(rootId, id2, now2, "AAA 112");
+        Node root2 = this.createGraph(rootId, id2, now2, "AzB 112");
         service.commit(root2.getDataGraph(), USERNAME);
 
         long id3 = id2 + WAIT_TIME;
         Date now3 = new Date(id3);
-        Node root3 = this.createGraph(rootId, id3, now3, "AAA 113");
+        Node root3 = this.createGraph(rootId, id3, now3, "A_zC 113");
         service.commit(root3.getDataGraph(), USERNAME);                
         
         Node[] fetched = this.fetchGraphsLike(
-        		rootId, "AAA*");
+        		rootId, "A*");
         assertTrue("expected 3 results not " + fetched.length, fetched.length == 3);
-        debugGraph(fetched[0].getDataGraph());
-        debugGraph(fetched[1].getDataGraph());
-        debugGraph(fetched[2].getDataGraph());
-      }  
-     
+        //debugGraph(fetched[0].getDataGraph());
+        //debugGraph(fetched[1].getDataGraph());
+        //debugGraph(fetched[2].getDataGraph());
+    }  
+      
     public void testBetween() throws IOException       
     {
         long rootId = System.currentTimeMillis();
@@ -221,7 +221,69 @@ public class StringPartialRowKeyScanTest extends StringScanTest {
         assertTrue(fetched.length == 1);
 
         debugGraph(fetched[0].getDataGraph());
-    }    
+    } 
+ */   
+    public void testRange() throws IOException       
+    {
+        long rootId = System.currentTimeMillis();
+
+        long id1 = rootId + WAIT_TIME;
+        Date now = new Date(id1);
+        Node root1 = this.createGraph(rootId, id1, now, "AAA");
+        service.commit(root1.getDataGraph(), USERNAME);
+
+        long id2 = id1 + WAIT_TIME;
+        Date now2 = new Date(id2);
+        Node root2 = this.createGraph(rootId, id2, now2, "BBB");
+        service.commit(root2.getDataGraph(), USERNAME);
+
+        long id3 = id2 + WAIT_TIME;
+        Date now3 = new Date(id3);
+        Node root3 = this.createGraph(rootId, id3, now3, "CCC");
+        service.commit(root3.getDataGraph(), USERNAME);                
+
+        long id4 = id3 + WAIT_TIME;
+        Date now4 = new Date(id4);
+        Node root4 = this.createGraph(rootId, id4, now4, "DDD");
+        service.commit(root4.getDataGraph(), USERNAME);                
+       
+        long id5 = id4 + WAIT_TIME;
+        Date now5 = new Date(id5);
+        Node root5 = this.createGraph(rootId, id5, now5, "EEE");
+        service.commit(root5.getDataGraph(), USERNAME);                
+        
+        
+       	QStringNode query = createSelect();
+       	query.where(query.rootId().eq(rootId)
+        		.and(query.stringField().ge(root1.getStringField()))
+        		.and(query.stringField().le(root5.getStringField())));
+       	query.orderBy(query.stringField());
+    	 
+    	DataGraph[] result = service.find(query);
+    	assertTrue(result != null);
+    	assertTrue(result.length == 5);
+    	debugGraph(result[0]);
+    	assertTrue("AAA_0_0".equals(((Node)result[0].getRootObject()).getStringField()));
+    	assertTrue("EEE_0_0".equals(((Node)result[4].getRootObject()).getStringField()));
+
+    	query.setStartRange(1);
+    	query.setEndRange(3);
+    	result = service.find(query);
+    	assertTrue(result != null);
+    	assertTrue(result.length == 3);
+    	assertTrue("AAA_0_0".equals(((Node)result[0].getRootObject()).getStringField()));
+    	assertTrue("CCC_0_0".equals(((Node)result[2].getRootObject()).getStringField()));
+   	 
+        
+    	query.setStartRange(3);
+    	query.setEndRange(4);
+    	result = service.find(query);
+    	assertTrue(result != null);
+    	assertTrue(result.length == 2);
+    	assertTrue("CCC_0_0".equals(((Node)result[0].getRootObject()).getStringField()));
+    	assertTrue("DDD_0_0".equals(((Node)result[1].getRootObject()).getStringField()));
+    }  
+    
      
     protected Node fetchSingleGraph(long id, String name) {    	
     	QStringNode root = createSelect();

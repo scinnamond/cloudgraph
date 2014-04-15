@@ -28,6 +28,8 @@ import org.plasma.query.model.RelationalOperator;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaType;
 
+import com.google.common.primitives.Bytes;
+
 /**
  * A string data "flavor" specific literal class used to abstract 
  * the complexities involved in assembling the various 
@@ -48,10 +50,7 @@ import org.plasma.sdo.PlasmaType;
 public class StringLiteral extends ScanLiteral 
     implements PartialRowKeyLiteral, FuzzyRowKeyLiteral, CompleteRowKeyLiteral {
 
-	// FIXME: appending the first lexicographic ASCII char
-	// to the row key "works" as a stop key. But need
-	// to understand more about why, say why the min unicode char does not. 
-	public static final String INCREMENT = "A";
+	public static final byte INCREMENT = Byte.MIN_VALUE;
 
 	public StringLiteral(String literal,
 			PlasmaType rootType,
@@ -116,13 +115,13 @@ public class StringLiteral extends ScanLiteral
 					DataFlavor.integral);
 		}
 		else {
-			stopValueStr = this.padding.pad(stopValueStr, 
+			byte[] literalBytes = stopValueStr.getBytes(this.charset);
+			literalBytes = this.padding.pad(literalBytes, 
 					this.fieldConfig.getMaxLength(), 
-					this.fieldConfig.getDataFlavor());			
-			stopValueStr = stopValueStr + INCREMENT; // add increment value after padding to
-			// screen out key fields with other suffixes
-			stopBytes = stopValueStr.getBytes(this.charset);
-			 
+					this.fieldConfig.getDataFlavor());
+			stopBytes = new byte[literalBytes.length + 1];
+			System.arraycopy(literalBytes, 0, stopBytes, 0, literalBytes.length);
+			stopBytes[stopBytes.length-1] = INCREMENT;
 		}
 		return stopBytes;
 	}	
@@ -150,9 +149,11 @@ public class StringLiteral extends ScanLiteral
 					this.fieldConfig.getMaxLength(), 
 					DataFlavor.integral);
 		}
-		else {
-			startValueStr = startValueStr + INCREMENT;
-			startBytes = startValueStr.getBytes(this.charset);
+		else {			
+			byte[] literalStartBytes = startValueStr.getBytes(this.charset);
+			startBytes = new byte[literalStartBytes.length + 1];
+			System.arraycopy(literalStartBytes, 0, startBytes, 0, literalStartBytes.length);
+			startBytes[startBytes.length-1] = INCREMENT;
 			startBytes = this.padding.pad(startBytes, 
 					this.fieldConfig.getMaxLength(), 
 					this.fieldConfig.getDataFlavor());
@@ -288,8 +289,10 @@ public class StringLiteral extends ScanLiteral
 					DataFlavor.integral);
 		}
 		else {
-			stopValueStr = stopValueStr + INCREMENT;
-			stopBytes = stopValueStr.getBytes(this.charset);
+			byte[] literalStopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = new byte[literalStopBytes.length + 1];
+			System.arraycopy(literalStopBytes, 0, stopBytes, 0, literalStopBytes.length);
+			stopBytes[stopBytes.length-1] = INCREMENT;
 			stopBytes = this.padding.pad(stopBytes, 
 					this.fieldConfig.getMaxLength(), 
 					this.fieldConfig.getDataFlavor());

@@ -49,24 +49,31 @@
             <DataAccessProvider name="JDBC"                
                 className="org.cloudgraph.rdb.service.RDBGraphService">
                 <!-- Local -->
-                <!--      
+                      
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionURL">jdbc:mysql://localhost:3306/apls?autoReconnect=true</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPassword">phoenix</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionUserName">root</Property>    
-                -->
+                
                 
                 <!-- u16548889.onlinehome-server.com -->
-                   
+                   <!--
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionURL">jdbc:mysql://localhost:3306/APLS?autoReconnect=true</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPassword">p1hoenix</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionUserName">admin</Property>    
-                   
+                   -->
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionProviderName">org.cloudgraph.web.connect.DBCPConnectionPoolProvider</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionDriverName">com.mysql.jdbc.Driver</Property>    
                 <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMinSize">1</Property>    
-                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMaxSize">20</Property>  
+                <Property name="org.plasma.sdo.access.provider.jdbc.ConnectionPoolMaxSize">20</Property> 
+                 
+                <Property name="org.apache.commons.dbcp.validationQuery">SELECT * FROM APLS.ROLE</Property>  
                 <Property name="org.apache.commons.dbcp.validationQuery">SELECT * FROM APLS.ROLE</Property>  
                 <Property name="org.apache.commons.dbcp.testOnBorrow">true</Property>  
                 <Property name="org.apache.commons.dbcp.testOnReturn">true</Property>  
+                <Property name="org.apache.commons.dbcp.maxWait">30000</Property>
+                <Property name="org.apache.commons.dbcp.testWhileIdle">false</Property>
+                <Property name="org.apache.commons.dbcp.timeBetweenEvictionRunsMillis">30000</Property>
+                <Property name="org.apache.commons.dbcp.minEvictableIdleTimeMillis">40000</Property>
 
                 <Concurrency 
                     pessimisticLockTimeoutMillis="300000"/>

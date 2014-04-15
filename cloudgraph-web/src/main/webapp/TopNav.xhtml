@@ -22,8 +22,11 @@
           <p:menuButton value="#{NavigationBean.demoAction.label}"
                 styleClass="#{NavigationBean.demoAction.selected ? 'ui-state-active' : ''}"
                 title="#{NavigationBean.demoAction.tooltip}">  
-            <p:menuitem value="HBase Wordnet"  
+             <p:menuitem value="HBase Wordnet"  
                 url="http://wordnet.cloudgraph.org" 
+                target="_blank"/>  
+             <p:menuitem value="HBase Wikipedia Corpus (Wikicorpus)"  
+                url="http://wikicorpus.cloudgraph.org" 
                 target="_blank"/>  
           </p:menuButton>  
           <p:commandButton value="#{NavigationBean.downloadAction.label}"

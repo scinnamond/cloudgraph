@@ -28,6 +28,8 @@ import org.plasma.query.model.WildcardOperator;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaType;
 
+import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 /**
  * A wildcard string data "flavor" specific literal class 
  * used to abstract 
@@ -200,9 +202,11 @@ public class WildcardStringLiteral extends StringLiteral
 	public byte[] getBetweenStopBytes() {
 		byte[] stopBytes = null;
 		String stopValueStr = this.literal.substring(0, this.literal.length()-1);
-		if (!fieldConfig.isHash()) {			 
-			stopValueStr = stopValueStr + INCREMENT;  
-			stopBytes = stopValueStr.getBytes(this.charset);
+		if (!fieldConfig.isHash()) {			
+			byte[] literalStopBytes = stopValueStr.getBytes(this.charset);
+			stopBytes = new byte[literalStopBytes.length + 1];
+			System.arraycopy(literalStopBytes, 0, stopBytes, 0, literalStopBytes.length);
+			stopBytes[stopBytes.length-1] = INCREMENT;
 			stopBytes = this.padding.pad(stopBytes, 
 					this.fieldConfig.getMaxLength(), 
 					this.fieldConfig.getDataFlavor());

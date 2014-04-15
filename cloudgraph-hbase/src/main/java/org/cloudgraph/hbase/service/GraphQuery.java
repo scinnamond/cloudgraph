@@ -214,34 +214,7 @@ public class GraphQuery
     
     private PlasmaDataGraph[] findResults(Query query, PlasmaType type, Timestamp snapshotDate)
     {   
-    	PlasmaDataGraph[] graphs = find(query, 
-        		type, snapshotDate);
-    	PlasmaDataGraph[] result = graphs;    	
-        
-        int last = graphs.length; 
-        if (query.getStartRange() != null && query.getEndRange() != null) {
-        	if (query.getStartRange() < last && query.getEndRange() < last) {
-        		result = Arrays.copyOfRange(graphs, query.getStartRange(), 
-            			query.getEndRange());
-        	}
-        	else if (query.getStartRange() < last && query.getEndRange() >= last) {
-        		result = Arrays.copyOfRange(graphs, query.getStartRange(), 
-            			last);
-        		log.warn("query end range (" + query.getEndRange()
-            	    + ") exceeds results size (" + graphs.length
-            	    + ") - truncating results");
-        	}
-        	else {
-        		log.warn("query range ("
-        	        + query.getStartRange()+ ":" + query.getEndRange()
-        	        + ") exceeds results size (" + graphs.length 
-        	        + ") - clearing results");
-        		result = new PlasmaDataGraph[0];
-        	}
-        }
-        log.info("returning " + result.length + " results");
-        
-        return result;
+        return find(query, type, snapshotDate);
     }  
     
     private PlasmaDataGraph[] find(Query query, PlasmaType type, Timestamp snapshotDate)
@@ -318,10 +291,7 @@ public class GraphQuery
     	            + "could result in very large results set");
         }
         
-        // use an ordered set so we get immediate sorting
-        // and can therefore abort after max requested rows reached
-        Set<PlasmaDataGraph> graphs = new HashSet<PlasmaDataGraph>();
-        
+       
         boolean hasOrdering = false;
         Comparator<PlasmaDataGraph> orderingComparator = null;
         OrderBy orderBy = query.findOrderByClause();
@@ -332,40 +302,36 @@ public class GraphQuery
         	orderingComparator = orderingCompAssem.getComparator();
         	hasOrdering = true;
         }
-                
+        
+        ResultsAssembler resultsCollector = new SlidingResultsAssembler(graphRecognizerRootExpr,
+        	orderingComparator, rootTableReader, graphAssembler, 
+        	query.getStartRange(), query.getEndRange());
+        
+                 
         // execute scans
         try {
         	long before = System.currentTimeMillis();
         	if (partialScans.size() > 0 || fuzzyScans.size() > 0 || completeKeys.size() > 0) {
 	        	for (CompleteRowKey key : completeKeys) {
-	        		if (canAbortScan(hasOrdering, query.getStartRange(), query.getEndRange(), graphs))
+	        		if (resultsCollector.isResultEndRangeReached())
 	        			break;
-	        		List<PlasmaDataGraph> list = execute(key, 
-		        		query.getStartRange(), query.getEndRange(),	
+	        		execute(key, 
 	        		    rootTableReader, columnFilter,
-	        		    graphAssembler, 
-	        		    graphRecognizerRootExpr);
-	        		graphs.addAll(list);
+	        		    resultsCollector);
 	        	} // scan
 	        	for (PartialRowKey scan : partialScans) {
-	        		if (canAbortScan(hasOrdering, query.getStartRange(), query.getEndRange(), graphs))
+	        		if (resultsCollector.isResultEndRangeReached())
 	        			break;
-	        		List<PlasmaDataGraph> list = execute(scan, 
-		        		query.getStartRange(), query.getEndRange(),	
+	        		execute(scan, 
 	        		    rootTableReader, columnFilter,
-	        		    graphAssembler, 
-	        		    graphRecognizerRootExpr);
-	        		graphs.addAll(list);
+	        		    resultsCollector);
 	        	} // scan
 	        	for (FuzzyRowKey scan : fuzzyScans) {
-	        		if (canAbortScan(hasOrdering, query.getStartRange(), query.getEndRange(), graphs))
+	        		if (resultsCollector.isResultEndRangeReached())
 	        			break;
-	        		List<PlasmaDataGraph> list = execute(scan,
-	        			query.getStartRange(), query.getEndRange(),	
+	        		execute(scan,
 	        		    rootTableReader, columnFilter, 
-	        		    graphAssembler, 
-	        		    graphRecognizerRootExpr);
-	        		graphs.addAll(list);
+	        		    resultsCollector);
 	        	} // scan
         	}
         	else {
@@ -377,23 +343,17 @@ public class GraphQuery
 	            rootFilter.addFilter(columnFilter);
 	            Scan scan = new Scan();
 	            scan.setFilter(rootFilter);        
-	            List<PlasmaDataGraph> list = execute(scan, 
-	      	  			rootTableReader, graphAssembler, 
-	      	    		graphRecognizerRootExpr);
-	    		graphs.addAll(list);
+	            execute(scan, 
+	      	  			rootTableReader, resultsCollector);
         	} 
         	
             long after = System.currentTimeMillis();
-            log.info("initialized " + String.valueOf(graphs.size()) + " results ("
-            	+ String.valueOf(after - before) + ")");
-            PlasmaDataGraph[] array = new PlasmaDataGraph[graphs.size()]; 
-            graphs.toArray(array);
+            log.info("return " + String.valueOf(resultsCollector.size()) + " assembled, " 
+                + String.valueOf(resultsCollector.getIgnoredResults()) + " ignored, "
+                + String.valueOf(resultsCollector.getUnrecognizedResults()) + " unrecognized ("
+            	+ String.valueOf(after - before) + ")");            
             
-            if (orderingComparator != null) {
-            	Arrays.sort(array, orderingComparator);
-            }
-            
-            return array;
+            return resultsCollector.getResults();
         }
         catch (IOException e) {
             throw new GraphServiceException(e);
@@ -423,21 +383,16 @@ public class GraphQuery
     	return false;
     }
 
-    private List<PlasmaDataGraph> execute(PartialRowKey partialRowKey, 
-    		Integer startRange, Integer endRange,
+    private void execute(PartialRowKey partialRowKey, 
     		TableReader rootTableReader,
-    		Filter columnFilter,
-    		HBaseGraphAssembler graphAssembler, 
-    		Expr graphRecognizerRootExpr) throws IOException {    	
+    		Filter columnFilter, ResultsAssembler collector) throws IOException {    	
         Scan scan = createScan(partialRowKey, 
-        		startRange, endRange, columnFilter);
-  		return execute(scan,  
-  			rootTableReader, graphAssembler, 
-    		graphRecognizerRootExpr);
+        		columnFilter);
+  		execute(scan,  
+  			rootTableReader, collector);
     }
     
     private Scan createScan(PartialRowKey partialRowKey, 
-    		Integer startRange, Integer endRange,
     		Filter columnFilter) {
         FilterList rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ALL);
@@ -453,12 +408,10 @@ public class GraphQuery
     	return scan;
     }
     
-    private List<PlasmaDataGraph> execute(CompleteRowKey rowKey, 
-    		Integer startRange, Integer endRange,
+    private void execute(CompleteRowKey rowKey, 
     		TableReader rootTableReader,
     		Filter columnFilter,
-    		HBaseGraphAssembler graphAssembler, 
-    		Expr graphRecognizerRootExpr) throws IOException {
+    		ResultsAssembler collector) throws IOException {
         FilterList rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ALL);
         rootFilter.addFilter(columnFilter);
@@ -467,37 +420,27 @@ public class GraphQuery
   		if (log.isDebugEnabled())
 			log.debug("using row key get: (" 
   		        + "row: '" + Bytes.toString(get.getRow()) + "'");	
-  		return execute(get,  
-  			rootTableReader, graphAssembler, 
-    		graphRecognizerRootExpr);
+  		execute(get,  
+  			rootTableReader, collector);
    }
     
-    private List<PlasmaDataGraph> execute(FuzzyRowKey fuzzyScan,
-    		Integer startRange, Integer endRange,
+    private void execute(FuzzyRowKey fuzzyScan,
     		TableReader rootTableReader,
     		Filter columnFilter,
-    		HBaseGraphAssembler graphAssembler, 
-    		Expr graphRecognizerRootExpr) throws IOException {    	
-        Scan scan = createScan(fuzzyScan,
-        		startRange, endRange, columnFilter);
-  		return execute(scan,   
-  			rootTableReader, graphAssembler, 
-    		graphRecognizerRootExpr);
+    		ResultsAssembler collector) throws IOException {    	
+        Scan scan = createScan(fuzzyScan, columnFilter);
+  		execute(scan,   
+  			rootTableReader, collector);
     }
     
     private Scan createScan(FuzzyRowKey fuzzyScan,
-    		Integer startRange, Integer endRange,
     		Filter columnFilter) throws IOException {
         FilterList rootFilter = new FilterList(
     			FilterList.Operator.MUST_PASS_ALL);
         rootFilter.addFilter(columnFilter);
         Scan scan = new Scan();
         scan.setFilter(rootFilter); 
-        if (startRange != null && endRange != null) {
-        	int max = endRange.intValue() - startRange.intValue();
-        	//scan.setMaxResultSize(max); // See 0.9.7
-        }
-        
+       
         Filter fuzzyFilter = fuzzyScan.getFilter();
 		rootFilter.addFilter(fuzzyFilter);
         if (log.isDebugEnabled() ) 
@@ -507,12 +450,10 @@ public class GraphQuery
 		return scan;
     }
     
-    private List<PlasmaDataGraph> execute(Get get, 
+    private void execute(Get get, 
     		TableReader rootTableReader,
-    		HBaseGraphAssembler graphAssembler, 
-    		Expr graphRecognizerRootExpr) throws IOException {
+    		ResultsAssembler collector) throws IOException {
     	
-    	List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();    		
         if (log.isDebugEnabled() ) 
             log.debug("executing get...");
         
@@ -523,7 +464,7 @@ public class GraphQuery
         	log.debug("no results from table "
                 + rootTableReader.getTable().getName() + " for row '"
         		+ new String(get.getRow()) + "' - returning zero results graphs"); 
-        	return result;
+        	return;
         }
     	if (log.isDebugEnabled()) {
 	            log.debug(rootTableReader.getTable().getName() + ": " + new String(resultRow.getRow()));  
@@ -533,86 +474,40 @@ public class GraphQuery
       	    	    + "\tvalue: " + new String(keyValue.getValue()));
       	    }
     	}
-    	if (resultRow.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
-    			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
-    		return result; // ignore toumbstone roots
-    	}
-  	    graphAssembler.assemble(resultRow);            	
-    	PlasmaDataGraph assembledGraph = graphAssembler.getDataGraph();
-        graphAssembler.clear();
-        if (graphRecognizerRootExpr != null) {
-        	GraphRecognizerContext recognizerContext = new GraphRecognizerContext();
-        	recognizerContext.setGraph(assembledGraph);
-        	if (!graphRecognizerRootExpr.evaluate(recognizerContext)) {
-        		if (log.isDebugEnabled())
-        			log.debug("recognizer excluded: " + Bytes.toString(
-        					resultRow.getRow()));
-        		if (log.isDebugEnabled())
-        			log.debug(serializeGraph(assembledGraph));
-        		
-        		return result;
-        	}
-        }
-    	result.add(assembledGraph);
-        if (log.isDebugEnabled())
-        	log.debug("assembled "+String.valueOf(result.size())
-        			+" sub results");
-       
-        
-        return result;
+    	collector.collect(resultRow);
    }
     
-    private List<PlasmaDataGraph> execute(Scan scan, 
+    private void execute(Scan scan, 
     		TableReader rootTableReader,
-    		HBaseGraphAssembler graphAssembler, 
-    		Expr graphRecognizerRootExpr) throws IOException {
+    		ResultsAssembler collector) throws IOException {
     	
-    	List<PlasmaDataGraph> result = new ArrayList<PlasmaDataGraph>();    		
         if (log.isDebugEnabled() ) 
             log.debug("executing scan...");
         
         if (log.isDebugEnabled() ) 
         	log.debug(FilterUtil.printFilterTree(scan.getFilter()));
         ResultScanner scanner = rootTableReader.getConnection().getScanner(scan);
-        for (Result resultRow : scanner) {	     
-        	if (log.isDebugEnabled()) {
-      	        log.debug(rootTableReader.getTable().getName() + ": " + new String(resultRow.getRow()));              	  
-          	    for (KeyValue keyValue : resultRow.list()) {
-          	    	log.debug("\tkey: " 
-          	    		+ new String(keyValue.getQualifier())
-          	    	    + "\tvalue: " + new String(keyValue.getValue()));
-          	    }
-        	}
-        	 
-        	if (resultRow.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
-        			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
-        		continue; // ignore toumbstone roots
-        	}
-        	
-      	    graphAssembler.assemble(resultRow);            	
-        	PlasmaDataGraph assembledGraph = graphAssembler.getDataGraph();
-            graphAssembler.clear();
-        	
-            if (graphRecognizerRootExpr != null) {
-	        	GraphRecognizerContext recognizerContext = new GraphRecognizerContext();
-	        	recognizerContext.setGraph(assembledGraph);
-	        	if (!graphRecognizerRootExpr.evaluate(recognizerContext)) {
-	        		if (log.isDebugEnabled())
-	        			log.debug("recognizer excluded: " + Bytes.toString(
-	        					resultRow.getRow()));
-	        		if (log.isDebugEnabled())
-	        			log.debug(serializeGraph(assembledGraph));
-	        		
-	        		continue;
+        try {
+	        for (Result resultRow : scanner) {	     
+	        	if (log.isDebugEnabled()) {
+	      	        log.debug(rootTableReader.getTable().getName() + ": " + new String(resultRow.getRow()));              	  
+	          	    for (KeyValue keyValue : resultRow.list()) {
+	          	    	log.debug("\tkey: " 
+	          	    		+ new String(keyValue.getQualifier())
+	          	    	    + "\tvalue: " + new String(keyValue.getValue()));
+	          	    }
 	        	}
-            }
-        	result.add(assembledGraph);
+	        	if (collector.isResultEndRangeReached()) {
+	        		break;
+	        	}
+	        		
+	        	collector.collect(resultRow); 
+	        }
         }
-        if (log.isDebugEnabled())
-        	log.debug("assembled "+String.valueOf(result.size())
-        			+" sub results");
-        
-        return result;
+        finally {
+        	if (scanner != null)
+        		scanner.close();
+        }
     }
     
     /**

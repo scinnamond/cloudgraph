@@ -34,19 +34,19 @@ public class CreatedCommitComparator extends CommitComparator {
     			log.debug("comparing types: "
                     + sourceType.toString() + " / " + targetType.toString());
 
-    		if (isSingularRelation(source, target)) {
+    		if (isSingularRelation(source, target)) { // source is less than target
     			if (log.isDebugEnabled())
-    				log.debug("(return 1) - singular relation from source: "
+    				log.debug("(return -1) - singular relation from source: "
     	                + sourceType.toString() + " to target: " 
     						+ targetType.toString());
-    	        return 1;
+    	        return -1;
     		}
-    		else if (isSingularRelation(target, source)) {
+    		else if (isSingularRelation(target, source)) { // source is greater than target
     			if (log.isDebugEnabled())
-    				log.debug("(return -1) - singular relation from target: "
+    				log.debug("(return 1) - singular relation from target: "
     	                + targetType.toString() + " to source: " 
     						+ sourceType.toString());
-    	        return -1;
+    	        return 1;
     		}
     		else {
     			if (log.isDebugEnabled())

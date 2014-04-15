@@ -92,8 +92,8 @@ public class GraphInputFormat extends
 	 */
 	public static final String RECOGNIZER = "cloudgraph.hbase.mapreduce.recognizer";
 
-	/** Job parameter that specifies the scan list. */
-	public static final String SCANS = "cloudgraph.hbase.mapreduce.scans";
+	/** Internal Job parameter that specifies the scan list. */
+	protected static final String SCANS = "cloudgraph.hbase.mapreduce.scans";
 
 	/**
 	 * Internal Job parameter that specifies root the input table as derived

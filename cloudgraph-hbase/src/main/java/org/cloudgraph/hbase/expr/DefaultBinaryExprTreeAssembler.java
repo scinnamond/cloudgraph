@@ -235,41 +235,40 @@ public abstract class DefaultBinaryExprTreeAssembler extends ExpresionVisitorSup
 					+ oper.toString());
 		}
 		else if (this.operands.peek() instanceof Expr) {
-			Expr right = (Expr)this.operands.pop();  
-            if (this.operands.peek() instanceof Expr) {
-			    Expr left = (Expr)this.operands.pop();
-			    LogicalOperator logicalOper = null;
-			    if (this.operators.size() == 0) {
-			    	if (left instanceof LogicalBinaryExpr) {
-			    		LogicalBinaryExpr leftLogical = (LogicalBinaryExpr)left;
-			    		logicalOper = leftLogical.getOperator();
-			    	}
-			    	else
-				        throw new IllegalStateException("expected logical binary not, "
-							+ left.getClass().getName());
-			    }
-			    else {
-			        Operator oper = this.operators.pop();
-				    logicalOper = (LogicalOperator)oper.getOperator();
-			    }
-			    expr = createLogicalBinaryExpr(left, 
-					right, logicalOper);
+			if (this.operands.size() > 1) {
+				Expr right = (Expr)this.operands.pop();  
+	            if (this.operands.peek() instanceof Expr) {
+				    Expr left = (Expr)this.operands.pop();
+				    LogicalOperator logicalOper = null;
+				    if (this.operators.size() == 0) {
+				    	if (left instanceof LogicalBinaryExpr) {
+				    		LogicalBinaryExpr leftLogical = (LogicalBinaryExpr)left;
+				    		logicalOper = leftLogical.getOperator();
+				    	}
+				    	else
+					        throw new IllegalStateException("expected logical binary not, "
+								+ left.getClass().getName());
+				    }
+				    else {
+				        Operator oper = this.operators.pop();
+					    logicalOper = (LogicalOperator)oper.getOperator();
+				    }
+				    expr = createLogicalBinaryExpr(left, 
+						right, logicalOper);
+				}
+				else
+				    throw new IllegalStateException("unknown operand, "
+						+ this.operands.peek().toString());
 			}
-			else
-			    throw new IllegalStateException("unknown operand, "
-					+ this.operands.peek().toString());
+			else {
+				expr = (Expr)this.operands.pop(); 
+			}
 		}
 		else
 			throw new IllegalStateException("unknown opearand, " + this.operands.peek());
 		
-		if (this.operators.size() > 0) {
-		    Operator oper = this.operators.peek();
-		    if (oper.getOperator() instanceof GroupOperator) {
-		    	GroupOperator group = (GroupOperator)oper.getOperator();
-		    	if (group.getValue().ordinal() == GroupOperatorValues.RP_1.ordinal())
-		    		this.operators.pop();
-		    }
-		}
+		if (log.isDebugEnabled())
+			log.debug("assembled: " + expr);
 		
 		return expr;
 	}
@@ -283,19 +282,13 @@ public abstract class DefaultBinaryExprTreeAssembler extends ExpresionVisitorSup
 	private void consume(Term term) {
 		if (term.getExpression() != null) {
 			Expr expr = this.exprMap.get(term.getExpression());
-			this.operands.push(expr);
-		    if (log.isDebugEnabled())
-		    	log.debug("pushed " + expr);
+			push(expr);
 		}
 		else if (term.getProperty() != null) {
-			this.operands.push(term.getProperty());
-		    if (log.isDebugEnabled())
-		    	log.debug("pushed " + term.getProperty().getClass().getSimpleName());
+			push(term.getProperty());
 		}
 		else if (term.getLiteral() != null) {
-			this.operands.push(term.getLiteral());
-		    if (log.isDebugEnabled())
-		    	log.debug("pushed " + term.getLiteral().getClass().getSimpleName());
+			push(term.getLiteral());
 		}
 		// assemble a node based on operator precedence
 		else if (term.getGroupOperator() != null || term.getLogicalOperator() != null || term.getRelationalOperator() != null || term.getWildcardOperator() != null) {
@@ -314,29 +307,70 @@ public abstract class DefaultBinaryExprTreeAssembler extends ExpresionVisitorSup
 			    if (log.isDebugEnabled())
 			    	log.debug("comparing " + existing + " and " + oper);
 				if (existing.compareTo(oper) <= 0) {
-					Expr expr = assemble();
-				    this.operators.push(oper);
-			        if (log.isDebugEnabled())
-			    	    log.debug("pushed " + oper);
-				    this.operands.push(expr);
-				    if (log.isDebugEnabled())
-				    	log.debug("pushed expr node: " + expr);
+					Expr expr = assemble(); // expr complete assemble it					
+					if (this.operators.size() > 0) {
+						Operator remaining = this.operators.peek();
+						if (!isGroupPair(remaining, oper)) {
+							push(oper);
+						}
+						else 
+							this.operators.pop(); // terminate group
+					}
+					else {
+						push(oper);
+					}
+					push(expr);
 				}
 				else {
-				    this.operators.push(oper);
-			        if (log.isDebugEnabled())
-			    	    log.debug("pushed " + oper);
+					push(oper);
 				}
 			}
 			else {
-			    this.operators.push(oper);
-		        if (log.isDebugEnabled())
-		    	    log.debug("pushed " + oper);
+				push(oper);
 			}
 		}
 		else
 			throw new IllegalStateException("unexpected term"  
 				+ getTermClassName(term));
+	}
+	
+	private void push(Operator oper) {
+	    this.operators.push(oper);
+        if (log.isDebugEnabled())
+    	    log.debug("pushed " + oper);
+	}
+	
+	private void push(Expr expr) {
+	    this.operands.push(expr);
+	    if (log.isDebugEnabled())
+	    	log.debug("pushed expr: " + expr);
+	}
+	
+	private void push(Property property) {
+	    this.operands.push(property);
+	    if (log.isDebugEnabled())
+	    	log.debug("pushed property: " + property.getClass().getSimpleName());
+	}
+	
+	private void push(Literal literal) {
+	    this.operands.push(literal);
+	    if (log.isDebugEnabled())
+	    	log.debug("pushed literal: " + literal.getClass().getSimpleName());
+	}
+	
+	private boolean isGroupPair(Operator right, Operator left) {
+	    if (right.getOperator() instanceof GroupOperator) {
+	    	GroupOperator groupRight = (GroupOperator)right.getOperator();
+	    	if (groupRight.getValue().ordinal() == GroupOperatorValues.RP_1.ordinal()) {
+	    		if (left.getOperator() instanceof GroupOperator) {
+	    			GroupOperator groupLeft = (GroupOperator)left.getOperator();
+	    			if (groupLeft.getValue().ordinal() == GroupOperatorValues.LP_1.ordinal()) {
+	    				return true;
+	    			}
+	    	    }
+	    	}
+	    }
+		return false;
 	}
 	
 	/**

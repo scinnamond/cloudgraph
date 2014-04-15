@@ -65,7 +65,6 @@ import commonj.sdo.DataGraph;
  *<p>
  *<pre>
  *public class PageGraphModifier extends GraphXmlMapper<ImmutableBytesWritable, GraphWritable> {
- *    @Override
  *    public void map(ImmutableBytesWritable offset, GraphWritable graph, Context context) throws IOException {
  *    
  *        // track changes
@@ -112,16 +111,27 @@ extends Mapper<ImmutableBytesWritable, GraphWritable, KEYOUT, VALUEOUT> implemen
     private static Log log = LogFactory.getLog(GraphMapper.class);
     private GraphServiceDelegate serviceDelegate;
 	
+    /**
+     * Default constructor
+     */
 	public GraphMapper() {
 		this.serviceDelegate = new GraphServiceDelegate();
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.apache.hadoop.mapreduce.Mapper#map(KEYIN, VALUEIN, org.apache.hadoop.mapreduce.Mapper.Context)
+	 */
 	@Override
 	public void map(ImmutableBytesWritable row, GraphWritable graph,
 			Context context) throws IOException {
         //no behavior
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.cloudgraph.hbase.mapreduce.GraphMutator#commit(commonj.sdo.DataGraph, org.apache.hadoop.mapreduce.JobContext)
+	 */
 	@Override
 	public void commit(DataGraph graph,
 			JobContext jobContext) throws IOException {

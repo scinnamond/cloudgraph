@@ -103,8 +103,8 @@ public class MutationCollector {
             }
         
         PlasmaChangeSummary changeSummary = (PlasmaChangeSummary)dataGraph.getChangeSummary();
-        //if (log.isDebugEnabled())
-            log.info(changeSummary.toString());
+        if (log.isDebugEnabled())
+            log.debug(changeSummary.toString());
             
         if (changeSummary.getChangedDataObjects().size() == 0)
         {

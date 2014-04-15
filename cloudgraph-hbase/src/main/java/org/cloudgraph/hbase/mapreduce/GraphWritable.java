@@ -124,15 +124,22 @@ public class GraphWritable implements Writable {
 	}
 	
 	private DataGraph deserializeGraph(byte[] buf, String uri) throws IOException {
+		long before = System.currentTimeMillis();
+		
 		ByteArrayInputStream is = new ByteArrayInputStream(buf);
 		DefaultOptions options = new DefaultOptions(uri);
 		options.setRootNamespacePrefix("ns1");
 		options.setValidate(false); // no XML schema for the doc necessary or present		
 		XMLDocument doc = PlasmaXMLHelper.INSTANCE.load(is, uri, options);
+		
+		long after = System.currentTimeMillis();
+		System.out.println(GraphWritable.class.getSimpleName() + " deserialization: " + String.valueOf(after - before));
+		
 		return doc.getRootObject().getDataGraph();		
 	}
 
 	private byte[] serializeGraph(DataGraph graph) throws IOException {
+		long before = System.currentTimeMillis();
 		DefaultOptions options = new DefaultOptions(graph.getRootObject()
 				.getType().getURI());
 		options.setRootNamespacePrefix("ns1");
@@ -142,6 +149,8 @@ public class GraphWritable implements Writable {
 		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		PlasmaXMLHelper.INSTANCE.save(doc, os, options);
 		os.flush();
+		long after = System.currentTimeMillis();
+		System.out.println(GraphWritable.class.getSimpleName() + " serialization: " + String.valueOf(after - before));
 		return os.toByteArray();
 	}
 }

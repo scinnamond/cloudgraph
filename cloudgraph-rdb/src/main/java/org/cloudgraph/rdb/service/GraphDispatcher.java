@@ -219,7 +219,7 @@ public class GraphDispatcher extends JDBCSupport
         }
     }
     
-    private void create(DataGraph dataGraph, PlasmaDataObject dataObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+   private void create(DataGraph dataGraph, PlasmaDataObject dataObject) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
         PlasmaType type = (PlasmaType)dataObject.getType();
         UUID uuid = ((CoreDataObject)dataObject).getUUID();
         if (uuid == null)
@@ -229,8 +229,6 @@ public class GraphDispatcher extends JDBCSupport
         
         Map<String, PropertyPair> entity = new HashMap<String, PropertyPair>();
         
-        //Entity entity = newEntity(dataObject.getType()); 
-
         List<Property> pkList = type.findProperties(KeyType.primary);
         if (pkList == null || pkList.size() == 0)
             throw new DataAccessException("no pri-key properties found for type '" 
@@ -238,51 +236,75 @@ public class GraphDispatcher extends JDBCSupport
 
         for (Property pkp : pkList) {
             PlasmaProperty priKeyProperty = (PlasmaProperty)pkp;
-            if (!priKeyProperty.getType().isDataType())
-            	continue; 
             
             Object pk = dataObject.get(priKeyProperty.getName());
-            if (pk == null)
-            {
-            	if (this.hasSequenceGenerator()) {
-	            	DataFlavor dataFlavor = priKeyProperty.getDataFlavor();
-	            	switch (dataFlavor) {
-	            	case integral:
-	                    if (sequenceGenerator == null)
-	                    {
-	                        sequenceGenerator = this.newSequenceGenerator();
-	                        sequenceGenerator.initialize();
-	                    }  
-	                    if (log.isDebugEnabled()) {
-	                        log.debug("getting seq-num for " + type.getName());
-	                    }
-	                    pk = sequenceGenerator.get(dataObject); 
-	                    PropertyPair pair = new PropertyPair(priKeyProperty, pk);
-	                    entity.put(priKeyProperty.getName(), pair);
-	                    //entity.set(targetPriKeyProperty.getName(), pk);                 
-	                    ((CoreDataObject)dataObject).setValue(priKeyProperty.getName(), pk); // FIXME: bypassing modification detection on pri-key
-	            		break;
-	            	default:
-	                    throw new DataAccessException("found null primary key property '"
-	                    		+ priKeyProperty.getName() + "' for type, "
-	                            + type.getURI() + "#" + type.getName());  
+            if (priKeyProperty.getType().isDataType()) {
+	            if (pk == null)
+	            {
+	            	if (this.hasSequenceGenerator()) {
+		            	DataFlavor dataFlavor = priKeyProperty.getDataFlavor();
+		            	switch (dataFlavor) {
+		            	case integral:
+		                    if (sequenceGenerator == null)
+		                    {
+		                        sequenceGenerator = this.newSequenceGenerator();
+		                        sequenceGenerator.initialize();
+		                    }  
+		                    if (log.isDebugEnabled()) {
+		                        log.debug("getting seq-num for " + type.getName());
+		                    }
+		                    pk = sequenceGenerator.get(dataObject); 
+		                    PropertyPair pair = new PropertyPair(priKeyProperty, pk);
+		                    entity.put(priKeyProperty.getName(), pair);
+		                    //entity.set(targetPriKeyProperty.getName(), pk);                 
+		                    ((CoreDataObject)dataObject).setValue(priKeyProperty.getName(), pk); // FIXME: bypassing modification detection on pri-key
+		            		break;
+		            	default:
+		                    throw new DataAccessException("found null primary key property '"
+		                    		+ priKeyProperty.getName() + "' for type, "
+		                            + type.getURI() + "#" + type.getName());  
+		            	}
 	            	}
-            	}
+	            }
+	            else {
+	            	PropertyPair pair = new PropertyPair(priKeyProperty, pk);
+	            	entity.put(priKeyProperty.getName(), pair);
+	            }
             }
-            else
+            else // ref type
             {
+                if (pk == null)
+                    throw new DataAccessException("found null primary key value for property '"
+                		+ priKeyProperty.toString() + " on property supplier chain");  
+                
+                PlasmaProperty priKeyValueProperty = priKeyProperty;
+                DataObject priKeyDataObject = dataObject;
+       		    // traverse to the datatype pk property for this reference
+                while (!priKeyValueProperty.getType().isDataType()) {
+                	priKeyValueProperty = this.getOppositePriKeyProperty(priKeyValueProperty);
+                	priKeyDataObject = (DataObject)pk;
+                	pk = priKeyDataObject.get(priKeyValueProperty.getName());
+                    if (pk == null)
+                        throw new DataAccessException("found null primary key value for property '"
+                    		+ priKeyValueProperty.toString() + " on property supplier chain");  
+                }
+                
             	PropertyPair pair = new PropertyPair(priKeyProperty, pk);
             	entity.put(priKeyProperty.getName(), pair);
-                //entity.set(targetPriKeyProperty.getName(), pk); 
+            	pair.setValueProp(priKeyValueProperty);                 
             } 
             
             if (pk != null) {
-	            if (log.isDebugEnabled()) {
-	                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(pk) + ")");
-	            }
-	             
-	            PropertyPair pkPair = new PropertyPair(priKeyProperty, pk);
-	            snapshotMap.put(uuid, pkPair); // map new PK back to UUID
+            	if (priKeyProperty.getType().isDataType()) {
+		            if (log.isDebugEnabled()) {
+		                log.debug("mapping UUID '" + uuid + "' to pk (" + String.valueOf(pk) + ")");
+		            }
+		            PropertyPair pkPair = new PropertyPair(priKeyProperty, pk);
+		            snapshotMap.put(uuid, pkPair); // map new PK back to UUID
+            	}
+            	else {
+            		log.warn("ignoring FK pk property, " + priKeyProperty.toString());
+            	}
             }
         }
         
@@ -344,7 +366,7 @@ public class GraphDispatcher extends JDBCSupport
             if (property.isMany()) 
                 continue;
 
-            if (property.isKey(KeyType.primary) && property.getType().isDataType())
+            if (property.isKey(KeyType.primary))
                 continue; // handled above
             
             if (property.getConcurrent() != null)
