@@ -130,7 +130,7 @@ public abstract class JDBCSupport {
         	sql.append("t0.");  
         	sql.append(propValue.getProp().getPhysicalName());
         	sql.append(" = "); 
-        	appendValue(propValue, sql);
+        	appendValue(propValue, true, sql);
         }
         RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
         switch (vendor) {
@@ -273,12 +273,23 @@ public abstract class JDBCSupport {
 	
 	private void appendValue(PropertyPair pair, StringBuilder sql) throws SQLException
 	{
+		appendValue(pair, false, sql);
+	}
+	
+	private void appendValue(PropertyPair pair, boolean useOldValue, StringBuilder sql) throws SQLException
+	{
 		PlasmaProperty valueProp = pair.getProp();
 		if (pair.getValueProp() != null)
 			valueProp = pair.getValueProp();
 		
-    	Object jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(valueProp, 
+		Object jdbcValue = null;
+		if (!useOldValue || pair.getOldValue() == null)
+    	    jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(valueProp, 
     			pair.getValue());
+		else
+    	    jdbcValue = RDBDataConverter.INSTANCE.toJDBCDataValue(valueProp, 
+    			pair.getOldValue());
+    	
     	DataFlavor dataFlavor = RDBDataConverter.INSTANCE.toJDBCDataFlavor(valueProp);
     	
     	switch (dataFlavor) {
@@ -356,9 +367,10 @@ public abstract class JDBCSupport {
 		for (PropertyPair pair : values.values()) {
 			PlasmaProperty prop = pair.getProp();
 			if (prop.isMany() && !prop.getType().isDataType())
-				continue;
+				continue; // no such thing as updatable many reference property in RDBMS
 			if (prop.isKey(KeyType.primary))
-				continue; // ignore keys here
+				if (pair.getOldValue() == null) // key not modified, we're not updating it
+				    continue;  
 			return true;
 		}
 		return false;
@@ -378,8 +390,10 @@ public abstract class JDBCSupport {
 			PlasmaProperty prop = pair.getProp();
 			if (prop.isMany() && !prop.getType().isDataType())
 				continue;
-			if (prop.isKey(KeyType.primary))
-				continue; // ignore keys here
+			if (prop.isKey(KeyType.primary)) {
+				if (pair.getOldValue() == null) // key not modified
+				    continue; // ignore keys here
+			}
 			if (col > 0)
 				sql.append(", ");
 			sql.append("t0.");
@@ -403,7 +417,10 @@ public abstract class JDBCSupport {
         	sql.append("t0.");  
         	sql.append(pair.getProp().getPhysicalName());
         	sql.append(" = ?"); 
-        	pair.setColumn(col+1);
+        	if (pair.getOldValue() == null) // key not modified
+        	    pair.setColumn(col+1);
+        	else
+        		pair.setOldValueColumn(col+1);
         	col++; 
         	key++;
         }
@@ -662,6 +679,7 @@ public abstract class JDBCSupport {
     			PlasmaProperty valueProp = pair.getProp();
     			if (pair.getValueProp() != null)
     				valueProp = pair.getValueProp();
+    			 
     			int jdbcType = converter.toJDBCDataType(valueProp, pair.getValue());
     			Object jdbcValue = converter.toJDBCDataValue(valueProp, pair.getValue());
     			if (jdbcType != Types.BLOB && jdbcType != Types.VARBINARY) {
@@ -676,7 +694,24 @@ public abstract class JDBCSupport {
         			if (streams == null)
         				streams = new ArrayList<InputStream>();
         			streams.add(is);
-    			}    			
+    			} 
+    			
+    			if (pair.getOldValue() != null) {
+        			Object jdbcOldValue = converter.toJDBCDataValue(valueProp, pair.getOldValue());
+        			if (jdbcType != Types.BLOB && jdbcType != Types.VARBINARY) {
+        			    statement.setObject(pair.getOldValueColumn(), 
+        			    		jdbcOldValue, jdbcType);
+        			}
+        			else {
+        				byte[] bytes = (byte[])jdbcOldValue;
+        				long len = bytes.length;
+        				ByteArrayInputStream is = new ByteArrayInputStream(bytes);
+            			statement.setBinaryStream(pair.getOldValueColumn(), is, len); 
+            			if (streams == null)
+            				streams = new ArrayList<InputStream>();
+            			streams.add(is);
+        			} 
+    			}
     		}
             statement.executeUpdate();
         }
@@ -700,7 +735,7 @@ public abstract class JDBCSupport {
 					
         }
  	}
-	
+		
 	protected void executeInsert(PlasmaType type, StringBuilder sql, 
 			Map<String, PropertyPair> values,
 			Connection con)
@@ -903,6 +938,10 @@ public abstract class JDBCSupport {
 				valueProp = pair.getValueProp();
 			int jdbcType = converter.toJDBCDataType(valueProp, pair.getValue());
 			Object jdbcValue = converter.toJDBCDataValue(valueProp, pair.getValue());
+			Object jdbcOldValue = null;
+			if (pair.getOldValue() != null) 
+				jdbcOldValue = converter.toJDBCDataValue(valueProp, pair.getOldValue());
+			 
         	if (i > 1) {
         		paramBuf.append(", ");
         	}
@@ -912,6 +951,11 @@ public abstract class JDBCSupport {
         	paramBuf.append(converter.getJdbcTypeName(jdbcType));
         	paramBuf.append(")");
         	paramBuf.append(String.valueOf(jdbcValue));
+        	if (jdbcOldValue != null) {
+        		paramBuf.append("(");
+        		paramBuf.append(String.valueOf(jdbcOldValue));
+        		paramBuf.append(")");
+        	}
 			i++;		
 		}
     	paramBuf.append("]");

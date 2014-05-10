@@ -19,40 +19,14 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.hbase.mapreduce;
+package org.cloudgraph.mapreduce;
 
 import java.io.IOException;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.client.Mutation;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Row;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Mapper.Context;
-import org.cloudgraph.common.service.GraphServiceException;
-import org.cloudgraph.hbase.io.FederatedWriter;
-import org.cloudgraph.hbase.io.TableWriter;
-import org.cloudgraph.hbase.service.GraphDispatcher;
-import org.cloudgraph.hbase.service.MutationCollector;
-import org.cloudgraph.hbase.service.ServiceContext;
-import org.cloudgraph.state.StateMarshallingContext;
-import org.cloudgraph.state.StatelNonValidatinglDataBinding;
-import org.plasma.sdo.core.SnapshotMap;
-import org.xml.sax.SAXException;
-
-import commonj.sdo.DataGraph;
 
 /**
  * Supplies fully realized data {@link GraphWritable graphs} as the input value to MapReduce <code>Mapper</code> 
@@ -95,21 +69,19 @@ import commonj.sdo.DataGraph;
  * @param <KEYOUT> the output key type
  * @param <VALUEOUT> the output value type
  * 
- * @see org.cloudgraph.hbase.mapreduce.GraphWritable
- * @see org.cloudgraph.hbase.mapreduce.GraphXmlRecordReader
+ * @see org.cloudgraph.mapreduce.GraphWritable
+ * @see org.cloudgraph.mapreduce.GraphXmlRecordReader
  * @see org.cloudgraph.hbase.mapreduce.GraphMapReduceSetup
  * 
  * @author Scott Cinnamond
  * @since 0.5.8
  */
 public class GraphXmlMapper<KEYOUT, VALUEOUT>
-extends Mapper<LongWritable, GraphWritable, KEYOUT, VALUEOUT> implements GraphMutator {
+    extends Mapper<LongWritable, GraphWritable, KEYOUT, VALUEOUT> {
 	
     private static Log log = LogFactory.getLog(GraphXmlMapper.class);
-    private GraphServiceDelegate serviceDelegate;
 	
 	public GraphXmlMapper() {
-		this.serviceDelegate = new GraphServiceDelegate();
 	}
 	
 	@Override
@@ -118,9 +90,4 @@ extends Mapper<LongWritable, GraphWritable, KEYOUT, VALUEOUT> implements GraphMu
         //no behavior
 	}
 	
-	@Override
-	public void commit(DataGraph graph,
-			JobContext jobContext) throws IOException {
-		this.serviceDelegate.commit(graph, jobContext);
-	}
 }

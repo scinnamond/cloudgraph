@@ -23,7 +23,7 @@ import org.plasma.sdo.access.DataAccessException;
 public class JNDIDataSourceProvider implements DataSourceProvder {
 	private static final Log log = LogFactory
 			.getLog(JNDIDataSourceProvider.class);
-	private DataSource datasource;
+	protected DataSource datasource;
 
 	public JNDIDataSourceProvider() {
 		Properties props = new Properties();

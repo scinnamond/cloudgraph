@@ -1,4 +1,4 @@
-package org.cloudgraph.hbase.graph;
+package org.cloudgraph.common.service;
 
 import org.plasma.sdo.PlasmaDataGraphVisitor;
 

@@ -46,6 +46,8 @@ import org.cloudgraph.hbase.io.TableWriter;
 import org.cloudgraph.hbase.service.GraphDispatcher;
 import org.cloudgraph.hbase.service.MutationCollector;
 import org.cloudgraph.hbase.service.ServiceContext;
+import org.cloudgraph.mapreduce.GraphMutator;
+import org.cloudgraph.mapreduce.GraphWritable;
 import org.cloudgraph.state.StateMarshallingContext;
 import org.cloudgraph.state.StatelNonValidatinglDataBinding;
 import org.plasma.sdo.core.SnapshotMap;
@@ -98,7 +100,7 @@ import commonj.sdo.DataGraph;
  * @param <KEYOUT> the output key type
  * @param <VALUEOUT> the output value type
  * 
- * @see org.cloudgraph.hbase.mapreduce.GraphWritable
+ * @see org.cloudgraph.mapreduce.GraphWritable
  * @see org.cloudgraph.hbase.mapreduce.GraphRecordReader
  * @see org.cloudgraph.hbase.mapreduce.GraphMapReduceSetup
  * 

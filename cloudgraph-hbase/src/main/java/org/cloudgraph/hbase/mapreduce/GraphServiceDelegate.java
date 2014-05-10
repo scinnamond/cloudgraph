@@ -19,6 +19,8 @@ import org.cloudgraph.hbase.io.TableWriter;
 import org.cloudgraph.hbase.service.GraphQuery;
 import org.cloudgraph.hbase.service.MutationCollector;
 import org.cloudgraph.hbase.service.ServiceContext;
+import org.cloudgraph.mapreduce.GraphAccessor;
+import org.cloudgraph.mapreduce.GraphMutator;
 import org.cloudgraph.state.StateMarshallingContext;
 import org.cloudgraph.state.StatelNonValidatinglDataBinding;
 import org.plasma.query.Query;

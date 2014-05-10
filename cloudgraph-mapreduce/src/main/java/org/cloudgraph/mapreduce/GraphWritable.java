@@ -19,7 +19,7 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.hbase.mapreduce;
+package org.cloudgraph.mapreduce;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -63,8 +63,7 @@ public class GraphWritable implements Writable {
 		// for serialization only
 	}
 	
-	// package only
-	GraphWritable(DataGraph dataGraph) {
+	public GraphWritable(DataGraph dataGraph) {
 		this.dataGraph = dataGraph;
 	}
 
@@ -133,7 +132,7 @@ public class GraphWritable implements Writable {
 		XMLDocument doc = PlasmaXMLHelper.INSTANCE.load(is, uri, options);
 		
 		long after = System.currentTimeMillis();
-		System.out.println(GraphWritable.class.getSimpleName() + " deserialization: " + String.valueOf(after - before));
+		//System.out.println(GraphWritable.class.getSimpleName() + " deserialization: " + String.valueOf(after - before));
 		
 		return doc.getRootObject().getDataGraph();		
 	}
@@ -143,6 +142,7 @@ public class GraphWritable implements Writable {
 		DefaultOptions options = new DefaultOptions(graph.getRootObject()
 				.getType().getURI());
 		options.setRootNamespacePrefix("ns1");
+		//options.setPrettyPrint(false);  
 		XMLDocument doc = PlasmaXMLHelper.INSTANCE.createDocument(
 				graph.getRootObject(),
 				graph.getRootObject().getType().getURI(), null);
@@ -150,7 +150,7 @@ public class GraphWritable implements Writable {
 		PlasmaXMLHelper.INSTANCE.save(doc, os, options);
 		os.flush();
 		long after = System.currentTimeMillis();
-		System.out.println(GraphWritable.class.getSimpleName() + " serialization: " + String.valueOf(after - before));
+		//System.out.println(GraphWritable.class.getSimpleName() + " serialization: " + String.valueOf(after - before));
 		return os.toByteArray();
 	}
 }

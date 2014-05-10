@@ -60,6 +60,8 @@ import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
 import org.cloudgraph.hbase.io.FederatedGraphReader;
 import org.cloudgraph.hbase.io.FederatedReader;
 import org.cloudgraph.hbase.io.TableReader;
+import org.cloudgraph.mapreduce.Counters;
+import org.cloudgraph.mapreduce.GraphWritable;
 import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.StateMarshallingContext;
 import org.cloudgraph.state.StatelNonValidatinglDataBinding;
@@ -79,29 +81,30 @@ import org.xml.sax.SAXException;
 import commonj.sdo.Type;
 
 /**
- * Iterates over HBase root table data for the current <code>TableSplit</code>, assembling data graphs based on the detailed selection criteria within a 
- * given <a href="http://plasma-sdo.org/org/plasma/query/Query.html">query</a>. Partially or fully
- * assembled data graphs may be passed to binary expression recognizer and potentially screened from
- * client {@link GraphMapper} extensions, potentially illuminating business logic dedicated to identifying
- * specific records.   
+ * Iterates over HBase root table data for the current <code>TableSplit</code>,
+ * assembling data graphs based on the detailed selection criteria within a
+ * given <a href="http://plasma-sdo.org/org/plasma/query/Query.html">query</a>.
+ * Partially or fully assembled data graphs may be passed to binary expression
+ * recognizer and potentially screened from client {@link GraphMapper}
+ * extensions, potentially illuminating business logic dedicated to identifying
+ * specific records.
  * <p>
- * The recognizer uses a binary expression tree assembler 
- * which constructs an operator 
- * precedence map, then visits (traverses) 
- * the given predicate expression syntax tree depth-first 
- * using an adapted shunting-yard algorithm and assembles a 
- * resulting binary tree structure with expression nodes specific
- * for detecting i.e. recognizing a data graph. In typical usage 
- * scenarios, a single expression tree is assembled once, and 
- * then used to evaluate (recognize) any number of data graphs.
+ * The recognizer uses a binary expression tree assembler which constructs an
+ * operator precedence map, then visits (traverses) the given predicate
+ * expression syntax tree depth-first using an adapted shunting-yard algorithm
+ * and assembles a resulting binary tree structure with expression nodes
+ * specific for detecting i.e. recognizing a data graph. In typical usage
+ * scenarios, a single expression tree is assembled once, and then used to
+ * evaluate (recognize) any number of data graphs.
  * <p>
- * The adapted shunting-yard algorithm in general uses a stack of 
- * operators and operands, and as new binary tree nodes are detected and 
- * created they are pushed onto the operand stack based on operator precedence.
- * The resulting binary expression tree reflects the syntax of the
- * underlying query expression including the precedence of its operators.
+ * The adapted shunting-yard algorithm in general uses a stack of operators and
+ * operands, and as new binary tree nodes are detected and created they are
+ * pushed onto the operand stack based on operator precedence. The resulting
+ * binary expression tree reflects the syntax of the underlying query expression
+ * including the precedence of its operators.
  * </p>
  * </p>
+ * 
  * @see GraphRecognizerSyntaxTreeAssembler
  * @see GraphRecognizerContext
  * @see GraphWritable
@@ -110,12 +113,11 @@ import commonj.sdo.Type;
  * @author Scott Cinnamond
  * @since 0.5.8
  */
-public class GraphRecordRecognizer implements Counters {
+public class GraphRecordRecognizer {
 	public static final String LOG_PER_ROW_COUNT = "hbase.mapreduce.log.scanner.rowcount";
 
 	static final Log log = LogFactory.getLog(GraphRecordRecognizer.class);
 
-	
 	/** name of mapreduce counter group for HBase */
 	private ResultScanner scanner = null;
 	private Scan scan = null;
@@ -135,11 +137,11 @@ public class GraphRecordRecognizer implements Counters {
 	private HBaseGraphAssembler graphAssembler;
 	private GraphRecognizerContext recognizerContext;
 	private TableReader rootTableReader;
-	
+
 	private long numRecognizedGraphs = 0;
-	
+
 	private long numUnrecognizedGraphs = 0;
-	
+
 	private long totalGraphNodesAssembled = 0;
 	private long totalGraphAssemblyTime = 0;
 	private long totalGrapRecognitionTime = 0;
@@ -228,18 +230,18 @@ public class GraphRecordRecognizer implements Counters {
 			Query query = unmarshal(queryXml);
 
 			PlasmaType type = getRootType(query);
-	        Where where = query.findWhereClause();
-	        SelectionCollector selectionCollector = null;
-	        if (where != null)
-	        	selectionCollector = new SelectionCollector(
-	                query.getSelectClause(), where, type);
-	        else
-	        	selectionCollector = new SelectionCollector(
-	                    query.getSelectClause(), type);
-	        selectionCollector.setOnlyDeclaredProperties(false);
-	        // FIXME generalize
-	        for (Type t : selectionCollector.getTypes()) 
-	        	collectRowKeyProperties(selectionCollector, (PlasmaType)t);        
+			Where where = query.findWhereClause();
+			SelectionCollector selectionCollector = null;
+			if (where != null)
+				selectionCollector = new SelectionCollector(
+						query.getSelectClause(), where, type);
+			else
+				selectionCollector = new SelectionCollector(
+						query.getSelectClause(), type);
+			selectionCollector.setOnlyDeclaredProperties(false);
+			// FIXME generalize
+			for (Type t : selectionCollector.getTypes())
+				collectRowKeyProperties(selectionCollector, (PlasmaType) t);
 
 			StateMarshallingContext marshallingContext = null;
 			try {
@@ -251,8 +253,8 @@ public class GraphRecordRecognizer implements Counters {
 				throw new GraphServiceException(e);
 			}
 
-			FederatedGraphReader graphReader = new FederatedGraphReader(
-					type, selectionCollector.getTypes(), marshallingContext);
+			FederatedGraphReader graphReader = new FederatedGraphReader(type,
+					selectionCollector.getTypes(), marshallingContext);
 			this.rootTableReader = graphReader.getRootTableReader();
 
 			this.graphAssembler = createGraphAssembler(type, graphReader,
@@ -262,15 +264,14 @@ public class GraphRecordRecognizer implements Counters {
 			boolean needsRecognizer = context.getConfiguration().getBoolean(
 					GraphInputFormat.RECOGNIZER, false);
 			if (needsRecognizer) {
-				GraphRecognizerSyntaxTreeAssembler recognizerAssembler = 
-					new GraphRecognizerSyntaxTreeAssembler(
-					where, type);
+				GraphRecognizerSyntaxTreeAssembler recognizerAssembler = new GraphRecognizerSyntaxTreeAssembler(
+						where, type);
 				this.graphRecognizerRootExpr = recognizerAssembler.getResult();
 				this.recognizerContext = new GraphRecognizerContext();
 				if (log.isDebugEnabled()) {
-				    ExprPrinter printer = new ExprPrinter();
-				    graphRecognizerRootExpr.accept(printer);
-				    log.debug("Graph Recognizer: " + printer.toString());
+					ExprPrinter printer = new ExprPrinter();
+					graphRecognizerRootExpr.accept(printer);
+					log.debug("Graph Recognizer: " + printer.toString());
 				}
 			}
 
@@ -313,8 +314,10 @@ public class GraphRecordRecognizer implements Counters {
 	}
 
 	/**
-	 * Positions the record reader to the next recognized record, scanning forward past
-	 * any unrecognized records, not passing these records to <code>Mapper</code> clients. 
+	 * Positions the record reader to the next recognized record, scanning
+	 * forward past any unrecognized records, not passing these records to
+	 * <code>Mapper</code> clients.
+	 * 
 	 * @return <code>true</code> if there was another record.
 	 * @throws IOException
 	 *             When reading the record failed.
@@ -330,11 +333,11 @@ public class GraphRecordRecognizer implements Counters {
 				while ((resultRow = this.scanner.next()) != null) {
 					PlasmaDataGraph graph = recognize(resultRow);
 					if (graph != null) {
-						 this.value = new GraphWritable(graph);
-						 break;
+						this.value = new GraphWritable(graph);
+						break;
 					}
 				}
-				
+
 				if (logScannerActivity) {
 					rowcount++;
 					if (rowcount >= logPerRowCount) {
@@ -364,8 +367,8 @@ public class GraphRecordRecognizer implements Counters {
 				while ((resultRow = this.scanner.next()) != null) {
 					PlasmaDataGraph graph = recognize(resultRow);
 					if (graph != null) {
-						 this.value = new GraphWritable(graph);
-						 break;
+						this.value = new GraphWritable(graph);
+						break;
 					}
 				}
 				this.numRestarts++;
@@ -395,19 +398,23 @@ public class GraphRecordRecognizer implements Counters {
 	private boolean requiresRecognizer() {
 		return this.graphRecognizerRootExpr != null;
 	}
-	
+
 	/**
-	 * Assembles a graph for the given row, then if the current query context requires
-	 * a graph recognizer, invokes the recognizer returning the graph it it is recognized
-	 * or null if not. 
-	 * @param resultRow the row
-	 * @return the recognized graph or null if the assembled graph is not recognized
+	 * Assembles a graph for the given row, then if the current query context
+	 * requires a graph recognizer, invokes the recognizer returning the graph
+	 * it it is recognized or null if not.
+	 * 
+	 * @param resultRow
+	 *            the row
+	 * @return the recognized graph or null if the assembled graph is not
+	 *         recognized
 	 */
 	private PlasmaDataGraph recognize(Result resultRow) {
-    	if (resultRow.containsColumn(rootTableReader.getTable().getDataColumnFamilyNameBytes(), 
-    			GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
-    		return null; // ignore toumbstone roots
-    	}
+		if (resultRow.containsColumn(rootTableReader.getTable()
+				.getDataColumnFamilyNameBytes(),
+				GraphState.TOUMBSTONE_COLUMN_NAME_BYTES)) {
+			return null; // ignore toumbstone roots
+		}
 		PlasmaDataGraph graph = assemble(resultRow);
 		if (requiresRecognizer()) {
 			long before = System.currentTimeMillis();
@@ -416,38 +423,42 @@ public class GraphRecordRecognizer implements Counters {
 				this.numRecognizedGraphs++;
 			} else {
 				this.numUnrecognizedGraphs++;
-				graph = null;  
+				graph = null;
 			}
 			long after = System.currentTimeMillis();
 			this.totalGrapRecognitionTime += (after - before);
 		}
-			
+
 		return graph;
-	}	
-	
-	 
+	}
+
 	/**
-	 * Assembles a data graph from the given result row, capturing various
-	 * graph metrics and counters. 
-	 * @param resultRow the row
+	 * Assembles a data graph from the given result row, capturing various graph
+	 * metrics and counters.
+	 * 
+	 * @param resultRow
+	 *            the row
 	 * @return the assembled data graph
 	 */
 	private PlasmaDataGraph assemble(Result resultRow) {
 		this.graphAssembler.clear();
 		this.graphAssembler.assemble(resultRow);
 		PlasmaDataGraph result = graphAssembler.getDataGraph();
-		CoreDataObject root = (CoreDataObject)result.getRootObject();
-		Long time = (Long)root.getValue(CloudGraphConstants.GRAPH_ASSEMBLY_TIME);
+		CoreDataObject root = (CoreDataObject) result.getRootObject();
+		Long time = (Long) root
+				.getValue(CloudGraphConstants.GRAPH_ASSEMBLY_TIME);
 		if (time != null)
-		    this.totalGraphAssemblyTime += time.longValue();
-		Long nodeCount = (Long)root.getValue(CloudGraphConstants.GRAPH_NODE_COUNT);
+			this.totalGraphAssemblyTime += time.longValue();
+		Long nodeCount = (Long) root
+				.getValue(CloudGraphConstants.GRAPH_NODE_COUNT);
 		if (nodeCount != null)
-			this.totalGraphNodesAssembled += nodeCount.longValue();			
+			this.totalGraphNodesAssembled += nodeCount.longValue();
 		return graphAssembler.getDataGraph();
 	}
 
 	/**
 	 * Updates various job counters.
+	 * 
 	 * @throws IOException
 	 */
 	private void updateCounters() throws IOException {
@@ -458,35 +469,42 @@ public class GraphRecordRecognizer implements Counters {
 		updateHBaseCounters();
 		try {
 			if (this.numRecognizedGraphs > 0)
-			    ((Counter) this.getCounter.invoke(context,
-					CLOUDGRAPH_COUNTER_GROUP_NAME, CLOUDGRAPH_COUNTER_NAME_NUM_RECOGNIZED_GRAPHS))
-					.increment(this.numRecognizedGraphs);
+				((Counter) this.getCounter.invoke(context,
+						Counters.CLOUDGRAPH_COUNTER_GROUP_NAME,
+						Counters.CLOUDGRAPH_COUNTER_NAME_NUM_RECOGNIZED_GRAPHS))
+						.increment(this.numRecognizedGraphs);
 			if (this.numUnrecognizedGraphs > 0)
-			    ((Counter) this.getCounter.invoke(context,
-					CLOUDGRAPH_COUNTER_GROUP_NAME, CLOUDGRAPH_COUNTER_NAME_NUM_UNRECOGNIZED_GRAPHS))
-					.increment(this.numUnrecognizedGraphs);
-			
-		    ((Counter) this.getCounter.invoke(context,
-				CLOUDGRAPH_COUNTER_GROUP_NAME, CLOUDGRAPH_COUNTER_NAME_NUM_GRAPH_NODES_ASSEMBLED))
-				.increment(this.totalGraphNodesAssembled);
-		    
-		    ((Counter) this.getCounter.invoke(context,
-				CLOUDGRAPH_COUNTER_GROUP_NAME, CLOUDGRAPH_COUNTER_NAME_TOT_GRAPH_ASSEMBLY_TIME))
-				.increment(this.totalGraphAssemblyTime);		    
+				((Counter) this.getCounter
+						.invoke(context,
+								Counters.CLOUDGRAPH_COUNTER_GROUP_NAME,
+								Counters.CLOUDGRAPH_COUNTER_NAME_NUM_UNRECOGNIZED_GRAPHS))
+						.increment(this.numUnrecognizedGraphs);
 
-		    ((Counter) this.getCounter.invoke(context,
-				CLOUDGRAPH_COUNTER_GROUP_NAME, CLOUDGRAPH_COUNTER_NAME_TOT_GRAPH_RECOG_TIME))
-				.increment(this.totalGrapRecognitionTime);		    
-		    
+			((Counter) this.getCounter.invoke(context,
+					Counters.CLOUDGRAPH_COUNTER_GROUP_NAME,
+					Counters.CLOUDGRAPH_COUNTER_NAME_NUM_GRAPH_NODES_ASSEMBLED))
+					.increment(this.totalGraphNodesAssembled);
+
+			((Counter) this.getCounter.invoke(context,
+					Counters.CLOUDGRAPH_COUNTER_GROUP_NAME,
+					Counters.CLOUDGRAPH_COUNTER_NAME_TOT_GRAPH_ASSEMBLY_TIME))
+					.increment(this.totalGraphAssemblyTime);
+
+			((Counter) this.getCounter.invoke(context,
+					Counters.CLOUDGRAPH_COUNTER_GROUP_NAME,
+					Counters.CLOUDGRAPH_COUNTER_NAME_TOT_GRAPH_RECOG_TIME))
+					.increment(this.totalGrapRecognitionTime);
+
 		} catch (Exception e) {
 			log.debug("can't update counter."
 					+ StringUtils.stringifyException(e));
 		}
 	}
-	
+
 	/**
 	 * Increments various HBase specific counters, mostly taken from
-	 * <code>ScanMetrics</code>. 
+	 * <code>ScanMetrics</code>.
+	 * 
 	 * @throws IOException
 	 */
 	private void updateHBaseCounters() throws IOException {
@@ -506,11 +524,12 @@ public class GraphRecordRecognizer implements Counters {
 		try {
 			for (MetricsTimeVaryingLong mlv : mlvs) {
 				Counter ct = (Counter) this.getCounter.invoke(context,
-						HBASE_COUNTER_GROUP_NAME, mlv.getName());
+						HBaseCounters.HBASE_COUNTER_GROUP_NAME, mlv.getName());
 				ct.increment(mlv.getCurrentIntervalValue());
 			}
 			((Counter) this.getCounter.invoke(context,
-					HBASE_COUNTER_GROUP_NAME, HBASE_COUNTER_NAME_NUM_SCANNER_RESTARTS))
+					HBaseCounters.HBASE_COUNTER_GROUP_NAME,
+					HBaseCounters.HBASE_COUNTER_NAME_NUM_SCANNER_RESTARTS))
 					.increment(numRestarts);
 		} catch (Exception e) {
 			log.debug("can't update counter."

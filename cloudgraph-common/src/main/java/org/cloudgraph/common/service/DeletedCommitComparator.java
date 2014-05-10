@@ -11,18 +11,18 @@ import org.plasma.sdo.core.CoreDataObject;
 import commonj.sdo.DataObject;
 
 /**
- * Comparator which imposes a commit ordering on created objects based on singular relations between the
+ * Comparator which imposes a commit ordering on deleted objects based on singular relations between the
  * types for the given source and target data objects. Singular relations across any number of
- * "hops" between the 2 types are detected and the "parent" types are ordered first. Where the types
+ * "hops" between the 2 types are detected and the "child" types are ordered first. Where the types
  * are the same, singular relations may still exist from/to the same type forming a "recursion" and
  * these are detected by finding singular linkages between between the given data objects.    
  * Note: this comparator imposes orderings that are inconsistent with equals.
  */
-public class CreatedCommitComparator extends CommitComparator {
+public class DeletedCommitComparator extends CommitComparator {
 
 	private static final long serialVersionUID = 1L;
     private static Log log = LogFactory.getFactory().getInstance(
-    		CreatedCommitComparator.class);
+    		DeletedCommitComparator.class);
 
 	@Override
 	public int compare(CoreDataObject source, CoreDataObject target) {
@@ -38,17 +38,17 @@ public class CreatedCommitComparator extends CommitComparator {
     			log.debug("comparing types: "
                     + sourceType.toString() + " / " + targetType.toString());
 
-    		if (isSingularRelation(source, target)) { // source is less than target
+    		if (isSingularRelation(target, source)) { // target is less than source
     			if (log.isDebugEnabled())
-    				log.debug("(return -1) - singular relation from source: "
-    	                + sourceType.toString() + " to target: " 
+    				log.debug("(return -1) - singular relation to target: "
+    	                + sourceType.toString() + " from source: " 
     						+ targetType.toString());
     	        return -1;
     		}
-    		else if (isSingularRelation(target, source)) { // source is greater than target
+    		else if (isSingularRelation(source, target)) { // target is greater than source
     			if (log.isDebugEnabled())
-    				log.debug("(return 1) - singular relation to target: "
-    	                + targetType.toString() + " from source: " 
+    				log.debug("(return 1) - singular relation from source: "
+    	                + targetType.toString() + " to target: " 
     						+ sourceType.toString());
     	        return 1;
     		}
@@ -68,7 +68,7 @@ public class CreatedCommitComparator extends CommitComparator {
     			if (log.isDebugEnabled())
     				log.debug("singular link from : "
     	                + source.toString() + " to: " + target.toString());
-    	        return 1;
+    	        return -1;
     		}
     		else {
     			// For say a root object which is part of
@@ -79,10 +79,10 @@ public class CreatedCommitComparator extends CommitComparator {
         			if (log.isDebugEnabled())
         				log.debug("depth: "
         	                + sourceDepth + " / " + targetDepth);
-        	        return -1;
+        	        return 1;
     			}
     			else
-    			    return 1; 
+    			    return -1; 
     		}
 	    }
 	     

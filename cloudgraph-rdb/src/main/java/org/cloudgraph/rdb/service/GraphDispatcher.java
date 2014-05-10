@@ -37,6 +37,7 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.service.CreatedCommitComparator;
+import org.cloudgraph.common.service.DeletedCommitComparator;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.config.DataAccessProvider;
 import org.plasma.config.DataAccessProviderName;
@@ -68,7 +69,6 @@ import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
 
 import sorts.InsertionSort;
-
 import commonj.sdo.ChangeSummary.Setting;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -159,41 +159,64 @@ public class GraphDispatcher extends JDBCSupport
 
     	if (log.isDebugEnabled()) {
     		int createdIndex = 0; 
-            //for (DataObject dataObject : created.getResult()) {
             for (DataObject dataObject : createdArray) {
             	log.debug("created before sort " + createdIndex + ": " + dataObject.toString());
             	createdIndex++;
             }
     	}        
         Comparator<CoreDataObject> comparator = new CreatedCommitComparator();
-        //Arrays.sort(createdArray, comparator);
-        //Collections.sort(createdList, comparator);
         InsertionSort sort = new InsertionSort();
         sort.sort(createdArray, comparator);
     	
         if (log.isDebugEnabled()) {
     		int createdIndex = 0; 
-            //for (DataObject dataObject : created.getResult()) {
             for (DataObject dataObject : createdArray) {
             	log.debug("created after sort " + createdIndex + ": " + dataObject.toString());
             	createdIndex++;
             }
     	}
         
-        //CreatedObjectCollector created = new CreatedObjectCollector(dataGraph);
+        List<CoreDataObject> deletedList = new ArrayList<CoreDataObject>();
+        for (int i = 0; i < changed.length; i++) {
+            DataObject dataObject = changed[i];
+            if (changeSummary.isDeleted(dataObject))
+            	deletedList.add((CoreDataObject)dataObject);
+        }
+        CoreDataObject[] deletedArray = new CoreDataObject[deletedList.size()];
+        deletedList.toArray(deletedArray);
+
+    	if (log.isDebugEnabled()) {
+    		int deletedIndex = 0; 
+            for (DataObject dataObject : deletedArray) {
+            	log.debug("deleted before sort " + deletedIndex + ": " + dataObject.toString());
+            	deletedIndex++;
+            }
+    	}        
+        comparator = new CreatedCommitComparator();
+        sort = new InsertionSort();
+        sort.sort(deletedArray, comparator);
+    	
+        if (log.isDebugEnabled()) {
+        	int deletedIndex = 0; 
+            for (int i = deletedArray.length-1; i >= 0; i--) {
+            	DataObject dataObject = deletedArray[i];
+            	log.debug("deleted after sort " + deletedIndex + ": " + dataObject.toString());
+            	deletedIndex++;
+            }
+    	}
+        
         ModifiedObjectCollector modified = new ModifiedObjectCollector(dataGraph);
-        DeletedObjectCollector deleted = new DeletedObjectCollector(dataGraph);
         try {
-            
-        		
-            //for (PlasmaDataObject dataObject : created.getResult())
             for (PlasmaDataObject dataObject : createdArray)
                 create(dataGraph, dataObject);
             
             for (PlasmaDataObject dataObject : modified.getResult())
                 update(dataGraph, dataObject);
-            for (PlasmaDataObject dataObject : deleted.getResult())
-                delete(dataGraph, dataObject);
+            
+            for (int i = deletedArray.length-1; i >= 0; i--) {
+            	DataObject dataObject = deletedArray[i];
+            	delete(dataGraph, dataObject);
+            }
 
             
             // FIXME: lock flags/values not found in change summary, must traverse non-changed
@@ -428,7 +451,7 @@ public class GraphDispatcher extends JDBCSupport
             	// pk has been modified, yet we need it to lookup record, use the old value
             	if (!pkProperty.isReadOnly()) {
             		Object oldPk = setting.getValue();
-            		PropertyPair pair = this.createValue(dataObject, oldPk, pkProperty);             		
+            		PropertyPair pair = this.createValue(dataObject, pk, oldPk, pkProperty);             		
                     pkPairs.add(pair);
             	}
             	else
@@ -483,6 +506,10 @@ public class GraphDispatcher extends JDBCSupport
         Map<String, PropertyPair> entity = fetchRowMap(type, select, con);
         if (entity.size() == 0)
         	throw new GraphServiceException("could not lock record of type, " + type.toString());
+        
+        //overwrite with original PK pairs as these may contain old/new value info
+        for (PropertyPair pair : pkPairs)
+        	entity.put(pair.getProp().getName(), pair);
                 
         if (concurrencyTimestampProperty != null && concurrencyUserProperty != null)  
             checkAndRefreshConcurrencyFields(type, entity, 
@@ -503,8 +530,8 @@ public class GraphDispatcher extends JDBCSupport
         	PlasmaProperty property = (PlasmaProperty)p;
             if (property.isMany()) 
                 continue; // do/could we invoke a "marshaler" here?
-            //if (property.isKey(KeyType.primary))
-            //    continue;
+            if (property.isKey(KeyType.primary))
+                continue; // handled above
             
             if (property.getConcurrent() != null)
                 continue;            
@@ -851,13 +878,34 @@ public class GraphDispatcher extends JDBCSupport
     } 
     
     protected PropertyPair createValue(PlasmaDataObject dataObject, Object value, Property property)
+            throws IllegalAccessException, IllegalArgumentException,
+                InvocationTargetException
+    {
+    	return createValue(dataObject, value, null, property);
+    }    
+    
+    protected PropertyPair createValue(PlasmaDataObject dataObject, Object value, Object oldValue, Property property)
         throws IllegalAccessException, IllegalArgumentException,
             InvocationTargetException
     {
-    	Object resultValue = value;
         if (log.isDebugEnabled()) {
             log.debug("setting " + dataObject.toString() + "." + property.getName());
         }
+        
+        PropertyPair resultValue = findResultValue(dataObject, value, property);
+        if (oldValue != null) {
+        	PropertyPair oldResultValue = findResultValue(dataObject, oldValue, property);
+        	resultValue.setOldValue(oldResultValue.getValue());
+        }
+        
+        return resultValue;
+    }    
+    
+    protected PropertyPair findResultValue(PlasmaDataObject dataObject, Object value, Property property)
+            throws IllegalAccessException, IllegalArgumentException,
+                InvocationTargetException
+    {
+    	Object resultValue = value;
 
         // pull pk from value object target and use to find existing entity 
         PlasmaProperty valueProperty = null;
@@ -914,7 +962,7 @@ public class GraphDispatcher extends JDBCSupport
                         + " (" + String.valueOf(resultValue) + ")");
             }
         } 
-         
+            
      	PropertyPair result = null;
         if (!(value instanceof NullValue)) {  
         	result = new PropertyPair((PlasmaProperty)property, resultValue);

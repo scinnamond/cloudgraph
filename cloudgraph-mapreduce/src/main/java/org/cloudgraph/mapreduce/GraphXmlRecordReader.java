@@ -1,4 +1,25 @@
-package org.cloudgraph.hbase.mapreduce;
+/**
+ *        CloudGraph Community Edition (CE) License
+ * 
+ * This is a community release of CloudGraph, a dual-license suite of
+ * Service Data Object (SDO) 2.1 services designed for relational and 
+ * big-table style "cloud" databases, such as HBase and others. 
+ * This particular copy of the software is released under the 
+ * version 2 of the GNU General Public License. CloudGraph was developed by 
+ * TerraMeta Software, Inc.
+ * 
+ * Copyright (c) 2013, TerraMeta Software, Inc. All rights reserved.
+ * 
+ * General License information can be found below.
+ * 
+ * This distribution may include materials developed by third
+ * parties. For license and attribution notices for these
+ * materials, please refer to the documentation that accompanies
+ * this distribution (see the "Licenses for Third-Party Components"
+ * appendix) or view the online documentation at 
+ * <http://cloudgraph.org/licenses/>. 
+ */
+package org.cloudgraph.mapreduce;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -22,7 +43,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.StringUtils;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.hbase.graph.MetricCollector;
+import org.cloudgraph.common.service.MetricCollector;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.xml.DefaultOptions;
 import org.plasma.sdo.xml.StreamUnmarshaller;
@@ -34,7 +55,8 @@ import commonj.sdo.helper.XMLDocument;
 /**
  * An HDFS XML text file record reader that iterates over HDFS data for the current <code>TableSplit</code>, 
  * unmarshalling the XML as structured data graphs based on structural and XML-specific 
- * metadata from the underlying domain model. Data graphs of any size of complexity are supplied through {@link GraphXmlInputFormat} including 
+ * metadata from the underlying domain model. Data graphs may be heterogeneous and of any size or 
+ * complexity are supplied through {@link GraphXmlInputFormat} including 
  * graphs where the underlying domain model contains instances of multiple inheritance. 
  * The unmarshalling is stream oriented and leverages the XML (StAX) parser 
  * based Plasma <a href="http://plasma-sdo.org/org/plasma/sdo/xml/StreamUnmarshaller.html">StreamUnmarshaller</a>.
@@ -63,14 +85,14 @@ import commonj.sdo.helper.XMLDocument;
  * 	}   
  * </pre>  
  * 
- * @see org.cloudgraph.hbase.mapreduce.GraphWritable
- * @see org.cloudgraph.hbase.mapreduce.GraphXmlInputFormat
+ * @see org.cloudgraph.mapreduce.GraphWritable
+ * @see org.cloudgraph.mapreduce.GraphXmlInputFormat
  * 
  * @author Scott Cinnamond
  * @since 0.5.8
  */
 public class GraphXmlRecordReader extends
-    RecordReader<LongWritable, GraphWritable> implements Counters {
+    RecordReader<LongWritable, GraphWritable> {
 
 	static final Log log = LogFactory.getLog(GraphXmlRecordReader.class);
 
@@ -83,7 +105,7 @@ public class GraphXmlRecordReader extends
   	private GraphWritable value = null;
   	private Configuration configuration;
   	private String rootNamespaceUri;
-  	private String rootNamespacePRefix;
+  	private String rootNamespacePrefix;
   	private DefaultOptions unmarshalOptions; 
   	private StreamUnmarshaller unmarshaler;
   	private TaskAttemptContext context;
@@ -99,13 +121,13 @@ public class GraphXmlRecordReader extends
  
         this.context = context;
         this.configuration = context.getConfiguration();
-        this.getCounter = retrieveGetCounterWithStringsParams(context);
+        this.getCounter = Counters.retrieveGetCounterWithStringsParams(context);
        
         this.rootNamespaceUri = configuration.get(GraphXmlInputFormat.ROOT_ELEM_NAMESPACE_URI);
-        this.rootNamespacePRefix = configuration.get(GraphXmlInputFormat.ROOT_ELEM_NAMESPACE_PREFIX, "ns1");
+        this.rootNamespacePrefix = configuration.get(GraphXmlInputFormat.ROOT_ELEM_NAMESPACE_PREFIX, "ns1");
         
         this.unmarshalOptions = new DefaultOptions(this.rootNamespaceUri);
-        this.unmarshalOptions.setRootNamespacePrefix(this.rootNamespacePRefix);
+        this.unmarshalOptions.setRootNamespacePrefix(this.rootNamespacePrefix);
         this.unmarshalOptions.setValidate(false);
         this.unmarshalOptions.setFailOnValidationError(false);
         this.unmarshaler = 
@@ -255,11 +277,11 @@ public class GraphXmlRecordReader extends
 		
 		try {
 		    ((Counter) this.getCounter.invoke(context,
-				CLOUDGRAPH_COUNTER_GROUP_NAME, CLOUDGRAPH_COUNTER_NAME_NUM_GRAPH_NODES_ASSEMBLED))
+				Counters.CLOUDGRAPH_COUNTER_GROUP_NAME, Counters.CLOUDGRAPH_COUNTER_NAME_NUM_GRAPH_NODES_ASSEMBLED))
 				.increment(this.totalGraphNodesAssembled);
 		    
 		    ((Counter) this.getCounter.invoke(context,
-				CLOUDGRAPH_COUNTER_GROUP_NAME, CLOUDGRAPH_COUNTER_NAME_TOT_GRAPH_XML_UNMARSHAL_TIME))
+		    		Counters.CLOUDGRAPH_COUNTER_GROUP_NAME, Counters.CLOUDGRAPH_COUNTER_NAME_TOT_GRAPH_XML_UNMARSHAL_TIME))
 				.increment(this.totalGraphUnmarshalTime);		    
 		    
 		} catch (Exception e) {
@@ -317,24 +339,4 @@ public class GraphXmlRecordReader extends
 	}
 	
 
-	/**
-	 * In new mapreduce APIs, TaskAttemptContext has two getCounter methods
-	 * Check if getCounter(String, String) method is available.
-	 * 
-	 * @return The getCounter method or null if not available.
-	 * @throws IOException
-	 */
-	private Method retrieveGetCounterWithStringsParams(
-			TaskAttemptContext context) throws IOException {
-		Method m = null;
-		try {
-			m = context.getClass().getMethod("getCounter",
-					new Class[] { String.class, String.class });
-		} catch (SecurityException e) {
-			throw new IOException("Failed test for getCounter", e);
-		} catch (NoSuchMethodException e) {
-			// Ignore
-		}
-		return m;
-	}
 }

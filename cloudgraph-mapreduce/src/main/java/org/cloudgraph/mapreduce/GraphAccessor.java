@@ -19,41 +19,24 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.hbase.mapreduce;
+package org.cloudgraph.mapreduce;
 
 import java.io.IOException;
 
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.cloudgraph.mapreduce.GraphAccessor;
-import org.cloudgraph.mapreduce.GraphMutator;
 import org.plasma.query.Query;
 
 import commonj.sdo.DataGraph;
 
 /**
- *
- * @param <KEYIN>  The type of the input key.
- * @param <VALUEIN>  The type of the input value.
- * @param <KEYOUT>  The type of the output key.
- * @see org.apache.hadoop.mapreduce.Reducer
+ * Supports access to arbitrary data graphs at various stages of a <code>Job</code> as supplied
+ * based on the given <a href="http://plasma-sdo.org/org/plasma/query/Query.html">query</a>.
+ * @author Scott Cinnamond
+ * @since 0.5.8
+ * 
+ * @see GraphWritable
+ * @see GraphMutator
  */
-public class GraphReducer<KEYIN, VALUEIN, KEYOUT>
-extends Reducer<KEYIN, VALUEIN, KEYOUT, Writable> implements GraphMutator, GraphAccessor {
-    private GraphServiceDelegate serviceDelegate;
-	public GraphReducer() {
-		this.serviceDelegate = new GraphServiceDelegate();
-	}
-	
-	@Override
-	public DataGraph[] find(Query query, JobContext context) throws IOException {
-		return this.serviceDelegate.find(query, context);
-	}
-	
-	@Override
-	public void commit(DataGraph graph, JobContext context) throws IOException {
-		this.serviceDelegate.commit(graph, context);
-	}
-
+public interface GraphAccessor {
+	public DataGraph[] find(Query query, JobContext context) throws IOException;
 }

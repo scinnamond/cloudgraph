@@ -43,6 +43,7 @@ import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.util.StringUtils;
+import org.cloudgraph.mapreduce.GraphWritable;
 
 /**
  * A graph based input-specification for MapReduce jobs which splits an
