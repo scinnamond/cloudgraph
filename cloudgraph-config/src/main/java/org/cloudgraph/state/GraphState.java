@@ -558,9 +558,11 @@ public class GraphState implements State {
 	}
 
 	/**
-	 * Removes an existing mapping, if exists, for the given data object.
+	 * Removes an existing mapping for the given data object.
 	 * @param dataObject the data object
 	 * @param key the row key
+	 * @throws IllegalArgumentException if no row key is mapped for the UUID associated with the given
+	 * data object.  
 	 */
 	public void archiveRowKey(DataObject dataObject) {
 		String uuid = ((PlasmaDataObject)dataObject).getUUIDAsString();
@@ -570,7 +572,7 @@ public class GraphState implements State {
 			throw new IllegalArgumentException("found "+uuid.length()+" rather than 38 char length UUID from data object");
 		RowKey rowKey = this.rowKeyMap.remove(uuid);
 		if (rowKey == null) {
-			log.warn("could not remove key - no row key mapped to UUID, "
+			throw new IllegalArgumentException("could not remove key - no row key mapped to UUID, "
 					+ uuid);
 		}
 		else {
@@ -831,7 +833,7 @@ public class GraphState implements State {
     	 * @param data
     	 */
     	public Edge(String data) {
-    		this.type = (PlasmaType)type;
+    		this.type = (PlasmaType)type; // FIXME WTF?
     	    String[] tokens = data.split(EDGE_DELIM);
     	    
     	    this.typeId = Integer.valueOf(tokens[0]);
@@ -842,7 +844,7 @@ public class GraphState implements State {
     				typeEntry.getName());
     	    
     	    this.id = Integer.valueOf(tokens[1]);    	        	    
-    	    this.uuid = getUUID(type, this.id);
+    	    this.uuid = getUUID(this.type, this.id);
     	}
     	
     	public boolean equals(Edge other) {

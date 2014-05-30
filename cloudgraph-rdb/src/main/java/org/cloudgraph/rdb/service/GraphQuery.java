@@ -73,7 +73,7 @@ public class GraphQuery extends JDBCSupport
     implements QueryDispatcher
 {
     private static Log log = LogFactory.getLog(GraphQuery.class);
-    private static final String ROWNUM = "R_NM";
+    private static final String ROWNUM_ALIAS = "R_NM";
     private Connection con;
 
     @SuppressWarnings("unused")
@@ -105,10 +105,6 @@ public class GraphQuery extends JDBCSupport
             		collector, 
             		snapshotDate, con);
 
-        if (log.isDebugEnabled() ){
-            log.debug("assembling results");
-        }
-        
         PlasmaDataGraph[] results = null;
         try {
             if (!query.getSelectClause().hasDistinctProperties())
@@ -157,6 +153,7 @@ public class GraphQuery extends JDBCSupport
     private PlasmaDataGraph[] assembleResults(List<List<PropertyPair>> collection, 
             int requestMax, GraphAssembler assembler) throws SQLException
     {
+    	long before = System.currentTimeMillis();
         ArrayList<PlasmaDataGraph> list = new ArrayList<PlasmaDataGraph>(20);
         Iterator<List<PropertyPair>> iter = collection.iterator();
         for (int i = 1; iter.hasNext(); i++)
@@ -184,7 +181,9 @@ public class GraphQuery extends JDBCSupport
         PlasmaDataGraph[] results = new PlasmaDataGraph[list.size()];
         list.toArray(results);
         if (log.isDebugEnabled() ){
-            log.debug("assembled " + String.valueOf(results.length) + " results");
+        	long after = System.currentTimeMillis();
+            log.debug("assembled " + String.valueOf(results.length) 
+            		+ " results (" + String.valueOf(after-before) + ")");
         }
         return results;
     }
@@ -402,13 +401,14 @@ public class GraphQuery extends JDBCSupport
         String rootAlias = aliasMap.getAlias(type);
         StringBuilder sqlQuery = new StringBuilder();
         sqlQuery.append("SELECT DISTINCT ");
+        //sqlQuery.append("SELECT ");
          
         RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
         switch (vendor) {
         case ORACLE:
 	        if(query.getStartRange() != null && query.getEndRange() != null) {
 	        	sqlQuery.append("ROWNUM as ");
-	        	sqlQuery.append(ROWNUM);
+	        	sqlQuery.append(ROWNUM_ALIAS);
 	        	sqlQuery.append(", ");
 	        }
 	        break;
@@ -469,13 +469,13 @@ public class GraphQuery extends JDBCSupport
             	buf.append("SELECT * FROM (");
             	buf.append(sqlQuery);
             	buf.append(") WHERE ");
-            	buf.append(ROWNUM);
-            	buf.append(" >= ");
-            	buf.append(String.valueOf(query.getStartRange()));
+            	buf.append(ROWNUM_ALIAS);
+            	buf.append(" >= ?");
+            	//buf.append(String.valueOf(query.getStartRange()));
             	buf.append(" AND ");
-            	buf.append(ROWNUM);
-            	buf.append(" <= ");
-            	buf.append(String.valueOf(query.getEndRange()));            	
+            	buf.append(ROWNUM_ALIAS);
+            	buf.append(" <= ?");
+            	//buf.append(String.valueOf(query.getEndRange()));            	
             	sqlQuery = buf;
             }  
 	        break;
@@ -501,21 +501,34 @@ public class GraphQuery extends JDBCSupport
             statement = con.prepareStatement(sqlQuery.toString(),
             		ResultSet.TYPE_FORWARD_ONLY,/*ResultSet.TYPE_SCROLL_INSENSITIVE,*/
                     ResultSet.CONCUR_READ_ONLY);
+            //statement.setFetchSize(32);
+            //log.debug("setting fetch size 32");
             
             // set params 
             // FIXME: params are pre-converted
             // to string in filter assembly
+            int paramCount = 0;
             if (filterAssembler != null) {
 	            params = filterAssembler.getParams();
-	            if (params != null)
-	                for (i = 0; i < params.length; i++) {
+	            if (params != null) {
+	            	paramCount = params.length;
+	                for (i = 0; i < params.length; i++) 
 	                	statement.setObject(i+1, params[i]);
-	                }
+	            }
             }
+            if(query.getStartRange() != null && query.getEndRange() != null) {
+            	statement.setInt(paramCount+1, query.getStartRange());
+            	statement.setInt(paramCount+2, query.getEndRange());
+            }           
+            
+            // execute
+            long before = System.currentTimeMillis();
+            statement.execute();           
+            long after = System.currentTimeMillis();
             
             if (log.isDebugEnabled() ){
-                if (params == null || params.length == 0) {
-                    log.debug("executing: "+ sqlQuery.toString());                	
+                if ((params == null || params.length == 0) && (query.getStartRange() == null || query.getEndRange() == null)) {
+                    log.debug("executed: "+ sqlQuery.toString() + " (" + String.valueOf(after-before) + ")");                	
                 }
                 else
                 {
@@ -527,13 +540,22 @@ public class GraphQuery extends JDBCSupport
                         	paramBuf.append(", ");
                         paramBuf.append(String.valueOf(params[p]));
                     }
+                    if(query.getStartRange() != null && query.getEndRange() != null) {
+                        if (params.length > 0)
+                    	    paramBuf.append(", ");
+                        paramBuf.append(String.valueOf(query.getStartRange()));
+                	    paramBuf.append(", ");
+                        paramBuf.append(String.valueOf(query.getEndRange()));
+                    }
                     paramBuf.append("]");
-                    log.debug("executing: "+ sqlQuery.toString() 
-                    		+ " " + paramBuf.toString());
+                    log.debug("executed: "+ sqlQuery.toString() 
+                    		+ " " + paramBuf.toString() + " (" + String.valueOf(after-before) + ")");
                 }
             } 
-            
-            statement.execute();
+           
+            // read results
+            before = System.currentTimeMillis();
+            int numresults = 0; 
             rs = statement.getResultSet();
             int numcols = rs.getMetaData().getColumnCount();
             ResultSetMetaData rsMeta = rs.getMetaData();
@@ -546,7 +568,7 @@ public class GraphQuery extends JDBCSupport
             		String columnName = rsMeta.getColumnLabel(i); // mysql 5.5 returns original table col name for views
             		if (columnName == null)
             		    columnName = rsMeta.getColumnName(i);
-            		if (ROWNUM.equals(columnName))
+            		if (ROWNUM_ALIAS.equals(columnName))
             			continue;
             		int columnType = rsMeta.getColumnType(i);
             		
@@ -566,7 +588,11 @@ public class GraphQuery extends JDBCSupport
             		    row.add(pair);
             		}
                 }
+            	numresults++;
             }
+            after = System.currentTimeMillis();
+            if (log.isDebugEnabled()) 
+                log.debug("read "+ numresults + " results (" + String.valueOf(after-before) + ")");                	
         }
         catch (Throwable t) {
             StringBuffer buf = this.generateErrorDetail(t,   

@@ -38,4 +38,10 @@ public class CloudGraphRuntimeException extends RuntimeException {
     public CloudGraphRuntimeException(String msg) {
         super(msg);
     }
+
+	public CloudGraphRuntimeException(String message, Throwable cause) {
+		super(message, cause);
+	}
+    
+    
 }

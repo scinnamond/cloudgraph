@@ -4,12 +4,12 @@
 	<groupId>org.cloudgraph</groupId>
 	<artifactId>cloudgraph</artifactId>
 	<packaging>pom</packaging>
-	<version>0.6.0</version>
+	<version>0.6.1</version>
 	<name>CloudGraph</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
 	<properties>
-		<cloudgraph.version>0.6.0</cloudgraph.version>
-		<plasma.version>1.2.0</plasma.version>
+		<cloudgraph.version>0.6.1</cloudgraph.version>
+		<plasma.version>1.2.1</plasma.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
     <url>http://cloudgraph.org</url>
@@ -132,7 +132,7 @@
 	      </plugin>
 	      -->
           <!-- Sign Artifacts -->
-               
+           <!--     
 	      <plugin>
 	        <groupId>org.apache.maven.plugins</groupId>
 	        <artifactId>maven-gpg-plugin</artifactId>
@@ -147,7 +147,7 @@
 	          </execution>
 	        </executions>
 	      </plugin>
-	         
+	          -->
 	       
 	      <!--
 	          Release Plugin (Update version in POM before/after release, create

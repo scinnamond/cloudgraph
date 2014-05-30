@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.plasma.config.ConfigurationException;
+import org.plasma.config.Namespace;
+import org.plasma.config.PlasmaConfig;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
@@ -62,6 +65,23 @@ public class DataGraphConfig {
 		super();
 		this.graph = graph;
 		this.table = table;
+		
+		// validate the URI
+		try {
+		    PlasmaConfig.getInstance().getSDONamespaceByURI(graph.getUri());
+		}
+		catch (ConfigurationException e) {
+			throw new CloudGraphConfigurationException("invalid graph URI '"+graph.getUri()+"' specified for table, '"
+				+ table.getName() + "'", e);
+		}
+		
+		// validate the type against the URI
+		Type typeResult = PlasmaTypeHelper.INSTANCE.getType(graph.getUri(), graph.getType());
+		if (typeResult == null)
+			throw new CloudGraphConfigurationException("invalid graph URI/type combination '"
+		       + graph.getUri() + "/" +graph.getType( )+ "' specified for table, '"
+					+ table.getName() + "' - type does not exist");		
+		
         for (Property prop : graph.getProperties())
         	propertyNameToPropertyMap.put(prop.getName(), prop);
 		

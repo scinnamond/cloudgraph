@@ -688,7 +688,10 @@ public class MutationCollector {
     	    			if (!(oldOppositeValue instanceof List)) {
     	        			DataObject oldOpposite = (DataObject)oldOppositeValue;
     	    		    	rowWriter.getGraphState().archiveSequence(oldOpposite);
-    	    		    	rowWriter.getGraphState().archiveRowKey(oldOpposite);
+    	    			    boolean typeBound = CloudGraphConfig.getInstance().findTable(
+    	    			    		((PlasmaType)oldOpposite.getType()).getQualifiedName()) != null;
+                            if (typeBound)
+    	    		    	    rowWriter.getGraphState().archiveRowKey(oldOpposite);
     	    			}
     	        		else 
                             throw new GraphServiceException("unexpected List as old value for property, "  
@@ -732,7 +735,10 @@ public class MutationCollector {
 	        		    		}
 	        		    		else { // edge is obsolete - move to history
 	        	    		    	rowWriter.getGraphState().archiveSequence(oldDataObject);
-	        	    		    	rowWriter.getGraphState().archiveRowKey(oldDataObject);
+	        	    			    boolean typeBound = CloudGraphConfig.getInstance().findTable(
+	        	    			    		((PlasmaType)oldDataObject.getType()).getQualifiedName()) != null;
+	        	    			    if (typeBound)
+	        	    		    	    rowWriter.getGraphState().archiveRowKey(oldDataObject);
 	        		    		}
 	        		    	} // else added it already above	        		    	
 	        		    }

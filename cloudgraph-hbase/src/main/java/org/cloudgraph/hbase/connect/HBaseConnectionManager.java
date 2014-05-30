@@ -127,8 +127,9 @@ public class HBaseConnectionManager {
 			else
 			    throw new StateException(t);
 		}
-		if (result.isAutoFlush())
-			log.warn("table " + tableName + " set to auto-flush");
+		if (log.isDebugEnabled())
+		    if (result.isAutoFlush())
+			    log.debug("table " + tableName + " set to auto-flush");
 	    return result;
 	}
 	

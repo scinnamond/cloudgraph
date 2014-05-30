@@ -34,6 +34,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.rdb.connect.ProviderManager;
 import org.plasma.common.bind.DefaultValidationEventHandler;
+import org.plasma.config.DataAccessProviderName;
+import org.plasma.config.PlasmaConfig;
+import org.plasma.config.RDBMSVendorName;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
@@ -73,11 +76,20 @@ public class RDBGraphService implements PlasmaDataAccessService {
 				    log.debug("turning off connection autocommit for count query");
 	            con.setAutoCommit(false);
 			}
+	        RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
+	        switch (vendor) {
+	        case ORACLE:
+		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
+		        break;
+	        case MYSQL:
+		        con.setTransactionIsolation(Connection.TRANSACTION_NONE); // Oracle does not support
+		        break;
+		    default:
+	        }
+	        //TODO: make transaction isolation configurable
 			if (log.isDebugEnabled())
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for count query");
-	        //TODO: make transaction isolation configurable
-	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}
@@ -105,11 +117,20 @@ public class RDBGraphService implements PlasmaDataAccessService {
 				    log.debug("turning off connection autocommit for multi count query");
 	            con.setAutoCommit(false);
 			}
+	        //TODO: make transaction isolation configurable
+	        RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
+	        switch (vendor) {
+	        case ORACLE:
+		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
+		        break;
+	        case MYSQL:
+		        con.setTransactionIsolation(Connection.TRANSACTION_NONE); // Oracle does not support
+		        break;
+		    default:
+	        }
 			if (log.isDebugEnabled())
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi count query");
-	        //TODO: make transaction isolation configurable
-	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}
@@ -130,40 +151,7 @@ public class RDBGraphService implements PlasmaDataAccessService {
     }
 
     public DataGraph[] find(Query query) {
-        if (query == null)
-            throw new IllegalArgumentException("expected non-null 'query' argument");
-        //validate(query);
-        if (log.isDebugEnabled()) {
-            log(query);
-        }
-        Connection con = null;
-		try {
-			con = ProviderManager.instance().getConnection();
-			if (con.getAutoCommit()) {
-				if (log.isDebugEnabled())
-				    log.debug("turning off connection autocommit for graph query");
-	            con.setAutoCommit(false);
-			}
-			if (log.isDebugEnabled())
-			    log.debug("using transaction isolation level " 
-			        + con.getTransactionIsolation() + " for graph query");
-	        //TODO: make transaction isolation configurable
-	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
-		} catch (SQLException e2) {
-            throw new DataAccessException(e2);
-		}
-        GraphQuery dispatcher = new GraphQuery(con);
-        Timestamp snapshotDate = new Timestamp((new Date()).getTime());
-        try {
-            return dispatcher.find(query, snapshotDate);
-        }
-        finally {
-            try {
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
-        }
+        return find(query, -1);
     }
 
     public DataGraph[] find(Query query, int maxResults) {
@@ -181,17 +169,32 @@ public class RDBGraphService implements PlasmaDataAccessService {
 				    log.debug("turning off connection autocommit for graph query");
 	            con.setAutoCommit(false);
 			}
+			
+	        //TODO: make transaction isolation configurable
+	        RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
+	        switch (vendor) {
+	        case ORACLE:
+		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
+		        break;
+	        case MYSQL:
+		        con.setTransactionIsolation(Connection.TRANSACTION_NONE); // Oracle does not support
+		        break;
+		    default:
+	        }
 			if (log.isDebugEnabled())
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for graph query");
-	        //TODO: make transaction isolation configurable
-	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
         try {
-            DataGraph[] results = dispatcher.find(query, maxResults, new Timestamp((new Date()).getTime()));
+        	DataGraph[] results = null;
+         
+        	if (maxResults > 0)  
+                results = dispatcher.find(query, maxResults, new Timestamp((new Date()).getTime()));
+            else
+            	results = dispatcher.find(query, new Timestamp((new Date()).getTime()));
             return results;
         }
         finally {
@@ -214,11 +217,21 @@ public class RDBGraphService implements PlasmaDataAccessService {
 				    log.debug("turning off connection autocommit for multi graph query");
 	            con.setAutoCommit(false);
 			}
+			
+	        //TODO: make transaction isolation configurable
+	        RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
+	        switch (vendor) {
+	        case ORACLE:
+		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
+		        break;
+	        case MYSQL:
+		        con.setTransactionIsolation(Connection.TRANSACTION_NONE); // Oracle does not support
+		        break;
+		    default:
+	        }
 			if (log.isDebugEnabled())
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi graph query");
-	        //TODO: make transaction isolation configurable
-	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}
@@ -262,11 +275,11 @@ public class RDBGraphService implements PlasmaDataAccessService {
 				    log.debug("turning off connection autocommit for graph commit");
 	            con.setAutoCommit(false);
 			}
+	        //TODO: make transaction isolation configurable
+	        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 			if (log.isDebugEnabled())
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " forgraph commit");
-	        //TODO: make transaction isolation configurable
-	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}
@@ -325,11 +338,11 @@ public class RDBGraphService implements PlasmaDataAccessService {
 				    log.debug("turning off connection autocommit for multi graph commit");
 	            con.setAutoCommit(false);
 			}
+	        //TODO: make transaction isolation configurable
+	        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 			if (log.isDebugEnabled())
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi graph commit");
-	        //TODO: make transaction isolation configurable
-	        //con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
 		} catch (SQLException e2) {
             throw new DataAccessException(e2);
 		}

@@ -34,8 +34,15 @@ public class CloudGraphConfigurationException extends CloudGraphRuntimeException
     {
         super(message);
     }
+    
     public CloudGraphConfigurationException(Throwable t)
     {
         super(t);
     }
+
+	public CloudGraphConfigurationException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+    
 }
