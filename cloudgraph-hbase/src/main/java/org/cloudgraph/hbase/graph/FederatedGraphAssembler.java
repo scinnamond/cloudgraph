@@ -46,6 +46,7 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreNode;
 
+import commonj.sdo.DataGraph;
 import commonj.sdo.Property;
 
 /**
@@ -221,11 +222,12 @@ public class FederatedGraphAssembler extends FederatedAssembler
 			byte[] childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid()); // use local edge UUID
 			RowReader existingChildRowReader = childTableReader.getRowReader(childRowKey);
         	if (existingChildRowReader != null)
-        	{            		        		
-        		// we've seen this row root before so his data is complete, just link 
+        	{      
+        		// If assembled this row root before, 
+        		// just link it. The data is already complete.
         		PlasmaDataObject existingChild = (PlasmaDataObject)existingChildRowReader.getRootDataObject();
-        		link(existingChild, target, prop);
-        		continue; 
+    		    link(existingChild, target, prop);
+    		    continue; 
         	}
 			
 			Result childResult = fetchGraph(childRowKey, childTableReader, edge.getType());

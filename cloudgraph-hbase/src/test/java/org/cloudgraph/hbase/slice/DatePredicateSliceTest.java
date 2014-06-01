@@ -62,7 +62,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
       
     public void testEqual() throws IOException       
     {
-        long id = System.currentTimeMillis();
+        long id = System.currentTimeMillis() + 10000; // space tests out more than 1 second
         Calendar now = Calendar.getInstance(); 
         now.setTime(new Date(id));
         now.clear(Calendar.MILLISECOND);
@@ -81,7 +81,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
       
     public void testGreaterThan() throws IOException       
     {
-        long id = System.currentTimeMillis();
+        long id = System.currentTimeMillis() + 20000; // space tests out more than 1 second
         Calendar now = Calendar.getInstance(); 
         now.setTime(new Date(id));
         now.clear(Calendar.MILLISECOND);
@@ -100,7 +100,7 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
      
     public void testBetween() throws IOException       
     {
-        long id = System.currentTimeMillis();
+        long id = System.currentTimeMillis() + 30000; // space tests out more than 1 second
         Calendar now = Calendar.getInstance(); 
         now.setTime(new Date(id));
         now.clear(Calendar.MILLISECOND);
@@ -134,10 +134,11 @@ public class DatePredicateSliceTest extends DataTypeGraphModelTest {
         assertTrue(fetched.getChild(startIndex-1).getDateField().compareTo(start.getTime()) == 0);
         assertTrue(fetched.getChild(endIndex-1).getDateField().compareTo(end.getTime()) == 0);
     }  
-  
+
+      
     public void testLike() throws IOException       
     {
-        long id = System.currentTimeMillis();
+        long id = System.currentTimeMillis() + 40000; // space tests out more than 1 second
         Calendar now = Calendar.getInstance(); 
         now.setTime(new Date(id));
         now.clear(Calendar.MILLISECOND);
