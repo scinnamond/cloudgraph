@@ -66,7 +66,6 @@ import commonj.sdo.Property;
 public abstract class DefaultAssembler {
 
     private static Log log = LogFactory.getLog(DefaultAssembler.class);
-    private static final List<DataObject> EMPTY_DATA_OBJECT_LIST = new ArrayList<DataObject>();
 	
     protected PlasmaType rootType;
 	protected PlasmaDataObject root;
@@ -248,7 +247,7 @@ public abstract class DefaultAssembler {
 
         	List<DataObject> list = source.getList(sourceProperty);
             if (list == null) 
-                list = EMPTY_DATA_OBJECT_LIST; // saves memory in some instances
+                list = new ArrayList<DataObject>();  
             if (!list.contains(target)) {
             	// check if any existing list members already have the opposite property set
             	for (DataObject existing : list) {
@@ -275,8 +274,6 @@ public abstract class DefaultAssembler {
                 	else
                 	    throw new IllegalStateException("the given target has no container: " + target.toString());
                 }
-                // now create a new list
-                list = new ArrayList<DataObject>();
                 list.add(target);   
                 source.setList(sourceProperty, list); 
             }
