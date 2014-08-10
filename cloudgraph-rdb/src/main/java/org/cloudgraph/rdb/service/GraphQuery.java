@@ -73,7 +73,13 @@ public class GraphQuery extends JDBCSupport
     implements QueryDispatcher
 {
     private static Log log = LogFactory.getLog(GraphQuery.class);
-    private static final String ROWNUM_ALIAS = "R_NM";
+    /* The rownum alias used for pagination. Use upper case as we screen this column from final results and e.g. Oracle
+     * returns it as upper case in the results-set metadata.
+     */
+    private static final String ROWNUM_ALIAS = "RNMX";  
+    /* The alias for intermediate results table */
+    private static final String PAGE_ALIAS = "TX";
+    
     private Connection con;
 
     @SuppressWarnings("unused")
@@ -400,20 +406,7 @@ public class GraphQuery extends JDBCSupport
                 
         String rootAlias = aliasMap.getAlias(type);
         StringBuilder sqlQuery = new StringBuilder();
-        sqlQuery.append("SELECT DISTINCT ");
-        //sqlQuery.append("SELECT ");
-         
-        RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
-        switch (vendor) {
-        case ORACLE:
-	        if(query.getStartRange() != null && query.getEndRange() != null) {
-	        	sqlQuery.append("ROWNUM as ");
-	        	sqlQuery.append(ROWNUM_ALIAS);
-	        	sqlQuery.append(", ");
-	        }
-	        break;
-	    default:
-        }
+        sqlQuery.append("SELECT DISTINCT "); // FIXME: only necessary if
         
         // FIXME: determine if any selected column(s) are LOB and don't use DISTINCT in this case
         boolean hasLob = false;
@@ -462,20 +455,44 @@ public class GraphQuery extends JDBCSupport
         }
     	
         // set the result range
+        RDBMSVendorName vendor = PlasmaConfig.getInstance().getRDBMSProviderVendor(DataAccessProviderName.JDBC);
         switch (vendor) {
         case ORACLE:
             if(query.getStartRange() != null && query.getEndRange() != null) {
+       	        long offset = query.getStartRange() - 1; // inclusive
+       	        if (offset < 0)
+       	    	    offset = 0;
+       	        long rowcount = query.getEndRange() - offset;
             	StringBuilder buf = new StringBuilder();
-            	buf.append("SELECT * FROM (");
-            	buf.append(sqlQuery);
-            	buf.append(") WHERE ");
-            	buf.append(ROWNUM_ALIAS);
-            	buf.append(" >= ?");
-            	//buf.append(String.valueOf(query.getStartRange()));
-            	buf.append(" AND ");
-            	buf.append(ROWNUM_ALIAS);
-            	buf.append(" <= ?");
-            	//buf.append(String.valueOf(query.getEndRange()));            	
+            	
+            	// Pagination wrapper making sure ordering occurs before any ROWNUM selected by using
+            	// a nested SELECT.   
+            	if (offset == 0) {
+	            	buf.append("SELECT * FROM ("); 
+	            	buf.append(sqlQuery);
+	           	    buf.append(") WHERE ROWNUM <= ");   
+	           	    buf.append(rowcount);
+            	}
+            	else {
+	            	// For offsets uses limiting condition on ROWNUM itself as well as a 
+	            	// ROWNUM alias to enable Oracle STOPKEY processing which helps performance.            	 
+	            	buf.append("SELECT * FROM (SELECT ");
+	            	buf.append(PAGE_ALIAS);
+	            	buf.append(".*, ROWNUM AS ");
+	            	buf.append(ROWNUM_ALIAS);
+	            	buf.append(" FROM ("); 
+	            	buf.append(sqlQuery);
+	            	buf.append(") ");
+	            	buf.append(PAGE_ALIAS);
+	            	buf.append(") ");
+	            	buf.append("WHERE ");            	 
+	            	buf.append(ROWNUM_ALIAS);
+	           	    buf.append(" >= "); 
+	           	    buf.append(query.getStartRange());
+	           	    buf.append(" AND ROWNUM <= ");   
+	           	    buf.append(rowcount);
+            	}
+            	
             	sqlQuery = buf;
             }  
 	        break;
@@ -488,7 +505,7 @@ public class GraphQuery extends JDBCSupport
         	     sqlQuery.append(" LIMIT "); // e.g. LIMIT offset,numrows
         	     sqlQuery.append(String.valueOf(offset));
         	     sqlQuery.append(",");
-       	     sqlQuery.append(String.valueOf(rowcount));
+       	         sqlQuery.append(String.valueOf(rowcount));
              }  
         	 break;
 	    default:
@@ -516,10 +533,6 @@ public class GraphQuery extends JDBCSupport
 	                	statement.setObject(i+1, params[i]);
 	            }
             }
-            if(query.getStartRange() != null && query.getEndRange() != null) {
-            	statement.setInt(paramCount+1, query.getStartRange());
-            	statement.setInt(paramCount+2, query.getEndRange());
-            }           
             
             // execute
             long before = System.currentTimeMillis();
@@ -527,7 +540,7 @@ public class GraphQuery extends JDBCSupport
             long after = System.currentTimeMillis();
             
             if (log.isDebugEnabled() ){
-                if ((params == null || params.length == 0) && (query.getStartRange() == null || query.getEndRange() == null)) {
+                if (params == null || params.length == 0) {
                     log.debug("executed: "+ sqlQuery.toString() + " (" + String.valueOf(after-before) + ")");                	
                 }
                 else
@@ -539,13 +552,6 @@ public class GraphQuery extends JDBCSupport
                         if (p > 0)
                         	paramBuf.append(", ");
                         paramBuf.append(String.valueOf(params[p]));
-                    }
-                    if(query.getStartRange() != null && query.getEndRange() != null) {
-                        if (params.length > 0)
-                    	    paramBuf.append(", ");
-                        paramBuf.append(String.valueOf(query.getStartRange()));
-                	    paramBuf.append(", ");
-                        paramBuf.append(String.valueOf(query.getEndRange()));
                     }
                     paramBuf.append("]");
                     log.debug("executed: "+ sqlQuery.toString() 

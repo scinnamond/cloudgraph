@@ -70,6 +70,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         }
         Connection con = null;
 		try {
+			if (log.isDebugEnabled())
+				log.debug("getting connection");
 			con = ProviderManager.instance().getConnection();
 			if (con.getAutoCommit()) {
 				if (log.isDebugEnabled())
@@ -91,6 +93,13 @@ public class RDBGraphService implements PlasmaDataAccessService {
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for count query");
 		} catch (SQLException e2) {
+            try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
@@ -99,6 +108,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         }
         finally {
             try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
 				con.close();
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
@@ -111,6 +122,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
             throw new IllegalArgumentException("expected non-null 'queries' argument");
         Connection con = null;
 		try {
+			if (log.isDebugEnabled())
+				log.debug("getting connection");
 			con = ProviderManager.instance().getConnection();
 			if (con.getAutoCommit()) {
 				if (log.isDebugEnabled())
@@ -132,6 +145,13 @@ public class RDBGraphService implements PlasmaDataAccessService {
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi count query");
 		} catch (SQLException e2) {
+            try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
@@ -143,6 +163,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         }
         finally {
             try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
 				con.close();
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
@@ -163,6 +185,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         }
         Connection con = null;
 		try {
+			if (log.isDebugEnabled())
+				log.debug("getting connection");
 			con = ProviderManager.instance().getConnection();
 			if (con.getAutoCommit()) {
 				if (log.isDebugEnabled())
@@ -185,6 +209,13 @@ public class RDBGraphService implements PlasmaDataAccessService {
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for graph query");
 		} catch (SQLException e2) {
+            try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
@@ -199,6 +230,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         }
         finally {
             try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
 				con.close();
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
@@ -211,6 +244,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
             throw new IllegalArgumentException("expected non-null 'queries' argument");
         Connection con = null;
 		try {
+			if (log.isDebugEnabled())
+				log.debug("getting connection");
 			con = ProviderManager.instance().getConnection();
 			if (con.getAutoCommit()) {
 				if (log.isDebugEnabled())
@@ -233,6 +268,13 @@ public class RDBGraphService implements PlasmaDataAccessService {
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi graph query");
 		} catch (SQLException e2) {
+            try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
@@ -252,6 +294,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         }
         finally {
             try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
 				con.close();
 			} catch (SQLException e) {
 				log.error(e.getMessage(), e);
@@ -267,6 +311,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         if (username.trim().length() == 0)
             throw new IllegalArgumentException("unexpected zero length 'username' argument");
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
+		if (log.isDebugEnabled())
+			log.debug("getting connection");
         Connection con = null;
 		try {
 			con = ProviderManager.instance().getConnection();
@@ -281,6 +327,13 @@ public class RDBGraphService implements PlasmaDataAccessService {
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " forgraph commit");
 		} catch (SQLException e2) {
+            try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
             throw new DataAccessException(e2);
 		}
 		DataGraphDispatcher dispatcher = 
@@ -314,6 +367,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         finally {
         	 
         	try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
 				con.close();
 			} catch (SQLException e) {
 				log.error(e.getMessage());
@@ -332,6 +387,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
         Connection con = null;
 		try {
+			if (log.isDebugEnabled())
+				log.debug("getting connection");
 			con = ProviderManager.instance().getConnection();
 			if (con.getAutoCommit()) {
 				if (log.isDebugEnabled())
@@ -344,6 +401,13 @@ public class RDBGraphService implements PlasmaDataAccessService {
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi graph commit");
 		} catch (SQLException e2) {
+            try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
+				con.close();
+			} catch (SQLException e) {
+				log.error(e.getMessage(), e);
+			}
             throw new DataAccessException(e2);
 		}
 		DataGraphDispatcher dispatcher = 
@@ -373,6 +437,8 @@ public class RDBGraphService implements PlasmaDataAccessService {
         }
         finally {
         	try {
+    			if (log.isDebugEnabled())
+    				log.debug("closing connection");
 				con.close();
 			} catch (SQLException e) {
 				log.error(e.getMessage());
@@ -402,6 +468,6 @@ public class RDBGraphService implements PlasmaDataAccessService {
 		} catch (JAXBException e) {
 		} catch (SAXException e) {
 		}
-        log.debug("query: " + xml);
+        //log.debug("query: " + xml);
     }
 }
