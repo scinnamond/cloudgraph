@@ -192,7 +192,7 @@ public class GraphDispatcher extends JDBCSupport
             	deletedIndex++;
             }
     	}        
-        comparator = new CreatedCommitComparator();
+        comparator = new DeletedCommitComparator();
         sort = new InsertionSort();
         sort.sort(deletedArray, comparator);
     	
@@ -213,8 +213,9 @@ public class GraphDispatcher extends JDBCSupport
             for (PlasmaDataObject dataObject : modified.getResult())
                 update(dataGraph, dataObject);
             
-            for (int i = deletedArray.length-1; i >= 0; i--) {
-            	DataObject dataObject = deletedArray[i];
+            //for (int i = deletedArray.length-1; i >= 0; i--) {
+            for (PlasmaDataObject dataObject : deletedArray) {
+            	//DataObject dataObject = deletedArray[i];
             	delete(dataGraph, dataObject);
             }
 

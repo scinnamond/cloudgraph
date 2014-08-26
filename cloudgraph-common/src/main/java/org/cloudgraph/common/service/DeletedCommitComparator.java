@@ -1,14 +1,20 @@
 package org.cloudgraph.common.service;
 
+import java.util.List;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.plasma.sdo.AssociationPath;
 import org.plasma.sdo.PlasmaChangeSummary;
 import org.plasma.sdo.PlasmaDataObject;
+import org.plasma.sdo.PlasmaNode;
 import org.plasma.sdo.PlasmaType;
+import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.core.CoreDataObject;
 
+import commonj.sdo.ChangeSummary.Setting;
 import commonj.sdo.DataObject;
+import commonj.sdo.Property;
 
 /**
  * Comparator which imposes a commit ordering on deleted objects based on singular relations between the
@@ -64,9 +70,15 @@ public class DeletedCommitComparator extends CommitComparator {
                     + source.toString() + " / " + target.toString());
     		// give precedence to reference links, then to
     		// graph path depth
-    		if (hasChildLink(source, target)) {
+    		if (hasChildLink(target, source)) {
     			if (log.isDebugEnabled())
-    				log.debug("singular link from : "
+    				log.debug("(return 1) singular link from : "
+    	                + target.toString() + " to: " + source.toString());
+    	        return 1;
+    		}
+    		else if (hasChildLink(source, target)) {
+    			if (log.isDebugEnabled())
+    				log.debug("(return -1) singular link from : "
     	                + source.toString() + " to: " + target.toString());
     	        return -1;
     		}
@@ -75,17 +87,71 @@ public class DeletedCommitComparator extends CommitComparator {
     			// a tree, where the property e.g. 'parent'
     			// is null the above link check won't apply, 
     			// Therefore rely on graph depth 
-    			if (sourceDepth < targetDepth) {
+    			if (targetDepth < sourceDepth) {
+        			if (log.isDebugEnabled())
+        				log.debug("depth: "
+        	                + targetDepth + " / " + sourceDepth);
+        	        return -1;
+    			}
+    			else if (sourceDepth < targetDepth) {
         			if (log.isDebugEnabled())
         				log.debug("depth: "
         	                + sourceDepth + " / " + targetDepth);
-        	        return 1;
+        	        return -1;
     			}
     			else
-    			    return -1; 
+    			    return 0; 
     		}
 	    }
 	     
 	}
 
+	/**
+	 * Determines if a child link exists solely from the change summary as SDO delete operation removes any
+	 * contained data objects from their container entirely and pushes all their information
+	 * into the change summary. 
+	 */
+    protected boolean hasChildLink(DataObject target, DataObject source) {
+        
+        if (log.isDebugEnabled())
+            log.debug("comparing "+ target.toString() 
+                    + "/" + source.toString());
+        
+        for (Property property : target.getType().getProperties()) {
+            if (property.getType().isDataType()) 
+                continue;               
+            if (property.isMany()) 
+                continue;               
+                        
+            Setting setting = target.getDataGraph().getChangeSummary().getOldValue(target, property);
+            
+            if (setting == null) // it's not been modified or deleted
+            	continue;           
+             
+
+            if (log.isDebugEnabled())
+                log.debug("checking property " + target.getType().getName()
+                        + "." + property.getName());
+            
+            if (isLinked(source, setting.getValue()))
+            {
+                if (log.isDebugEnabled())
+                    log.debug("found child data link " + target.getType().getName()
+                            + "." + property.getName()
+                            + "->" + source.getType().getName());
+                return true; 
+            }           
+        } 
+        return false;
+    } 
+       
+    protected boolean isLinked(DataObject other, Object value) {
+    	
+    	if (value instanceof DataObject) {
+    		DataObject dataObject = (DataObject)value;
+    		if (dataObject.equals(other))
+    			return true;
+    	}
+        return false;
+    }
 }

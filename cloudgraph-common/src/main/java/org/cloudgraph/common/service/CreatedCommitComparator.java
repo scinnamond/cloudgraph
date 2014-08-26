@@ -60,15 +60,21 @@ public class CreatedCommitComparator extends CommitComparator {
     	}
     	else {
     		if (log.isDebugEnabled())
-    			log.debug("comparing data objects : "
+    			log.debug("comparing data objects: "
                     + source.toString() + " / " + target.toString());
     		// give precedence to reference links, then to
     		// graph path depth
     		if (hasChildLink(source, target)) {
     			if (log.isDebugEnabled())
-    				log.debug("singular link from : "
+    				log.debug("(return 1) singular link from : "
     	                + source.toString() + " to: " + target.toString());
     	        return 1;
+    		}
+    		else if (hasChildLink(target, source)) {
+    			if (log.isDebugEnabled())
+    				log.debug("(return -1) singular link from : "
+    	                + target.toString() + " to: " + source.toString());
+    	        return -1;
     		}
     		else {
     			// For say a root object which is part of
@@ -81,8 +87,14 @@ public class CreatedCommitComparator extends CommitComparator {
         	                + sourceDepth + " / " + targetDepth);
         	        return -1;
     			}
+    			else if (targetDepth < sourceDepth) {
+        			if (log.isDebugEnabled())
+        				log.debug("depth: "
+        	                + targetDepth + " / " + sourceDepth);
+        	        return -1;
+    			}
     			else
-    			    return 1; 
+    			    return 0; 
     		}
 	    }
 	     
