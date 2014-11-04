@@ -35,11 +35,10 @@ import org.plasma.query.visitor.DefaultQueryVisitor;
 import org.plasma.query.visitor.Traversal;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.access.model.EntityConstants;
-import org.cloudgraph.rdb.service.AliasMap;
+import org.cloudgraph.common.service.AliasMap;
 
 public class OrderingDeclarationAssembler extends DefaultQueryVisitor
-    implements QueryConstants, EntityConstants
+    implements QueryConstants 
 {
     private static Log log = LogFactory.getLog(OrderingDeclarationAssembler.class);
 

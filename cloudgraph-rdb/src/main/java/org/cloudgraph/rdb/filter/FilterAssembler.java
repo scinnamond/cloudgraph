@@ -30,7 +30,7 @@ import javax.xml.bind.annotation.XmlEnumValue;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.rdb.service.AliasMap;
+import org.cloudgraph.common.service.AliasMap;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;

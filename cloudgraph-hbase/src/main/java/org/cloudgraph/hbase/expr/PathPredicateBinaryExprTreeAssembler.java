@@ -23,6 +23,10 @@ package org.cloudgraph.hbase.expr;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.query.expr.DefaultBinaryExprTreeAssembler;
+import org.cloudgraph.query.expr.Expr;
+import org.cloudgraph.query.expr.ExprAssembler;
+import org.cloudgraph.query.expr.ExpresionVisitorSupport;
 import org.cloudgraph.common.filter.GraphFilterException;
 import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.plasma.query.model.Path;
@@ -33,7 +37,7 @@ import org.plasma.sdo.PlasmaType;
 
 /**
  * A binary expression tree assembler which constructs an operator 
- * precedence map, then {@link org.cloudgraph.hbase.filter.ExpresionVisitorSupport visits} (traverses) 
+ * precedence map, then {@link org.cloudgraph.query.expr.ExpresionVisitorSupport visits} (traverses) 
  * the given predicate expression syntax tree depth-first 
  * using an adapted shunting-yard algorithm and assembles a 
  * resulting binary tree structure. In typical usage scenarios, a single 

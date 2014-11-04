@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.service.AliasMap;
 import org.cloudgraph.rdb.filter.FilterAssembler;
 import org.cloudgraph.rdb.filter.GroupingDeclarationAssembler;
 import org.cloudgraph.rdb.filter.OrderingDeclarationAssembler;

@@ -21,10 +21,10 @@
  */
 package org.cloudgraph.hbase.scan;
 
-import org.cloudgraph.hbase.expr.DefaultLogicalBinaryExpr;
-import org.cloudgraph.hbase.expr.Expr;
-import org.cloudgraph.hbase.expr.ExprVisitor;
-import org.cloudgraph.hbase.expr.LogicalBinaryExpr;
+import org.cloudgraph.query.expr.DefaultLogicalBinaryExpr;
+import org.cloudgraph.query.expr.Expr;
+import org.cloudgraph.query.expr.ExprVisitor;
+import org.cloudgraph.query.expr.LogicalBinaryExpr;
 import org.plasma.query.model.LogicalOperator;
 
 /**

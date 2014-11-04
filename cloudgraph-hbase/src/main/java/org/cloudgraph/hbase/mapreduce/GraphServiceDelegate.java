@@ -21,6 +21,7 @@ import org.cloudgraph.hbase.service.MutationCollector;
 import org.cloudgraph.hbase.service.ServiceContext;
 import org.cloudgraph.mapreduce.GraphAccessor;
 import org.cloudgraph.mapreduce.GraphMutator;
+import org.cloudgraph.mapreduce.GraphService;
 import org.cloudgraph.state.StateMarshallingContext;
 import org.cloudgraph.state.StatelNonValidatinglDataBinding;
 import org.plasma.query.Query;
@@ -31,8 +32,8 @@ import org.xml.sax.SAXException;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 
-public class GraphServiceDelegate implements GraphAccessor, GraphMutator {
-    private static Log log = LogFactory.getLog(GraphMapper.class);
+public class GraphServiceDelegate implements GraphService {
+    private static Log log = LogFactory.getLog(GraphServiceDelegate.class);
     private ServiceContext context;
 	
 	public GraphServiceDelegate() {

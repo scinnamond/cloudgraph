@@ -24,7 +24,7 @@ package org.cloudgraph.hbase.graph;
 import java.util.Map;
 
 import org.apache.hadoop.hbase.KeyValue;
-import org.cloudgraph.hbase.expr.EvaluationContext;
+import org.cloudgraph.query.expr.EvaluationContext;
 
 /**
  * Context which supports the evaluation and 

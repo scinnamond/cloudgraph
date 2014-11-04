@@ -24,7 +24,7 @@ package org.cloudgraph.rdb.filter;
 // java imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.rdb.service.AliasMap;
+import org.cloudgraph.common.service.AliasMap;
 import org.plasma.query.model.GroupBy;
 import org.plasma.query.model.Path;
 import org.plasma.query.model.Property;
@@ -33,10 +33,9 @@ import org.plasma.query.visitor.DefaultQueryVisitor;
 import org.plasma.query.visitor.Traversal;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.access.model.EntityConstants;
 
 public class GroupingDeclarationAssembler extends DefaultQueryVisitor
-    implements QueryConstants, EntityConstants
+    implements QueryConstants 
 {
     private static Log log = LogFactory.getLog(GroupingDeclarationAssembler.class);
 

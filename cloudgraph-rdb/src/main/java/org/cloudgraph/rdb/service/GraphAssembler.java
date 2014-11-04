@@ -37,6 +37,7 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.CloudGraphConstants;
+import org.cloudgraph.common.service.AliasMap;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.rdb.filter.FilterAssembler;
 import org.plasma.query.collector.SelectionCollector;
@@ -245,13 +246,14 @@ public class GraphAssembler extends JDBCSupport
 		else {
 	        AliasMap aliasMap = new AliasMap(targetType);
 			FilterAssembler filterAssembler = new FilterAssembler(where, 
-					targetType, aliasMap);		
-			List<Object> params = new ArrayList<Object>();
-			
+					targetType, aliasMap);
+			List<Object> params = new ArrayList<Object>();			
 			StringBuilder query = createSelect(targetType,
 		    	props, childKeyPairs, filterAssembler, params, aliasMap);
+			
 			Object[] paramArray = new Object[params.size()];
 			params.toArray(paramArray);
+			
 			result = fetch(targetType, query, props, paramArray,
 				this.con);
 		}		

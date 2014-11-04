@@ -57,6 +57,8 @@
                 
                 <!-- links HBASE specific DAS provisioning to SDO namespace configs -->                 
                 <NamespaceLink uri="http://cloudgraph.org/test/datatypes"/>
+                <NamespaceLink uri="http://cloudgraph.org/test/socialgraph/actor"/>
+                <NamespaceLink uri="http://cloudgraph.org/test/socialgraph/story"/>
                
               
             </DataAccessProvider>

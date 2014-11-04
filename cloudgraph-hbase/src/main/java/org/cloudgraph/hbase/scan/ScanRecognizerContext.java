@@ -22,7 +22,7 @@
 package org.cloudgraph.hbase.scan;
 
 import org.cloudgraph.config.DataGraphConfig;
-import org.cloudgraph.hbase.expr.EvaluationContext;
+import org.cloudgraph.query.expr.EvaluationContext;
 
 /**
  * Context which supports the "recognition" of one or more 

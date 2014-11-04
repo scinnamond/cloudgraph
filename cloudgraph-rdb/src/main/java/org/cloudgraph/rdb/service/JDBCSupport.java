@@ -40,6 +40,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.service.AliasMap;
 import org.cloudgraph.rdb.filter.FilterAssembler;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
@@ -248,6 +249,8 @@ public abstract class JDBCSupport {
     	}
     	sql.append(" ");
     	sql.append(filterAssembler.getFilter());
+    	for (Object filterParam : filterAssembler.getParams())
+    		params.add(filterParam);
         for (count = 0; count < keyValues.size(); count++) {
             sql.append(" AND ");
         	PropertyPair propValue = keyValues.get(count);

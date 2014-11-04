@@ -137,7 +137,7 @@ public class RDBGraphService implements PlasmaDataAccessService {
 		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
 		        break;
 	        case MYSQL:
-		        con.setTransactionIsolation(Connection.TRANSACTION_NONE); // Oracle does not support
+		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
 		        break;
 		    default:
 	        }
@@ -201,7 +201,7 @@ public class RDBGraphService implements PlasmaDataAccessService {
 		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
 		        break;
 	        case MYSQL:
-		        con.setTransactionIsolation(Connection.TRANSACTION_NONE); // Oracle does not support
+		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
 		        break;
 		    default:
 	        }
@@ -260,7 +260,7 @@ public class RDBGraphService implements PlasmaDataAccessService {
 		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
 		        break;
 	        case MYSQL:
-		        con.setTransactionIsolation(Connection.TRANSACTION_NONE); // Oracle does not support
+		        con.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED); 
 		        break;
 		    default:
 	        }

@@ -49,6 +49,9 @@ import org.cloudgraph.state.StateException;
  * @since 0.5
  */
 public class HBaseConnectionManager {
+	
+	public static final String CONNECTION_POOL_MIN_SIZE = "org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize";
+	public static final String CONNECTION_POOL_MAX_SIZE = "org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize";
 
 	private static final Log log = LogFactory.getLog(HBaseConnectionManager.class);
 
@@ -60,8 +63,8 @@ public class HBaseConnectionManager {
 		
 		Configuration config = CloudGraphContext.instance().getConfig();
 		
-	    int poolMinSize = Integer.valueOf(config.get("org.plasma.sdo.access.provider.hbase.ConnectionPoolMinSize"));
-	    int poolMaxSize = Integer.valueOf(config.get("org.plasma.sdo.access.provider.hbase.ConnectionPoolMaxSize"));	    
+	    int poolMinSize = Integer.valueOf(config.get(CONNECTION_POOL_MIN_SIZE));
+	    int poolMaxSize = Integer.valueOf(config.get(CONNECTION_POOL_MAX_SIZE));	    
 
 		if (log.isDebugEnabled())
 		    log.debug("trying to connect to database...");

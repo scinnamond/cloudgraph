@@ -22,11 +22,11 @@
 package org.cloudgraph.hbase.scan;
 
 import org.cloudgraph.config.DataGraphConfig;
-import org.cloudgraph.hbase.expr.DefaultBinaryExprTreeAssembler;
-import org.cloudgraph.hbase.expr.Expr;
-import org.cloudgraph.hbase.expr.ExprAssembler;
-import org.cloudgraph.hbase.expr.LogicalBinaryExpr;
-import org.cloudgraph.hbase.expr.RelationalBinaryExpr;
+import org.cloudgraph.query.expr.DefaultBinaryExprTreeAssembler;
+import org.cloudgraph.query.expr.Expr;
+import org.cloudgraph.query.expr.ExprAssembler;
+import org.cloudgraph.query.expr.LogicalBinaryExpr;
+import org.cloudgraph.query.expr.RelationalBinaryExpr;
 import org.plasma.query.model.Literal;
 import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.Property;
@@ -36,7 +36,7 @@ import org.plasma.sdo.PlasmaType;
 
 /**
  * A binary expression tree assembler which constructs an operator 
- * precedence map, then {@link org.cloudgraph.hbase.filter.ExpresionVisitorSupport visits} (traverses) 
+ * precedence map, then {@link org.cloudgraph.hbase.expr.ExpresionVisitorSupport visits} (traverses) 
  * the given predicate expression syntax tree depth-first 
  * using an adapted shunting-yard algorithm and assembles a 
  * resulting binary tree structure with expression nodes specific

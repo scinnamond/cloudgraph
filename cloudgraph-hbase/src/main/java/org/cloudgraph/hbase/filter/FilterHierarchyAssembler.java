@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
+import org.cloudgraph.query.expr.ExpresionVisitorSupport;
 import org.plasma.query.model.NullLiteral;
 import org.plasma.sdo.PlasmaType;
 

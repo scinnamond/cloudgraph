@@ -4,12 +4,12 @@
 	<groupId>org.cloudgraph</groupId>
 	<artifactId>cloudgraph</artifactId>
 	<packaging>pom</packaging>
-	<version>0.6.1</version>
+	<version>0.6.2</version>
 	<name>CloudGraph</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
 	<properties>
-		<cloudgraph.version>0.6.1</cloudgraph.version>
-		<plasma.version>1.2.1</plasma.version>
+		<cloudgraph.version>0.6.2</cloudgraph.version>
+		<plasma.version>1.2.2</plasma.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
     <url>http://cloudgraph.org</url>
@@ -34,9 +34,11 @@
     <modules>
         <module>cloudgraph-common</module>
         <module>cloudgraph-config</module>
+        <module>cloudgraph-core</module>
         <module>cloudgraph-mapreduce</module>
         <module>cloudgraph-hbase</module>
         <module>cloudgraph-rdb</module>
+        <module>cloudgraph-cassandra</module>
         <!--  
         <module>cloudgraph-examples</module> 
         <module>cloudgraph-docs</module>
@@ -95,7 +97,7 @@
 	            </execution>
 	        </executions>
 	      </plugin>
-	        
+	      <!--  
           <plugin>
               <groupId>org.apache.maven.plugins</groupId>
               <artifactId>maven-javadoc-plugin</artifactId>
@@ -108,7 +110,7 @@
                 </execution>
               </executions>
           </plugin>
-            
+          -->  
  	         
 	      <!-- Produce ZIP with dependencies and samples. -->
 	      <!--
@@ -132,7 +134,7 @@
 	      </plugin>
 	      -->
           <!-- Sign Artifacts -->
-                 
+              <!--   
 	      <plugin>
 	        <groupId>org.apache.maven.plugins</groupId>
 	        <artifactId>maven-gpg-plugin</artifactId>
@@ -147,7 +149,7 @@
 	          </execution>
 	        </executions>
 	      </plugin>
-	          
+	      -->    
 	       
 	      <!--
 	          Release Plugin (Update version in POM before/after release, create
