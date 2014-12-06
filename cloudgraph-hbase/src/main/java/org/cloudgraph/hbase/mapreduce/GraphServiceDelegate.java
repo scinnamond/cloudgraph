@@ -93,4 +93,40 @@ public class GraphServiceDelegate implements GraphService {
 		return results;
 	}
 
+	@Override
+	public void commit(DataGraph[] graphs, JobContext context)
+			throws IOException {
+		Map<TableWriter, List<Row>> mutations = new HashMap<TableWriter, List<Row>>();
+		for (DataGraph graph : graphs) {
+	        SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
+			MutationCollector collector = new MutationCollector(this.context,
+					snapshotMap, context.getJobName());
+	
+			try {
+				mutations = collector.collectChanges(graph);
+			} catch (IllegalAccessException e) {
+				throw new GraphServiceException(e);
+			}
+	        List<DataObject> changedObjects = graph.getChangeSummary().getChangedDataObjects();
+	        for (DataObject dataObject : changedObjects)
+	            if (!graph.getChangeSummary().isDeleted(dataObject))
+	                ((PlasmaNode)dataObject).getDataObject().reset(snapshotMap, context.getJobName());
+	        graph.getChangeSummary().endLogging();
+	        graph.getChangeSummary().beginLogging();	
+		}
+		Iterator<TableWriter> iter = mutations.keySet().iterator();
+		while (iter.hasNext()) {
+			TableWriter tableWriter = iter.next();
+			List<Row> tableMutations = mutations.get(tableWriter);
+			if (log.isDebugEnabled())
+				log.info("commiting "+tableMutations.size()+" mutations to table: " + tableWriter.getTable().getName());
+			try {
+				tableWriter.getConnection().batch(tableMutations);
+			} catch (InterruptedException e) {
+				throw new GraphServiceException(e);
+			}
+			tableWriter.getConnection().flushCommits();
+		}
+	}
+
 }

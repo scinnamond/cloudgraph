@@ -57,11 +57,11 @@ import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.filter.InitialFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
-import org.cloudgraph.hbase.graph.FederatedGraphAssembler;
-import org.cloudgraph.hbase.graph.FederatedGraphSliceAssembler;
+import org.cloudgraph.hbase.graph.DistributedGraphAssembler;
+import org.cloudgraph.hbase.graph.DistributedGraphSliceAssembler;
 import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
-import org.cloudgraph.hbase.io.FederatedGraphReader;
-import org.cloudgraph.hbase.io.FederatedReader;
+import org.cloudgraph.hbase.io.DistributedGraphReader;
+import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.hbase.scan.CompleteRowKey;
 import org.cloudgraph.hbase.scan.FuzzyRowKey;
@@ -235,7 +235,7 @@ public class GraphQuery
         if (log.isDebugEnabled())
         	log.debug(selectionCollector.dumpInheritedProperties());
         
-        FederatedGraphReader graphReader = new FederatedGraphReader(
+        DistributedGraphReader graphReader = new DistributedGraphReader(
         		type, selectionCollector.getTypes(),
         		this.context.getMarshallingContext());
         TableReader rootTableReader = graphReader.getRootTableReader();
@@ -575,7 +575,7 @@ public class GraphQuery
      * found in the selection graph, whether federation exists across the
      * persisted graph cannot be determined up front. Federation must be
      * discovered dynamically during assembly. Therefore on all cases
-     * graph assemblers capable of handling a federated graph are used
+     * graph assemblers capable of handling a distributed graph are used
      * on all cases.   
      * 
      * @param type the root type
@@ -587,18 +587,18 @@ public class GraphQuery
     //FIXME generalize
     private HBaseGraphAssembler createGraphAssembler(
     		PlasmaType type,
-    		FederatedReader graphReader,
+    		DistributedReader graphReader,
     		Selection collector,
     		Timestamp snapshotDate)
     {
         HBaseGraphAssembler graphAssembler = null;
          
         if (collector.hasPredicates()) { 
-        	graphAssembler = new FederatedGraphSliceAssembler(type,
+        	graphAssembler = new DistributedGraphSliceAssembler(type,
             		collector, graphReader, snapshotDate);
         }
         else {
-        	graphAssembler = new FederatedGraphAssembler(type,
+        	graphAssembler = new DistributedGraphAssembler(type,
             		collector, graphReader, snapshotDate);
         }
 	        

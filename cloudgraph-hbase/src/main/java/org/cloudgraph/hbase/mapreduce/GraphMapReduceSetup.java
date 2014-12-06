@@ -79,7 +79,7 @@ import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
-import org.cloudgraph.hbase.io.FederatedGraphReader;
+import org.cloudgraph.hbase.io.DistributedGraphReader;
 import org.cloudgraph.hbase.scan.CompleteRowKey;
 import org.cloudgraph.hbase.scan.FuzzyRowKey;
 import org.cloudgraph.hbase.scan.PartialRowKey;
@@ -195,7 +195,7 @@ public class GraphMapReduceSetup {
 			throw new GraphServiceException(e);
 		}
 
-		FederatedGraphReader graphReader = new FederatedGraphReader(type,
+		DistributedGraphReader graphReader = new DistributedGraphReader(type,
 				selectionCollector.getTypes(), marshallingContext);
 
 		HBaseFilterAssembler columnFilterAssembler = new GraphFetchColumnFilterAssembler(
@@ -539,7 +539,7 @@ public class GraphMapReduceSetup {
 			throw new GraphServiceException(e);
 		}
 
-		FederatedGraphReader graphReader = new FederatedGraphReader(type,
+		DistributedGraphReader graphReader = new DistributedGraphReader(type,
 				selectionCollector.getTypes(), marshallingContext);
 		
 		//job.setOutputFormatClass(GraphOutputFormat.class);

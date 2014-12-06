@@ -19,7 +19,7 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.cassandra.filter;
+package org.cloudgraph.cassandra.cql;
 
 // java imports
 import java.util.List;

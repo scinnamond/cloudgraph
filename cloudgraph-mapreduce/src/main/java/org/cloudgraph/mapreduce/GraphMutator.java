@@ -38,4 +38,5 @@ import commonj.sdo.DataGraph;
  */
 public interface GraphMutator {
 	public void commit(DataGraph graph, JobContext context) throws IOException;
+	public void commit(DataGraph[] graphs, JobContext context) throws IOException;
 }

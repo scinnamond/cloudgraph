@@ -358,4 +358,10 @@ public class CassandraGraphService implements PlasmaDataAccessService, GraphServ
 	public void commit(DataGraph graph, JobContext context) throws IOException {
 		this.commit(graph, context.getJobName());
 	}
+
+	@Override
+	public void commit(DataGraph[] graphs, JobContext context)
+			throws IOException {
+		this.commit(graphs, context.getJobName());
+	}
 }

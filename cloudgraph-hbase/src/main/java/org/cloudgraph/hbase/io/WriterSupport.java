@@ -35,10 +35,10 @@ import org.plasma.sdo.core.CoreDataObject;
 
 import commonj.sdo.DataObject;
 
-public abstract class FederationSupport {
+public abstract class WriterSupport {
 	protected Map<DataObject, RowWriter> rowWriterMap = new HashMap<DataObject, RowWriter>();	
 	
-	protected FederationSupport() {
+	protected WriterSupport() {
 		
 	}
 	

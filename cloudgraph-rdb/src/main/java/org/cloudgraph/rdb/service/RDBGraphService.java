@@ -21,6 +21,7 @@
  */
 package org.cloudgraph.rdb.service;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -32,6 +33,8 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.mapreduce.JobContext;
+import org.cloudgraph.mapreduce.GraphService;
 import org.cloudgraph.rdb.connect.ProviderManager;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.config.DataAccessProviderName;
@@ -51,7 +54,7 @@ import org.xml.sax.SAXException;
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
-public class RDBGraphService implements PlasmaDataAccessService {
+public class RDBGraphService implements PlasmaDataAccessService, GraphService{
     
     private static Log log = LogFactory.getLog(RDBGraphService.class);
 
@@ -470,4 +473,29 @@ public class RDBGraphService implements PlasmaDataAccessService {
 		}
         //log.debug("query: " + xml);
     }
+
+	@Override
+	public DataGraph[] find(org.plasma.query.Query query, JobContext context)
+			throws IOException {
+		 
+		return this.find(query.getModel());
+	}
+
+	@Override
+	public void commit(DataGraph graph, JobContext context) throws IOException {
+		String username = "graph-service";
+		if (context != null)
+			username = context.getJobName();
+		this.commit(graph, username);
+	}
+
+	@Override
+	public void commit(DataGraph[] graphs, JobContext context)
+			throws IOException {
+		String username = "graph-service";
+		if (context != null)
+			username = context.getJobName();
+		this.commit(graphs, username);
+	}
+
 }

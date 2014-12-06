@@ -48,8 +48,8 @@ import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.connect.HBaseConnectionManager;
-import org.cloudgraph.hbase.io.FederatedGraphWriter;
-import org.cloudgraph.hbase.io.FederatedWriter;
+import org.cloudgraph.hbase.io.DistributedGraphWriter;
+import org.cloudgraph.hbase.io.DistributedWriter;
 import org.cloudgraph.hbase.io.RowWriter;
 import org.cloudgraph.hbase.io.TableWriter;
 import org.cloudgraph.hbase.io.TableWriterCollector;
@@ -102,7 +102,7 @@ import commonj.sdo.Property;
  * row key is fetched using an HBase <a href="http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/client/Get.html" target="#">Get</a> 
  * operation.
  * </p>
- * @see org.cloudgraph.hbase.io.FederatedWriter
+ * @see org.cloudgraph.hbase.io.DistributedWriter
  * @see org.cloudgraph.common.key.GraphRowKeyFactory
  * @see org.cloudgraph.common.key.GraphColumnKeyFactory
  * @see org.cloudgraph.state.GraphState

@@ -53,7 +53,7 @@ import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
-import org.cloudgraph.hbase.io.FederatedReader;
+import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableOperation;
 import org.cloudgraph.hbase.io.TableReader;
@@ -88,7 +88,7 @@ import commonj.sdo.helper.XMLDocument;
  * a given selection map of SDO properties and associated predicates.
  * <p>
  * The assembly is triggered by calling the 
- * {@link FederatedGraphSliceAssembler#assemble(Result resultRow)} method which
+ * {@link DistributedGraphSliceAssembler#assemble(Result resultRow)} method which
  * recursively reads HBase keys and values incrementally re-constituting the
  * data graph. The assembly traversal is driven by HBase column 
  * values representing the original edges or containment structure 
@@ -111,18 +111,18 @@ import commonj.sdo.helper.XMLDocument;
  * @since 0.5.1
  * 
  */
-public class FederatedGraphSliceAssembler extends FederatedAssembler {
+public class DistributedGraphSliceAssembler extends DistributedAssembler {
 
-    private static Log log = LogFactory.getLog(FederatedGraphSliceAssembler.class);
+    private static Log log = LogFactory.getLog(DistributedGraphSliceAssembler.class);
 	private int scanCount;
 	private GraphSliceSupport sliceSupport = new GraphSliceSupport();
 	private Charset charset;
 
-	public FederatedGraphSliceAssembler(PlasmaType rootType,
+	public DistributedGraphSliceAssembler(PlasmaType rootType,
 			Selection selection,
-			FederatedReader federatedReader, 
+			DistributedReader distributedReader, 
 			Timestamp snapshotDate) {
-		super(rootType, selection, federatedReader, snapshotDate);
+		super(rootType, selection, distributedReader, snapshotDate);
 		this.charset = Charset.forName( CoreConstants.UTF8_ENCODING );
 	}
 
@@ -206,7 +206,7 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 			else 
 			{
 				String childTable = rowReader.getGraphState().getRowKeyTable(edges[0].getUuid());
-				TableReader externalTableReader = federatedReader.getTableReader(childTable);
+				TableReader externalTableReader = distributedReader.getTableReader(childTable);
 				
 				if (log.isDebugEnabled())
 					if (!tableConfig.getName().equals(externalTableReader.getTable().getName()))
@@ -326,7 +326,7 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
 	 * from the given edge collection. The graph {@link Selection selection criteria} is based not on the 
 	 * primary graph selection but only on the properties found in the given path predicate, so the
 	 * assembly is only/exactly as extensive as required by the predicate.  
-	 * Any sub-graphs assembled may themselves be "federated" graphs.   
+	 * Any sub-graphs assembled may themselves be "distributed" graphs.   
 	 *  
 	 * @param contextType the current type
 	 * @param edges the state edge set
@@ -348,8 +348,8 @@ public class FederatedGraphSliceAssembler extends FederatedAssembler {
         SelectionCollector selectionCollector = new SelectionCollector(
                where, contextType);
 
-        HBaseGraphAssembler graphAssembler = new FederatedGraphAssembler(contextType,
-        		selectionCollector, (FederatedReader)tableReader.getFederatedOperation(), 
+        HBaseGraphAssembler graphAssembler = new DistributedGraphAssembler(contextType,
+        		selectionCollector, (DistributedReader)tableReader.getFederatedOperation(), 
        			snapshotDate);
    	
         GraphRecognizerSyntaxTreeAssembler recognizerAssembler = new GraphRecognizerSyntaxTreeAssembler(

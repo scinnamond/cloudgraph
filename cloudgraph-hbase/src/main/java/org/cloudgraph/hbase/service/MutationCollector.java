@@ -23,8 +23,8 @@ import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
-import org.cloudgraph.hbase.io.FederatedGraphWriter;
-import org.cloudgraph.hbase.io.FederatedWriter;
+import org.cloudgraph.hbase.io.DistributedGraphWriter;
+import org.cloudgraph.hbase.io.DistributedWriter;
 import org.cloudgraph.hbase.io.RowWriter;
 import org.cloudgraph.hbase.io.TableWriter;
 import org.cloudgraph.hbase.io.TableWriterCollector;
@@ -135,7 +135,7 @@ public class MutationCollector {
 		TableWriterCollector collector = 
 			new TableWriterCollector(dataGraph, created, modified, deleted);
 		
-		FederatedWriter graphWriter = new FederatedGraphWriter( 
+		DistributedWriter graphWriter = new DistributedGraphWriter( 
         	dataGraph, collector, this.context.getMarshallingContext());
         
 		this.create(dataGraph, created, graphWriter);    		    		
@@ -225,7 +225,7 @@ public class MutationCollector {
         	    this.checkConcurrency(dataGraph, (PlasmaDataObject)changed);
     	}
         	    
-    	List<FederatedWriter> graphWriters = new ArrayList<FederatedWriter>();
+    	List<DistributedWriter> graphWriters = new ArrayList<DistributedWriter>();
     	for (DataGraph dataGraph : dataGraphs) {
             PlasmaChangeSummary changeSummary = (PlasmaChangeSummary)dataGraph.getChangeSummary();
 
@@ -250,7 +250,7 @@ public class MutationCollector {
 				new TableWriterCollector(dataGraph, 
 					created, modified, deleted);
 			
-			FederatedWriter graphWriter = new FederatedGraphWriter( 
+			DistributedWriter graphWriter = new DistributedGraphWriter( 
 	        	dataGraph, collector,
 	        	this.context.getMarshallingContext());
 			graphWriters.add(graphWriter);
@@ -284,7 +284,7 @@ public class MutationCollector {
             }
     	}    	
     	
-    	for (FederatedWriter graphWriter : graphWriters) {
+    	for (DistributedWriter graphWriter : graphWriters) {
     		
     		for (TableWriter tableWriter : graphWriter.getTableWriters()) {
     			List<Row> rowMutations = mutations.get(tableWriter);
@@ -323,7 +323,7 @@ public class MutationCollector {
     private void delete(
     		DataGraph dataGraph,
     		DeletedObjectCollector deleted,
-    		FederatedWriter graphWriter) throws IllegalAccessException, IOException 
+    		DistributedWriter graphWriter) throws IllegalAccessException, IOException 
     {
         for (PlasmaDataObject dataObject : deleted.getResult()) {
 
@@ -342,7 +342,7 @@ public class MutationCollector {
     private void modify(
     		DataGraph dataGraph,
     		ModifiedObjectCollector modified,
-    		FederatedWriter graphWriter) throws IllegalAccessException, IOException 
+    		DistributedWriter graphWriter) throws IllegalAccessException, IOException 
     {
     	for (PlasmaDataObject dataObject : modified.getResult()) {
         	RowWriter rowWriter = graphWriter.getRowWriter(dataObject);
@@ -362,7 +362,7 @@ public class MutationCollector {
     	
     private void create(DataGraph dataGraph,
     		PlasmaDataObject[] created,
-    		FederatedWriter graphWriter) throws IOException, IllegalAccessException {
+    		DistributedWriter graphWriter) throws IOException, IllegalAccessException {
 
 		for (PlasmaDataObject dataObject : created) {
         	RowWriter rowWriter = graphWriter.getRowWriter(dataObject);
@@ -384,7 +384,7 @@ public class MutationCollector {
     
     private void create(DataGraph dataGraph, 
     	PlasmaDataObject dataObject,
-    	FederatedWriter graphWriter,
+    	DistributedWriter graphWriter,
     	TableWriter tableWriter,
     	RowWriter rowWriter) throws IOException, IllegalAccessException 
     {
@@ -479,7 +479,7 @@ public class MutationCollector {
     	PlasmaNode dataNode,
     	Property property, 
     	List <PlasmaEdge> edges,
-    	FederatedWriter graphWriter,
+    	DistributedWriter graphWriter,
         TableWriter tableWriter, 
         RowWriter rowWriter) throws IOException
     {
@@ -619,7 +619,7 @@ public class MutationCollector {
     }
      
     private void update(DataGraph dataGraph, PlasmaDataObject dataObject, 
-    		FederatedWriter graphWriter,
+    		DistributedWriter graphWriter,
     		TableWriter tableWriter,
         	RowWriter rowWriter) 
         throws IllegalAccessException, IOException
@@ -786,7 +786,7 @@ public class MutationCollector {
     }
  
     private void delete(DataGraph dataGraph, PlasmaDataObject dataObject, 
-    	FederatedWriter graphWriter,
+    	DistributedWriter graphWriter,
     	TableWriter context,
         RowWriter rowContext) throws IOException
     {

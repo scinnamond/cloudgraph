@@ -19,7 +19,7 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.cassandra.service;
+package org.cloudgraph.cassandra.cql;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -32,7 +32,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.filter.FilterAssembler;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
@@ -48,19 +47,24 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
+
 import commonj.sdo.Property;
 
-public abstract class CQLSupport {
+public class CQLStatementFactory implements StatementFactory {
 	
-    private static Log log = LogFactory.getFactory().getInstance(CQLSupport.class);
+    private static Log log = LogFactory.getFactory().getInstance(CQLStatementFactory.class);
 	protected CQLDataConverter converter = CQLDataConverter.INSTANCE;
 	
-	protected CQLSupport() {
+	public CQLStatementFactory() {
 		
 	}	
-
-	protected StringBuilder createSelectForUpdate(PlasmaType type,
-			List<PropertyPair> keyValues, int waitSeconds)  {
+ 
+	/* (non-Javadoc)
+	 * @see org.cloudgraph.cassandra.service.StatementFactory#createSelect(org.plasma.sdo.PlasmaType, java.util.List)
+	 */
+	@Override
+	public StringBuilder createSelect(PlasmaType type,
+			List<PropertyPair> keyValues)  {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
 		List<Property> props = new ArrayList<Property>();
@@ -127,8 +131,8 @@ public abstract class CQLSupport {
 
 		return sql;
 	}
-	
-	protected String getQualifiedPhysicalName(PlasmaType type) {
+ 	
+	public String getQualifiedPhysicalName(PlasmaType type) {
 		String packageName = type.getPackagePhysicalName();
 		if (packageName != null) 
 			return packageName + "." + type.getPhysicalName();
@@ -136,7 +140,11 @@ public abstract class CQLSupport {
 			return type.getPhysicalName();
 	}
 	
-	protected StringBuilder createSelect(PlasmaType type, Set<Property> props, 
+	/* (non-Javadoc)
+	 * @see org.cloudgraph.cassandra.service.StatementFactory#createSelect(org.plasma.sdo.PlasmaType, java.util.Set, java.util.List, java.util.List)
+	 */
+	@Override
+	public StringBuilder createSelect(PlasmaType type, Set<Property> props, 
 			List<PropertyPair> keyValues, List<Object> params) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("SELECT ");		
@@ -179,7 +187,11 @@ public abstract class CQLSupport {
 		return sql;
 	}
 
-	protected StringBuilder createSelect(PlasmaType type, Set<Property> props, 
+	/* (non-Javadoc)
+	 * @see org.cloudgraph.cassandra.service.StatementFactory#createSelect(org.plasma.sdo.PlasmaType, java.util.Set, java.util.List, org.cloudgraph.cassandra.filter.FilterAssembler, java.util.List)
+	 */
+	@Override
+	public StringBuilder createSelect(PlasmaType type, Set<Property> props, 
 			List<PropertyPair> keyValues,
 			FilterAssembler filterAssembler,
 			List<Object> params) {
@@ -289,7 +301,11 @@ public abstract class CQLSupport {
     	return jdbcValue;
 	}		
 	
-	protected StringBuilder createInsert(PlasmaType type, 
+	/* (non-Javadoc)
+	 * @see org.cloudgraph.cassandra.service.StatementFactory#createInsert(org.plasma.sdo.PlasmaType, java.util.Map)
+	 */
+	@Override
+	public StringBuilder createInsert(PlasmaType type, 
 			Map<String, PropertyPair> values) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("INSERT INTO ");
@@ -322,7 +338,7 @@ public abstract class CQLSupport {
 		return sql;
 	}
 	
-	protected boolean hasUpdatableProperties(Map<String, PropertyPair> values) {
+	public boolean hasUpdatableProperties(Map<String, PropertyPair> values) {
 		
 		for (PropertyPair pair : values.values()) {
 			PlasmaProperty prop = pair.getProp();
@@ -336,7 +352,11 @@ public abstract class CQLSupport {
 		return false;
 	}
 
-	protected StringBuilder createUpdate(PlasmaType type,  
+	/* (non-Javadoc)
+	 * @see org.cloudgraph.cassandra.service.StatementFactory#createUpdate(org.plasma.sdo.PlasmaType, java.util.Map)
+	 */
+	@Override
+	public StringBuilder createUpdate(PlasmaType type,  
 			Map<String, PropertyPair> values) {
 		StringBuilder sql = new StringBuilder();
 		
@@ -386,7 +406,11 @@ public abstract class CQLSupport {
 		return sql;
 	}
 	
-	protected StringBuilder createDelete(PlasmaType type,  
+	/* (non-Javadoc)
+	 * @see org.cloudgraph.cassandra.service.StatementFactory#createDelete(org.plasma.sdo.PlasmaType, java.util.Map)
+	 */
+	@Override
+	public StringBuilder createDelete(PlasmaType type,  
 			Map<String, PropertyPair> values) {
 		StringBuilder sql = new StringBuilder();
 		sql.append("DELETE FROM ");		
@@ -409,262 +433,8 @@ public abstract class CQLSupport {
 		
 		return sql;
 	}
-	
-	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Session con)
-	{
-		return fetch(type, sql, new HashSet<Property>(), new Object[0], con);
-	}
-
-	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Set<Property> props, Session con)
-	{
-		return fetch(type, sql, props, new Object[0], con);
-	}
-	
-	protected List<List<PropertyPair>> fetch(PlasmaType type, StringBuilder sql, Set<Property> props, Object[] params, Session con)
-	{
-		List<List<PropertyPair>> result = new ArrayList<List<PropertyPair>>();
-		SimpleStatement statement = null;
-		ResultSet rs = null; 
-        try {
-            if (log.isDebugEnabled() ){
-                if (params == null || params.length == 0) {
-                    log.debug("fetch: "+ sql.toString());                	
-                }
-                else
-                {
-                    StringBuilder paramBuf = new StringBuilder();
-                	paramBuf.append(" [");
-                    for (int p = 0; p < params.length; p++)
-                    {
-                        if (p > 0)
-                        	paramBuf.append(", ");
-                        paramBuf.append(String.valueOf(params[p]));
-                    }
-                    paramBuf.append("]");
-                    log.debug("fetch: "+ sql.toString() 
-                    		+ " " + paramBuf.toString());
-                }
-            } 
-            statement = new SimpleStatement(sql.toString(), params);
-            rs = con.execute(statement);
-            ColumnDefinitions rsMeta = rs.getColumnDefinitions();
-		           
-            int numcols = rsMeta.size();
-            Iterator<Row> iter = rs.iterator();
-            int count = 0;
-            while (iter.hasNext()) {
-            	Row dataRow = iter.next();
-            	List<PropertyPair> row = new ArrayList<PropertyPair>(numcols);
-            	result.add(row);
-            	int column = 0;
-            	for(ColumnDefinitions.Definition def : rs.getColumnDefinitions()) {
-            		String columnName = def.getName();
-            		DataType columnType = def.getType();
-            		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
-            		PlasmaProperty valueProp = prop;
-			    	while (!valueProp.getType().isDataType()) {
-			    		valueProp = getOppositePriKeyProperty(valueProp);
-			    	}
-              		Object value = converter.fromCQLDataType(dataRow, 
-              				column, columnType, valueProp);
-            		if (value != null) {
-            		    PropertyPair pair = new PropertyPair(
-            			    (PlasmaProperty)prop, value);
-            		    if (!valueProp.equals(prop))
-            		    	pair.setValueProp(valueProp);
-            		    if (!props.contains(prop))
-            		    	pair.setQueryProperty(false);
-            		    row.add(pair);
-            		}
-            		column++;
-                }
-            	count++;
-            }
-            if (log.isDebugEnabled())
-                log.debug("returned "+ count + " results");
-        }
-        catch (Throwable t) {
-            throw new DataAccessException(t);
-        }
-        finally {
-        	// no CQL driver RS or statement close()
-        }
-        return result;
- 	}
-	
-	protected Map<String, PropertyPair> fetchRowMap(PlasmaType type, StringBuilder sql, Session con)
-	{
-		Map<String, PropertyPair> result = new HashMap<String, PropertyPair>();
-		SimpleStatement statement = null;
-        ResultSet rs = null; 
-        try {
-            if (log.isDebugEnabled() ){
-                log.debug("fetch: " + sql.toString());
-            } 
-            
-            statement = new SimpleStatement(sql.toString());
-		
-            rs = con.execute(statement);
-            ColumnDefinitions rsMeta = rs.getColumnDefinitions();
-            Iterator<Row> iter = rs.iterator();
-            int count = 0;
-            while (iter.hasNext()) {
-            	Row dataRow = iter.next();
-            	int column = 0;
-            	for(ColumnDefinitions.Definition def : rs.getColumnDefinitions()) {
-            		String columnName = def.getName();
-            		DataType columnType = def.getType();
-            		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
-            		PlasmaProperty valueProp = prop;
-			    	while (!valueProp.getType().isDataType()) {
-			    		valueProp = getOppositePriKeyProperty(valueProp);
-			    	}
-              		Object value = converter.fromCQLDataType(dataRow, 
-              				column, columnType, valueProp);
-            		if (value != null) {
-            		    PropertyPair pair = new PropertyPair(
-            			    (PlasmaProperty)prop, value);
-            		    if (!valueProp.equals(prop))
-            		    	pair.setValueProp(valueProp);
-            		    result.put(prop.getName(), pair);
-            		}
-            		column++;
-                }
-            	count++;
-            }
-            if (log.isDebugEnabled())
-                log.debug("returned "+ count + " results");
-        }
-        catch (Throwable t) {
-            throw new DataAccessException(t);
-        }
-        finally {
-        	// no CQL driver RS or statement close()
-        }
-        return result;
- 	}
-
-	protected List<PropertyPair> fetchRow(PlasmaType type, StringBuilder sql, Session con)
-	{
-		List<PropertyPair> result = new ArrayList<PropertyPair>();
-		SimpleStatement statement = null;
-        ResultSet rs = null; 
-        try {
-            if (log.isDebugEnabled() ){
-                log.debug("fetch: " + sql.toString());
-            } 
-            statement = new SimpleStatement(sql.toString());
-		            
-            
-            rs = con.execute(statement);
-            ColumnDefinitions rsMeta = rs.getColumnDefinitions();
-            Iterator<Row> iter = rs.iterator();
-            int count = 0;
-            while (iter.hasNext()) {
-            	Row dataRow = iter.next();
-            	int column = 0;
-            	for(ColumnDefinitions.Definition def : rs.getColumnDefinitions()) {
-            		String columnName = def.getName();
-            		DataType columnType = def.getType();
-            		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
-            		PlasmaProperty valueProp = prop;
-			    	while (!valueProp.getType().isDataType()) {
-			    		valueProp = getOppositePriKeyProperty(valueProp);
-			    	}
-              		Object value = converter.fromCQLDataType(dataRow, 
-              				column, columnType, valueProp);
-            		if (value != null) {
-            		    PropertyPair pair = new PropertyPair(
-            			    (PlasmaProperty)prop, value);
-            		    if (!valueProp.equals(prop))
-            		    	pair.setValueProp(valueProp);
-            		    result.add(pair);
-            		}
-            		column++;
-                }
-            	count++;
-            }
-            if (log.isDebugEnabled())
-                log.debug("returned "+ count + " results");
-        }
-        catch (Throwable t) {
-            throw new DataAccessException(t);
-        }
-        finally {
-        	// no CQL driver RS or statement close()
-        }
-        return result;
- 	}	
-	
-	protected void execute(PlasmaType type, StringBuilder sql, 
-			Map<String, PropertyPair> values,
-			Session con)
-	{
-		SimpleStatement statement = null;
-        List<InputStream> streams = null;
-        try {		
-            if (log.isDebugEnabled() ){
-                log.debug("execute: " + sql.toString());
-                StringBuilder paramBuf = createParamDebug(values);
-                log.debug("params: " + paramBuf.toString());
-            } 
-            List<Object> list = new ArrayList<Object>();
-    		for (PropertyPair pair : values.values()) {
-    			PlasmaProperty valueProp = pair.getProp();
-    			if (pair.getValueProp() != null)
-    				valueProp = pair.getValueProp();
-    			int jdbcType = converter.toCQLDataType(valueProp, pair.getValue());
-    			Object jdbcValue = converter.toCQLDataValue(valueProp, pair.getValue());
-    			list.add(jdbcValue);
-    		}            
-            
-            statement = new SimpleStatement(sql.toString(), list.toArray());            
-            con.execute(statement);
-        }
-        catch (Throwable t) {
-            throw new DataAccessException(t);
-        }
-        finally {
-        	// no CQL driver RS or statement close()
-        }
- 	}
-		
-	protected void executeInsert(PlasmaType type, StringBuilder sql, 
-			Map<String, PropertyPair> values,
-			Session con)
-	{
-		SimpleStatement statement = null;
-        List<InputStream> streams = null;
-        try {
-		
-            if (log.isDebugEnabled() ){
-                log.debug("execute: " + sql.toString());
-                StringBuilder paramBuf = createParamDebug(values);
-                log.debug("params: " + paramBuf.toString());
-            } 
-            List<Object> list = new ArrayList<Object>();
-    		for (PropertyPair pair : values.values()) {
-    			PlasmaProperty valueProp = pair.getProp();
-    			if (pair.getValueProp() != null)
-    				valueProp = pair.getValueProp();
-    			int jdbcType = converter.toCQLDataType(valueProp, pair.getValue());
-    			Object jdbcValue = converter.toCQLDataValue(valueProp, pair.getValue());
-    			list.add(jdbcValue);
-    		}            
-             
-            statement = new SimpleStatement(sql.toString(), list.toArray());
-            
-            con.execute(statement);
-        }
-        catch (Throwable t) {
-            throw new DataAccessException(t);
-        }
-        finally {
-        	// no CQL driver RS or statement close()
-        }
- 	}
-		
-	protected PlasmaProperty getOppositePriKeyProperty(Property targetProperty) {
+			
+	public PlasmaProperty getOppositePriKeyProperty(Property targetProperty) {
     	PlasmaProperty opposite = (PlasmaProperty)targetProperty.getOpposite();
     	PlasmaType oppositeType = null;
     	    	

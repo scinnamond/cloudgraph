@@ -34,6 +34,11 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.cassandra.cql.CQLDataConverter;
+import org.cloudgraph.cassandra.cql.CQLStatementExecutor;
+import org.cloudgraph.cassandra.cql.CQLStatementFactory;
+import org.cloudgraph.cassandra.cql.StatementExecutor;
+import org.cloudgraph.cassandra.cql.StatementFactory;
 import org.cloudgraph.common.service.CreatedCommitComparator;
 import org.cloudgraph.common.service.DeletedCommitComparator;
 import org.cloudgraph.common.service.GraphServiceException;
@@ -68,20 +73,22 @@ import org.plasma.sdo.profile.KeyType;
 import sorts.InsertionSort;
 
 import com.datastax.driver.core.Session;
+
 import commonj.sdo.ChangeSummary.Setting;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 
-public class GraphDispatcher extends CQLSupport
+public class GraphDispatcher 
     implements DataGraphDispatcher {
     private static Log log = LogFactory.getLog(GraphDispatcher.class);
     private Session con;
     private SnapshotMap snapshotMap;
     private SequenceGenerator sequenceGenerator;
     private String username;
-    private CQLDataConverter converter = CQLDataConverter.INSTANCE;
+	protected StatementFactory statementFactory;
+	protected StatementExecutor statementExecutor;
     
     @SuppressWarnings("unused")
     private GraphDispatcher() {}
@@ -91,6 +98,8 @@ public class GraphDispatcher extends CQLSupport
         this.snapshotMap = snapshotMap;
         this.username = username;
         this.con = con;        
+		this.statementFactory = new CQLStatementFactory();
+		this.statementExecutor = new CQLStatementExecutor(con);
     }
     
     public void close()
@@ -301,7 +310,7 @@ public class GraphDispatcher extends CQLSupport
                 DataObject priKeyDataObject = dataObject;
        		    // traverse to the datatype pk property for this reference
                 while (!priKeyValueProperty.getType().isDataType()) {
-                	priKeyValueProperty = this.getOppositePriKeyProperty(priKeyValueProperty);
+                	priKeyValueProperty = this.statementFactory.getOppositePriKeyProperty(priKeyValueProperty);
                 	priKeyDataObject = (DataObject)pk;
                 	pk = priKeyDataObject.get(priKeyValueProperty.getName());
                     if (pk == null)
@@ -399,11 +408,11 @@ public class GraphDispatcher extends CQLSupport
             }
         }       
         
-        StringBuilder insert = createInsert(type, entity);
+        StringBuilder insert = this.statementFactory.createInsert(type, entity);
         if (log.isDebugEnabled()) {
             log.debug("inserting " + dataObject.getType().getName()); 
         }
-    	executeInsert(type, insert, entity, con);        
+        this.statementExecutor.executeInsert(type, insert, entity);        
     }
     
     private void update(DataGraph dataGraph, PlasmaDataObject dataObject) 
@@ -483,8 +492,8 @@ public class GraphDispatcher extends CQLSupport
                     + type.getURI() + "#" + type.getName());  
               
 
-        StringBuilder select = createSelectForUpdate(type, pkPairs, 5);
-        Map<String, PropertyPair> entity = fetchRowMap(type, select, con);
+        StringBuilder select = this.statementFactory.createSelect(type, pkPairs);
+        Map<String, PropertyPair> entity = this.statementExecutor.fetchRowMap(type, select);
         if (entity.size() == 0)
         	throw new GraphServiceException("could not lock record of type, " + type.toString());
         
@@ -533,12 +542,12 @@ public class GraphDispatcher extends CQLSupport
             }
         }    
         
-        if (hasUpdatableProperties(entity)) {
-	        StringBuilder update = createUpdate(type, entity);
+        if (this.statementFactory.hasUpdatableProperties(entity)) {
+	        StringBuilder update = this.statementFactory.createUpdate(type, entity);
 	        if (log.isDebugEnabled()) {
 	            log.debug("updating " + dataObject.getType().getName()); 
 	        }
-	        execute(type, update, entity, con);
+	        this.statementExecutor.execute(type, update, entity);
         }
     }
  
@@ -570,7 +579,7 @@ public class GraphDispatcher extends CQLSupport
                 		+ pkProperty.toString());  
             }
             while (!priKeyValueProperty.getType().isDataType()) {
-            	priKeyValueProperty = this.getOppositePriKeyProperty(priKeyValueProperty);
+            	priKeyValueProperty = this.statementFactory.getOppositePriKeyProperty(priKeyValueProperty);
             	priKeyDataObject = (DataObject)pk;
             	pk = priKeyDataObject.get(priKeyValueProperty.getName());
                 if (pk == null) { // check the change summary - delete removes references
@@ -595,8 +604,8 @@ public class GraphDispatcher extends CQLSupport
             throw new RequiredPropertyException("property '" + CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP                
                + "' is required to update entity '" + type.getName() + "'"); 
         
-        StringBuilder select = createSelectForUpdate(type, pkPairs, 5);
-        Map<String, PropertyPair> entity = fetchRowMap(type, select, con);
+        StringBuilder select = this.statementFactory.createSelect(type, pkPairs);
+        Map<String, PropertyPair> entity = this.statementExecutor.fetchRowMap(type, select);
         
         PlasmaProperty lockingUserProperty = (PlasmaProperty)type.findProperty(ConcurrencyType.pessimistic, 
             	ConcurrentDataFlavor.user);
@@ -642,11 +651,11 @@ public class GraphDispatcher extends CQLSupport
         for (PropertyPair pair : pkPairs)
         	entity.put(pair.getProp().getName(), pair);
         
-        StringBuilder delete = createDelete(type, entity);
+        StringBuilder delete = this.statementFactory.createDelete(type, entity);
         if (log.isDebugEnabled()) {
             log.debug("deleting " + dataObject.getType().getName()); 
         }
-        execute(type, delete, entity, con);
+        this.statementExecutor.execute(type, delete, entity);
     }
 
     /**
@@ -912,7 +921,7 @@ public class GraphDispatcher extends CQLSupport
             valueProperty = (PlasmaProperty)pkList.get(0);  
             while (!valueProperty.getType().isDataType()) {
             	resultDataObject = (CoreDataObject)resultDataObject.get(valueProperty.getName());
-            	valueProperty = this.getOppositePriKeyProperty(valueProperty);
+            	valueProperty = this.statementFactory.getOppositePriKeyProperty(valueProperty);
             }
             
             pk = resultDataObject.get(valueProperty.getName());   

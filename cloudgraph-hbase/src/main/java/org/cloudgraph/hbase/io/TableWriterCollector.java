@@ -59,7 +59,7 @@ import commonj.sdo.DataObject;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public class TableWriterCollector extends FederationSupport {
+public class TableWriterCollector extends WriterSupport {
     
     private static Log log = LogFactory.getLog(TableWriterCollector.class);
 	private DataGraph dataGraph;

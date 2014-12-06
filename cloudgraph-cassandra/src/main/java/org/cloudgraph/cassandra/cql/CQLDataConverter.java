@@ -19,9 +19,8 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.cassandra.service;
+package org.cloudgraph.cassandra.cql;
 
-import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,7 +36,6 @@ import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.helper.DataConverter;
 
 import com.datastax.driver.core.Row;
-
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 
@@ -50,8 +48,6 @@ public class CQLDataConverter {
 
 	private CQLDataConverter() {
 
-		// Get all field in java.sql.Types
-		Field[] fields = java.sql.Types.class.getFields();
 		for (com.datastax.driver.core.DataType.Name typeName : com.datastax.driver.core.DataType.Name.values()) {
 			Integer value = (Integer) typeName.ordinal();
 			cqlTypeMap.put(value, typeName.name());

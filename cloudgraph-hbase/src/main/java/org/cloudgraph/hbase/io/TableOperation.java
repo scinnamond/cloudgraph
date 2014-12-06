@@ -50,17 +50,17 @@ public interface TableOperation extends TableState {
 	public boolean hasConnection(); 
 	
 	/**
-	 * Returns the federated context associated with this table
+	 * Returns the distributed context associated with this table
 	 * operation context. 
-	 * @return the federated context associated with this table
+	 * @return the distributed context associated with this table
 	 * operation context. 
 	 */
-	public FederatedOperation getFederatedOperation();
+	public DistributedOperation getFederatedOperation();
 	
 	/**
-	 * Sets the federated context associated with this table
+	 * Sets the distributed context associated with this table
 	 * operation context. 
-	 * @param federatedOperation the operation
+	 * @param distributedOperation the operation
 	 */
-	public void setFederatedOperation(FederatedOperation federatedOperation);
+	public void setFederatedOperation(DistributedOperation distributedOperation);
 }

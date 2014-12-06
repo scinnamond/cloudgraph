@@ -33,7 +33,7 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.io.FederatedReader;
+import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.OperationException;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
@@ -55,7 +55,7 @@ import commonj.sdo.Property;
  * selected types required in the result graph.
  * <p>
  * The assembly is triggered by calling the 
- * {@link FederatedGraphAssembler#assemble(Result resultRow)} method which
+ * {@link DistributedGraphAssembler#assemble(Result resultRow)} method which
  * recursively reads HBase keys and values re-constituting the
  * data graph. The assembly traversal is driven by HBase column 
  * values representing the original edges or containment structure 
@@ -76,9 +76,9 @@ import commonj.sdo.Property;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public class FederatedGraphAssembler extends FederatedAssembler
+public class DistributedGraphAssembler extends DistributedAssembler
 {
-    private static Log log = LogFactory.getLog(FederatedGraphAssembler.class);
+    private static Log log = LogFactory.getLog(DistributedGraphAssembler.class);
 		
 	/**
 	 * Constructor.
@@ -88,12 +88,12 @@ public class FederatedGraphAssembler extends FederatedAssembler
 	 * @param snapshotDate the query snapshot date which is populated
 	 * into every data object in the result data graph. 
 	 */
-	public FederatedGraphAssembler(PlasmaType rootType,
+	public DistributedGraphAssembler(PlasmaType rootType,
 			Selection selection, 
-			FederatedReader federatedReader,			
+			DistributedReader distributedReader,			
 			Timestamp snapshotDate) 
 	{
-		super(rootType, selection, federatedReader, snapshotDate);
+		super(rootType, selection, distributedReader, snapshotDate);
 	}	
 	
 	protected void assemble(PlasmaDataObject target, 
@@ -158,7 +158,7 @@ public class FederatedGraphAssembler extends FederatedAssembler
 				if (childTable == null)
 					throw new OperationException("no table found for type, " + 
 							edges[0].getType());
-				TableReader externalTableReader = federatedReader.getTableReader(childTable);
+				TableReader externalTableReader = distributedReader.getTableReader(childTable);
 				if (externalTableReader == null)
 					throw new OperationException("no table reader found for type, " + 
 							edges[0].getType());

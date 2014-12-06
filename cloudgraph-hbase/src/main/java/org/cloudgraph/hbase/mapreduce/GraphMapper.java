@@ -41,7 +41,7 @@ import org.apache.hadoop.mapreduce.JobContext;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.cloudgraph.common.service.GraphServiceException;
-import org.cloudgraph.hbase.io.FederatedWriter;
+import org.cloudgraph.hbase.io.DistributedWriter;
 import org.cloudgraph.hbase.io.TableWriter;
 import org.cloudgraph.hbase.service.GraphDispatcher;
 import org.cloudgraph.hbase.service.MutationCollector;
@@ -138,5 +138,11 @@ extends Mapper<ImmutableBytesWritable, GraphWritable, KEYOUT, VALUEOUT> implemen
 	public void commit(DataGraph graph,
 			JobContext jobContext) throws IOException {
 		this.serviceDelegate.commit(graph, jobContext);
+	}
+
+	@Override
+	public void commit(DataGraph[] graphs, JobContext jobContext)
+			throws IOException {
+		this.serviceDelegate.commit(graphs, jobContext);
 	}
 }

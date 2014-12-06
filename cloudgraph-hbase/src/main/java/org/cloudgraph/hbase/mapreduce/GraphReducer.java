@@ -56,4 +56,10 @@ extends Reducer<KEYIN, VALUEIN, KEYOUT, Writable> implements GraphMutator, Graph
 		this.serviceDelegate.commit(graph, context);
 	}
 
+	@Override
+	public void commit(DataGraph[] graphs, JobContext context)
+			throws IOException {
+		this.serviceDelegate.commit(graphs, context);
+	}
+
 }

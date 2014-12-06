@@ -19,7 +19,7 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.cassandra.filter;
+package org.cloudgraph.cassandra.cql;
 
 // java imports
 import java.util.List;
@@ -29,7 +29,6 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.service.CQLDataConverter;
 import org.cloudgraph.common.service.AliasMap;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.common.bind.DefaultValidationEventHandler;

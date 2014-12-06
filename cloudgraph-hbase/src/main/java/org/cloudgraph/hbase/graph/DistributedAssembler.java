@@ -32,7 +32,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.service.GraphServiceException;
-import org.cloudgraph.hbase.io.FederatedReader;
+import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState.Edge;
@@ -56,41 +56,41 @@ import commonj.sdo.DataObject;
  * configured as root types within any table, and yet a specific
  * row reader must be determined. 
  * 
- * @see org.cloudgraph.hbase.io.FederatedReader
+ * @see org.cloudgraph.hbase.io.DistributedReader
  * @see org.cloudgraph.hbase.io.TableReader
  * @see org.cloudgraph.hbase.io.RowReader
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public abstract class FederatedAssembler extends DefaultAssembler 
+public abstract class DistributedAssembler extends DefaultAssembler 
     implements HBaseGraphAssembler
 {
-    private static Log log = LogFactory.getLog(FederatedAssembler.class);
+    private static Log log = LogFactory.getLog(DistributedAssembler.class);
 
-	protected FederatedReader federatedReader;
+	protected DistributedReader distributedReader;
 
 	/**
 	 * Constructor. 
-	 * @param rootType the federated graph root type
+	 * @param rootType the distributed graph root type
 	 * @param selection the selection collector
-	 * @param federatedReader the federated reader
+	 * @param distributedReader the distributed reader
 	 * @param snapshotDate the query snapshot date
 	 */
-	public FederatedAssembler(PlasmaType rootType,
+	public DistributedAssembler(PlasmaType rootType,
 			Selection selection,
-			FederatedReader federatedReader,
+			DistributedReader distributedReader,
 			Timestamp snapshotDate) {
 		super(rootType, selection, 
-			federatedReader.getRootTableReader(),
+			distributedReader.getRootTableReader(),
 			snapshotDate);
-		this.federatedReader = federatedReader;
+		this.distributedReader = distributedReader;
 	}
 
 	/**
-     * Recursively re-constitutes a data graph federated across multiple
+     * Recursively re-constitutes a data graph distributed across multiple
      * HBase tables and/or rows, starting with the given HBase client result row. 
      * <p>
-     * To retrieve the graph use {@link FederatedGraphAssembler#getDataGraph()}.
+     * To retrieve the graph use {@link DistributedGraphAssembler#getDataGraph()}.
      * a map of selected SDO properties. Properties are mapped by 
      * selected types required in the result graph.
      * </p>
@@ -104,7 +104,7 @@ public abstract class FederatedAssembler extends DefaultAssembler
 		
 		RowReader rowReader = this.rootTableReader.createRowReader(
 			this.root, resultRow);
-		this.federatedReader.mapRowReader(this.root, 
+		this.distributedReader.mapRowReader(this.root, 
 				rowReader);					
     	// FIXME: are there not supposed to be instance
     	// properties on data object? Why must we
@@ -136,7 +136,7 @@ public abstract class FederatedAssembler extends DefaultAssembler
         		Long.valueOf(visitor.getDepth()));
     	
     	List<String> tables = new ArrayList<String>();
-    	for (TableReader tableReader : this.federatedReader.getTableReaders()) {
+    	for (TableReader tableReader : this.distributedReader.getTableReaders()) {
     		tables.add(tableReader.getTableName());
     	}
     	root.getValueObject().put(
@@ -181,7 +181,7 @@ public abstract class FederatedAssembler extends DefaultAssembler
 	
 	protected void assembleEdge(PlasmaDataObject target, PlasmaProperty prop,
 		Edge edge, PlasmaDataObject child, RowReader childRowReader, int level) throws IOException {
-    	this.federatedReader.mapRowReader(child, 
+    	this.distributedReader.mapRowReader(child, 
 				childRowReader);					
         
 		if (log.isDebugEnabled())
@@ -263,6 +263,6 @@ public abstract class FederatedAssembler extends DefaultAssembler
 	@Override
 	public void clear() {
 		this.root = null;
-		this.federatedReader.clear();
+		this.distributedReader.clear();
 	}	
 }

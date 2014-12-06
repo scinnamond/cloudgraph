@@ -54,11 +54,11 @@ import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
-import org.cloudgraph.hbase.graph.FederatedGraphAssembler;
-import org.cloudgraph.hbase.graph.FederatedGraphSliceAssembler;
+import org.cloudgraph.hbase.graph.DistributedGraphAssembler;
+import org.cloudgraph.hbase.graph.DistributedGraphSliceAssembler;
 import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
-import org.cloudgraph.hbase.io.FederatedGraphReader;
-import org.cloudgraph.hbase.io.FederatedReader;
+import org.cloudgraph.hbase.io.DistributedGraphReader;
+import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.mapreduce.Counters;
 import org.cloudgraph.mapreduce.GraphWritable;
@@ -253,7 +253,7 @@ public class GraphRecordRecognizer {
 				throw new GraphServiceException(e);
 			}
 
-			FederatedGraphReader graphReader = new FederatedGraphReader(type,
+			DistributedGraphReader graphReader = new DistributedGraphReader(type,
 					selectionCollector.getTypes(), marshallingContext);
 			this.rootTableReader = graphReader.getRootTableReader();
 
@@ -579,15 +579,15 @@ public class GraphRecordRecognizer {
 	}
 
 	private static HBaseGraphAssembler createGraphAssembler(PlasmaType type,
-			FederatedReader graphReader, Selection collector,
+			DistributedReader graphReader, Selection collector,
 			Timestamp snapshotDate) {
 		HBaseGraphAssembler graphAssembler = null;
 
 		if (collector.hasPredicates()) {
-			graphAssembler = new FederatedGraphSliceAssembler(type, collector,
+			graphAssembler = new DistributedGraphSliceAssembler(type, collector,
 					graphReader, snapshotDate);
 		} else {
-			graphAssembler = new FederatedGraphAssembler(type, collector,
+			graphAssembler = new DistributedGraphAssembler(type, collector,
 					graphReader, snapshotDate);
 		}
 

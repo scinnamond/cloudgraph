@@ -35,8 +35,12 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.filter.FilterAssembler;
-import org.cloudgraph.cassandra.filter.OrderingDeclarationAssembler;
+import org.cloudgraph.cassandra.cql.CQLDataConverter;
+import org.cloudgraph.cassandra.cql.CQLStatementFactory;
+import org.cloudgraph.cassandra.cql.FilterAssembler;
+import org.cloudgraph.cassandra.cql.OrderingDeclarationAssembler;
+import org.cloudgraph.cassandra.graph.ThreadPoolGraphAssembler;
+import org.cloudgraph.cassandra.graph.BlockingGraphAssembler;
 import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.query.expr.ExprPrinter;
 import org.cloudgraph.recognizer.GraphRecognizerContext;
@@ -56,6 +60,7 @@ import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
+import org.plasma.sdo.access.DataGraphAssembler;
 import org.plasma.sdo.access.MaxResultsExceededException;
 import org.plasma.sdo.access.QueryDispatcher;
 import org.plasma.sdo.access.provider.common.DataObjectHashKeyAssembler;
@@ -77,7 +82,7 @@ import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
 
 
-public class GraphQuery extends CQLSupport 
+public class GraphQuery extends CQLStatementFactory 
     implements QueryDispatcher
 {
     private static Log log = LogFactory.getLog(GraphQuery.class);
@@ -114,8 +119,27 @@ public class GraphQuery extends CQLSupport
         collector.setOnlyDeclaredProperties(false); // collect from superclasses
         List<List<PropertyPair>> queryResults = findResults(query, collector, type, con);
         
-        GraphAssembler assembler = new GraphAssembler(type, 
-            collector, snapshotDate, con);
+        KeyPairGraphAssembler assembler = null;
+        if (query.getConcurrencyType() != null) {
+	        switch (query.getConcurrencyType()) {
+	        case THREAD_POOL:
+	        	assembler = new ThreadPoolGraphAssembler(type, 
+	                    collector, snapshotDate, con);
+	            break;
+	        case FORK_JOIN:
+	        	throw new CassandraServiceException("no graph assembler implementation for concurrency type, "
+	        			+ query.getConcurrencyType());
+	        case NONE:
+	        default:
+	        	assembler = new BlockingGraphAssembler(type, 
+	                    collector, snapshotDate, con);
+	            break;
+	        }
+        }
+        else {
+        	assembler = new BlockingGraphAssembler(type, 
+                    collector, snapshotDate, con);
+        }
         
         Expr graphRecognizerRootExpr = null;
         Where where = query.getWhereClause();
@@ -176,7 +200,7 @@ public class GraphQuery extends CQLSupport
      * max is exceeded.
      */
     private PlasmaDataGraph[] assembleResults(List<List<PropertyPair>> collection, 
-            int requestMax, GraphAssembler assembler, Expr graphRecognizerRootExpr)  
+            int requestMax, KeyPairGraphAssembler assembler, Expr graphRecognizerRootExpr)  
     {
     	long before = System.currentTimeMillis();
         int unrecognizedResults = 0;
@@ -256,7 +280,7 @@ public class GraphQuery extends CQLSupport
      * @throws MaxResultsExceededException when no request maximum is given and the default max is exceeded.
      */
     private PlasmaDataGraph[] trimResults(List<List<PropertyPair>> collection, 
-            int requestMax, GraphAssembler assembler, Select select, Type type)  
+            int requestMax, KeyPairGraphAssembler assembler, Select select, Type type)  
     {
         DataObjectHashKeyAssembler hashKeyAssembler =
             new DataObjectHashKeyAssembler(select, type);

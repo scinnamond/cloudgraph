@@ -35,7 +35,7 @@ import org.cloudgraph.query.expr.EvaluationContext;
  * map. 
  * <p>
  * A sequence uniquely identifies an data graph entity within a 
- * local or federated data graph and is mapped internally
+ * local or distributed data graph and is mapped internally
  * to provide global uniqueness.   
  * </p>
  * @author Scott Cinnamond

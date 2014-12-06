@@ -58,7 +58,7 @@ import commonj.sdo.DataObject;
 import commonj.sdo.Property;
 
 /**
- * Supports both federated and non-federated graph assemblers by
+ * Supports both distributed and non-distributed graph assemblers by
  * providing default functionality.
  * @author Scott Cinnamond
  * @since 0.5.1

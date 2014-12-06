@@ -1,12 +1,58 @@
-10 May 2014 15:52:39,186 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
-10 May 2014 15:52:39,206 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
-10 May 2014 15:52:39,486 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
-10 May 2014 15:52:39,490 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
-10 May 2014 15:58:45,616 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
-10 May 2014 15:58:45,624 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
-10 May 2014 15:58:46,036 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
-10 May 2014 15:58:46,040 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
-10 May 2014 16:01:49,883 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
-10 May 2014 16:01:49,889 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
-10 May 2014 16:01:50,121 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
-10 May 2014 16:01:50,126 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+30 Nov 2014 10:19:31,185 INFO  [main] fuml.Fuml loading artifact, Plasma_SDO_Profile.mdxml
+30 Nov 2014 10:19:31,240 INFO  [main] config.FumlConfiguration initializing...
+30 Nov 2014 10:19:31,242 INFO  [main] config.FumlConfigDataBinding loading schema chain...
+30 Nov 2014 10:19:31,297 INFO  [main] config.FumlConfiguration loading configuration, fuml-config.xml
+30 Nov 2014 10:19:31,481 INFO  [main] model.InMemoryRepository initializing...
+30 Nov 2014 10:19:31,483 INFO  [main] repository.RepositoryConfigDataBinding loading schema chain...
+30 Nov 2014 10:19:31,742 INFO  [main] model.PrimitiveTypesAssembler initializing...
+30 Nov 2014 10:19:31,754 INFO  [main] model.InfrastructureAssembler initializing...
+30 Nov 2014 10:19:31,800 INFO  [main] model.SuperstructureAssembler initializing...
+30 Nov 2014 10:19:31,840 INFO  [main] model.fUML_SyntaxAssembler initializing...
+30 Nov 2014 10:19:31,846 INFO  [main] model.InMemoryRepository performing package merge...
+30 Nov 2014 10:19:31,892 INFO  [main] model.InMemoryRepository cacheing classifier attributes and operations...
+30 Nov 2014 10:19:31,921 INFO  [main] library.Library initializing...
+30 Nov 2014 10:19:32,317 INFO  [main] fuml.Fuml loading artifact, datatypes.mdxml
+30 Nov 2014 10:19:32,509 INFO  [main] fuml.Fuml loading artifact, social-graph.mdxml
+30 Nov 2014 10:19:32,647 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Edge.source
+30 Nov 2014 10:19:32,647 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Edge.target
+30 Nov 2014 10:19:32,648 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Photo.content
+30 Nov 2014 10:19:32,648 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Topic.parent
+30 Nov 2014 10:19:32,649 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/story#Story.topic
+30 Nov 2014 10:19:32,650 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/story#Blog.actor
+30 Nov 2014 10:19:32,650 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Topic.parent
+30 Nov 2014 10:19:32,712 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/story#Blog.actor
+30 Nov 2014 10:19:32,715 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/story#Story.topic
+30 Nov 2014 10:19:32,715 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Edge.source
+30 Nov 2014 10:19:32,716 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Edge.target
+30 Nov 2014 10:19:32,716 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Photo.content
+30 Nov 2014 10:19:32,719 INFO  [main] provisioning.ProvisioningModelDataBinding loading schema chain...
+30 Nov 2014 10:19:33,151 INFO  [main] cli.SDOTool generated 23 interfaces to output to directory: C:\dev-cloudgraph-0.6.2-cassandra\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Nov 2014 10:19:33,151 INFO  [main] cli.SDOTool generated 23 classes to output to directory: C:\dev-cloudgraph-0.6.2-cassandra\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Nov 2014 10:19:33,152 INFO  [main] cli.SDOTool generated 0 enumerations to output to directory: C:\dev-cloudgraph-0.6.2-cassandra\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Nov 2014 10:19:33,161 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Edge.source
+30 Nov 2014 10:19:33,162 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Edge.target
+30 Nov 2014 10:19:33,162 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Photo.content
+30 Nov 2014 10:19:33,166 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Topic.parent
+30 Nov 2014 10:19:33,167 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/story#Story.topic
+30 Nov 2014 10:19:33,168 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/story#Blog.actor
+30 Nov 2014 10:19:33,169 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Topic.parent
+30 Nov 2014 10:19:33,170 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/story#Blog.actor
+30 Nov 2014 10:19:33,174 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/story#Story.topic
+30 Nov 2014 10:19:33,175 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Edge.source
+30 Nov 2014 10:19:33,175 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Edge.target
+30 Nov 2014 10:19:33,176 WARN  [main] provisioning.ProvisioningModelAssembler no physical name found for singular property, http://cloudgraph.org/test/socialgraph/actor#Photo.content
+30 Nov 2014 10:19:33,247 INFO  [main] cli.DSLTool generated 23 classes to output to directory: C:\dev-cloudgraph-0.6.2-cassandra\cloudgraph\cloudgraph-hbase\target\generated-sources\java
+30 Nov 2014 10:19:41,516 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+30 Nov 2014 10:19:41,524 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+30 Nov 2014 10:33:42,522 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+30 Nov 2014 10:33:42,532 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+30 Nov 2014 10:33:43,002 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+30 Nov 2014 10:33:43,012 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+30 Nov 2014 10:37:12,237 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+30 Nov 2014 10:37:12,248 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+30 Nov 2014 10:37:12,765 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+30 Nov 2014 10:37:12,772 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+30 Nov 2014 10:40:27,300 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+30 Nov 2014 10:40:27,311 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected
+30 Nov 2014 10:40:27,779 INFO  [main] cli.SDOTool skipping SDO creation - no stale artifacts detected
+30 Nov 2014 10:40:27,787 INFO  [main] cli.DSLTool skipping DSL creation - no stale artifacts detected

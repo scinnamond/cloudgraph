@@ -62,12 +62,12 @@ public class GraphTableReader extends GraphTable
     private HTableInterface connection;   
     /** maps data object UUIDs strings and row key strings to row readers */
     private Map<String, RowReader> rowReaderMap = new HashMap<String, RowReader>();
-    private FederatedOperation federatedOperation;
+    private DistributedOperation distributedOperation;
     
 	public GraphTableReader(TableConfig table, 
-			FederatedOperation federatedOperation) {
+			DistributedOperation distributedOperation) {
 		super(table);
-		this.federatedOperation = federatedOperation;
+		this.distributedOperation = distributedOperation;
 	}
 	
 	/**
@@ -192,24 +192,24 @@ public class GraphTableReader extends GraphTable
 	}
 	
 	/**
-	 * Returns the federated context associated with this table
+	 * Returns the distributed context associated with this table
 	 * operation context. 
-	 * @return the federated context associated with this table
+	 * @return the distributed context associated with this table
 	 * operation context. 
 	 */
 	@Override
-	public FederatedOperation getFederatedOperation() {
-		return this.federatedOperation;
+	public DistributedOperation getFederatedOperation() {
+		return this.distributedOperation;
 	}
 	
 	/**
-	 * Sets the federated context associated with this table
+	 * Sets the distributed context associated with this table
 	 * operation context. 
-	 * @param federatedOperation the operation
+	 * @param distributedOperation the operation
 	 */
 	@Override
-	public void setFederatedOperation(FederatedOperation federatedOperation) {
-		this.federatedOperation = federatedOperation;
+	public void setFederatedOperation(DistributedOperation distributedOperation) {
+		this.distributedOperation = distributedOperation;
 	}
 	
 	/**

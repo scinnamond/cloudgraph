@@ -221,7 +221,7 @@ public class GraphRowWriter extends GraphRow
 		// --use empty get with only necessary "state" management columns
 		
 		// if entirely new graph for the given 
-		// federated or sub-graph root
+		// distributed or sub-graph root
 		if (changeSummary.isCreated(dataObject)) {
 			
 			if (tableConfig.uniqueChecks()) {
