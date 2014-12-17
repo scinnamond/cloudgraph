@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.service.AliasMap;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.query.model.Function;
 import org.plasma.query.model.OrderBy;

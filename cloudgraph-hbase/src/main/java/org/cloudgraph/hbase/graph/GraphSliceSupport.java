@@ -37,7 +37,6 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
@@ -48,6 +47,7 @@ import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableOperation;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.hbase.util.FilterUtil;
+import org.cloudgraph.query.expr.Expr;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaType;
 

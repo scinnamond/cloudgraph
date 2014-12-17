@@ -22,7 +22,7 @@
 package org.cloudgraph.hbase.filter;
 
 import org.apache.hadoop.hbase.filter.Filter;
-import org.cloudgraph.common.filter.FilterAssembler;
+import org.cloudgraph.common.ql.FilterAssembler;
 
 /**
  * Common interface for HBase row and column filter assemblers.

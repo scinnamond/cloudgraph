@@ -42,7 +42,7 @@ import org.xml.sax.SAXException;
  * @author Scott Cinnamond
  * @since 0.5.2
  */
-public class StateValidatingDataBinding {
+public class StateValidatingDataBinding implements ValidatingDataBinding {
 
     private static Log log = LogFactory.getLog(StateValidatingDataBinding.class);
     public static String FILENAME_SCHEMA_CHAIN_ROOT = "cloudgraph-state.xsd";
@@ -72,25 +72,45 @@ public class StateValidatingDataBinding {
         return FACTORIES;
     }
 
-    public String marshal(Object root) throws JAXBException {
+    /* (non-Javadoc)
+	 * @see org.cloudgraph.state.ValidatingDataBinding#marshal(java.lang.Object)
+	 */
+    @Override
+	public String marshal(Object root) throws JAXBException {
     	
         return unmarshaler.marshal(root);
     }
 
-    public void marshal(Object root, OutputStream stream) throws JAXBException {
+    /* (non-Javadoc)
+	 * @see org.cloudgraph.state.ValidatingDataBinding#marshal(java.lang.Object, java.io.OutputStream)
+	 */
+    @Override
+	public void marshal(Object root, OutputStream stream) throws JAXBException {
         unmarshaler.marshal(root, stream);
     }
     
-    public void marshal(Object root, OutputStream stream, boolean formattedOutput) throws JAXBException
+    /* (non-Javadoc)
+	 * @see org.cloudgraph.state.ValidatingDataBinding#marshal(java.lang.Object, java.io.OutputStream, boolean)
+	 */
+    @Override
+	public void marshal(Object root, OutputStream stream, boolean formattedOutput) throws JAXBException
     {
     	unmarshaler.marshal(root, stream, formattedOutput);
     }
     
-    public Object validate(String xml) throws JAXBException {
+    /* (non-Javadoc)
+	 * @see org.cloudgraph.state.ValidatingDataBinding#validate(java.lang.String)
+	 */
+    @Override
+	public Object validate(String xml) throws JAXBException {
         return unmarshaler.validate(xml);
     }
 
-    public Object validate(InputStream stream) throws JAXBException {
+    /* (non-Javadoc)
+	 * @see org.cloudgraph.state.ValidatingDataBinding#validate(java.io.InputStream)
+	 */
+    @Override
+	public Object validate(InputStream stream) throws JAXBException {
         return unmarshaler.validate(stream);
     }
 }

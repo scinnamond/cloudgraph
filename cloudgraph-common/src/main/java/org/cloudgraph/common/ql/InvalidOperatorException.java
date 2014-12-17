@@ -19,19 +19,29 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.hbase.service;
+package org.cloudgraph.common.ql;
 
-import org.cloudgraph.state.StateMarshalingContext;
+import org.cloudgraph.common.CloudGraphRuntimeException;
+import org.plasma.sdo.DataFlavor;
 
-public class ServiceContext {
-    private StateMarshalingContext marshallingContext;
-    @SuppressWarnings("unused")
-	private ServiceContext() {}
-    public ServiceContext(StateMarshalingContext marshallingContext) {
-    	this.marshallingContext = marshallingContext;
+/**
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
+public class InvalidOperatorException extends GraphFilterException
+{
+    private static final long serialVersionUID = 1L;
+    public InvalidOperatorException(String message)
+    {
+        super(message);
     }
-	public StateMarshalingContext getMarshallingContext() {
-		return marshallingContext;
-	}
-    
+    public InvalidOperatorException(Throwable t)
+    {
+        super(t);
+    }
+    public InvalidOperatorException(String operator, DataFlavor dataFlavor)
+    {
+        super("invalid operator '" + operator + "' for (property type) data flavor '"
+        		+ dataFlavor.name() + "'");
+    }
 }

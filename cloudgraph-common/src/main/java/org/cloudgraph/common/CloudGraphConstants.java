@@ -46,6 +46,18 @@ public class CloudGraphConstants {
     public static final String GRAPH_NODE_COUNT = "GraphNodeCount";
     
     /**
+	 * An SDO instance property representing the number
+	 * of threads used to assemble a data graph. 
+	 */
+    public static final String GRAPH_THREAD_COUNT = "GraphThreadCount";
+
+    /**
+	 * An SDO instance property representing the name of the thread
+	 * used to assemble a particular graph node. 
+	 */
+    public static final String GRAPH_NODE_THREAD_NAME = "GraphNodeThreadName";
+    
+    /**
 	 * An SDO instance property representing the 
 	 * depth of a data graph. 
 	 */

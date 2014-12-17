@@ -25,26 +25,27 @@ import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.cloudgraph.common.CloudGraphConstants;
+import org.cloudgraph.common.concurrent.GraphMetricVisitor;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState.Edge;
-import org.plasma.query.collector.PropertySelection;
 import org.plasma.query.collector.Selection;
-import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreDataObject;
+import org.plasma.sdo.core.CoreNode;
 
-import commonj.sdo.DataObject;
+import commonj.sdo.Property;
 
 /**
  * Supports the assembly of a directed data graph which may span multiple
@@ -90,7 +91,7 @@ public abstract class DistributedAssembler extends DefaultAssembler
      * Recursively re-constitutes a data graph distributed across multiple
      * HBase tables and/or rows, starting with the given HBase client result row. 
      * <p>
-     * To retrieve the graph use {@link DistributedGraphAssembler#getDataGraph()}.
+     * To retrieve the graph use {@link GraphAssembler#getDataGraph()}.
      * a map of selected SDO properties. Properties are mapped by 
      * selected types required in the result graph.
      * </p>
@@ -108,7 +109,7 @@ public abstract class DistributedAssembler extends DefaultAssembler
 				rowReader);					
     	// FIXME: are there not supposed to be instance
     	// properties on data object? Why must we
-    	// to into core object. 
+    	// go into core object. 
     	CoreDataObject root = (CoreDataObject)this.root;
     	root.getValueObject().put(
         	CloudGraphConstants.ROW_KEY, rowReader.getRowKey());
@@ -134,6 +135,9 @@ public abstract class DistributedAssembler extends DefaultAssembler
     	root.getValueObject().put(
         		CloudGraphConstants.GRAPH_DEPTH,
         		Long.valueOf(visitor.getDepth()));
+    	root.getValueObject().put(
+        		CloudGraphConstants.GRAPH_THREAD_COUNT,
+        		Long.valueOf(visitor.getThreadCount()));
     	
     	List<String> tables = new ArrayList<String>();
     	for (TableReader tableReader : this.distributedReader.getTableReaders()) {
@@ -143,27 +147,7 @@ public abstract class DistributedAssembler extends DefaultAssembler
         		CloudGraphConstants.GRAPH_TABLE_NAMES,
         		tables);    	
 	}
-	
-	private class GraphMetricVisitor implements PlasmaDataGraphVisitor {
 		
-		private long count = 0;
-		private long depth = 0;
-		@Override
-		public void visit(DataObject target, DataObject source,
-				String sourcePropertyName, int level) {
-			count++;
-			if (level > depth)
-				depth = level;
-			
-		}
-		public long getCount() {
-			return count;
-		}
-		public long getDepth() {
-			return depth;
-		}		
-	}
-	
 	/**
 	 * Populates the given data object target, recursively fetching
 	 * data for and linking related data objects which make up the 
@@ -211,6 +195,9 @@ public abstract class DistributedAssembler extends DefaultAssembler
 		        + edgeType.toString());
 		PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop, edge.getType());								
 		child.resetUUID(UUID.fromString(edge.getUuid()));		
+		((CoreNode)child).getValueObject().put(
+        		CloudGraphConstants.GRAPH_NODE_THREAD_NAME,
+        		Thread.currentThread().getName());
 		return child;		
 	}
 	
@@ -235,6 +222,9 @@ public abstract class DistributedAssembler extends DefaultAssembler
 		        + edgeType.toString());
 		PlasmaDataObject child = (PlasmaDataObject)target.createDataObject(prop, edge.getType());
 		child.resetUUID(rootUuid);		
+		((CoreNode)child).getValueObject().put(
+        		CloudGraphConstants.GRAPH_NODE_THREAD_NAME,
+        		Thread.currentThread().getName());
 		return child;		
 	}
 	
@@ -255,6 +245,30 @@ public abstract class DistributedAssembler extends DefaultAssembler
 		else {
 			return false;
 		}
+	}
+	
+	protected Set<Property> getProperties(PlasmaDataObject target, PlasmaDataObject source,
+			PlasmaProperty sourceProperty, int level)
+	{
+		Set<Property> props;
+		if (sourceProperty != null) {
+			//props = this.selection.getInheritedProperties(target.getType(), sourceProperty, level);
+			props = this.selection.getInheritedProperties(target.getType(), level);
+			if (props.size() == 0) {
+		        if (log.isDebugEnabled())
+		        	log.debug("no properties for " + target.toString() + " at level: " + level 
+		        		+ " for source edge, " + sourceProperty.toString() + " - aborting traversal");
+			}
+		}
+		else {
+			props = this.selection.getInheritedProperties(target.getType(), level);
+			if (props.size() == 0) {
+		        if (log.isDebugEnabled())
+		        	log.debug("no properties for " + target.toString() + " at level: " + level 
+		        		+ " - aborting traversal");
+			}
+		}
+		return props;
 	}
 	
 	/**

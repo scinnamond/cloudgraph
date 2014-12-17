@@ -21,7 +21,7 @@
  */
 package org.cloudgraph.hbase.io;
 
-import org.cloudgraph.state.StateMarshallingContext;
+import org.cloudgraph.state.StateMarshalingContext;
 
 
 /**
@@ -57,5 +57,5 @@ public interface DistributedOperation {
      * Returns the marshalling context for this operation.
      * @return the marshalling context for this operation
      */
-    public StateMarshallingContext getMarshallingContext();
+    public StateMarshalingContext getMarshallingContext();
 }

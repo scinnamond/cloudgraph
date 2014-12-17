@@ -31,7 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.state.StateMarshallingContext;
+import org.cloudgraph.state.StateMarshalingContext;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataGraph;
@@ -69,14 +69,14 @@ public class DistributedGraphWriter extends WriterSupport
 	private Map<String, TableWriter> tableWriterMap = new HashMap<String, TableWriter>();
 	/** maps table writers to graph-root types */
 	private Map<TableWriter, List<Type>> tableWriterTypeMap = new HashMap<TableWriter, List<Type>>();
-	private StateMarshallingContext marshallingContext;
+	private StateMarshalingContext marshallingContext;
 	
 	@SuppressWarnings("unused")
 	private DistributedGraphWriter() {}
 	
 	public DistributedGraphWriter(DataGraph dataGraph,
 			TableWriterCollector collector,
-			StateMarshallingContext marshallingContext) throws IOException {
+			StateMarshalingContext marshallingContext) throws IOException {
 		this.marshallingContext = marshallingContext;
 		this.rootWriter = collector.getRootTableWriter();
 		for (TableWriter tableWriter : collector.getTableWriters()) {
@@ -276,7 +276,7 @@ public class DistributedGraphWriter extends WriterSupport
 	}
 
 	@Override
-	public StateMarshallingContext getMarshallingContext() {
+	public StateMarshalingContext getMarshallingContext() {
 		return this.marshallingContext;
 	}
 }

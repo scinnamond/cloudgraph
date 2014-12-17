@@ -39,8 +39,8 @@ import org.cloudgraph.cassandra.cql.CQLDataConverter;
 import org.cloudgraph.cassandra.cql.CQLStatementFactory;
 import org.cloudgraph.cassandra.cql.FilterAssembler;
 import org.cloudgraph.cassandra.cql.OrderingDeclarationAssembler;
-import org.cloudgraph.cassandra.graph.ThreadPoolGraphAssembler;
-import org.cloudgraph.cassandra.graph.BlockingGraphAssembler;
+import org.cloudgraph.cassandra.graph.GraphAssembler;
+import org.cloudgraph.cassandra.graph.ParallelGraphAssembler;
 import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.query.expr.ExprPrinter;
 import org.cloudgraph.recognizer.GraphRecognizerContext;
@@ -60,7 +60,6 @@ import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.DataAccessException;
-import org.plasma.sdo.access.DataGraphAssembler;
 import org.plasma.sdo.access.MaxResultsExceededException;
 import org.plasma.sdo.access.QueryDispatcher;
 import org.plasma.sdo.access.provider.common.DataObjectHashKeyAssembler;
@@ -75,8 +74,6 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
-
-import commonj.sdo.DataGraph;
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
@@ -86,13 +83,7 @@ public class GraphQuery extends CQLStatementFactory
     implements QueryDispatcher
 {
     private static Log log = LogFactory.getLog(GraphQuery.class);
-    /* The rownum alias used for pagination. Use upper case as we screen this column from final results and e.g. Oracle
-     * returns it as upper case in the results-set metadata.
-     */
-    private static final String ROWNUM_ALIAS = "RNMX";  
-    /* The alias for intermediate results table */
-    private static final String PAGE_ALIAS = "TX";
-    
+   
     private Session con;
 
     @SuppressWarnings("unused")
@@ -123,7 +114,7 @@ public class GraphQuery extends CQLStatementFactory
         if (query.getConcurrencyType() != null) {
 	        switch (query.getConcurrencyType()) {
 	        case THREAD_POOL:
-	        	assembler = new ThreadPoolGraphAssembler(type, 
+	        	assembler = new ParallelGraphAssembler(type, 
 	                    collector, snapshotDate, con);
 	            break;
 	        case FORK_JOIN:
@@ -131,13 +122,13 @@ public class GraphQuery extends CQLStatementFactory
 	        			+ query.getConcurrencyType());
 	        case NONE:
 	        default:
-	        	assembler = new BlockingGraphAssembler(type, 
+	        	assembler = new GraphAssembler(type, 
 	                    collector, snapshotDate, con);
 	            break;
 	        }
         }
         else {
-        	assembler = new BlockingGraphAssembler(type, 
+        	assembler = new GraphAssembler(type, 
                     collector, snapshotDate, con);
         }
         

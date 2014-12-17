@@ -49,7 +49,7 @@ import org.cloudgraph.hbase.service.ServiceContext;
 import org.cloudgraph.mapreduce.GraphMutator;
 import org.cloudgraph.mapreduce.GraphWritable;
 import org.cloudgraph.state.StateMarshallingContext;
-import org.cloudgraph.state.StatelNonValidatinglDataBinding;
+import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.sdo.core.SnapshotMap;
 import org.xml.sax.SAXException;
 

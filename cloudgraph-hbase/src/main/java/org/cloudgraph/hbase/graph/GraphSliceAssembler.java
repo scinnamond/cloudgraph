@@ -34,48 +34,33 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.query.expr.Expr;
-import org.cloudgraph.query.expr.ExprPrinter;
-import org.cloudgraph.recognizer.GraphRecognizerContext;
-import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
-import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
-import org.cloudgraph.hbase.io.TableOperation;
 import org.cloudgraph.hbase.io.TableReader;
-import org.cloudgraph.hbase.scan.PartialRowKeyScanAssembler;
-import org.cloudgraph.hbase.scan.ScanContext;
-import org.cloudgraph.hbase.scan.ScanLiteralFactory;
-import org.cloudgraph.hbase.scan.ScanLiterals;
-import org.cloudgraph.hbase.util.FilterUtil;
+import org.cloudgraph.query.expr.Expr;
+import org.cloudgraph.query.expr.ExprPrinter;
+import org.cloudgraph.recognizer.GraphRecognizerContext;
+import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
-import org.plasma.query.collector.PropertySelection;
 import org.plasma.query.collector.Selection;
 import org.plasma.query.collector.SelectionCollector;
-import org.plasma.query.model.RelationalOperator;
-import org.plasma.query.model.RelationalOperatorValues;
 import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
-import org.plasma.sdo.core.CoreNode;
 import org.plasma.sdo.helper.PlasmaXMLHelper;
 import org.plasma.sdo.xml.DefaultOptions;
 
@@ -88,7 +73,7 @@ import commonj.sdo.helper.XMLDocument;
  * a given selection map of SDO properties and associated predicates.
  * <p>
  * The assembly is triggered by calling the 
- * {@link DistributedGraphSliceAssembler#assemble(Result resultRow)} method which
+ * {@link GraphSliceAssembler#assemble(Result resultRow)} method which
  * recursively reads HBase keys and values incrementally re-constituting the
  * data graph. The assembly traversal is driven by HBase column 
  * values representing the original edges or containment structure 
@@ -111,14 +96,14 @@ import commonj.sdo.helper.XMLDocument;
  * @since 0.5.1
  * 
  */
-public class DistributedGraphSliceAssembler extends DistributedAssembler {
+public class GraphSliceAssembler extends DistributedAssembler {
 
-    private static Log log = LogFactory.getLog(DistributedGraphSliceAssembler.class);
+    private static Log log = LogFactory.getLog(GraphSliceAssembler.class);
 	private int scanCount;
 	private GraphSliceSupport sliceSupport = new GraphSliceSupport();
 	private Charset charset;
 
-	public DistributedGraphSliceAssembler(PlasmaType rootType,
+	public GraphSliceAssembler(PlasmaType rootType,
 			Selection selection,
 			DistributedReader distributedReader, 
 			Timestamp snapshotDate) {
@@ -131,26 +116,9 @@ public class DistributedGraphSliceAssembler extends DistributedAssembler {
 			PlasmaDataObject source, PlasmaProperty sourceProperty, 
 			RowReader rowReader, int level) throws IOException
     {		 
-		Set<Property> props = null;
-		if (sourceProperty != null) {
-			//props = this.selection.getInheritedProperties(target.getType(), sourceProperty, level);
-			props = this.selection.getInheritedProperties(target.getType(), level);
-			if (props.size() == 0) {
-		        if (log.isDebugEnabled())
-		        	log.debug("no properties for " + target.toString() + " at level: " + level 
-		        		+ " for source edge, " + sourceProperty.toString() + " - aborting traversal");
-				return;
-			}
-		}
-		else {
-			props = this.selection.getInheritedProperties(target.getType(), level);
-			if (props.size() == 0) {
-		        if (log.isDebugEnabled())
-		        	log.debug("no properties for " + target.toString() + " at level: " + level 
-		        		+ " - aborting traversal");
-				return;
-			}
-		}
+		Set<Property> props = this.getProperties(target, source, sourceProperty, level);
+		if (props.size() == 0) 
+			return;
         if (log.isDebugEnabled())
 			log.debug("assembling("+level+"): " + target.toString() + ": " + props.toString());
 		
@@ -348,7 +316,7 @@ public class DistributedGraphSliceAssembler extends DistributedAssembler {
         SelectionCollector selectionCollector = new SelectionCollector(
                where, contextType);
 
-        HBaseGraphAssembler graphAssembler = new DistributedGraphAssembler(contextType,
+        HBaseGraphAssembler graphAssembler = new GraphAssembler(contextType,
         		selectionCollector, (DistributedReader)tableReader.getFederatedOperation(), 
        			snapshotDate);
    	

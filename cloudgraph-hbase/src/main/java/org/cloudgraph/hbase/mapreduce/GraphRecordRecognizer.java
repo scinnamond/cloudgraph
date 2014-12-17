@@ -54,8 +54,8 @@ import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
-import org.cloudgraph.hbase.graph.DistributedGraphAssembler;
-import org.cloudgraph.hbase.graph.DistributedGraphSliceAssembler;
+import org.cloudgraph.hbase.graph.GraphAssembler;
+import org.cloudgraph.hbase.graph.GraphSliceAssembler;
 import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
 import org.cloudgraph.hbase.io.DistributedGraphReader;
 import org.cloudgraph.hbase.io.DistributedReader;
@@ -63,8 +63,9 @@ import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.mapreduce.Counters;
 import org.cloudgraph.mapreduce.GraphWritable;
 import org.cloudgraph.state.GraphState;
+import org.cloudgraph.state.StateMarshalingContext;
 import org.cloudgraph.state.StateMarshallingContext;
-import org.cloudgraph.state.StatelNonValidatinglDataBinding;
+import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.Selection;
@@ -243,10 +244,10 @@ public class GraphRecordRecognizer {
 			for (Type t : selectionCollector.getTypes())
 				collectRowKeyProperties(selectionCollector, (PlasmaType) t);
 
-			StateMarshallingContext marshallingContext = null;
+			StateMarshalingContext marshallingContext = null;
 			try {
 				marshallingContext = new StateMarshallingContext(
-						new StatelNonValidatinglDataBinding());
+						new StateNonValidatingDataBinding());
 			} catch (JAXBException e) {
 				throw new GraphServiceException(e);
 			} catch (SAXException e) {
@@ -584,10 +585,10 @@ public class GraphRecordRecognizer {
 		HBaseGraphAssembler graphAssembler = null;
 
 		if (collector.hasPredicates()) {
-			graphAssembler = new DistributedGraphSliceAssembler(type, collector,
+			graphAssembler = new GraphSliceAssembler(type, collector,
 					graphReader, snapshotDate);
 		} else {
-			graphAssembler = new DistributedGraphAssembler(type, collector,
+			graphAssembler = new GraphAssembler(type, collector,
 					graphReader, snapshotDate);
 		}
 

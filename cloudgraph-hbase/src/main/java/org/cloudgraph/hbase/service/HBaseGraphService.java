@@ -30,11 +30,17 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.pool2.ObjectPool;
+import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.cloudgraph.common.service.GraphServiceException;
-import org.cloudgraph.state.StateMarshallingContext;
-import org.cloudgraph.state.StatelNonValidatinglDataBinding;
+import org.cloudgraph.state.ConcurrentNonValidatingDataBinding;
+import org.cloudgraph.state.PooledStateMarshallingContext;
+import org.cloudgraph.state.SimpleStateMarshallingContext;
+import org.cloudgraph.state.StateDataBindingFactory;
+import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
+import org.plasma.query.model.ConcurrencyTypeValues;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.QueryValidator;
@@ -78,14 +84,16 @@ public class HBaseGraphService implements PlasmaDataAccessService {
     
     public HBaseGraphService() {
     	try {
-			StateMarshallingContext marshallingContext = new StateMarshallingContext(
-					new StatelNonValidatinglDataBinding());
-	    	this.context = new ServiceContext(marshallingContext);
-		} catch (JAXBException e) {
+    		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
+    		config.setMaxTotal(100);
+    		config.setMinIdle(100);
+	    	this.context = new ServiceContext(new PooledStateMarshallingContext(
+	    			config, new StateDataBindingFactory()));
+	    	//this.context = new ServiceContext(new SimpleStateMarshallingContext(
+			//		new ConcurrentNonValidatingDataBinding()));
+		} catch (Exception e) {
 			throw new GraphServiceException(e);
-		} catch (SAXException e) {
-			throw new GraphServiceException(e);
-		}    	
+		}   	
     }
  
     public void initialize() {}
@@ -119,6 +127,21 @@ public class HBaseGraphService implements PlasmaDataAccessService {
             log(query);
         }
         GraphQuery dispatcher = new GraphQuery(this.context);
+        ConcurrencyTypeValues concurrencyType = query.getConcurrencyType();
+        if (concurrencyType == null)
+        	concurrencyType = ConcurrencyTypeValues.NONE;        	
+        switch (concurrencyType) {
+        case THREAD_POOL:
+        	dispatcher = new GraphQuery(this.context);
+            break;
+        case FORK_JOIN:
+        	throw new GraphServiceException("no graph assembler implementation for concurrency type, "
+        			+ concurrencyType);
+        case NONE:
+        default:
+            dispatcher = new GraphQuery(this.context);
+            break;
+        }
         Timestamp snapshotDate = new Timestamp((new Date()).getTime());
         return dispatcher.find(query, snapshotDate);
     }

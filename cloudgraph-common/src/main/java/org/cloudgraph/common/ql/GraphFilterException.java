@@ -19,19 +19,23 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.hbase.service;
+package org.cloudgraph.common.ql;
 
-import org.cloudgraph.state.StateMarshalingContext;
+import org.cloudgraph.common.CloudGraphRuntimeException;
 
-public class ServiceContext {
-    private StateMarshalingContext marshallingContext;
-    @SuppressWarnings("unused")
-	private ServiceContext() {}
-    public ServiceContext(StateMarshalingContext marshallingContext) {
-    	this.marshallingContext = marshallingContext;
+/**
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
+public class GraphFilterException extends CloudGraphRuntimeException
+{
+    private static final long serialVersionUID = 1L;
+    public GraphFilterException(String message)
+    {
+        super(message);
     }
-	public StateMarshalingContext getMarshallingContext() {
-		return marshallingContext;
-	}
-    
+    public GraphFilterException(Throwable t)
+    {
+        super(t);
+    }
 }

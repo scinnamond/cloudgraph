@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.state.StateMarshallingContext;
+import org.cloudgraph.state.StateMarshalingContext;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataObject;
@@ -75,13 +75,13 @@ public class DistributedGraphReader implements DistributedReader {
 	// maps data objects to row readers
 	private Map<DataObject, RowReader> rowReaderMap = new HashMap<DataObject, RowReader>();
 	
-	private StateMarshallingContext marshallingContext;
+	private StateMarshalingContext marshallingContext;
 	
 	@SuppressWarnings("unused")
 	private DistributedGraphReader() {}
 	
 	public DistributedGraphReader(Type rootType, List<Type> types,
-			StateMarshallingContext marshallingContext) {
+			StateMarshalingContext marshallingContext) {
 	    this.marshallingContext = marshallingContext;
 		PlasmaType root = (PlasmaType)rootType;
 	    
@@ -281,7 +281,7 @@ public class DistributedGraphReader implements DistributedReader {
     }
 
 	@Override
-	public StateMarshallingContext getMarshallingContext() {
+	public StateMarshalingContext getMarshallingContext() {
 		return this.marshallingContext;
 	}
 }

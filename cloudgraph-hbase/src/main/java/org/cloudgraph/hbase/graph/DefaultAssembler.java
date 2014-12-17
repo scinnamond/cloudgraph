@@ -24,7 +24,6 @@ package org.cloudgraph.hbase.graph;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -36,6 +35,7 @@ import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
@@ -44,7 +44,6 @@ import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.hbase.service.HBaseDataConverter;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.cloudgraph.state.GraphState;
-import org.plasma.query.collector.PropertySelection;
 import org.plasma.query.collector.Selection;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
@@ -110,6 +109,9 @@ public abstract class DefaultAssembler {
 		// add concurrency fields
         if (snapshotDate != null)
         	rootNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
+    	rootNode.getValueObject().put(
+        		CloudGraphConstants.GRAPH_NODE_THREAD_NAME,
+        		Thread.currentThread().getName());
 
         // need to reconstruct the original graph, so need original UUID
 		byte[] rootUuid = resultRow.getValue(Bytes.toBytes(

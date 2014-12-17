@@ -129,7 +129,7 @@ public class GraphState implements State {
     
     private StringBuilder buf = new StringBuilder();
    
-    private StateMarshallingContext context;
+    private StateMarshalingContext context;
     
     /** Maps UUID strings to UUID state structures */
     private Map<String, UUID> uuidMap = new HashMap<String, UUID>();
@@ -152,23 +152,27 @@ public class GraphState implements State {
     /** Maps sequence identifiers to types */
     private Map<Integer, TypeEntry> typeIdMap = new HashMap<Integer, TypeEntry>();
     
-    public GraphState(StateMarshallingContext context) {    	
+    public GraphState(StateMarshalingContext context) {    	
     	this.context = context;
     }    
      
-    public GraphState(String state, StateMarshallingContext context) {
+    public GraphState(String state, StateMarshalingContext context) {
     	 
     	this.context = context;
     	
     	if (log.isDebugEnabled())
     		log.debug("unmarshal raw: " + state);
     	StateModel model = null;
+		NonValidatingDataBinding binding = this.context.getBinding();
 		try {
-			model = (StateModel)this.context.getBinding()
-	    			.unmarshal(state);
+			model = (StateModel)binding.unmarshal(state);
 		} catch (JAXBException e) {
 			throw new StateException(e);
 		} 
+		finally {
+			if (binding != null)
+			    this.context.returnBinding(binding);
+		}
 		
 		for (URI uri : model.getURIS()) {
 			this.uriMap.put(uri.getUri(), uri);
@@ -765,6 +769,7 @@ public class GraphState implements State {
     }
     
     public String marshal(boolean formatted) {
+    	NonValidatingDataBinding binding = null;
     	String xml = "";
 		try {
 			StateModel model = new StateModel();
@@ -797,10 +802,15 @@ public class GraphState implements State {
 	    	for (TypeEntry entry : this.typeNameMap.values())
 	    		entry.setUri(null);
 	    	
-			xml = this.context.getBinding().marshal(model); // no formatting
+			binding = this.context.getBinding();
+			xml = binding.marshal(model); // no formatting
 		} catch (JAXBException e1) {
 			throw new StateException(e1);
 		} 
+		finally {
+			if (binding != null)
+			    this.context.returnBinding(binding);			
+		}
 
     	return xml;
     }

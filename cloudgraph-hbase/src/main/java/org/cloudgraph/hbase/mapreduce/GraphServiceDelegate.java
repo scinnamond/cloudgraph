@@ -22,8 +22,9 @@ import org.cloudgraph.hbase.service.ServiceContext;
 import org.cloudgraph.mapreduce.GraphAccessor;
 import org.cloudgraph.mapreduce.GraphMutator;
 import org.cloudgraph.mapreduce.GraphService;
+import org.cloudgraph.state.StateMarshalingContext;
 import org.cloudgraph.state.StateMarshallingContext;
-import org.cloudgraph.state.StatelNonValidatinglDataBinding;
+import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.query.Query;
 import org.plasma.sdo.PlasmaNode;
 import org.plasma.sdo.core.SnapshotMap;
@@ -38,8 +39,8 @@ public class GraphServiceDelegate implements GraphService {
 	
 	public GraphServiceDelegate() {
     	try {
-			StateMarshallingContext marshallingContext = new StateMarshallingContext(
-					new StatelNonValidatinglDataBinding());
+			StateMarshalingContext marshallingContext = new StateMarshallingContext(
+					new StateNonValidatingDataBinding());
 	    	this.context = new ServiceContext(marshallingContext);
 		} catch (JAXBException e) {
 			throw new GraphServiceException(e);

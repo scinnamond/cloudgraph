@@ -22,14 +22,14 @@
 package org.cloudgraph.hbase.graph;
 
 import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.config.DataGraphConfig;
+import org.cloudgraph.hbase.expr.PathPredicateBinaryExprTreeAssembler;
 import org.cloudgraph.query.expr.DefaultLogicalBinaryExpr;
 import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.query.expr.ExprAssembler;
 import org.cloudgraph.query.expr.LogicalBinaryExpr;
 import org.cloudgraph.query.expr.RelationalBinaryExpr;
 import org.cloudgraph.query.expr.WildcardBinaryExpr;
-import org.cloudgraph.config.DataGraphConfig;
-import org.cloudgraph.hbase.expr.PathPredicateBinaryExprTreeAssembler;
 import org.plasma.query.model.Literal;
 import org.plasma.query.model.LogicalOperator;
 import org.plasma.query.model.Property;

@@ -12,20 +12,13 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.cql.CQLStatementExecutor;
-import org.cloudgraph.cassandra.cql.CQLStatementFactory;
-import org.cloudgraph.cassandra.cql.StatementExecutor;
-import org.cloudgraph.cassandra.cql.StatementFactory;
-import org.cloudgraph.cassandra.service.KeyPairGraphAssembler;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.query.collector.SelectionCollector;
 import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataGraphVisitor;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.access.DataAccessException;
 import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.core.CoreNode;
@@ -37,30 +30,25 @@ import com.datastax.driver.core.Session;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
-import commonj.sdo.Type;
 
-public abstract class DefaultAssembler implements KeyPairGraphAssembler {
+public abstract class DefaultAssembler extends AssemblerSupport {
 	private static Log log = LogFactory.getLog(DefaultAssembler.class);
-	protected static Set<Property> EMPTY_PROPERTY_SET = new HashSet<Property>();
-	protected static List<DataObject> EMPTY_DATA_OBJECT_LIST = new ArrayList<DataObject>();
+	public static final Set<Property> EMPTY_PROPERTY_SET = new HashSet<Property>();
+	public static final List<DataObject> EMPTY_DATA_OBJECT_LIST = new ArrayList<DataObject>();
 	protected PlasmaType rootType;
 	protected PlasmaDataObject root;
-	protected SelectionCollector collector;
 	protected Timestamp snapshotDate;
 	protected Session con;
-	protected Map<Integer, PlasmaDataObject> dataObjectMap = new HashMap<Integer, PlasmaDataObject>();
+	protected Map<Integer, PlasmaDataObject> dataObjectMap;
 	protected Comparator<PropertyPair> nameComparator;
-	protected StatementFactory statementFactory;
-	protected StatementExecutor statementExecutor;
 
 	public DefaultAssembler(PlasmaType rootType, SelectionCollector collector,
-			Timestamp snapshotDate, Session con) {
+			Map<Integer, PlasmaDataObject> dataObjectMap, Timestamp snapshotDate, Session con) {
+		super(collector, con);
 		this.rootType = rootType;
-		this.collector = collector;
+		this.dataObjectMap = dataObjectMap;
 		this.snapshotDate = snapshotDate;
 		this.con = con;
-		this.statementFactory = new CQLStatementFactory();
-		this.statementExecutor = new CQLStatementExecutor(con);
 
 		this.nameComparator = new Comparator<PropertyPair>() {
 			@Override
@@ -68,7 +56,6 @@ public abstract class DefaultAssembler implements KeyPairGraphAssembler {
 				return o1.getProp().getName().compareTo(o2.getProp().getName());
 			}
 		};
-
 	}
 	
 	/**
@@ -90,10 +77,10 @@ public abstract class DefaultAssembler implements KeyPairGraphAssembler {
 	 * 
 	 * @see DataGraphAssembler.getDataGraph()
 	 */
-	public void assemble(List<PropertyPair> results)  {
-		
-    	long before = System.currentTimeMillis();
-
+	public abstract void assemble(List<PropertyPair> results);
+	
+	protected DataGraph initRoot(List<PropertyPair> results)
+	{
     	DataGraph dataGraph = PlasmaDataFactory.INSTANCE.createDataGraph();
     	this.root = (PlasmaDataObject)dataGraph.createRootObject(this.rootType);		
 		if (log.isDebugEnabled())
@@ -103,7 +90,11 @@ public abstract class DefaultAssembler implements KeyPairGraphAssembler {
 		CoreNode rootNode = (CoreNode)this.root;
         // add concurrency fields
         if (snapshotDate != null)
-        	rootNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, snapshotDate);
+        	rootNode.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP, 
+        			snapshotDate);
+    	rootNode.getValueObject().put(
+        		CloudGraphConstants.GRAPH_NODE_THREAD_NAME,
+        		Thread.currentThread().getName());
 		// set data properties
 		for (PropertyPair pair : results) {
 			if (pair.getProp().getType().isDataType()) {
@@ -119,119 +110,43 @@ public abstract class DefaultAssembler implements KeyPairGraphAssembler {
         	log.debug("mapping root " + key + "->" + this.root);
         this.dataObjectMap.put(key, this.root);  
 		
-		// singular reference props
-		for (PropertyPair pair : results) {
-			if (pair.getProp().isMany() || pair.getProp().getType().isDataType())
-			    continue;
-			List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
-			PlasmaProperty supplier = pair.getProp().getKeySupplier();
-			if (supplier != null) {
-				PropertyPair childPair = new PropertyPair(supplier,
-		    			pair.getValue());
-				childPair.setValueProp(supplier);
-		    	childKeyProps.add(childPair);
-			}
-			else {
-				List<Property> childPkProps = ((PlasmaType)pair.getProp().getType()).findProperties(KeyType.primary);
-			    if (childPkProps.size() == 1) {
-			    	childKeyProps.add(
-			    		new PropertyPair((PlasmaProperty)childPkProps.get(0),
-			    			pair.getValue()));
-			    }
-			    else
-				    throwPriKeyError(childPkProps, 
-				    		pair.getProp().getType(), pair.getProp());
-			}
-		    
-		    assemble((PlasmaType)pair.getProp().getType(), 
-				(PlasmaDataObject)this.root, pair.getProp(),
-				childKeyProps, 1);
-		    
-		}
-		
-		// multi reference props (not found in results)
-		Set<Property> props = this.collector.getProperties(this.rootType);
-		for (Property p : props) {
-			PlasmaProperty prop = (PlasmaProperty)p;
-			if (prop.isMany() && !prop.getType().isDataType()) {
-		    	PlasmaProperty opposite = (PlasmaProperty)prop.getOpposite();
-		    	if (opposite == null)
-			    	throw new DataAccessException("no opposite property found"
-				        + " - cannot map from many property, " + prop.toString());			    				    	
-				List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
-				List<Property> rootPkProps = ((PlasmaType)root.getType()).findProperties(KeyType.primary);
-			    if (rootPkProps.size() == 1) {
-			    	PlasmaProperty rootProp = (PlasmaProperty)rootPkProps.get(0);
-			    	Object value = root.get(rootProp);
-			    	if (value != null) {
-			    		PropertyPair pair = new PropertyPair(opposite, value);
-			    		pair.setValueProp(rootProp);
-			    	    childKeyProps.add(pair);
-			    	}
-			    	else
-			    		throw new GraphServiceException("no value found for key property, "  
-			    				+ rootProp.toString());
-			    }
-			    else
-				    throwPriKeyError(rootPkProps, 
-				    		root.getType(), prop);
-			    
-			    assemble((PlasmaType)prop.getType(), 
-						(PlasmaDataObject)this.root, prop,
-						childKeyProps, 1);
-			}
-		}
-		
-    	long after = System.currentTimeMillis();
-    	
-    	rootNode.getValueObject().put(
-    		CloudGraphConstants.GRAPH_ASSEMBLY_TIME,
-    		Long.valueOf(after - before));    	
-    	
-    	GraphMetricVisitor visitor = new GraphMetricVisitor();
-    	this.root.accept(visitor);
-    	
-    	rootNode.getValueObject().put(
-        		CloudGraphConstants.GRAPH_NODE_COUNT,
-        		Long.valueOf(visitor.getCount()));
-    	rootNode.getValueObject().put(
-        		CloudGraphConstants.GRAPH_DEPTH,
-        		Long.valueOf(visitor.getDepth()));
+        return dataGraph;
 	}
 
-	/**
-	 * If the given property is a datatype property, returns a property pair
-	 * with the given property set as the pair value property, otherwise
-	 * traverses the data object graph via opposite property links until a
-	 * datatype property is found, then returns the property value pair with the
-	 * traversal end point property set as the pair value property.
-	 * 
-	 * @param dataObject
-	 *            the data object
-	 * @param prop
-	 *            the property
-	 * @param opposite
-	 *            the opposite property
-	 * @return the property value pair
-	 */
-	protected PropertyPair findNextKeyValue(PlasmaDataObject dataObject,
-			PlasmaProperty prop, PlasmaProperty opposite) {
-		PlasmaDataObject valueTarget = dataObject;
-		PlasmaProperty valueProp = prop;
-
-		Object value = valueTarget.get(valueProp.getName());
-		while (!valueProp.getType().isDataType()) {
-			valueTarget = (PlasmaDataObject) value;
-			valueProp = this.statementFactory.getOppositePriKeyProperty(valueProp);
-			value = valueTarget.get(valueProp.getName()); // FIXME use prop API
-		}
-		if (value != null) {
-			PropertyPair pair = new PropertyPair(opposite, value);
-			pair.setValueProp(valueProp);
-			return pair;
-		} else
-			throw new GraphServiceException("no value found for key property, "
-					+ valueProp.toString());
+	protected Map<PlasmaDataObject, List<PropertyPair>> collectResults(PlasmaType targetType, PlasmaDataObject source,
+			PlasmaProperty sourceProperty, List<List<PropertyPair>> result)
+	{
+		// first create (or link existing) data objects 
+		// "filling out" the containment hierarchy at this traversal level
+		// BEFORE recursing, as we may "cancel" out an object
+		// at the current level if it is first encountered
+		// within the recursion.
+		Map<PlasmaDataObject, List<PropertyPair>> resultMap = new HashMap<PlasmaDataObject, List<PropertyPair>>();
+		for (List<PropertyPair> row : result) {
+			
+			PlasmaDataObject target = this.findDataObject(targetType, row);
+			// if no existing data-object in graph
+			if (target == null) {
+			    target = this.createDataObject(row, source, 
+					sourceProperty);
+			    resultMap.put(target, row); // add only new object for later traversal
+			}
+			else { 
+				this.link(target, source, sourceProperty);
+				continue; // don't map it for later traversal
+				// Assume we traverse no farther given no traversal
+				// direction or containment info. We only know that we 
+				// encountered an existing node. Need more path specific 
+				// info including containment and traversal direction to construct
+				// a directed graph here. 
+				// Since the current selection collector maps any and all
+				// properties selected to a type, for each type/data-object
+				// we will, at this point, have gotten all the properties we expect anyway.
+				// So we create a link from the source to the existing DO, but
+				// traverse no further. 
+			}   
+		}	
+		return resultMap;
 	}
 
 	/**
@@ -261,6 +176,9 @@ public abstract class DefaultAssembler implements KeyPairGraphAssembler {
 		if (snapshotDate != null)
 			node.setValue(CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP,
 					snapshotDate);
+		node.getValueObject().put(
+        		CloudGraphConstants.GRAPH_NODE_THREAD_NAME,
+        		Thread.currentThread().getName());
 
 		// set data properties bypassing SDO "setter" API
 		// to avoid triggering read-only property error
@@ -482,30 +400,6 @@ public abstract class DefaultAssembler implements KeyPairGraphAssembler {
 		}
 	}
 
-	protected void throwPriKeyError(List<Property> rootPkProps, Type type,
-			Property prop) {
-		if (prop.isMany())
-			if (rootPkProps.size() == 0)
-				throw new DataAccessException("no pri-keys found for "
-						+ type.getURI() + "#" + type.getName()
-						+ " - cannot map from many property, " + prop.getType()
-						+ "." + prop.getName());
-			else
-				throw new DataAccessException("multiple pri-keys found for "
-						+ type.getURI() + "#" + type.getName()
-						+ " - cannot map from many property, " + prop.getType()
-						+ "." + prop.getName());
-		else if (rootPkProps.size() == 0)
-			throw new DataAccessException("no pri-keys found for "
-					+ type.getURI() + "#" + type.getName()
-					+ " - cannot map from singular property, " + prop.getType()
-					+ "." + prop.getName());
-		else
-			throw new DataAccessException("multiple pri-keys found for "
-					+ type.getURI() + "#" + type.getName()
-					+ " - cannot map from singular property, " + prop.getType()
-					+ "." + prop.getName());
-	}
 
 	public PlasmaDataGraph getDataGraph() {
 		return (PlasmaDataGraph) this.root.getDataGraph();
@@ -514,29 +408,6 @@ public abstract class DefaultAssembler implements KeyPairGraphAssembler {
 	public void clear() {
 		this.root = null;
 		this.dataObjectMap.clear();
-	}
-
-	protected class GraphMetricVisitor implements PlasmaDataGraphVisitor {
-
-		private long count = 0;
-		private long depth = 0;
-
-		@Override
-		public void visit(DataObject target, DataObject source,
-				String sourcePropertyName, int level) {
-			count++;
-			if (level > depth)
-				depth = level;
-
-		}
-
-		public long getCount() {
-			return count;
-		}
-
-		public long getDepth() {
-			return depth;
-		}
 	}
 
 }

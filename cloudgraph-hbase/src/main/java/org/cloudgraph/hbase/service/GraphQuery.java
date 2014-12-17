@@ -57,9 +57,10 @@ import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.filter.InitialFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateRowFilterAssembler;
-import org.cloudgraph.hbase.graph.DistributedGraphAssembler;
-import org.cloudgraph.hbase.graph.DistributedGraphSliceAssembler;
+import org.cloudgraph.hbase.graph.GraphAssembler;
+import org.cloudgraph.hbase.graph.GraphSliceAssembler;
 import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
+import org.cloudgraph.hbase.graph.ParallelGraphAssembler;
 import org.cloudgraph.hbase.io.DistributedGraphReader;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.TableReader;
@@ -78,6 +79,7 @@ import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.collector.Selection;
 import org.plasma.query.collector.SelectionCollector;
+import org.plasma.query.model.ConcurrencyTypeValues;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.Variable;
@@ -250,7 +252,7 @@ public class GraphQuery
 
         // Create a graph assembler based on existence
         // of selection path predicates, need for federation, etc...
-        HBaseGraphAssembler graphAssembler = createGraphAssembler(
+        HBaseGraphAssembler graphAssembler = createGraphAssembler(query,
         	type, graphReader, selectionCollector, snapshotDate);
         
         List<PartialRowKey> partialScans = new ArrayList<PartialRowKey>();
@@ -586,6 +588,7 @@ public class GraphQuery
      */
     //FIXME generalize
     private HBaseGraphAssembler createGraphAssembler(
+    		Query query,
     		PlasmaType type,
     		DistributedReader graphReader,
     		Selection collector,
@@ -594,12 +597,27 @@ public class GraphQuery
         HBaseGraphAssembler graphAssembler = null;
          
         if (collector.hasPredicates()) { 
-        	graphAssembler = new DistributedGraphSliceAssembler(type,
+        	graphAssembler = new GraphSliceAssembler(type,
             		collector, graphReader, snapshotDate);
         }
         else {
-        	graphAssembler = new DistributedGraphAssembler(type,
-            		collector, graphReader, snapshotDate);
+            ConcurrencyTypeValues concurrencyType = query.getConcurrencyType();
+            if (concurrencyType == null)
+            	concurrencyType = ConcurrencyTypeValues.NONE;        	
+            switch (concurrencyType) {
+            case THREAD_POOL:
+            	graphAssembler = new ParallelGraphAssembler(type,
+                		collector, graphReader, snapshotDate);
+               break;
+            case FORK_JOIN:
+            	throw new GraphServiceException("no graph assembler implementation for concurrency type, "
+            			+ concurrencyType);
+            case NONE:
+            default:
+            	graphAssembler = new GraphAssembler(type,
+                		collector, graphReader, snapshotDate);
+                break;
+            }
         }
 	        
     	return graphAssembler;

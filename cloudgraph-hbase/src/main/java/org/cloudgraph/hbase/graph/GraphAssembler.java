@@ -23,7 +23,6 @@ package org.cloudgraph.hbase.graph;
 
 import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -39,14 +38,11 @@ import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
-import org.plasma.query.collector.PropertySelection;
 import org.plasma.query.collector.Selection;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
-import org.plasma.sdo.core.CoreNode;
 
-import commonj.sdo.DataGraph;
 import commonj.sdo.Property;
 
 /**
@@ -55,7 +51,7 @@ import commonj.sdo.Property;
  * selected types required in the result graph.
  * <p>
  * The assembly is triggered by calling the 
- * {@link DistributedGraphAssembler#assemble(Result resultRow)} method which
+ * {@link GraphAssembler#assemble(Result resultRow)} method which
  * recursively reads HBase keys and values re-constituting the
  * data graph. The assembly traversal is driven by HBase column 
  * values representing the original edges or containment structure 
@@ -76,9 +72,9 @@ import commonj.sdo.Property;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public class DistributedGraphAssembler extends DistributedAssembler
+public class GraphAssembler extends DistributedAssembler
 {
-    private static Log log = LogFactory.getLog(DistributedGraphAssembler.class);
+    private static Log log = LogFactory.getLog(GraphAssembler.class);
 		
 	/**
 	 * Constructor.
@@ -88,7 +84,7 @@ public class DistributedGraphAssembler extends DistributedAssembler
 	 * @param snapshotDate the query snapshot date which is populated
 	 * into every data object in the result data graph. 
 	 */
-	public DistributedGraphAssembler(PlasmaType rootType,
+	public GraphAssembler(PlasmaType rootType,
 			Selection selection, 
 			DistributedReader distributedReader,			
 			Timestamp snapshotDate) 
@@ -100,26 +96,9 @@ public class DistributedGraphAssembler extends DistributedAssembler
 			PlasmaDataObject source, PlasmaProperty sourceProperty, 
 			RowReader rowReader, int level) throws IOException
     {		 
-		Set<Property> props = null;
-		if (sourceProperty != null) {
-			//props = this.selection.getInheritedProperties(target.getType(), sourceProperty, level);
-			props = this.selection.getInheritedProperties(target.getType(), level);
-			if (props.size() == 0) {
-		        if (log.isDebugEnabled())
-		        	log.debug("no properties for " + target.toString() + " at level: " + level 
-		        		+ " for source edge, " + sourceProperty.toString() + " - aborting traversal");
-				return;
-			}
-		}
-		else {
-			props = this.selection.getInheritedProperties(target.getType(), level);
-			if (props.size() == 0) {
-		        if (log.isDebugEnabled())
-		        	log.debug("no properties for " + target.toString() + " at level: " + level 
-		        		+ " - aborting traversal");
-				return;
-			}
-		}
+		Set<Property> props = this.getProperties(target, source, sourceProperty, level);
+		if (props.size() == 0) 
+			return;
         if (log.isDebugEnabled())
 			log.debug("assembling("+level+"): " + target.toString() + ": " + props.toString());
 		
@@ -168,7 +147,7 @@ public class DistributedGraphAssembler extends DistributedAssembler
 		}
     }
 	
-	private void assembleEdges(PlasmaDataObject target, PlasmaProperty prop, 
+	protected void assembleEdges(PlasmaDataObject target, PlasmaProperty prop, 
 		Edge[] edges, RowReader rowReader, 
 		TableReader childTableReader, RowReader childRowReader,
 		int level) throws IOException 
@@ -211,7 +190,7 @@ public class DistributedGraphAssembler extends DistributedAssembler
 	 * @param level the assembly level
 	 * @throws IOException
 	 */
-	private void assembleExternalEdges(PlasmaDataObject target, PlasmaProperty prop, 
+	protected void assembleExternalEdges(PlasmaDataObject target, PlasmaProperty prop, 
 			Edge[] edges, RowReader rowReader, TableReader childTableReader, int level) throws IOException 
 	{
 		RowReader childRowReader = null;

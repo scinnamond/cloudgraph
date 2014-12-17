@@ -19,19 +19,17 @@
  * appendix) or view the online documentation at 
  * <http://cloudgraph.org/licenses/>. 
  */
-package org.cloudgraph.hbase.service;
+package org.cloudgraph.common.ql;
 
-import org.cloudgraph.state.StateMarshalingContext;
-
-public class ServiceContext {
-    private StateMarshalingContext marshallingContext;
-    @SuppressWarnings("unused")
-	private ServiceContext() {}
-    public ServiceContext(StateMarshalingContext marshallingContext) {
-    	this.marshallingContext = marshallingContext;
-    }
-	public StateMarshalingContext getMarshallingContext() {
-		return marshallingContext;
-	}
-    
+/**
+ * Common interface for row and column filter assemblers.
+ * @author Scott Cinnamond
+ * @since 0.5
+ */
+public interface FilterAssembler {
+	
+	/**
+	 * Frees associated resources 
+	 */
+    public void clear();
 }

@@ -148,7 +148,7 @@ public class GraphTableReader extends GraphTable
 					+ uuid);
 		rowReaderMap.put(uuid.toString(), rowReader);		
 	}
-
+	
 	/**
 	 * Returns all row reader context values for this table context.
 	 * @return all row reader context values for this table context.
@@ -173,13 +173,19 @@ public class GraphTableReader extends GraphTable
 	public RowReader createRowReader(DataObject dataObject,
 		Result resultRow) throws IllegalArgumentException {
 		
+        byte[] rowKey = resultRow.getRow();
+        String keyString = Bytes.toString(rowKey);
+        UUID uuid = ((PlasmaDataObject)dataObject).getUUID();
+		if (this.rowReaderMap.containsKey(uuid.toString()))
+			throw new IllegalArgumentException("given UUID already mapped to a row reader, "
+					+ uuid);        
+        if (this.rowReaderMap.containsKey(keyString))
+        	throw new IllegalArgumentException("existing row reader is already mapped for the given row key, "
+        			+ keyString);
         GraphRowReader rowReader = new GraphRowReader(
         	resultRow.getRow(), resultRow,
         	dataObject, this);
-        UUID uuid = ((PlasmaDataObject)dataObject).getUUID();
         this.addRowReader(uuid, rowReader);
-        byte[] rowKey = resultRow.getRow();
-        String keyString = Bytes.toString(rowKey);
         this.rowReaderMap.put(keyString, rowReader);
         
         // set the row key so we can look it up on

@@ -34,7 +34,6 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.cql.CQLDataConverter;
 import org.cloudgraph.cassandra.cql.CQLStatementExecutor;
 import org.cloudgraph.cassandra.cql.CQLStatementFactory;
 import org.cloudgraph.cassandra.cql.StatementExecutor;

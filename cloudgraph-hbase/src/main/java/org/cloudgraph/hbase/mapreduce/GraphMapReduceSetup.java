@@ -87,8 +87,9 @@ import org.cloudgraph.hbase.scan.PartialRowKeyScanAssembler;
 import org.cloudgraph.hbase.scan.ScanCollector;
 import org.cloudgraph.hbase.scan.ScanRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.hbase.util.FilterUtil;
+import org.cloudgraph.state.StateMarshalingContext;
 import org.cloudgraph.state.StateMarshallingContext;
-import org.cloudgraph.state.StatelNonValidatinglDataBinding;
+import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.Query;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
@@ -185,10 +186,10 @@ public class GraphMapReduceSetup {
 		for (Type t : selectionCollector.getTypes())
 			collectRowKeyProperties(selectionCollector, (PlasmaType) t);
 
-		StateMarshallingContext marshallingContext = null;
+		StateMarshalingContext marshallingContext = null;
 		try {
 			marshallingContext = new StateMarshallingContext(
-					new StatelNonValidatinglDataBinding());
+					new StateNonValidatingDataBinding());
 		} catch (JAXBException e) {
 			throw new GraphServiceException(e);
 		} catch (SAXException e) {
@@ -529,10 +530,10 @@ public class GraphMapReduceSetup {
 		for (Type t : selectionCollector.getTypes())
 			collectRowKeyProperties(selectionCollector, (PlasmaType) t);
 
-		StateMarshallingContext marshallingContext = null;
+		StateMarshalingContext marshallingContext = null;
 		try {
 			marshallingContext = new StateMarshallingContext(
-					new StatelNonValidatinglDataBinding());
+					new StateNonValidatingDataBinding());
 		} catch (JAXBException e) {
 			throw new GraphServiceException(e);
 		} catch (SAXException e) {

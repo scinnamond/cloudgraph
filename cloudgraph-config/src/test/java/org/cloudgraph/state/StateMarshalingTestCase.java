@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
 public class StateMarshalingTestCase extends StateTestCase {
     private static Log log = LogFactory.getLog(StateMarshalingTestCase.class);
     
-    private StateValidatingDataBinding binding;
+    private ValidatingDataBinding binding;
     
     public void setUp() throws Exception {
     }
@@ -63,8 +63,8 @@ public class StateMarshalingTestCase extends StateTestCase {
     public void testMarshal() throws JAXBException, SAXException, FileNotFoundException {
     	
     	log.info("testUnmarshal");
-    	StateMarshallingContext context = new StateMarshallingContext(
-    			new StatelNonValidatinglDataBinding());
+    	StateMarshalingContext context = new SimpleStateMarshallingContext(
+    			new StateNonValidatingDataBinding());
     	GraphState state = new GraphState(context);
     	String xml = state.marshal(true);
     	log.info("marshal: " + xml);

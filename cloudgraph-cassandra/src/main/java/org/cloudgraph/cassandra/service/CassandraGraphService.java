@@ -47,7 +47,6 @@ import org.plasma.sdo.helper.PlasmaTypeHelper;
 import org.xml.sax.SAXException;
 
 import com.datastax.driver.core.Session;
-
 import commonj.sdo.DataGraph;
 import commonj.sdo.Type;
 
