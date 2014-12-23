@@ -26,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,13 +80,39 @@ public class ParallelGraphAssembler extends DefaultAssembler
     implements KeyPairGraphAssembler {
 
     private static Log log = LogFactory.getLog(ParallelGraphAssembler.class);
+    private ThreadPoolExecutor executorService;	
 	
+    /**
+ 	 * Constructor.
+	 * 
+	 * @param rootType
+	 *            the SDO root type for the result data graph
+	 * @param collector
+	 *            selected SDO properties. Properties are mapped by selected
+	 *            types required in the result graph.
+	 * @param snapshotDate
+	 *            the query snapshot date which is populated into every data
+	 *            object in the result data graph.
+	 * @param minPoolSize the minimum or core size of the underlying thread pool used for
+	 * all tasks executed under this assembler           
+	 * @param maxPoolSize the maximum size of the underlying thread pool used for
+	 * all tasks executed under this assembler           
+     * @param con
+     */
 	public ParallelGraphAssembler(PlasmaType rootType, SelectionCollector collector,
-			Timestamp snapshotDate, Session con) {
+			Timestamp snapshotDate, int minPoolSize, int maxPoolSize, Session con) {
 		super(rootType, collector, new ConcurrentHashMap<Integer, PlasmaDataObject>(),
 			snapshotDate, con);		 
+		this.executorService = new ThreadPoolExecutor(minPoolSize, maxPoolSize,
+	            0L, TimeUnit.MILLISECONDS,
+	            new LinkedBlockingQueue<Runnable>(),
+	            new ThreadPoolExecutor.CallerRunsPolicy());
 	}
 	
+	public ThreadPoolExecutor getExecutorService() {
+		return executorService;
+	}
+
 	@Override
 	protected void link(PlasmaDataObject target, PlasmaDataObject source,
 			PlasmaProperty sourceProperty) {
@@ -147,8 +176,8 @@ public class ParallelGraphAssembler extends DefaultAssembler
 		}
 		
 		// create concurrent tasks based on pool availability
-		ParallelSubgraphTask.logPoolStatistics();
-		int available = ParallelSubgraphTask.numThreadsAvailable();
+		logPoolStatistics();
+		int available = numThreadsAvailable();
 		if (available > traversals.size())
 			available = traversals.size();
 		List<SubgraphTask> concurrentTasks = new ArrayList<SubgraphTask>();
@@ -181,7 +210,7 @@ public class ParallelGraphAssembler extends DefaultAssembler
 					this.con,
 					trav.getSourceProperty(), trav.getChildKeyPairs(),
 					trav.getLevel(), traversals.size(), this);
-			task.assemble();
+			task.assemble(); // this thread
 		}
 		
         if (log.isDebugEnabled())
@@ -215,4 +244,20 @@ public class ParallelGraphAssembler extends DefaultAssembler
 	}
 	
 	
+	public void logPoolStatistics() {
+		if (log.isDebugEnabled())
+			log.debug("active: " + executorService.getActiveCount() + ", size: " + executorService.getPoolSize());		
+	}
+	
+	public boolean threadsAvailable() {
+		return executorService.getActiveCount() < executorService.getMaximumPoolSize();		
+	}
+	
+	public int numThreadsAvailable() {
+		int result = executorService.getMaximumPoolSize() - executorService.getActiveCount();
+		if (result < 0)
+			result = 0;
+		return result;		
+	}
+
 }

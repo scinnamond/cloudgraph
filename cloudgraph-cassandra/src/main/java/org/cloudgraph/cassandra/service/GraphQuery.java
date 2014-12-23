@@ -41,6 +41,10 @@ import org.cloudgraph.cassandra.cql.FilterAssembler;
 import org.cloudgraph.cassandra.cql.OrderingDeclarationAssembler;
 import org.cloudgraph.cassandra.graph.GraphAssembler;
 import org.cloudgraph.cassandra.graph.ParallelGraphAssembler;
+import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.config.CloudGraphConfigProp;
+import org.cloudgraph.config.ConfigurationProperty;
+import org.cloudgraph.config.QueryFetchType;
 import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.query.expr.ExprPrinter;
 import org.cloudgraph.recognizer.GraphRecognizerContext;
@@ -74,6 +78,7 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
+
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
@@ -111,27 +116,26 @@ public class GraphQuery extends CQLStatementFactory
         List<List<PropertyPair>> queryResults = findResults(query, collector, type, con);
         
         KeyPairGraphAssembler assembler = null;
-        if (query.getConcurrencyType() != null) {
-	        switch (query.getConcurrencyType()) {
-	        case THREAD_POOL:
-	        	assembler = new ParallelGraphAssembler(type, 
-	                    collector, snapshotDate, con);
-	            break;
-	        case FORK_JOIN:
-	        	throw new CassandraServiceException("no graph assembler implementation for concurrency type, "
-	        			+ query.getConcurrencyType());
-	        case NONE:
-	        default:
-	        	assembler = new GraphAssembler(type, 
-	                    collector, snapshotDate, con);
-	            break;
-	        }
-        }
-        else {
+        
+       	QueryFetchType fetchType = CloudGraphConfigProp.getQueryFetchType(query);
+        switch (fetchType) {
+        case PARALLEL:
+       	    int minPool = CloudGraphConfigProp.getQueryPoolMin(query);;
+       	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);;
+       	    if (minPool > maxPool)
+       	    	minPool = maxPool;
+       	 
+       	    assembler = new ParallelGraphAssembler(type,
+            		collector, snapshotDate,
+            		minPool, maxPool, con);
+           break;
+        case SERIAL:
+        default:
         	assembler = new GraphAssembler(type, 
                     collector, snapshotDate, con);
+            break;
         }
-        
+         
         Expr graphRecognizerRootExpr = null;
         Where where = query.getWhereClause();
         if (where != null)

@@ -54,12 +54,7 @@ class ParallelSubgraphTask extends DistributedAssembler implements SubgraphTask 
 	 */
 	private static Map<String, Object> fetchLocks = new ConcurrentHashMap<String, Object>();
     private final CountDownLatch shutdownLatch = new CountDownLatch(1);
-    private static final ThreadPoolExecutor executorService = new ThreadPoolExecutor(20, 20,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(),
-            new ThreadPoolExecutor.CallerRunsPolicy());
-            //(ThreadPoolExecutor)Executors.newFixedThreadPool(    		
-    		//1/*Runtime.getRuntime().availableProcessors()*/);	
+    private ThreadPoolExecutor executorService;	
 	
 	private List<Traversal> traversals = new ArrayList<Traversal>();
     
@@ -70,7 +65,8 @@ class ParallelSubgraphTask extends DistributedAssembler implements SubgraphTask 
 			PlasmaDataObject source,
 			PlasmaProperty sourceProperty,
 			RowReader rowReader,
-			int level, int sequence) {
+			int level, int sequence,
+			ThreadPoolExecutor executorService) {
 		super((PlasmaType)subroot.getType(), selection, distributedReader, snapshotDate); 
 		this.subroot = subroot;
 		this.selection = selection;
@@ -81,6 +77,7 @@ class ParallelSubgraphTask extends DistributedAssembler implements SubgraphTask 
 		this.rowReader = rowReader;
 		this.level = level;
 		this.sequence = sequence;
+		this.executorService = executorService;
 	}
 
     @Override
@@ -204,7 +201,8 @@ class ParallelSubgraphTask extends DistributedAssembler implements SubgraphTask 
 					this.snapshotDate,
 					this.distributedReader,
 					trav.getSource(), trav.getSourceProperty(), trav.getRowReader(),
-					trav.getLevel(), concurrentTasks.size());
+					trav.getLevel(), concurrentTasks.size(),
+					this.executorService);
 			concurrentTasks.add(task);
 		}
 		// add remainder 
@@ -390,17 +388,18 @@ class ParallelSubgraphTask extends DistributedAssembler implements SubgraphTask 
 		}
 	}
 			
-	public static void logPoolStatistics() {
+	public void logPoolStatistics() {
 		if (log.isDebugEnabled())
-			log.debug("active: " + executorService.getActiveCount() + ", size: " + executorService.getPoolSize());		
+			log.debug("active: " + this.executorService.getActiveCount() + ", size: " 
+		        + this.executorService.getPoolSize());		
 	}
 	
-	public static boolean threadsAvailable() {
-		return executorService.getActiveCount() < executorService.getMaximumPoolSize();		
+	public boolean threadsAvailable() {
+		return this.executorService.getActiveCount() < this.executorService.getMaximumPoolSize();		
 	}
 
-	public static int numThreadsAvailable() {
-		int result = executorService.getMaximumPoolSize() - executorService.getActiveCount();
+	public int numThreadsAvailable() {
+		int result = this.executorService.getMaximumPoolSize() - this.executorService.getActiveCount();
 		if (result < 0)
 			result = 0;
 		return result;		

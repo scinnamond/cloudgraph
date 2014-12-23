@@ -56,9 +56,6 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.mapreduce.HRegionPartitioner;
-import org.apache.hadoop.hbase.mapreduce.MultiTableInputFormat;
 import org.apache.hadoop.hbase.mapreduce.TableOutputFormat;
 import org.apache.hadoop.hbase.mapreduce.hadoopbackport.JarFinder;
 import org.apache.hadoop.hbase.security.User;
@@ -70,9 +67,6 @@ import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.InputFormat;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.StringUtils;
-import org.cloudgraph.query.expr.Expr;
-import org.cloudgraph.query.expr.ExprPrinter;
-import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
@@ -87,8 +81,10 @@ import org.cloudgraph.hbase.scan.PartialRowKeyScanAssembler;
 import org.cloudgraph.hbase.scan.ScanCollector;
 import org.cloudgraph.hbase.scan.ScanRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.hbase.util.FilterUtil;
+import org.cloudgraph.query.expr.Expr;
+import org.cloudgraph.query.expr.ExprPrinter;
+import org.cloudgraph.state.SimpleStateMarshallingContext;
 import org.cloudgraph.state.StateMarshalingContext;
-import org.cloudgraph.state.StateMarshallingContext;
 import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.Query;
@@ -188,7 +184,7 @@ public class GraphMapReduceSetup {
 
 		StateMarshalingContext marshallingContext = null;
 		try {
-			marshallingContext = new StateMarshallingContext(
+			marshallingContext = new SimpleStateMarshallingContext(
 					new StateNonValidatingDataBinding());
 		} catch (JAXBException e) {
 			throw new GraphServiceException(e);
@@ -532,7 +528,7 @@ public class GraphMapReduceSetup {
 
 		StateMarshalingContext marshallingContext = null;
 		try {
-			marshallingContext = new StateMarshallingContext(
+			marshallingContext = new SimpleStateMarshallingContext(
 					new StateNonValidatingDataBinding());
 		} catch (JAXBException e) {
 			throw new GraphServiceException(e);

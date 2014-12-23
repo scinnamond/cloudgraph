@@ -389,14 +389,75 @@ column field may be specified.
     
     <xsd:simpleType name="ConfigurationProperty">
         <xsd:annotation>
-            <xsd:documentation>A property that can be used in a JVM command line or within various configuration (property) elements witin a configuration. System properties take precedence over all other configuration property instances and lower level (e.g. field level) configuration properties take precedence over higher level (e.g. table level) configuration properties.</xsd:documentation>
+            <xsd:documentation>A property that can be used in a JVM command line or within various 
+            elements within a configuration. System properties take precedence 
+            over all other configuration property instances and lower level (e.g. field level, query level) 
+            configuration properties take precedence over higher level (e.g. graph level, table level) configuration 
+            properties.</xsd:documentation>
         </xsd:annotation>
         <xsd:restriction base="xsd:string">
-             <xsd:enumeration value="unique.checks">
-                <xsd:annotation><xsd:documentation>Whether to first check for an existing matching row key before creating/inserting new rows</xsd:documentation></xsd:annotation>
+            <xsd:enumeration value="cloudgraph.unique.checks">
+                <xsd:annotation>
+                    <xsd:documentation>Whether to first check for an existing matching row 
+                    key before creating/inserting new rows.
+                    &lt;ul&gt;
+                    &lt;li&gt;Name: cloudgraph.unique.checks&lt;/li&gt;
+                    &lt;li&gt;Data Type: boolean&lt;/li&gt;
+                    &lt;li&gt;Expected Values: true,false&lt;/li&gt;
+                    &lt;li&gt;Default: false&lt;/li&gt;
+                    &lt;/ul&gt;
+                    </xsd:documentation> 
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="cloudgraph.query.fetchtype">
+               <xsd:annotation>
+                    <xsd:documentation>The type of fetch used when executing queries.
+                    &lt;li&gt;Name: cloudgraph.query.fetchtype&lt;/li&gt;
+                    &lt;li&gt;Data Type: string&lt;/li&gt;
+                    &lt;li&gt;Expected Values: serial,parallel&lt;/li&gt;
+                    &lt;li&gt;Default: serial&lt;/li&gt;
+                    @see QueryFetchType
+                    </xsd:documentation> 
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="cloudgraph.query.threadpool.size.min">
+               <xsd:annotation>
+                    <xsd:documentation>The minimum or core size of the query thread pool when using 'parallel' for the value of the 
+                    &lt;b&gt;cloudgraph.query.fetchtype&lt;/b&gt; configuration property. Ignored if the &lt;b&gt;cloudgraph.query.fetchtype&lt;/b&gt; 
+                    configuration property is not set. If set equal to &lt;b&gt;cloudgraph.query.threadpool.size.max&lt;/b&gt; a fixed
+                    sized thread pool will be allocated.     
+                    &lt;li&gt;Name: cloudgraph.query.threadpool.size.min&lt;/li&gt;
+                    &lt;li&gt;Data Type: int&lt;/li&gt;
+                    &lt;li&gt;Default: 10&lt;/li&gt;
+                    </xsd:documentation> 
+                </xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="cloudgraph.query.threadpool.size.max">
+               <xsd:annotation>
+                    <xsd:documentation>The maximum size of the query thread pool when using 'parallel' for the value of the 
+                    &lt;b&gt;cloudgraph.query.fetchtype&lt;/b&gt; configuration property. Ignored if the &lt;b&gt;cloudgraph.query.fetchtype&lt;/b&gt; 
+                    configuration property is not set.
+                    &lt;li&gt;Name: cloudgraph.query.threadpool.size.max&lt;/li&gt;
+                    &lt;li&gt;Data Type: int&lt;/li&gt;
+                    &lt;li&gt;Default: 20&lt;/li&gt;
+                    </xsd:documentation> 
+                </xsd:annotation>
             </xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
             
+    <xsd:simpleType name="QueryFetchType">
+        <xsd:annotation>
+            <xsd:documentation>Holds the expected values for the &lt;b&gt;cloudgraph.query.fetchtype&lt;b&gt; configuration property.</xsd:documentation>
+        </xsd:annotation>
+        <xsd:restriction base="xsd:string">
+            <xsd:enumeration value="serial">
+                <xsd:annotation><xsd:documentation>Use serial or synchronous fetching during query processing such as when assembling data graphs</xsd:documentation></xsd:annotation>
+            </xsd:enumeration>
+            <xsd:enumeration value="parallel">
+                <xsd:annotation><xsd:documentation>Use parallel or asynchronous fetching during query processing such as when assembling data graphs</xsd:documentation></xsd:annotation>
+            </xsd:enumeration>
+        </xsd:restriction>
+    </xsd:simpleType>
 
 </xsd:schema>

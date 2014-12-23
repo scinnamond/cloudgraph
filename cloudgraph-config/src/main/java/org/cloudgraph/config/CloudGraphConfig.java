@@ -35,8 +35,10 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.service.GraphServiceException;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.common.env.EnvProperties;
+import org.plasma.query.Query;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
@@ -352,7 +354,6 @@ public class CloudGraphConfig {
 
 	public Charset getCharset() {
 		return charset;
-	}
-    
-    
+	}  
+	
 }

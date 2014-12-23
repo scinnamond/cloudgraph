@@ -24,15 +24,12 @@ package org.cloudgraph.hbase.mapreduce;
 import java.io.IOException;
 
 import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
 import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.RecordReader;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.cloudgraph.mapreduce.GraphWritable;
-
-import commonj.sdo.DataGraph;
 
 /**
  * Iterates over HBase root table data for the current <code>TableSplit</code>, assembling data graphs based on the detailed selection criteria within a 

@@ -50,8 +50,11 @@ import org.cloudgraph.recognizer.GraphRecognizerContext;
 import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
+import org.cloudgraph.config.CloudGraphConfigProp;
+import org.cloudgraph.config.ConfigurationProperty;
 import org.cloudgraph.config.DataGraph;
 import org.cloudgraph.config.DataGraphConfig;
+import org.cloudgraph.config.QueryFetchType;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
@@ -79,7 +82,6 @@ import org.plasma.query.bind.PlasmaQueryDataBinding;
 import org.plasma.query.collector.PropertySelectionCollector;
 import org.plasma.query.collector.Selection;
 import org.plasma.query.collector.SelectionCollector;
-import org.plasma.query.model.ConcurrencyTypeValues;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.Variable;
@@ -601,18 +603,20 @@ public class GraphQuery
             		collector, graphReader, snapshotDate);
         }
         else {
-            ConcurrencyTypeValues concurrencyType = query.getConcurrencyType();
-            if (concurrencyType == null)
-            	concurrencyType = ConcurrencyTypeValues.NONE;        	
-            switch (concurrencyType) {
-            case THREAD_POOL:
+        	QueryFetchType fetchType = CloudGraphConfigProp.getQueryFetchType(query);
+            switch (fetchType) {
+            case PARALLEL:
+           	    int minPool = CloudGraphConfigProp.getQueryPoolMin(query);;
+           	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);;
+           	    
+           	    if (minPool > maxPool)
+           	    	minPool = maxPool;
+           	 
             	graphAssembler = new ParallelGraphAssembler(type,
-                		collector, graphReader, snapshotDate);
+                		collector, graphReader, snapshotDate,
+                		minPool, maxPool);
                break;
-            case FORK_JOIN:
-            	throw new GraphServiceException("no graph assembler implementation for concurrency type, "
-            			+ concurrencyType);
-            case NONE:
+            case SERIAL:
             default:
             	graphAssembler = new GraphAssembler(type,
                 		collector, graphReader, snapshotDate);

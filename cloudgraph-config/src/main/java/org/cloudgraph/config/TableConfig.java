@@ -103,7 +103,7 @@ public class TableConfig {
 	private Boolean uniqueChecksVar = null;
 	public boolean uniqueChecks() {
 		if (uniqueChecksVar == null) {
-			String value = System.getProperty(ConfigurationProperty.UNIQUE___CHECKS.value());
+			String value = System.getProperty(ConfigurationProperty.CLOUDGRAPH___UNIQUE___CHECKS.value());
 			if (value != null) {
 				this.uniqueChecksVar = Boolean.valueOf(value);
 			}
@@ -112,12 +112,12 @@ public class TableConfig {
 				    this.uniqueChecksVar = Boolean.valueOf(this.table.uniqueChecks);	
 				}
 				else { // check for table level generic prop
-					Property tableProp = this.findProperty(ConfigurationProperty.UNIQUE___CHECKS.value());
+					Property tableProp = this.findProperty(ConfigurationProperty.CLOUDGRAPH___UNIQUE___CHECKS.value());
 					if (tableProp != null) {
 						this.uniqueChecksVar = Boolean.valueOf(tableProp.getValue());
 					}
 					else { // check for global config prop
-						Property globalProp = this.config.findProperty(ConfigurationProperty.UNIQUE___CHECKS.value()); 
+						Property globalProp = this.config.findProperty(ConfigurationProperty.CLOUDGRAPH___UNIQUE___CHECKS.value()); 
 						if (globalProp != null) {
 							this.uniqueChecksVar = Boolean.valueOf(globalProp.getValue());
 						}

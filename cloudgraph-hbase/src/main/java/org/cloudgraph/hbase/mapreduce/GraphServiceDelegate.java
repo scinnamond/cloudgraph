@@ -19,11 +19,9 @@ import org.cloudgraph.hbase.io.TableWriter;
 import org.cloudgraph.hbase.service.GraphQuery;
 import org.cloudgraph.hbase.service.MutationCollector;
 import org.cloudgraph.hbase.service.ServiceContext;
-import org.cloudgraph.mapreduce.GraphAccessor;
-import org.cloudgraph.mapreduce.GraphMutator;
 import org.cloudgraph.mapreduce.GraphService;
+import org.cloudgraph.state.SimpleStateMarshallingContext;
 import org.cloudgraph.state.StateMarshalingContext;
-import org.cloudgraph.state.StateMarshallingContext;
 import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.query.Query;
 import org.plasma.sdo.PlasmaNode;
@@ -39,7 +37,7 @@ public class GraphServiceDelegate implements GraphService {
 	
 	public GraphServiceDelegate() {
     	try {
-			StateMarshalingContext marshallingContext = new StateMarshallingContext(
+			StateMarshalingContext marshallingContext = new SimpleStateMarshallingContext(
 					new StateNonValidatingDataBinding());
 	    	this.context = new ServiceContext(marshallingContext);
 		} catch (JAXBException e) {

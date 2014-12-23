@@ -40,7 +40,6 @@ import org.cloudgraph.state.StateDataBindingFactory;
 import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
-import org.plasma.query.model.ConcurrencyTypeValues;
 import org.plasma.query.model.From;
 import org.plasma.query.model.Query;
 import org.plasma.query.model.QueryValidator;
@@ -127,21 +126,6 @@ public class HBaseGraphService implements PlasmaDataAccessService {
             log(query);
         }
         GraphQuery dispatcher = new GraphQuery(this.context);
-        ConcurrencyTypeValues concurrencyType = query.getConcurrencyType();
-        if (concurrencyType == null)
-        	concurrencyType = ConcurrencyTypeValues.NONE;        	
-        switch (concurrencyType) {
-        case THREAD_POOL:
-        	dispatcher = new GraphQuery(this.context);
-            break;
-        case FORK_JOIN:
-        	throw new GraphServiceException("no graph assembler implementation for concurrency type, "
-        			+ concurrencyType);
-        case NONE:
-        default:
-            dispatcher = new GraphQuery(this.context);
-            break;
-        }
         Timestamp snapshotDate = new Timestamp((new Date()).getTime());
         return dispatcher.find(query, snapshotDate);
     }

@@ -38,4 +38,7 @@ public class GraphServiceException extends CloudGraphRuntimeException
     {
         super(t);
     }
+	public GraphServiceException(String message, Throwable cause) {
+		super(message, cause);
+	}
 }

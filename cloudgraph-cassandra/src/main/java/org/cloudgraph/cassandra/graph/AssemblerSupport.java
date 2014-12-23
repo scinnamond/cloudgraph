@@ -104,7 +104,7 @@ public abstract class AssemblerSupport {
 			//The absence of this partition key makes that Cassandra has to send your query 
 			//to all nodes in the cluster, which is inefficient and therefore disabled 
 			//by default. The 'ALLOW FILTERING' clause enables such searches,
-			query.append(" ALLOW FILTERING");
+			//query.append(" ALLOW FILTERING");
 			Object[] paramArray = new Object[params.size()];
 			params.toArray(paramArray);
 			result = this.statementExecutor.fetch(targetType, query, props, paramArray);
@@ -120,7 +120,7 @@ public abstract class AssemblerSupport {
 			//The absence of this partition key makes that Cassandra has to send your query 
 			//to all nodes in the cluster, which is inefficient and therefore disabled 
 			//by default. The 'ALLOW FILTERING' clause enables such searches,
-			query.append(" ALLOW FILTERING");
+			//query.append(" ALLOW FILTERING");
 			
 			Object[] paramArray = new Object[params.size()];
 			params.toArray(paramArray);

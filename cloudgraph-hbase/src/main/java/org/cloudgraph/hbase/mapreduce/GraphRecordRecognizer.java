@@ -46,10 +46,6 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.metrics.util.MetricsTimeVaryingLong;
 import org.apache.hadoop.util.StringUtils;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.query.expr.Expr;
-import org.cloudgraph.query.expr.ExprPrinter;
-import org.cloudgraph.recognizer.GraphRecognizerContext;
-import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
@@ -62,9 +58,13 @@ import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.mapreduce.Counters;
 import org.cloudgraph.mapreduce.GraphWritable;
+import org.cloudgraph.query.expr.Expr;
+import org.cloudgraph.query.expr.ExprPrinter;
+import org.cloudgraph.recognizer.GraphRecognizerContext;
+import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.state.GraphState;
+import org.cloudgraph.state.SimpleStateMarshallingContext;
 import org.cloudgraph.state.StateMarshalingContext;
-import org.cloudgraph.state.StateMarshallingContext;
 import org.cloudgraph.state.StateNonValidatingDataBinding;
 import org.plasma.common.bind.DefaultValidationEventHandler;
 import org.plasma.query.bind.PlasmaQueryDataBinding;
@@ -246,7 +246,7 @@ public class GraphRecordRecognizer {
 
 			StateMarshalingContext marshallingContext = null;
 			try {
-				marshallingContext = new StateMarshallingContext(
+				marshallingContext = new SimpleStateMarshallingContext(
 						new StateNonValidatingDataBinding());
 			} catch (JAXBException e) {
 				throw new GraphServiceException(e);

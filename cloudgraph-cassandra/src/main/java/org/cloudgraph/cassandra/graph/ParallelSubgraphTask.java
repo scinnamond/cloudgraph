@@ -36,12 +36,6 @@ class ParallelSubgraphTask extends AssemblerSupport implements SubgraphTask {
 	protected int level;
 	protected int sequence;
     private final CountDownLatch shutdownLatch = new CountDownLatch(1);
-    private static final ThreadPoolExecutor executorService = new ThreadPoolExecutor(20, 20,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<Runnable>(),
-            new ThreadPoolExecutor.CallerRunsPolicy());
-            //(ThreadPoolExecutor)Executors.newFixedThreadPool(    		
-    		//1/*Runtime.getRuntime().availableProcessors()*/);	
 	
 	private ParallelGraphAssembler sharedAssembler;
     
@@ -71,7 +65,7 @@ class ParallelSubgraphTask extends AssemblerSupport implements SubgraphTask {
     	if (log.isDebugEnabled())
     		log.debug("start-" + level + "." + sequence);
     	try {
-        executorService.execute(new Runnable() {
+    		sharedAssembler.getExecutorService().execute(new Runnable() {
             @Override
             public void run() {
             	//  begin a breadth first traversal from the given node
@@ -175,8 +169,8 @@ class ParallelSubgraphTask extends AssemblerSupport implements SubgraphTask {
 			}
 			
 			// create concurrent tasks based on pool availability
-			logPoolStatistics();
-			int available = numThreadsAvailable();
+			this.sharedAssembler.logPoolStatistics();
+			int available = this.sharedAssembler.numThreadsAvailable();
 			if (available > traversals.size())
 				available = traversals.size();
 			List<SubgraphTask> concurrentTasks = new ArrayList<SubgraphTask>();
@@ -209,20 +203,4 @@ class ParallelSubgraphTask extends AssemblerSupport implements SubgraphTask {
 		}
 	}
 	
-	public static void logPoolStatistics() {
-		if (log.isDebugEnabled())
-			log.debug("active: " + executorService.getActiveCount() + ", size: " + executorService.getPoolSize());		
-	}
-	
-	public static boolean threadsAvailable() {
-		return executorService.getActiveCount() < executorService.getMaximumPoolSize();		
-	}
-	
-	public static int numThreadsAvailable() {
-		int result = executorService.getMaximumPoolSize() - executorService.getActiveCount();
-		if (result < 0)
-			result = 0;
-		return result;		
-	}
-
 }

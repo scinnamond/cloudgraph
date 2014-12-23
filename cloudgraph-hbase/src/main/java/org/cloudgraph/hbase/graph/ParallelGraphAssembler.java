@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -52,11 +55,11 @@ import org.plasma.sdo.core.CoreDataObject;
 import commonj.sdo.Property;
 
 /**
- * Constructs a data graph in parallel starting with a given root SDO type based
- * on a given <a target="#"
+ * Constructs a data graph in parallel starting with a given root using the
+ * given <a target="#"
  * href="http://plasma-sdo.org/org/plasma/query/collector/Selection.html"
  * >"selection graph"</a>, where processing proceeds as a breadth-first
- * traversal and tasks/threads are dynamically added based on availability
+ * traversal and tasks are dynamically added based on thread availability
  * within a shared <a href=
  * "https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ThreadPoolExecutor.html"
  * >thread pool</a>.
@@ -93,6 +96,7 @@ import commonj.sdo.Property;
  */
 public class ParallelGraphAssembler extends DistributedAssembler {
 	private static Log log = LogFactory.getLog(ParallelGraphAssembler.class);
+    private ThreadPoolExecutor executorService;	
 
 	/**
 	 * Constructor.
@@ -105,15 +109,27 @@ public class ParallelGraphAssembler extends DistributedAssembler {
 	 * @param snapshotDate
 	 *            the query snapshot date which is populated into every data
 	 *            object in the result data graph.
+	 * @param distributedReader the distributed reader
+	 * @param minPoolSize the minimum or core size of the underlying thread pool used for
+	 * all tasks executed under this assembler           
+	 * @param maxPoolSize the maximum size of the underlying thread pool used for
+	 * all tasks executed under this assembler           
 	 */
 	public ParallelGraphAssembler(PlasmaType rootType, Selection selection,
-			DistributedReader distributedReader, Timestamp snapshotDate) {
+			DistributedReader distributedReader, Timestamp snapshotDate,
+			int minPoolSize, int maxPoolSize) {
 		super(rootType, selection, distributedReader, snapshotDate);
+		
+		this.executorService = new ThreadPoolExecutor(minPoolSize, maxPoolSize,
+	            0L, TimeUnit.MILLISECONDS,
+	            new LinkedBlockingQueue<Runnable>(),
+	            new ThreadPoolExecutor.CallerRunsPolicy());
 	}
 
 	/**
-	 * Creates a single
-	 */
+	 * Creates a single task and begins the traversal from root in the
+	 * current thread. 
+	 */ 
 	@Override
 	protected void assemble(PlasmaDataObject target, PlasmaDataObject source,
 			PlasmaProperty sourceProperty, RowReader rowReader, int level)
@@ -121,7 +137,7 @@ public class ParallelGraphAssembler extends DistributedAssembler {
 
 		ParallelSubgraphTask task = new ParallelSubgraphTask(target,
 				this.selection, this.snapshotDate, this.distributedReader,
-				source, sourceProperty, rowReader, level, 0);
-		task.assemble();
+				source, sourceProperty, rowReader, level, 0, this.executorService);
+		task.assemble(); // in current thread. 
 	}
 }
