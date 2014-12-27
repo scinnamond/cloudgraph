@@ -23,6 +23,7 @@ package org.cloudgraph.hbase.graph;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -34,19 +35,21 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.concurrent.SubgraphTask;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.io.DistributedReader;
-import org.cloudgraph.hbase.io.OperationException;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
 import org.plasma.query.collector.Selection;
+import org.plasma.query.model.Where;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
+import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.Property;
 
 /**
- * A concurrent assembly task which assembles a sub-graph  
+ * A concurrent assembly task which assembles a sub-graph "sliced" 
+ * using any number of path predicates 
  * starting with a given "sub root" based on the
  * given <a target="#"
  * href="http://plasma-sdo.org/org/plasma/query/collector/Selection.html">"selection graph"</a>.
@@ -57,6 +60,7 @@ import commonj.sdo.Property;
  * >thread pool</a>. If thread availability is exhausted, processing proceeds
  * within the current thread. 
  *  
+ * @see GraphSliceSupport 
  * @see DistributedReader
  * @see RowReader
  * 
@@ -64,23 +68,11 @@ import commonj.sdo.Property;
  * @since 0.6.2
  */
 //package protection
-class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
-    private static Log log = LogFactory.getLog(ParallelSubgraphTask.class);
+class ParallelSliceSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
+    private static Log log = LogFactory.getLog(ParallelSliceSubgraphTask.class);
+    private GraphSliceSupport sliceSupport;
     
-	/**
-	 * Constructor. 
-     * @param subroot the graph sub root
-     * @param selection the graph selection
-     * @param snapshotDate the snapshot date
-     * @param distributedReader the distributed reader
-     * @param source the source data object representing the source edge
-     * @param sourceProperty the source property representing the source edge
-     * @param rowReader the row reader
-     * @param level the traversal level
-     * @param sequence the task sequence
-     * @param executorService the thread pool reference
-	 */
-	public ParallelSubgraphTask(PlasmaDataObject subroot,
+	public ParallelSliceSubgraphTask(PlasmaDataObject subroot,
 			Selection selection,
 			Timestamp snapshotDate,
 			DistributedReader distributedReader,
@@ -90,33 +82,20 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 			int level, int sequence,
 			ThreadPoolExecutor executorService) {
 		super(subroot,selection,snapshotDate,distributedReader,source,sourceProperty,rowReader,
-				level,sequence, executorService);
+			level,sequence, executorService);
+		this.sliceSupport = new GraphSliceSupport(selection,snapshotDate);
 	}
 	
-    /**
-     * Factory method creating a new task.   
-     * @param subroot the graph sub root
-     * @param selection the graph selection
-     * @param snapshotDate the snapshot date
-     * @param distributedReader the distributed reader
-     * @param source the source data object representing the source edge
-     * @param sourceProperty the source property representing the source edge
-     * @param rowReader the row reader
-     * @param level the traversal level
-     * @param sequence the task sequence
-     * @param executorService the thread pool reference
-     * @return the task
-     */
 	@Override
 	protected SubgraphTask newTask(PlasmaDataObject subroot,
 			Selection selection, Timestamp snapshotDate,
 			DistributedReader distributedReader, PlasmaDataObject source,
 			PlasmaProperty sourceProperty, RowReader rowReader, int level,
 			int sequence, ThreadPoolExecutor executorService) {
-		return new ParallelSubgraphTask(subroot,selection,snapshotDate,distributedReader,source,sourceProperty,rowReader,
+		return new ParallelSliceSubgraphTask(subroot,selection,snapshotDate,distributedReader,source,sourceProperty,rowReader,
 				level,sequence, executorService);
 	}
-
+   
 	@Override
 	protected void assemble(PlasmaDataObject target, PlasmaDataObject source,
 			PlasmaProperty sourceProperty, RowReader rowReader, int level)
@@ -159,61 +138,90 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 				continue; // zero length can happen on modification or delete as we keep cell history
 			}
 			
+			PlasmaType childType = (PlasmaType)prop.getType();
+			
+			// NOTE: can we have predicates on singular props? 
+			Where where = this.selection.getPredicate(prop);
+			
 			boolean external = isExternal(edges, rowReader);			
-			if (!external) {
-				assembleEdges(target, prop, edges, rowReader, 
-						tableReader, rowReader, level);
-			}
-			else {
+			if (!external) { 								
+				Map<Integer, Integer> sequences = null;
+				if (prop.isMany() && where != null) {
+			    	sequences = this.sliceSupport.fetchSequences((PlasmaType)prop.getType(), 
+			    			where, rowReader);
+			    	// preload properties for the NEXT level into the current row so we have something to assemble
+					Set<Property> childProperies = this.selection.getInheritedProperties(prop.getType(), level+1); 
+					this.sliceSupport.loadBySequenceList(sequences.values(), 
+							childProperies,
+			    		childType, rowReader);
+				}
+				else {  
+			    	// preload properties for the NEXT level into the current row so we have something to assemble
+					Set<Property> childProperies = this.selection.getInheritedProperties(prop.getType(), level+1);
+				    this.sliceSupport.load(childProperies,
+			    			childType, rowReader);
+				}			
+				
+	        	assembleEdges(target, prop, edges, sequences, rowReader, 
+	        			rowReader.getTableReader(), 
+	        			rowReader, level);			
+	        }
+			else 
+			{
 				String childTable = rowReader.getGraphState().getRowKeyTable(edges[0].getUuid());
-				if (childTable == null)
-					throw new OperationException("no table found for type, " + 
-							edges[0].getType());
 				TableReader externalTableReader = distributedReader.getTableReader(childTable);
-				if (externalTableReader == null)
-					throw new OperationException("no table reader found for type, " + 
-							edges[0].getType());
-				assembleExternalEdges(target, prop, edges, rowReader,
-						externalTableReader, level);			
-			}
+				
+				if (log.isDebugEnabled())
+					if (!tableConfig.getName().equals(externalTableReader.getTable().getName()))
+					    log.debug("switching row context from table: '"
+						    + tableConfig.getName() + "' to table: '"
+						    + externalTableReader.getTable().getName() + "'");
+				Map<String, Result> resultRows = null;
+				if (prop.isMany() && where != null) {
+					 resultRows = this.sliceSupport.filter(childType, edges, 
+						where, rowReader, externalTableReader);					
+				}
+				assembleExternalEdges(target, prop, edges, rowReader,	
+					resultRows, externalTableReader, level);
+			}			
 		}		
 		
 		traverse();		
 	}
 	
-	protected void assembleEdges(PlasmaDataObject target, PlasmaProperty prop, 
-		Edge[] edges, RowReader rowReader, 
-		TableReader childTableReader, RowReader childRowReader,
-		int level) throws IOException 
+	private void assembleEdges(PlasmaDataObject target, PlasmaProperty prop, 
+			Edge[] edges, Map<Integer, Integer> sequences, RowReader rowReader, 
+			TableReader childTableReader, RowReader childRowReader,
+			int level) throws IOException 
 	{
 		for (Edge edge : edges) {	
-			
 			UUID uuid = UUID.fromString(edge.getUuid());
-        	if (childRowReader.contains(uuid))
+      	    if (childRowReader.contains(uuid))
         	{            		
         		// we've seen this child before so his data is complete, just link 
         		PlasmaDataObject existingChild = (PlasmaDataObject)childRowReader.getDataObject(uuid);
     		    synchronized (existingChild) {
     		        synchronized (target) {
         		        link(existingChild, target, prop);
+        		        continue; 
     	            }
         	    }
-        		continue; 
         	}
-        	
+        	if (sequences != null && sequences.get(edge.getId()) == null)
+				continue; // screen out edges
+			
 			if (log.isDebugEnabled())
 				log.debug("local edge: " 
 			        + target.getType().getURI() + "#" +target.getType().getName()
 			        + "->" + prop.getName() + " (" + edge.getUuid() + ")");
-			
+         	// create a child object
 			PlasmaDataObject child = null;
 	    	synchronized (target) {
-        	    // create a child object
-			    child = createChild(target, prop, edge);
+			    child = createChild(target, prop, edge);			
 	    	}
 			synchronized (childRowReader) {
                 childRowReader.addDataObject(child);
-			}
+	    	}
 		    synchronized (this.distributedReader) {
 		        this.distributedReader.mapRowReader(child, 
 					childRowReader);	
@@ -225,12 +233,13 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 					false, // indicate a non-concurrent traversal  
 					level+1));					
 		}
-	}
-	
+	}		
+			 
 	/**
-	 * Assembles a given set of edges where the target is a different row, within this table or 
-	 * another. Since we are assembling a graph, and each edge links another row, each edge requires
-	 * a new row reader.  
+	 * Assembles a given set of edges where the target is a different row, within this table or another.
+	 * Since we are assembling a graph, each edge requires
+	 * a new row reader. Each edge is a new root in the target table
+	 * so need a new row reader for each. 
 	 * @param target the object source to which we link edges
 	 * @param prop the edge property
 	 * @param edges the edges
@@ -240,7 +249,8 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 	 * @throws IOException
 	 */
 	protected void assembleExternalEdges(PlasmaDataObject target, PlasmaProperty prop, 
-			Edge[] edges, RowReader rowReader, TableReader childTableReader, int level) throws IOException 
+			Edge[] edges, RowReader rowReader, Map<String, Result> resultRows,
+			TableReader childTableReader, int level) throws IOException 
 	{
 		for (Edge edge : edges) {
 			byte[] childRowKey = null;
@@ -252,6 +262,8 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 			// is a local graph UUID. 
 			childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid()); // use local edge UUID
 			String childRowKeyStr = Bytes.toString(childRowKey);
+			if (resultRows != null && resultRows.get(childRowKeyStr) == null)
+				continue; //not found in predicate
 			
 			// see if this row is locked during fetch, and wait for it
 			Object rowLock = fetchLocks.get(childRowKeyStr);
@@ -331,5 +343,5 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 		    	rowLock.notifyAll();
 		    }
 		}
-	}			
+	}
 }

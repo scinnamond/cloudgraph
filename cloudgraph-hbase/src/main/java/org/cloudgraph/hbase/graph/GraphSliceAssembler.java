@@ -21,63 +21,47 @@
  */
 package org.cloudgraph.hbase.graph;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.service.GraphServiceException;
-import org.cloudgraph.config.CloudGraphConfig;
-import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
-import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
-import org.cloudgraph.query.expr.Expr;
-import org.cloudgraph.query.expr.ExprPrinter;
-import org.cloudgraph.recognizer.GraphRecognizerContext;
 import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
 import org.plasma.query.collector.Selection;
-import org.plasma.query.collector.SelectionCollector;
 import org.plasma.query.model.Where;
-import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
-import org.plasma.sdo.helper.PlasmaXMLHelper;
-import org.plasma.sdo.xml.DefaultOptions;
 
 import commonj.sdo.Property;
-import commonj.sdo.helper.XMLDocument;
 
 /**
- * Constructs a data graph "sliced" using any number of path predicates 
- * starting with a given root SDO type and based on
- * a given selection map of SDO properties and associated predicates.
+ * Assembles a data graph where one or more collections may be "sliced" 
+ * based on path predicates within the <a target="#"
+ * href="http://plasma-sdo.org/org/plasma/query/collector/Selection.html"
+ * >"selection graph"</a>. 
  * <p>
- * The assembly is triggered by calling the 
- * {@link GraphSliceAssembler#assemble(Result resultRow)} method which
- * recursively reads HBase keys and values incrementally re-constituting the
- * data graph. The assembly traversal is driven by HBase column 
- * values representing the original edges or containment structure 
- * of the graph. 
+ * Edges within a collection are "recognized" as members of a slice based on
+ * a binary expression syntax tree assembled from the path
+ * predicate describing the slice. While a path predicate may be quite complex resulting in
+ * any number of logical, relational or wildcard binary expressions, a single 
+ * slice syntax tree is used to evaluate any number of edges within a 
+ * collection. Where edge opposite graph nodes are found within the current row, an 
+ * edge recognizer is used, but where edge opposite graph nodes are found "outside" the 
+ * current row, a graph recognizer is used.   
  * </p>
  * <p>
  * Since every column key in HBase must be unique, and a data graph
@@ -89,18 +73,21 @@ import commonj.sdo.helper.XMLDocument;
  * the original UUID values.       
  * </p>
  * 
+ * @see EdgeRecognizerSyntaxTreeAssembler
+ * @see EdgeRecognizerContext
+ * @see GraphRecognizerSyntaxTreeAssembler
+ * @see GraphRecognizerContext
+ * @see GraphSliceSupport
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
- * @see org.cloudgraph.hbase.graphGraphSliceSupport
  *   
  * @author Scott Cinnamond
  * @since 0.5.1
- * 
  */
 public class GraphSliceAssembler extends DistributedAssembler {
 
     private static Log log = LogFactory.getLog(GraphSliceAssembler.class);
 	private int scanCount;
-	private GraphSliceSupport sliceSupport = new GraphSliceSupport();
+	private GraphSliceSupport slice;
 	private Charset charset;
 
 	public GraphSliceAssembler(PlasmaType rootType,
@@ -109,6 +96,8 @@ public class GraphSliceAssembler extends DistributedAssembler {
 			Timestamp snapshotDate) {
 		super(rootType, selection, distributedReader, snapshotDate);
 		this.charset = Charset.forName( CoreConstants.UTF8_ENCODING );
+		this.slice = new GraphSliceSupport(
+				this.selection, this.snapshotDate);
 	}
 
 	@Override
@@ -152,18 +141,18 @@ public class GraphSliceAssembler extends DistributedAssembler {
 			if (!external) { 								
 				Map<Integer, Integer> sequences = null;
 				if (prop.isMany() && where != null) {
-			    	sequences = this.sliceSupport.fetchSequences((PlasmaType)prop.getType(), 
+			    	sequences = this.slice.fetchSequences((PlasmaType)prop.getType(), 
 			    			where, rowReader);
 			    	// preload properties for the NEXT level into the current row so we have something to assemble
 					Set<Property> childProperies = this.selection.getInheritedProperties(prop.getType(), level+1); 
-					this.sliceSupport.loadBySequenceList(sequences.values(), 
+					this.slice.loadBySequenceList(sequences.values(), 
 							childProperies,
 			    		childType, rowReader);
 				}
 				else {  
 			    	// preload properties for the NEXT level into the current row so we have something to assemble
 					Set<Property> childProperies = this.selection.getInheritedProperties(prop.getType(), level+1);
-				    this.sliceSupport.load(childProperies,
+				    this.slice.load(childProperies,
 			    			childType, rowReader);
 				}			
 				
@@ -183,7 +172,7 @@ public class GraphSliceAssembler extends DistributedAssembler {
 						    + externalTableReader.getTable().getName() + "'");
 				Map<String, Result> resultRows = null;
 				if (prop.isMany() && where != null) {
-					 resultRows = this.filter(childType, edges, 
+					 resultRows = this.slice.filter(childType, edges, 
 						where, rowReader, externalTableReader);					
 				}
 				assembleExternalEdges(target, prop, edges, rowReader,	
@@ -259,17 +248,7 @@ public class GraphSliceAssembler extends DistributedAssembler {
 	    	}
 	    	
 	        // need to reconstruct the original graph, so need original UUID
-			byte[] rootUuid = childResult.getValue(Bytes.toBytes(
-					childTableReader.getTable().getDataColumnFamilyName()), 
-	                Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME));
-			if (rootUuid == null)
-				throw new GraphServiceException("expected column: "
-					+ childTableReader.getTable().getDataColumnFamilyName() + ":"
-					+ GraphState.ROOT_UUID_COLUMN_NAME);
-			String uuidStr = null;
-			uuidStr = new String(rootUuid, 
-					childTableReader.getTable().getCharset());
-			UUID uuid = UUID.fromString(uuidStr);	    	
+			UUID uuid = reconstituteUUID(childResult, childTableReader);	    	
 			if (log.isDebugEnabled())
 				log.debug("external edge: " 
 			        + target.getType().getURI() + "#" +target.getType().getName()
@@ -285,117 +264,4 @@ public class GraphSliceAssembler extends DistributedAssembler {
 		}
 	}
 	 
-	/**
-	 * Creates and executes a "sub-graph" filter based on the given state-edges and path predicate
-	 * and then excludes appropriate results based on a {@link GraphRecognizerSyntaxTreeAssembler binary syntax tree} assembled 
-	 * from the same path predicate. Each sub-graph must first be assembled to do any evaluation, but
-	 * a single syntax tree instance evaluates every sub-graph 
-	 * (potentially thousands/millions) resulting
-	 * from the given edge collection. The graph {@link Selection selection criteria} is based not on the 
-	 * primary graph selection but only on the properties found in the given path predicate, so the
-	 * assembly is only/exactly as extensive as required by the predicate.  
-	 * Any sub-graphs assembled may themselves be "distributed" graphs.   
-	 *  
-	 * @param contextType the current type
-	 * @param edges the state edge set
-	 * @param where the path predicate
-	 * @param rowReader the row reader
-	 * @param tableReader the table reader
-	 * @return the results filtered results
-	 * @throws IOException
-	 * @see GraphRecognizerSyntaxTreeAssembler
-	 * @see SelectionCollector
-	 * @see Selection
-	 */
-	private Map<String, Result> filter(  
-			PlasmaType contextType, Edge[] edges, 
-			Where where, RowReader rowReader, TableReader tableReader) throws IOException
-	{
-		Map<String, Result> results = new HashMap<String, Result>();
-		     	
-        SelectionCollector selectionCollector = new SelectionCollector(
-               where, contextType);
-
-        HBaseGraphAssembler graphAssembler = new GraphAssembler(contextType,
-        		selectionCollector, (DistributedReader)tableReader.getFederatedOperation(), 
-       			snapshotDate);
-   	
-        GraphRecognizerSyntaxTreeAssembler recognizerAssembler = new GraphRecognizerSyntaxTreeAssembler(
-        		where, contextType);
-        Expr graphRecognizerRootExpr = recognizerAssembler.getResult();
-        if (log.isDebugEnabled()) {
-            ExprPrinter printer = new ExprPrinter();
-            graphRecognizerRootExpr.accept(printer);
-            log.debug("Graph Recognizer: " + printer.toString());
-        }
-        
-        // column filter
-        HBaseFilterAssembler columnFilterAssembler = 
-     		new GraphFetchColumnFilterAssembler(
-     				this.selection, contextType);
-        Filter columnFilter = columnFilterAssembler.getFilter();       
-        
-        List<Get> gets = new ArrayList<Get>();
-		for (Edge edge : edges) {	
-			byte[] childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid()); // use local edge UUID
-			Get get = new Get(childRowKey);
-			get.setFilter(columnFilter);
-			gets.add(get);		
-		}
-		DataGraphConfig graphConfig = CloudGraphConfig.getInstance().getDataGraph(
-				contextType.getQualifiedName());
-        Result[] rows = this.sliceSupport.fetchResult(gets, tableReader, 
-    			graphConfig);
-        
-    	GraphRecognizerContext recognizerContext = new GraphRecognizerContext();
-        int rowIndex = 0;
-        for (Result resultRow : rows) {
-        	if (resultRow == null || resultRow.isEmpty()) {
-        		Get get = gets.get(rowIndex);
-        		String rowStr = new String(get.getRow(), charset);
-        		if (resultRow == null)
-        		    throw new IllegalStateException("got null result row for '" + rowStr + "' for mulit-get operation - indicates failure with retries");
-        		else
-        		    throw new IllegalStateException("got no result for row for '" + rowStr + "' for mulit-get operation - indicates row noes not exist");
-        	}
-        	
-      	    graphAssembler.assemble(resultRow);            	
-        	PlasmaDataGraph assembledGraph = graphAssembler.getDataGraph();
-            graphAssembler.clear();
-        	
-        	recognizerContext.setGraph(assembledGraph);
-        	if (!graphRecognizerRootExpr.evaluate(recognizerContext)) {
-        		if (log.isDebugEnabled())
-        			log.debug("recognizer excluded: " + Bytes.toString(
-        					resultRow.getRow()));
-        		if (log.isDebugEnabled())
-        			log.debug(serializeGraph(assembledGraph));
-        		
-        		continue;
-        	}
-
-        	String rowKey = new String(resultRow.getRow(), charset);
-        	results.put(rowKey, resultRow);
-        	rowIndex++;
-        }
-		
-		return results;
-	}
-		
-    protected String serializeGraph(commonj.sdo.DataGraph graph) throws IOException
-    {
-        DefaultOptions options = new DefaultOptions(
-        		graph.getRootObject().getType().getURI());
-        options.setRootNamespacePrefix("debug");
-        
-        XMLDocument doc = PlasmaXMLHelper.INSTANCE.createDocument(graph.getRootObject(), 
-        		graph.getRootObject().getType().getURI(), 
-        		null);
-        ByteArrayOutputStream os = new ByteArrayOutputStream();
-	    PlasmaXMLHelper.INSTANCE.save(doc, os, options);        
-        os.flush();
-        os.close(); 
-        String xml = new String(os.toByteArray());
-        return xml;
-    }
 }

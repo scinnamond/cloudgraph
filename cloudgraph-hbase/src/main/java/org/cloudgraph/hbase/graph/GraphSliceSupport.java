@@ -21,7 +21,11 @@
  */
 package org.cloudgraph.hbase.graph;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -41,17 +45,32 @@ import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.hbase.filter.BinaryPrefixColumnFilterAssembler;
+import org.cloudgraph.hbase.filter.GraphFetchColumnFilterAssembler;
+import org.cloudgraph.hbase.filter.HBaseFilterAssembler;
 import org.cloudgraph.hbase.filter.PredicateColumnFilterAssembler;
 import org.cloudgraph.hbase.filter.StatefullBinaryPrefixColumnFilterAssembler;
+import org.cloudgraph.hbase.io.DistributedGraphReader;
+import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableOperation;
 import org.cloudgraph.hbase.io.TableReader;
 import org.cloudgraph.hbase.util.FilterUtil;
 import org.cloudgraph.query.expr.Expr;
+import org.cloudgraph.query.expr.ExprPrinter;
+import org.cloudgraph.recognizer.GraphRecognizerContext;
+import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
+import org.cloudgraph.state.GraphState.Edge;
+import org.plasma.query.collector.Selection;
+import org.plasma.query.collector.SelectionCollector;
 import org.plasma.query.model.Where;
+import org.plasma.sdo.PlasmaDataGraph;
 import org.plasma.sdo.PlasmaType;
+import org.plasma.sdo.core.CoreConstants;
+import org.plasma.sdo.helper.PlasmaXMLHelper;
+import org.plasma.sdo.xml.DefaultOptions;
 
 import commonj.sdo.Property;
+import commonj.sdo.helper.XMLDocument;
 
 /**
  * Delegate class for various graph slice fetch and edge post processing
@@ -60,10 +79,125 @@ import commonj.sdo.Property;
  * @author Scott Cinnamond
  * @since 0.5.1
  */
-public class GraphSliceSupport {
+class GraphSliceSupport {
     private static Log log = LogFactory.getLog(GraphSliceSupport.class);
+    private Selection selection;
+    private Timestamp snapshotDate;
+	private Charset charset;
+    
+    @SuppressWarnings("unused")
+	private GraphSliceSupport() {}
+    public GraphSliceSupport(Selection selection, Timestamp snapshotDate) {
+    	this.selection = selection;
+    	this.snapshotDate = snapshotDate;
+		this.charset = Charset.forName( CoreConstants.UTF8_ENCODING );
+    }
 	
 	/**
+	 * Creates and executes a "sub-graph" filter based on the given state-edges and path predicate
+	 * and then excludes appropriate results based on a {@link GraphRecognizerSyntaxTreeAssembler binary syntax tree} assembled 
+	 * from the same path predicate. Each sub-graph must first be assembled to do any evaluation, but
+	 * a single syntax tree instance evaluates every sub-graph 
+	 * (potentially thousands/millions) resulting
+	 * from the given edge collection. The graph {@link Selection selection criteria} is based not on the 
+	 * primary graph selection but only on the properties found in the given path predicate, so the
+	 * assembly is only/exactly as extensive as required by the predicate.  
+	 * Any sub-graphs assembled may themselves be "distributed" graphs.   
+	 *  
+	 * @param contextType the current type
+	 * @param edges the state edge set
+	 * @param where the path predicate
+	 * @param rowReader the row reader
+	 * @param tableReader the table reader
+	 * @return the results filtered results
+	 * @throws IOException
+	 * @see GraphRecognizerSyntaxTreeAssembler
+	 * @see SelectionCollector
+	 * @see Selection
+	 */
+	public Map<String, Result> filter(  
+			PlasmaType contextType, Edge[] edges, 
+			Where where, RowReader rowReader, TableReader tableReader) throws IOException
+	{
+		Map<String, Result> results = new HashMap<String, Result>();
+		     	
+        SelectionCollector selectionCollector = new SelectionCollector(
+               where, contextType);
+
+        // create a new reader as the existing one may have cached data objects already
+        // linked to the parent graph. Cannot link to sub-graph as well.
+        DistributedReader existingReader = (DistributedReader)tableReader.getFederatedOperation();
+        DistributedGraphReader sliceGraphReader = new DistributedGraphReader(
+        		contextType, selectionCollector.getTypes(),
+        		existingReader.getMarshallingContext());
+
+        HBaseGraphAssembler graphAssembler = new GraphAssembler(contextType,
+        		selectionCollector, sliceGraphReader, 
+       			snapshotDate);
+   	
+        GraphRecognizerSyntaxTreeAssembler recognizerAssembler = new GraphRecognizerSyntaxTreeAssembler(
+        		where, contextType);
+        Expr graphRecognizerRootExpr = recognizerAssembler.getResult();
+        if (log.isDebugEnabled()) {
+            ExprPrinter printer = new ExprPrinter();
+            graphRecognizerRootExpr.accept(printer);
+            log.debug("Graph Recognizer: " + printer.toString());
+        }
+        
+        // column filter
+        HBaseFilterAssembler columnFilterAssembler = 
+     		new GraphFetchColumnFilterAssembler(
+     				this.selection, contextType);
+        Filter columnFilter = columnFilterAssembler.getFilter();       
+        
+        List<Get> gets = new ArrayList<Get>();
+		for (Edge edge : edges) {	
+			byte[] childRowKey = rowReader.getGraphState().getRowKey(edge.getUuid()); // use local edge UUID
+			Get get = new Get(childRowKey);
+			get.setFilter(columnFilter);
+			gets.add(get);		
+		}
+		DataGraphConfig graphConfig = CloudGraphConfig.getInstance().getDataGraph(
+				contextType.getQualifiedName());
+        Result[] rows = this.fetchResult(gets, tableReader, 
+    			graphConfig);
+        
+    	GraphRecognizerContext recognizerContext = new GraphRecognizerContext();
+        int rowIndex = 0;
+        for (Result resultRow : rows) {
+        	if (resultRow == null || resultRow.isEmpty()) {
+        		Get get = gets.get(rowIndex);
+        		String rowStr = new String(get.getRow(), charset);
+        		if (resultRow == null)
+        		    throw new IllegalStateException("got null result row for '" + rowStr + "' for mulit-get operation - indicates failure with retries");
+        		else
+        		    throw new IllegalStateException("got no result for row for '" + rowStr + "' for mulit-get operation - indicates row noes not exist");
+        	}
+        	
+      	    graphAssembler.assemble(resultRow);            	
+        	PlasmaDataGraph assembledGraph = graphAssembler.getDataGraph();
+            graphAssembler.clear();
+        	
+        	recognizerContext.setGraph(assembledGraph);
+        	if (!graphRecognizerRootExpr.evaluate(recognizerContext)) {
+        		if (log.isDebugEnabled())
+        			log.debug("recognizer excluded: " + Bytes.toString(
+        					resultRow.getRow()));
+        		if (log.isDebugEnabled())
+        			log.debug(serializeGraph(assembledGraph));
+        		
+        		continue;
+        	}
+
+        	String rowKey = new String(resultRow.getRow(), charset);
+        	results.put(rowKey, resultRow);
+        	rowIndex++;
+        }
+		
+		return results;
+	}
+		
+    /**
 	 * Creates a column qualifier/value filter hierarchy based on the given path
 	 * predicate for a single row specified by the given row key, then returns
 	 * the column qualifier sequence numbers which represent the subset
@@ -92,7 +226,7 @@ public class GraphSliceSupport {
 		Result result = fetchResult(get, rowReader.getTableReader(), graphConfig);
 		Map<Integer, Map<String, KeyValue>> buckets = buketizeResult(result, graphConfig);
 		
-		// assemble a recogniser once for
+		// assemble a recognizer once for
 		// all results. Then only evaluate each result.
 		EdgeRecognizerSyntaxTreeAssembler assembler = new EdgeRecognizerSyntaxTreeAssembler(where, 
 			graphConfig, contextType, rootType);	
@@ -408,4 +542,22 @@ public class GraphSliceSupport {
       	    }
         }		
 	}	
+	
+    private String serializeGraph(commonj.sdo.DataGraph graph) throws IOException
+    {
+        DefaultOptions options = new DefaultOptions(
+        		graph.getRootObject().getType().getURI());
+        options.setRootNamespacePrefix("debug");
+        
+        XMLDocument doc = PlasmaXMLHelper.INSTANCE.createDocument(graph.getRootObject(), 
+        		graph.getRootObject().getType().getURI(), 
+        		null);
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+	    PlasmaXMLHelper.INSTANCE.save(doc, os, options);        
+        os.flush();
+        os.close(); 
+        String xml = new String(os.toByteArray());
+        return xml;
+    }
+
 }

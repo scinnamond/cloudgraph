@@ -64,6 +64,7 @@ import org.cloudgraph.hbase.graph.GraphAssembler;
 import org.cloudgraph.hbase.graph.GraphSliceAssembler;
 import org.cloudgraph.hbase.graph.HBaseGraphAssembler;
 import org.cloudgraph.hbase.graph.ParallelGraphAssembler;
+import org.cloudgraph.hbase.graph.ParallelGraphSliceAssembler;
 import org.cloudgraph.hbase.io.DistributedGraphReader;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.TableReader;
@@ -584,44 +585,48 @@ public class GraphQuery
      * 
      * @param type the root type
      * @param graphReader the graph reader
-     * @param collector the selection collector
+     * @param selection the selection collector
      * @param snapshotDate the query snapshot date
      * @return the graph assembler
      */
-    //FIXME generalize
     private HBaseGraphAssembler createGraphAssembler(
     		Query query,
     		PlasmaType type,
     		DistributedReader graphReader,
-    		Selection collector,
+    		Selection selection,
     		Timestamp snapshotDate)
     {
         HBaseGraphAssembler graphAssembler = null;
          
-        if (collector.hasPredicates()) { 
-        	graphAssembler = new GraphSliceAssembler(type,
-            		collector, graphReader, snapshotDate);
-        }
-        else {
-        	QueryFetchType fetchType = CloudGraphConfigProp.getQueryFetchType(query);
-            switch (fetchType) {
-            case PARALLEL:
-           	    int minPool = CloudGraphConfigProp.getQueryPoolMin(query);;
-           	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);;
-           	    
-           	    if (minPool > maxPool)
-           	    	minPool = maxPool;
-           	 
-            	graphAssembler = new ParallelGraphAssembler(type,
-                		collector, graphReader, snapshotDate,
+    	QueryFetchType fetchType = CloudGraphConfigProp.getQueryFetchType(query);
+        switch (fetchType) {
+        case PARALLEL:
+       	    int minPool = CloudGraphConfigProp.getQueryPoolMin(query);;
+       	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);;           	    
+       	    if (minPool > maxPool)
+       	    	minPool = maxPool;
+       	    if (selection.hasPredicates()) { 
+        	    graphAssembler = new ParallelGraphSliceAssembler(type,
+            		selection, graphReader, snapshotDate,
+            		minPool, maxPool);
+       	    }
+       	    else {
+        	    graphAssembler = new ParallelGraphAssembler(type,
+                		selection, graphReader, snapshotDate,
                 		minPool, maxPool);
-               break;
-            case SERIAL:
-            default:
-            	graphAssembler = new GraphAssembler(type,
-                		collector, graphReader, snapshotDate);
-                break;
+       	    }
+            break;
+        case SERIAL:
+        default:
+            if (selection.hasPredicates()) { 
+            	graphAssembler = new GraphSliceAssembler(type,
+                		selection, graphReader, snapshotDate);
             }
+            else {
+        	    graphAssembler = new GraphAssembler(type,
+            		selection, graphReader, snapshotDate);
+            }
+            break;
         }
 	        
     	return graphAssembler;

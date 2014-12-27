@@ -33,6 +33,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.config.CloudGraphConfigProp;
+import org.cloudgraph.hbase.graph.GraphAssembler;
+import org.cloudgraph.hbase.graph.ParallelGraphAssembler;
 import org.cloudgraph.state.ConcurrentNonValidatingDataBinding;
 import org.cloudgraph.state.PooledStateMarshallingContext;
 import org.cloudgraph.state.SimpleStateMarshallingContext;
@@ -84,12 +87,10 @@ public class HBaseGraphService implements PlasmaDataAccessService {
     public HBaseGraphService() {
     	try {
     		GenericObjectPoolConfig config = new GenericObjectPoolConfig();
-    		config.setMaxTotal(100);
-    		config.setMinIdle(100);
+    		config.setMaxTotal(40);
+    		config.setMinIdle(40);       	
 	    	this.context = new ServiceContext(new PooledStateMarshallingContext(
 	    			config, new StateDataBindingFactory()));
-	    	//this.context = new ServiceContext(new SimpleStateMarshallingContext(
-			//		new ConcurrentNonValidatingDataBinding()));
 		} catch (Exception e) {
 			throw new GraphServiceException(e);
 		}   	

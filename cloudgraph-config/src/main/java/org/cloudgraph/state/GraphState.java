@@ -34,17 +34,11 @@ import javax.xml.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.config.TableConfig;
-import org.cloudgraph.state.RowKey;
-import org.cloudgraph.state.StateModel;
-import org.cloudgraph.state.TypeEntry;
-import org.cloudgraph.state.URI;
-import org.cloudgraph.state.UUID;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaEdge;
 import org.plasma.sdo.PlasmaNode;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.core.CoreConstants;
-import org.plasma.sdo.core.TraversalDirection;
 import org.plasma.sdo.helper.PlasmaTypeHelper;
 
 import commonj.sdo.DataObject;

@@ -25,11 +25,19 @@ import java.util.NoSuchElementException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.pool2.ObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
-
+/**
+ * Marshalling context which uses new commons pool2 for pooling of
+ * non validating data binding instances. 
+ * 
+ * @author Scott Cinnamond
+ * @since 0.6.2
+ * 
+ * @see StateNonValidatingDataBinding
+ * @see StateMarshalingContext
+ */
 public class PooledStateMarshallingContext implements StateMarshalingContext {
     private static Log log = LogFactory.getLog(PooledStateMarshallingContext.class);
 	private GenericObjectPool<StateNonValidatingDataBinding> pool;

@@ -31,12 +31,14 @@ import java.util.UUID;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.concurrent.GraphMetricVisitor;
 import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.hbase.io.TableReader;
+import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
 import org.plasma.query.collector.Selection;
 import org.plasma.sdo.PlasmaDataObject;
@@ -173,6 +175,21 @@ public abstract class DistributedAssembler extends DefaultAssembler
 		
         assemble(child, target, prop, childRowReader, level+1);		
 	}	
+	
+	protected UUID reconstituteUUID(Result result, TableReader tableReader) {
+        // need to reconstruct the original graph, so need original UUID
+		byte[] rootUuid = result.getValue(Bytes.toBytes(
+				tableReader.getTable().getDataColumnFamilyName()), 
+                Bytes.toBytes(GraphState.ROOT_UUID_COLUMN_NAME));
+		if (rootUuid == null)
+			throw new GraphServiceException("expected column: "
+				+ tableReader.getTable().getDataColumnFamilyName() + ":"
+				+ GraphState.ROOT_UUID_COLUMN_NAME);
+		String uuidStr = null;
+		uuidStr = new String(rootUuid, 
+				tableReader.getTable().getCharset());
+		return UUID.fromString(uuidStr);	    			
+	}
 	
 	/**
 	 * Creates contained child data object with the same type

@@ -27,8 +27,6 @@ import java.io.OutputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.plasma.common.bind.NonValidatingUnmarshaler;
 import org.xml.sax.SAXException;
 
@@ -37,7 +35,7 @@ import org.xml.sax.SAXException;
  * wraps the underlying delegate methods in synchronized blocks.
  * 
  * @author Scott Cinnamond
- * @since 0.5.2
+ * @since 0.6.2
  */
 public class ConcurrentNonValidatingDataBinding implements NonValidatingDataBinding {
 

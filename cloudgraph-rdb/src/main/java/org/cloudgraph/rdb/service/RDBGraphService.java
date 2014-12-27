@@ -96,13 +96,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for count query");
 		} catch (SQLException e2) {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
@@ -110,13 +111,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
             return dispatcher.count(query);
         }
         finally {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
         }
     }
     
@@ -148,13 +150,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi count query");
 		} catch (SQLException e2) {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
@@ -165,13 +168,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
             return counts;
         }
         finally {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
         }
     }
 
@@ -212,13 +216,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for graph query");
 		} catch (SQLException e2) {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
@@ -232,13 +237,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
             return results;
         }
         finally {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
         }
     }
 
@@ -271,13 +277,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi graph query");
 		} catch (SQLException e2) {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
             throw new DataAccessException(e2);
 		}
         GraphQuery dispatcher = new GraphQuery(con);
@@ -296,13 +303,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
 	        return list;
         }
         finally {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
         }
     }
 
@@ -368,14 +376,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
             throw new DataAccessException(t);
         }
         finally {
-        	 
-        	try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage());
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
             dispatcher.close();
         }
     }
@@ -404,13 +412,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
 			    log.debug("using transaction isolation level " 
 			        + con.getTransactionIsolation() + " for multi graph commit");
 		} catch (SQLException e2) {
-            try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage(), e);
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
             throw new DataAccessException(e2);
 		}
 		DataGraphDispatcher dispatcher = 
@@ -439,13 +448,14 @@ public class RDBGraphService implements PlasmaDataAccessService, GraphService{
             throw new DataAccessException(t);
         }
         finally {
-        	try {
-    			if (log.isDebugEnabled())
-    				log.debug("closing connection");
-				con.close();
-			} catch (SQLException e) {
-				log.error(e.getMessage());
-			}
+            if (con != null)
+				try {
+	    			if (log.isDebugEnabled())
+	    				log.debug("closing connection");
+					con.close();
+				} catch (SQLException e) {
+					log.error(e.getMessage(), e);
+				}
             dispatcher.close();
         }
     }

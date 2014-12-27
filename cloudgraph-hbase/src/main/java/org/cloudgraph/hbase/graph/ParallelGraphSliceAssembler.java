@@ -30,20 +30,34 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.hbase.client.Result;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
+import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
 import org.plasma.query.collector.Selection;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
 /**
- * Constructs a data graph in parallel starting with a given root using the
- * given <a target="#"
+ * Assembles a data graph in parallel where one or more collections may be "sliced" 
+ * based on path predicates within the <a target="#"
  * href="http://plasma-sdo.org/org/plasma/query/collector/Selection.html"
- * >"selection graph"</a>, where processing proceeds as a breadth-first
- * traversal and tasks are dynamically added based on thread availability
+ * >"selection graph"</a>. 
+ * <p>
+ * Edges within a collection are "recognized" as members of a slice based on
+ * a binary expression syntax tree assembled from the path
+ * predicate describing the slice. While a path predicate may be quite complex resulting in
+ * any number of logical, relational or wildcard binary expressions, a single 
+ * slice syntax tree is used to evaluate any number of edges within a 
+ * collection. Where edge opposite graph nodes are found within the current row, an 
+ * edge recognizer is used, but where edge opposite graph nodes are found "outside" the 
+ * current row, a graph recognizer is used.   
+ * </p>
+ * <p>
+ * Parallel processing proceeds as a breadth-first
+ * traversal and subgraph tasks are dynamically added based on thread availability
  * within a shared <a href=
  * "https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ThreadPoolExecutor.html"
  * >thread pool</a>.
+ * </p>
  * <p>
  * While the result graph may be of any arbitrary size or depth, because the
  * traversal is breadth-first, many tasks are typically spawned at the "base" of
@@ -53,9 +67,9 @@ import org.plasma.sdo.PlasmaType;
  * graph. Since the actual size or depth of the result graph is not known until
  * discovered on traversal, a fixed number of parallel tasks cannot be initially
  * created, but must be dynamically spawned during graph discovery.
- * <p>
+ * </p>
  * The assembly is triggered by calling the
- * {@link ParallelGraphAssembler#assemble(Result resultRow)} method which
+ * {@link ParallelGraphSliceAssembler#assemble(Result resultRow)} method which
  * recursively reads HBase keys and values re-constituting the data graph. The
  * assembly traversal is driven by HBase column values representing the original
  * edges or containment structure of the graph.
@@ -69,13 +83,18 @@ import org.plasma.sdo.PlasmaType;
  * are re-created with the original UUID values.
  * </p>
  * 
+ * @see EdgeRecognizerSyntaxTreeAssembler
+ * @see EdgeRecognizerContext
+ * @see GraphRecognizerSyntaxTreeAssembler
+ * @see GraphRecognizerContext
+ * @see GraphSliceSupport
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
- * @see ParallelSubgraphTask
+ * @see ParallelSliceSubgraphTask
  * 
  * @author Scott Cinnamond
  * @since 0.6.2
  */
-public class ParallelGraphAssembler extends DistributedAssembler {
+public class ParallelGraphSliceAssembler extends DistributedAssembler {
 	/**
 	 * Thread pool shared by all tasks created by this assembler.  
 	 */
@@ -98,7 +117,7 @@ public class ParallelGraphAssembler extends DistributedAssembler {
 	 * @param maxPoolSize the maximum size of the underlying thread pool used for
 	 * all tasks executed under this assembler           
 	 */
-	public ParallelGraphAssembler(PlasmaType rootType, Selection selection,
+	public ParallelGraphSliceAssembler(PlasmaType rootType, Selection selection,
 			DistributedReader distributedReader, Timestamp snapshotDate,
 			int minPoolSize, int maxPoolSize) {
 		super(rootType, selection, distributedReader, snapshotDate);
@@ -118,7 +137,7 @@ public class ParallelGraphAssembler extends DistributedAssembler {
 			PlasmaProperty sourceProperty, RowReader rowReader, int level)
 			throws IOException {
 
-		ParallelSubgraphTask task = new ParallelSubgraphTask(target,
+		ParallelSliceSubgraphTask task = new ParallelSliceSubgraphTask(target,
 				this.selection, this.snapshotDate, this.distributedReader,
 				source, sourceProperty, rowReader, level, 0, this.executorService);
 		task.assemble(); // in current thread. 
