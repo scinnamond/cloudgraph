@@ -27,10 +27,10 @@ import javax.xml.namespace.QName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.store.service.GraphServiceException;
 import org.plasma.query.QueryException;
 import org.plasma.query.model.GroupOperator;
 import org.plasma.query.model.LogicalOperator;

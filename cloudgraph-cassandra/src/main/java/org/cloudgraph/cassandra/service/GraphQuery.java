@@ -35,20 +35,19 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.cql.CQLDataConverter;
-import org.cloudgraph.cassandra.cql.CQLStatementFactory;
-import org.cloudgraph.cassandra.cql.FilterAssembler;
-import org.cloudgraph.cassandra.cql.OrderingDeclarationAssembler;
+import org.cloudgraph.cassandra.filter.CQLDataConverter;
+import org.cloudgraph.cassandra.filter.CQLFilterAssembler;
+import org.cloudgraph.cassandra.filter.CQLOrderingAssembler;
+import org.cloudgraph.cassandra.filter.CQLStatementFactory;
 import org.cloudgraph.cassandra.graph.GraphAssembler;
 import org.cloudgraph.cassandra.graph.ParallelGraphAssembler;
-import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfigProp;
-import org.cloudgraph.config.ConfigurationProperty;
 import org.cloudgraph.config.QueryFetchType;
 import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.query.expr.ExprPrinter;
 import org.cloudgraph.recognizer.GraphRecognizerContext;
 import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
+import org.cloudgraph.store.lang.LangStoreGraphAssembler;
 import org.plasma.query.collector.SelectionCollector;
 import org.plasma.query.model.From;
 import org.plasma.query.model.OrderBy;
@@ -78,7 +77,6 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
-
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
@@ -115,7 +113,7 @@ public class GraphQuery extends CQLStatementFactory
         collector.setOnlyDeclaredProperties(false); // collect from superclasses
         List<List<PropertyPair>> queryResults = findResults(query, collector, type, con);
         
-        KeyPairGraphAssembler assembler = null;
+        LangStoreGraphAssembler assembler = null;
         
        	QueryFetchType fetchType = CloudGraphConfigProp.getQueryFetchType(query);
         switch (fetchType) {
@@ -195,7 +193,7 @@ public class GraphQuery extends CQLStatementFactory
      * max is exceeded.
      */
     private PlasmaDataGraph[] assembleResults(List<List<PropertyPair>> collection, 
-            int requestMax, KeyPairGraphAssembler assembler, Expr graphRecognizerRootExpr)  
+            int requestMax, LangStoreGraphAssembler assembler, Expr graphRecognizerRootExpr)  
     {
     	long before = System.currentTimeMillis();
         int unrecognizedResults = 0;
@@ -275,7 +273,7 @@ public class GraphQuery extends CQLStatementFactory
      * @throws MaxResultsExceededException when no request maximum is given and the default max is exceeded.
      */
     private PlasmaDataGraph[] trimResults(List<List<PropertyPair>> collection, 
-            int requestMax, KeyPairGraphAssembler assembler, Select select, Type type)  
+            int requestMax, LangStoreGraphAssembler assembler, Select select, Type type)  
     {
         DataObjectHashKeyAssembler hashKeyAssembler =
             new DataObjectHashKeyAssembler(select, type);
@@ -331,11 +329,11 @@ public class GraphQuery extends CQLStatementFactory
         StringBuilder sqlQuery = new StringBuilder();
         
         // construct a filter adding to alias map
-        FilterAssembler filterAssembler = null;
+        CQLFilterAssembler filterAssembler = null;
         Where where = query.findWhereClause();
         if (where != null)
         {
-            filterAssembler = new FilterAssembler(where, type);
+            filterAssembler = new CQLFilterAssembler(where, type);
             params = filterAssembler.getParams();               
             if (log.isDebugEnabled() ){
                 log.debug("filter: " + filterAssembler.getFilter());
@@ -415,19 +413,19 @@ public class GraphQuery extends CQLStatementFactory
         CQLDataConverter converter = CQLDataConverter.INSTANCE;
 
         // construct a filter adding to alias map
-        FilterAssembler filterAssembler = null;
+        CQLFilterAssembler filterAssembler = null;
         
         Where where = query.findWhereClause();
         
         if (where != null)
         {
-            filterAssembler = new FilterAssembler(where, type);
+            filterAssembler = new CQLFilterAssembler(where, type);
         }  
          
-        OrderingDeclarationAssembler orderingDeclAssembler = null;
+        CQLOrderingAssembler orderingDeclAssembler = null;
         OrderBy orderby = query.findOrderByClause();
         if (orderby != null) 
-            orderingDeclAssembler = new OrderingDeclarationAssembler(orderby, type);
+            orderingDeclAssembler = new CQLOrderingAssembler(orderby, type);
                 
         StringBuilder sqlQuery = new StringBuilder();
         sqlQuery.append("SELECT ");  
@@ -565,7 +563,7 @@ public class GraphQuery extends CQLStatementFactory
     }
     
     private StringBuffer generateErrorDetail(Throwable t, String queryString, 
-            FilterAssembler filterAssembler)
+            CQLFilterAssembler filterAssembler)
     {
         StringBuffer buf = new StringBuffer(2048);
         buf.append("QUERY FAILED: ");

@@ -32,9 +32,9 @@ import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
-import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
 import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.cloudgraph.state.GraphState;
+import org.cloudgraph.store.key.GraphStatefullColumnKeyFactory;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
@@ -53,7 +53,7 @@ import commonj.sdo.Property;
  * used to represent complex expression trees filtering either rows
  * or columns in HBase.
  * </p> 
- * @see org.cloudgraph.common.key.GraphStatefullColumnKeyFactory
+ * @see org.cloudgraph.store.key.GraphStatefullColumnKeyFactory
  * @see org.cloudgraph.hbase.key.StatefullColumnKeyFactory
  * @author Scott Cinnamond
  * @since 0.5

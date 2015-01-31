@@ -32,9 +32,9 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.filter.WritableByteArrayComparable;
-import org.cloudgraph.common.key.GraphRowKeyExpressionFactory;
-import org.cloudgraph.common.key.KeyValue;
-import org.cloudgraph.common.ql.GraphFilterException;
+import org.cloudgraph.store.key.GraphRowKeyExpressionFactory;
+import org.cloudgraph.store.key.KeyValue;
+import org.cloudgraph.store.lang.GraphFilterException;
 import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.Expression;
 import org.plasma.query.model.Literal;
@@ -68,7 +68,7 @@ import org.plasma.sdo.access.DataAccessException;
  * or columns in HBase.
  * </p> 
  *  
- * @see org.cloudgraph.common.key.GraphRowKeyExpressionFactory
+ * @see org.cloudgraph.store.key.GraphRowKeyExpressionFactory
  * @author Scott Cinnamond
  * @since 0.5
  */

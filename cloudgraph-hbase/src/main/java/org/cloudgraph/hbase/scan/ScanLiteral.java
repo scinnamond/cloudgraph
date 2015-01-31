@@ -26,13 +26,13 @@ import java.nio.charset.Charset;
 import javax.xml.namespace.QName;
 
 import org.apache.hadoop.hbase.util.Hash;
-import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.key.Hashing;
 import org.cloudgraph.hbase.key.KeySupport;
 import org.cloudgraph.hbase.key.Padding;
+import org.cloudgraph.store.service.GraphServiceException;
 import org.plasma.query.model.RelationalOperator;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;

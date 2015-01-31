@@ -40,9 +40,6 @@ import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.service.CreatedCommitComparator;
-import org.cloudgraph.common.service.DuplicateRowException;
-import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.DataGraphConfig;
 import org.cloudgraph.config.TableConfig;
@@ -55,6 +52,9 @@ import org.cloudgraph.hbase.io.TableWriter;
 import org.cloudgraph.hbase.io.TableWriterCollector;
 import org.cloudgraph.state.GraphState;
 import org.cloudgraph.state.GraphState.Edge;
+import org.cloudgraph.store.service.CreatedCommitComparator;
+import org.cloudgraph.store.service.DuplicateRowException;
+import org.cloudgraph.store.service.GraphServiceException;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaChangeSummary;
 import org.plasma.sdo.PlasmaDataObject;
@@ -103,8 +103,8 @@ import commonj.sdo.Property;
  * operation.
  * </p>
  * @see org.cloudgraph.hbase.io.DistributedWriter
- * @see org.cloudgraph.common.key.GraphRowKeyFactory
- * @see org.cloudgraph.common.key.GraphColumnKeyFactory
+ * @see org.cloudgraph.store.key.GraphRowKeyFactory
+ * @see org.cloudgraph.store.key.GraphColumnKeyFactory
  * @see org.cloudgraph.state.GraphState
  * 
  * @author Scott Cinnamond

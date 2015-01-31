@@ -22,7 +22,7 @@
 package org.cloudgraph.hbase.filter;
 
 import org.apache.hadoop.hbase.filter.Filter;
-import org.cloudgraph.common.ql.FilterAssembler;
+import org.cloudgraph.common.Assembler;
 
 /**
  * Common interface for HBase row and column filter assemblers.
@@ -38,7 +38,7 @@ import org.cloudgraph.common.ql.FilterAssembler;
  * @author Scott Cinnamond
  * @since 0.5
  */
-public interface HBaseFilterAssembler extends FilterAssembler {
+public interface HBaseFilterAssembler extends Assembler {
 
     /**
      * Returns the assembled filter, filter list or filter hierarchy root.

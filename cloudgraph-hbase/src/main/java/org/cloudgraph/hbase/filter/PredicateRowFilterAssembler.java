@@ -45,7 +45,7 @@ import org.xml.sax.SAXException;
  * processed. 
  *  
  * @see CompositeRowKeyExpressionFactory 
- * @see org.cloudgraph.common.key.GraphRowKeyFactory
+ * @see org.cloudgraph.store.key.GraphRowKeyFactory
  * @see org.plasma.query.visitor.QueryVisitor
  * @see org.plasma.query.model.Query
  * @author Scott Cinnamond

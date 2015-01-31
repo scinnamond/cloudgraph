@@ -37,10 +37,15 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.service.AliasMap;
-import org.cloudgraph.rdb.filter.FilterAssembler;
-import org.cloudgraph.rdb.filter.GroupingDeclarationAssembler;
-import org.cloudgraph.rdb.filter.OrderingDeclarationAssembler;
+import org.cloudgraph.config.CloudGraphConfigProp;
+import org.cloudgraph.config.QueryFetchType;
+import org.cloudgraph.rdb.filter.RDBFilterAssembler;
+import org.cloudgraph.rdb.filter.RDBGroupingAssembler;
+import org.cloudgraph.rdb.filter.RDBOrderingAssembler;
+import org.cloudgraph.rdb.graph.GraphAssembler;
+import org.cloudgraph.rdb.graph.ParallelGraphAssembler;
+import org.cloudgraph.store.lang.LangStoreGraphAssembler;
+import org.cloudgraph.store.service.AliasMap;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
 import org.plasma.config.RDBMSVendorName;
@@ -107,10 +112,26 @@ public class GraphQuery extends JDBCSupport
         collector.setOnlyDeclaredProperties(false); // collect from superclasses
         List<List<PropertyPair>> queryResults = findResults(query, collector, type, con);
         
-        GraphAssembler assembler =
-            new GraphAssembler(type, 
-            		collector, 
-            		snapshotDate, con);
+        LangStoreGraphAssembler assembler = null;
+        
+       	QueryFetchType fetchType = CloudGraphConfigProp.getQueryFetchType(query);
+        switch (fetchType) {
+        case PARALLEL:
+       	    int minPool = CloudGraphConfigProp.getQueryPoolMin(query);;
+       	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);;
+       	    if (minPool > maxPool)
+       	    	minPool = maxPool;
+       	 
+       	    assembler = new ParallelGraphAssembler(type,
+            		collector, snapshotDate,
+            		minPool, maxPool, con);
+           break;
+        case SERIAL:
+        default:
+        	assembler = new GraphAssembler(type, 
+                    collector, snapshotDate, con);
+            break;
+        }
 
         PlasmaDataGraph[] results = null;
         try {
@@ -158,7 +179,7 @@ public class GraphQuery extends JDBCSupport
      * max is exceeded.
      */
     private PlasmaDataGraph[] assembleResults(List<List<PropertyPair>> collection, 
-            int requestMax, GraphAssembler assembler) throws SQLException
+            int requestMax, LangStoreGraphAssembler assembler) throws SQLException
     {
     	long before = System.currentTimeMillis();
         ArrayList<PlasmaDataGraph> list = new ArrayList<PlasmaDataGraph>(20);
@@ -213,7 +234,7 @@ public class GraphQuery extends JDBCSupport
      * @throws MaxResultsExceededException when no request maximum is given and the default max is exceeded.
      */
     private PlasmaDataGraph[] trimResults(List<List<PropertyPair>> collection, 
-            int requestMax, GraphAssembler assembler, Select select, Type type) throws SQLException
+            int requestMax, LangStoreGraphAssembler assembler, Select select, Type type) throws SQLException
     {
         DataObjectHashKeyAssembler hashKeyAssembler =
             new DataObjectHashKeyAssembler(select, type);
@@ -270,11 +291,11 @@ public class GraphQuery extends JDBCSupport
         AliasMap aliasMap = new AliasMap(type);        
         
         // construct a filter adding to alias map
-        FilterAssembler filterAssembler = null;
+        RDBFilterAssembler filterAssembler = null;
         Where where = query.findWhereClause();
         if (where != null)
         {
-            filterAssembler = new FilterAssembler(where, type, aliasMap);
+            filterAssembler = new RDBFilterAssembler(where, type, aliasMap);
             params = filterAssembler.getParams();               
             if (log.isDebugEnabled() ){
                 log.debug("filter: " + filterAssembler.getFilter());
@@ -386,23 +407,23 @@ public class GraphQuery extends JDBCSupport
         AliasMap aliasMap = new AliasMap(type);
                
         // construct a filter adding to alias map
-        FilterAssembler filterAssembler = null;
+        RDBFilterAssembler filterAssembler = null;
         Where where = query.findWhereClause();
         if (where != null)
         {
-            filterAssembler = new FilterAssembler(where, type, aliasMap);
+            filterAssembler = new RDBFilterAssembler(where, type, aliasMap);
             params = filterAssembler.getParams();               
         }  
         
-        OrderingDeclarationAssembler orderingDeclAssembler = null;
+        RDBOrderingAssembler orderingDeclAssembler = null;
         OrderBy orderby = query.findOrderByClause();
         if (orderby != null) 
-            orderingDeclAssembler = new OrderingDeclarationAssembler(orderby, type, 
+            orderingDeclAssembler = new RDBOrderingAssembler(orderby, type, 
             		aliasMap);
-        GroupingDeclarationAssembler groupingDeclAssembler = null;
+        RDBGroupingAssembler groupingDeclAssembler = null;
         GroupBy groupby = query.findGroupByClause();
         if (groupby != null)
-        	groupingDeclAssembler = new GroupingDeclarationAssembler(groupby, type, 
+        	groupingDeclAssembler = new RDBGroupingAssembler(groupby, type, 
         			aliasMap);
                 
         String rootAlias = aliasMap.getAlias(type);
@@ -622,7 +643,7 @@ public class GraphQuery extends JDBCSupport
     }
     
     private StringBuffer generateErrorDetail(Throwable t, String queryString, 
-            FilterAssembler filterAssembler)
+            RDBFilterAssembler filterAssembler)
     {
         StringBuffer buf = new StringBuffer(2048);
         buf.append("QUERY FAILED: ");

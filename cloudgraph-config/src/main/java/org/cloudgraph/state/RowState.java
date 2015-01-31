@@ -23,7 +23,7 @@ package org.cloudgraph.state;
 
 import java.io.IOException;
 
-import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
+import org.cloudgraph.store.key.GraphStatefullColumnKeyFactory;
 
 import commonj.sdo.DataObject;
 import commonj.sdo.Type;

@@ -30,9 +30,12 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.service.KeyPairGraphAssembler;
+import org.cloudgraph.cassandra.filter.CQLStatementExecutor;
+import org.cloudgraph.cassandra.filter.CQLStatementFactory;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.concurrent.GraphMetricVisitor;
+import org.cloudgraph.store.lang.DefaultAssembler;
+import org.cloudgraph.store.lang.LangStoreGraphAssembler;
 import org.plasma.query.collector.SelectionCollector;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -41,7 +44,6 @@ import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.core.CoreNode;
 
 import com.datastax.driver.core.Session;
-
 import commonj.sdo.DataGraph;
 import commonj.sdo.Property;
 
@@ -64,14 +66,16 @@ import commonj.sdo.Property;
  * @since 0.6.2
  */
 public class GraphAssembler extends DefaultAssembler
-    implements KeyPairGraphAssembler {
+    implements LangStoreGraphAssembler {
 
     private static Log log = LogFactory.getLog(GraphAssembler.class);
 		
 	public GraphAssembler(PlasmaType rootType, SelectionCollector collector,
 			Timestamp snapshotDate, Session con) {
-		super(rootType, collector, new HashMap<Integer, PlasmaDataObject>(),
-				snapshotDate, con);		 
+		super(rootType, collector, 
+		    new CQLStatementFactory(), new CQLStatementExecutor(con),
+			new HashMap<Integer, PlasmaDataObject>(),
+				snapshotDate);		 
 	}
 	
 	/**

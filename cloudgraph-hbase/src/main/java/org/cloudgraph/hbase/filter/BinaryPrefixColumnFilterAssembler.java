@@ -31,8 +31,8 @@ import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.filter.QualifierFilter;
-import org.cloudgraph.common.key.GraphColumnKeyFactory;
 import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
+import org.cloudgraph.store.key.GraphColumnKeyFactory;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 
@@ -51,7 +51,7 @@ import commonj.sdo.Property;
  * used to represent complex expression trees filtering either rows
  * or columns in HBase.
  * </p> 
- * @see org.cloudgraph.common.key.GraphColumnKeyFactory
+ * @see org.cloudgraph.store.key.GraphColumnKeyFactory
  * @see org.cloudgraph.hbase.key.CompositeColumnKeyFactory
  * @author Scott Cinnamond
  * @since 0.5

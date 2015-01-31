@@ -36,9 +36,9 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.service.CreatedCommitComparator;
-import org.cloudgraph.common.service.DeletedCommitComparator;
-import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.store.service.CreatedCommitComparator;
+import org.cloudgraph.store.service.DeletedCommitComparator;
+import org.cloudgraph.store.service.GraphServiceException;
 import org.plasma.config.DataAccessProvider;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
@@ -56,7 +56,6 @@ import org.plasma.sdo.access.InvalidSnapshotException;
 import org.plasma.sdo.access.LockedEntityException;
 import org.plasma.sdo.access.RequiredPropertyException;
 import org.plasma.sdo.access.SequenceGenerator;
-import org.plasma.sdo.access.provider.common.DeletedObjectCollector;
 import org.plasma.sdo.access.provider.common.ModifiedObjectCollector;
 import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.core.CoreConstants;
@@ -69,6 +68,7 @@ import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
 
 import sorts.InsertionSort;
+
 import commonj.sdo.ChangeSummary.Setting;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;

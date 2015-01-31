@@ -443,6 +443,17 @@ column field may be specified.
                     </xsd:documentation> 
                 </xsd:annotation>
             </xsd:enumeration>
+            <xsd:enumeration value="cloudgraph.query.thread.depth.max">
+               <xsd:annotation>
+                    <xsd:documentation>The maximum graph traversal depth below which new query threads may be allocated when using 'parallel' for the value of the 
+                    &lt;b&gt;cloudgraph.query.fetchtype&lt;/b&gt; configuration property. Ignored if the &lt;b&gt;cloudgraph.query.fetchtype&lt;/b&gt; 
+                    configuration property is not set.
+                    &lt;li&gt;Name: cloudgraph.query.thread.depth.max&lt;/li&gt;
+                    &lt;li&gt;Data Type: int&lt;/li&gt;
+                    &lt;li&gt;Default: 7&lt;/li&gt;
+                    </xsd:documentation> 
+                </xsd:annotation>
+            </xsd:enumeration>
         </xsd:restriction>
     </xsd:simpleType>
             

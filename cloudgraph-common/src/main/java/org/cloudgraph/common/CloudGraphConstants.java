@@ -21,9 +21,6 @@
  */
 package org.cloudgraph.common;
 
-import org.plasma.sdo.DataType;
-import org.plasma.sdo.PlasmaProperty;
-import org.plasma.sdo.core.CoreProperty;
 
 /**
  * Common constants. 

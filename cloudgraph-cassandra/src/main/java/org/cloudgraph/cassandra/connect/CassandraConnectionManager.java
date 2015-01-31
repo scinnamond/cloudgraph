@@ -2,7 +2,7 @@ package org.cloudgraph.cassandra.connect;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.store.service.GraphServiceException;
 import org.plasma.config.DataAccessProvider;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;

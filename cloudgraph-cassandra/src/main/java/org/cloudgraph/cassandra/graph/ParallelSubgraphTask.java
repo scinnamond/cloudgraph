@@ -8,21 +8,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.concurrent.SubgraphTask;
+import org.cloudgraph.common.concurrent.Traversal;
+import org.cloudgraph.store.lang.AssemblerSupport;
+import org.cloudgraph.store.lang.DefaultAssembler;
+import org.cloudgraph.store.lang.StatementExecutor;
+import org.cloudgraph.store.lang.StatementFactory;
 import org.plasma.query.collector.SelectionCollector;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;
 import org.plasma.sdo.access.provider.common.PropertyPair;
-
-import com.datastax.driver.core.Session;
 
 import commonj.sdo.Property;
 
@@ -42,11 +42,11 @@ class ParallelSubgraphTask extends AssemblerSupport implements SubgraphTask {
 	public ParallelSubgraphTask(PlasmaType subrootType,
 			PlasmaDataObject source,
 			SelectionCollector selection,
-			Session con,
+			StatementFactory statementFactory, StatementExecutor statementExecutor,
 			PlasmaProperty sourceProperty, List<PropertyPair> childKeyPairs,
 			int level, int sequence,
 			ParallelGraphAssembler assembler) {
-		super(selection, con);
+		super(selection, statementFactory, statementExecutor);
 		this.subrootType = subrootType;
 		this.source = source;
 		this.sourceProperty = sourceProperty;
@@ -180,7 +180,7 @@ class ParallelSubgraphTask extends AssemblerSupport implements SubgraphTask {
 						trav.getSubrootType(),
 						trav.getSource(),
 						this.collector,
-						this.con,
+						this.getStatementFactory(), this.getStatementExecutor(),
 						trav.getSourceProperty(), trav.getChildKeyPairs(),
 						trav.getLevel(), i, this.sharedAssembler);
 				concurrentTasks.add(task);

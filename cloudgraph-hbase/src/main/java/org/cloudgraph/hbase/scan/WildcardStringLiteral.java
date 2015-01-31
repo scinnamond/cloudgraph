@@ -21,8 +21,8 @@
  */
 package org.cloudgraph.hbase.scan;
 
-import org.cloudgraph.common.service.GraphServiceException;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.store.service.GraphServiceException;
 import org.plasma.query.Wildcard;
 import org.plasma.query.model.WildcardOperator;
 import org.plasma.sdo.DataFlavor;

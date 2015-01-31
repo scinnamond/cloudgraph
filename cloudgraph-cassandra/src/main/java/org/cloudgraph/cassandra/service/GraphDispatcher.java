@@ -34,13 +34,13 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.cql.CQLStatementExecutor;
-import org.cloudgraph.cassandra.cql.CQLStatementFactory;
-import org.cloudgraph.cassandra.cql.StatementExecutor;
-import org.cloudgraph.cassandra.cql.StatementFactory;
-import org.cloudgraph.common.service.CreatedCommitComparator;
-import org.cloudgraph.common.service.DeletedCommitComparator;
-import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.cassandra.filter.CQLStatementExecutor;
+import org.cloudgraph.cassandra.filter.CQLStatementFactory;
+import org.cloudgraph.store.lang.StatementExecutor;
+import org.cloudgraph.store.lang.StatementFactory;
+import org.cloudgraph.store.service.CreatedCommitComparator;
+import org.cloudgraph.store.service.DeletedCommitComparator;
+import org.cloudgraph.store.service.GraphServiceException;
 import org.plasma.config.DataAccessProvider;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
@@ -72,7 +72,6 @@ import org.plasma.sdo.profile.KeyType;
 import sorts.InsertionSort;
 
 import com.datastax.driver.core.Session;
-
 import commonj.sdo.ChangeSummary.Setting;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
@@ -490,8 +489,8 @@ public class GraphDispatcher
                 log.debug("could not find optimistic concurrency timestamp property for type, "
                     + type.getURI() + "#" + type.getName());  
               
-
-        StringBuilder select = this.statementFactory.createSelect(type, pkPairs);
+        List<Object> params = new ArrayList<Object>();
+        StringBuilder select = this.statementFactory.createSelectConcurrent(type, pkPairs, 5, params);
         Map<String, PropertyPair> entity = this.statementExecutor.fetchRowMap(type, select);
         if (entity.size() == 0)
         	throw new GraphServiceException("could not lock record of type, " + type.toString());
@@ -603,7 +602,8 @@ public class GraphDispatcher
             throw new RequiredPropertyException("property '" + CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP                
                + "' is required to update entity '" + type.getName() + "'"); 
         
-        StringBuilder select = this.statementFactory.createSelect(type, pkPairs);
+        List<Object> params = new ArrayList<Object>();
+        StringBuilder select = this.statementFactory.createSelectConcurrent(type, pkPairs, 5, params);
         Map<String, PropertyPair> entity = this.statementExecutor.fetchRowMap(type, select);
         
         PlasmaProperty lockingUserProperty = (PlasmaProperty)type.findProperty(ConcurrencyType.pessimistic, 

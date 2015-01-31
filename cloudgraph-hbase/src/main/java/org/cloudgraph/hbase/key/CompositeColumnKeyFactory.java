@@ -23,8 +23,6 @@ package org.cloudgraph.hbase.key;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.key.GraphColumnKeyFactory;
-import org.cloudgraph.common.key.KeyFieldOverflowException;
 import org.cloudgraph.config.ColumnKeyField;
 import org.cloudgraph.config.ColumnKeyFieldConfig;
 import org.cloudgraph.config.DataGraphConfig;
@@ -32,6 +30,8 @@ import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.PreDefinedFieldName;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.store.key.GraphColumnKeyFactory;
+import org.cloudgraph.store.key.KeyFieldOverflowException;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;

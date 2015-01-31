@@ -27,7 +27,7 @@ import org.cloudgraph.query.expr.DefaultBinaryExprTreeAssembler;
 import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.query.expr.ExprAssembler;
 import org.cloudgraph.query.expr.ExpresionVisitorSupport;
-import org.cloudgraph.common.ql.GraphFilterException;
+import org.cloudgraph.store.lang.GraphFilterException;
 import org.cloudgraph.hbase.key.CompositeColumnKeyFactory;
 import org.plasma.query.model.Path;
 import org.plasma.query.model.Property;

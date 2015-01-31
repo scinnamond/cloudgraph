@@ -43,7 +43,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.util.LineReader;
 import org.apache.hadoop.util.StringUtils;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.service.MetricCollector;
+import org.cloudgraph.store.service.MetricCollector;
 import org.plasma.sdo.core.CoreDataObject;
 import org.plasma.sdo.xml.DefaultOptions;
 import org.plasma.sdo.xml.StreamUnmarshaller;

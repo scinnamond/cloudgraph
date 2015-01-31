@@ -40,8 +40,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.service.AliasMap;
-import org.cloudgraph.rdb.filter.FilterAssembler;
+import org.cloudgraph.rdb.filter.RDBFilterAssembler;
+import org.cloudgraph.store.service.AliasMap;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
 import org.plasma.config.RDBMSVendorName;
@@ -56,6 +56,7 @@ import org.plasma.sdo.profile.KeyType;
 
 import commonj.sdo.Property;
 
+@Deprecated
 public abstract class JDBCSupport {
 	
     private static Log log = LogFactory.getFactory().getInstance(JDBCSupport.class);
@@ -207,7 +208,7 @@ public abstract class JDBCSupport {
 
 	protected StringBuilder createSelect(PlasmaType type, Set<Property> props, 
 			List<PropertyPair> keyValues,
-			FilterAssembler filterAssembler,
+			RDBFilterAssembler filterAssembler,
 			List<Object> params,
 			AliasMap aliasMap) throws SQLException {
 		StringBuilder sql = new StringBuilder();

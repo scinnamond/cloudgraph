@@ -25,11 +25,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.cloudgraph.common.service.ToumbstoneRowException;
 import org.cloudgraph.hbase.key.StatefullColumnKeyFactory;
 import org.cloudgraph.hbase.service.ColumnMap;
 import org.cloudgraph.state.GraphRow;
 import org.cloudgraph.state.GraphState;
+import org.cloudgraph.store.service.ToumbstoneRowException;
 import org.plasma.sdo.PlasmaType;
 
 import commonj.sdo.DataObject;

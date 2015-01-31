@@ -32,10 +32,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.cassandra.service.KeyPairGraphAssembler;
+import org.cloudgraph.cassandra.filter.CQLStatementExecutor;
+import org.cloudgraph.cassandra.filter.CQLStatementFactory;
 import org.cloudgraph.common.CloudGraphConstants;
 import org.cloudgraph.common.concurrent.GraphMetricVisitor;
 import org.cloudgraph.common.concurrent.SubgraphTask;
+import org.cloudgraph.common.concurrent.Traversal;
+import org.cloudgraph.store.lang.DefaultAssembler;
+import org.cloudgraph.store.lang.LangStoreGraphAssembler;
 import org.plasma.query.collector.SelectionCollector;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaProperty;
@@ -44,7 +48,6 @@ import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.core.CoreNode;
 
 import com.datastax.driver.core.Session;
-
 import commonj.sdo.DataGraph;
 import commonj.sdo.Property;
 
@@ -77,7 +80,7 @@ import commonj.sdo.Property;
 * @since 0.6.2
 */
 public class ParallelGraphAssembler extends DefaultAssembler
-    implements KeyPairGraphAssembler {
+    implements LangStoreGraphAssembler {
 
     private static Log log = LogFactory.getLog(ParallelGraphAssembler.class);
     private ThreadPoolExecutor executorService;	
@@ -101,8 +104,10 @@ public class ParallelGraphAssembler extends DefaultAssembler
      */
 	public ParallelGraphAssembler(PlasmaType rootType, SelectionCollector collector,
 			Timestamp snapshotDate, int minPoolSize, int maxPoolSize, Session con) {
-		super(rootType, collector, new ConcurrentHashMap<Integer, PlasmaDataObject>(),
-			snapshotDate, con);		 
+		super(rootType, collector, 
+			new CQLStatementFactory(), new CQLStatementExecutor(con),
+			new ConcurrentHashMap<Integer, PlasmaDataObject>(),
+			snapshotDate);		 
 		this.executorService = new ThreadPoolExecutor(minPoolSize, maxPoolSize,
 	            0L, TimeUnit.MILLISECONDS,
 	            new LinkedBlockingQueue<Runnable>(),
@@ -187,7 +192,7 @@ public class ParallelGraphAssembler extends DefaultAssembler
 					trav.getSubrootType(),
 					trav.getSource(),
 					this.collector,
-					this.con,
+					this.getStatementFactory(), this.getStatementExecutor(),
 					trav.getSourceProperty(), trav.getChildKeyPairs(),
 					trav.getLevel(), i, this);
 			concurrentTasks.add(task);
@@ -207,7 +212,7 @@ public class ParallelGraphAssembler extends DefaultAssembler
 			    	trav.getSubrootType(),
 			    	trav.getSource(),
 					this.collector,
-					this.con,
+					this.getStatementFactory(), this.getStatementExecutor(),
 					trav.getSourceProperty(), trav.getChildKeyPairs(),
 					trav.getLevel(), traversals.size(), this);
 			task.assemble(); // this thread

@@ -34,58 +34,51 @@ public class CloudGraphConfigProp {
 	
 	public static int getQueryPoolMin(Query query)
 	{
-   	    int minPool = 10;
-		String value = System.getProperty(ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value());
-		if (value != null)  
-   	    	try {
-   	    	    minPool = Integer.valueOf(value);
-   	    	}
-   	        catch (NumberFormatException nfe) {
-    	    	throw new CloudGraphConfigurationException("invalid system query configuration value '"
-        	    		+ value + "' for property, "
-        	    		+ ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value(), nfe);
-   	        }
-        // override it with query specific value
-   	    String minPoolValue = query.getConfigurationProperty(
-    			ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value());      	       	
-   	    if (minPoolValue != null)
-   	    	try {
-   	    	    minPool = Integer.valueOf(minPoolValue);
-   	    	}
-   	        catch (NumberFormatException nfe) {
-    	    	throw new CloudGraphConfigurationException("invalid query configuration value '"
-        	    		+ minPoolValue + "' for property, "
-        	    		+ ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value(), nfe);
-   	        }
+   	    int minPool = findIntValue(query,
+   	   	   	    ConfigurationProperty.CLOUDGRAPH___QUERY___THREAD___DEPTH___MAX.value(), 10);
 		return minPool;
 	}
 	
 	public static int getQueryPoolMax(Query query)
 	{
-   	    int maxPool = 10;
-		String value = System.getProperty(ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value());
+   	    int maxPool = findIntValue(query,
+   	   	    ConfigurationProperty.CLOUDGRAPH___QUERY___THREAD___DEPTH___MAX.value(), 10);
+		return maxPool;
+	}
+
+	public static int getQueryThreadMaxDepth(Query query)
+	{
+   	    int depthMax = findIntValue(query,
+   	    	ConfigurationProperty.CLOUDGRAPH___QUERY___THREAD___DEPTH___MAX.value(), 7);
+		return depthMax;
+	}
+	
+	private static int findIntValue(Query query, String propertyName, int dflt)
+	{
+   	    int intValue = dflt;
+		String value = System.getProperty(propertyName);
 		if (value != null)  
    	    	try {
-   	    		maxPool = Integer.valueOf(value);
+   	    	    intValue = Integer.valueOf(value);
    	    	}
    	        catch (NumberFormatException nfe) {
     	    	throw new CloudGraphConfigurationException("invalid system query configuration value '"
         	    		+ value + "' for property, "
-        	    		+ ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value(), nfe);
+        	    		+ propertyName, nfe);
    	        }
         // override it with query specific value
-   	    String maxPoolValue = query.getConfigurationProperty(
-    			ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value());      	       	
-   	    if (maxPoolValue != null)
+   	    String stringValue = query.getConfigurationProperty(
+   	    		propertyName);      	       	
+   	    if (stringValue != null)
    	    	try {
-   	    		maxPool = Integer.valueOf(maxPoolValue);
+   	    	    intValue = Integer.valueOf(stringValue);
    	    	}
    	        catch (NumberFormatException nfe) {
     	    	throw new CloudGraphConfigurationException("invalid query configuration value '"
-        	    		+ maxPoolValue + "' for property, "
-        	    		+ ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value(), nfe);
+        	    		+ stringValue + "' for property, "
+        	    		+ propertyName, nfe);
    	        }
-		return maxPool;
+		return intValue;
 	}
-
+	
 }

@@ -11,10 +11,10 @@ import javax.sql.DataSource;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.plasma.config.ConfigurationConstants;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
 import org.plasma.config.Property;
-import org.plasma.config.ConfigurationConstants;
 import org.plasma.sdo.access.DataAccessException;
 
 /**

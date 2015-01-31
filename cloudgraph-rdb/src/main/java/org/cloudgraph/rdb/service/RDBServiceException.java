@@ -21,7 +21,7 @@
  */
 package org.cloudgraph.rdb.service;
 
-import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.store.service.GraphServiceException;
 
 /**
  * @author Scott Cinnamond

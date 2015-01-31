@@ -30,7 +30,6 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.hbase.util.Hash;
 import org.cloudgraph.common.CloudGraphConstants;
-import org.cloudgraph.common.key.KeyValue;
 import org.cloudgraph.config.CloudGraphConfigurationException;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.PredefinedField;
@@ -38,6 +37,7 @@ import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
 import org.cloudgraph.hbase.scan.StringLiteral;
 import org.cloudgraph.hbase.service.CloudGraphContext;
+import org.cloudgraph.store.key.KeyValue;
 import org.plasma.sdo.PlasmaDataObject;
 import org.plasma.sdo.PlasmaType;
 

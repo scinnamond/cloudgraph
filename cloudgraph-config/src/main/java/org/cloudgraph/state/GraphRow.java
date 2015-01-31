@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.cloudgraph.common.key.GraphStatefullColumnKeyFactory;
+import org.cloudgraph.store.key.GraphStatefullColumnKeyFactory;
 import org.plasma.sdo.PlasmaDataObject;
 
 import commonj.sdo.DataObject;

@@ -24,7 +24,7 @@ package org.cloudgraph.hbase.key;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import org.cloudgraph.common.key.KeyFieldOverflowException;
+import org.cloudgraph.store.key.KeyFieldOverflowException;
 import org.plasma.sdo.DataFlavor;
 
 /**

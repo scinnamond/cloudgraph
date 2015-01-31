@@ -27,12 +27,12 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.key.GraphRowKeyFactory;
-import org.cloudgraph.common.key.KeyFieldOverflowException;
-import org.cloudgraph.common.key.KeyValue;
 import org.cloudgraph.config.KeyFieldConfig;
 import org.cloudgraph.config.PreDefinedKeyFieldConfig;
 import org.cloudgraph.config.UserDefinedRowKeyFieldConfig;
+import org.cloudgraph.store.key.GraphRowKeyFactory;
+import org.cloudgraph.store.key.KeyFieldOverflowException;
+import org.cloudgraph.store.key.KeyValue;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaProperty;
 import org.plasma.sdo.PlasmaType;

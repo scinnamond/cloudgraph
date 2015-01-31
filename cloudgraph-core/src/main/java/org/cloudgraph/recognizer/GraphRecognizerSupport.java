@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudgraph.common.service.GraphServiceException;
+import org.cloudgraph.store.service.GraphServiceException;
 import org.plasma.query.Wildcard;
 import org.plasma.query.model.AbstractPathElement;
 import org.plasma.query.model.Path;
