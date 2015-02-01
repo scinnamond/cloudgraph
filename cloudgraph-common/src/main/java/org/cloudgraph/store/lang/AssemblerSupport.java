@@ -1,3 +1,24 @@
+/**
+ *        CloudGraph Community Edition (CE) License
+ * 
+ * This is a community release of CloudGraph, a dual-license suite of
+ * Service Data Object (SDO) 2.1 services designed for relational and 
+ * big-table style "cloud" databases, such as HBase and others. 
+ * This particular copy of the software is released under the 
+ * version 2 of the GNU General Public License. CloudGraph was developed by 
+ * TerraMeta Software, Inc.
+ * 
+ * Copyright (c) 2013, TerraMeta Software, Inc. All rights reserved.
+ * 
+ * General License information can be found below.
+ * 
+ * This distribution may include materials developed by third
+ * parties. For license and attribution notices for these
+ * materials, please refer to the documentation that accompanies
+ * this distribution (see the "Licenses for Third-Party Components"
+ * appendix) or view the online documentation at 
+ * <http://cloudgraph.org/licenses/>. 
+ */
 package org.cloudgraph.store.lang;
 
 import java.util.ArrayList;
@@ -19,6 +40,13 @@ import org.plasma.sdo.profile.KeyType;
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 
+/**
+ * Default assembler functionality without any shared objects related
+ * to graph assembly, such that it is usable by parallel tasks.
+ * 
+ * @author Scott Cinnamond
+ * @since 0.6.2
+ */
 public abstract class AssemblerSupport {
     private static Log log = LogFactory.getLog(AssemblerSupport.class);
 	protected SelectionCollector collector;
@@ -36,9 +64,11 @@ public abstract class AssemblerSupport {
 	public StatementFactory getStatementFactory() {
 		return statementFactory;
 	}
+	
 	public StatementExecutor getStatementExecutor() {
 		return statementExecutor;
 	}
+	
 	protected List<PropertyPair> getChildKeyPairs(PropertyPair pair)
 	{
 		List<PropertyPair> childKeyProps = new ArrayList<PropertyPair>();
@@ -83,7 +113,7 @@ public abstract class AssemblerSupport {
 	    		throw new GraphServiceException("no value found for key property, "  
 	    				+ pkProp.toString());
 	    }
-	    else
+	    else  
 		    throwPriKeyError(pkProps, 
 		    		dataObject.getType(), prop);
 		return childKeyProps;
@@ -102,7 +132,7 @@ public abstract class AssemblerSupport {
 			//The absence of this partition key makes that Cassandra has to send your query 
 			//to all nodes in the cluster, which is inefficient and therefore disabled 
 			//by default. The 'ALLOW FILTERING' clause enables such searches,
-			//query.append(" ALLOW FILTERING");
+			
 			Object[] paramArray = new Object[params.size()];
 			params.toArray(paramArray);
 			result = this.statementExecutor.fetch(targetType, query, props, paramArray);
@@ -117,7 +147,6 @@ public abstract class AssemblerSupport {
 			//The absence of this partition key makes that Cassandra has to send your query 
 			//to all nodes in the cluster, which is inefficient and therefore disabled 
 			//by default. The 'ALLOW FILTERING' clause enables such searches,
-			//query.append(" ALLOW FILTERING");
 			
 			Object[] paramArray = new Object[params.size()];
 			params.toArray(paramArray);
@@ -228,6 +257,7 @@ public abstract class AssemblerSupport {
 			throw new GraphServiceException("no value found for key property, "
 					+ valueProp.toString());
 	}	
+	
 	protected void throwPriKeyError(List<Property> rootPkProps, Type type,
 			Property prop) {
 		if (prop.isMany())

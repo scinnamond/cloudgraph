@@ -35,6 +35,7 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.cassandra.filter.CQLStatementExecutor;
 import org.cloudgraph.cassandra.filter.CQLStatementFactory;
 import org.cloudgraph.common.CloudGraphConstants;
+import org.cloudgraph.common.concurrent.ConfigProps;
 import org.cloudgraph.common.concurrent.GraphMetricVisitor;
 import org.cloudgraph.common.concurrent.SubgraphTask;
 import org.cloudgraph.common.concurrent.Traversal;
@@ -48,6 +49,7 @@ import org.plasma.sdo.access.provider.common.PropertyPair;
 import org.plasma.sdo.core.CoreNode;
 
 import com.datastax.driver.core.Session;
+
 import commonj.sdo.DataGraph;
 import commonj.sdo.Property;
 
@@ -84,6 +86,7 @@ public class ParallelGraphAssembler extends DefaultAssembler
 
     private static Log log = LogFactory.getLog(ParallelGraphAssembler.class);
     private ThreadPoolExecutor executorService;	
+    private ConfigProps config;
 	
     /**
  	 * Constructor.
@@ -103,19 +106,25 @@ public class ParallelGraphAssembler extends DefaultAssembler
      * @param con
      */
 	public ParallelGraphAssembler(PlasmaType rootType, SelectionCollector collector,
-			Timestamp snapshotDate, int minPoolSize, int maxPoolSize, Session con) {
+			Timestamp snapshotDate, ConfigProps config, Session con) {
 		super(rootType, collector, 
 			new CQLStatementFactory(), new CQLStatementExecutor(con),
 			new ConcurrentHashMap<Integer, PlasmaDataObject>(),
 			snapshotDate);		 
-		this.executorService = new ThreadPoolExecutor(minPoolSize, maxPoolSize,
+		this.executorService = new ThreadPoolExecutor(
+				config.getMinThreadPoolSize(), config.getMaxThreadPoolSize(),
 	            0L, TimeUnit.MILLISECONDS,
 	            new LinkedBlockingQueue<Runnable>(),
 	            new ThreadPoolExecutor.CallerRunsPolicy());
+		this.config = config;
 	}
 	
 	public ThreadPoolExecutor getExecutorService() {
 		return executorService;
+	}
+
+	public ConfigProps getConfig() {
+		return config;
 	}
 
 	@Override

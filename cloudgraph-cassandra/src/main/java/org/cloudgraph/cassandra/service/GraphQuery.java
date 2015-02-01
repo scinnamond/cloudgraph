@@ -41,6 +41,7 @@ import org.cloudgraph.cassandra.filter.CQLOrderingAssembler;
 import org.cloudgraph.cassandra.filter.CQLStatementFactory;
 import org.cloudgraph.cassandra.graph.GraphAssembler;
 import org.cloudgraph.cassandra.graph.ParallelGraphAssembler;
+import org.cloudgraph.common.concurrent.ConfigProps;
 import org.cloudgraph.config.CloudGraphConfigProp;
 import org.cloudgraph.config.QueryFetchType;
 import org.cloudgraph.query.expr.Expr;
@@ -77,6 +78,7 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.SimpleStatement;
+
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 import commonj.sdo.helper.XMLDocument;
@@ -122,10 +124,12 @@ public class GraphQuery extends CQLStatementFactory
        	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);;
        	    if (minPool > maxPool)
        	    	minPool = maxPool;
-       	 
+       	    int threadMaxDepth = CloudGraphConfigProp.getQueryThreadMaxDepth(query);
+       	    ConfigProps config = new ConfigProps(minPool, maxPool, threadMaxDepth);
+       	       	 
        	    assembler = new ParallelGraphAssembler(type,
             		collector, snapshotDate,
-            		minPool, maxPool, con);
+            		config, con);
            break;
         case SERIAL:
         default:

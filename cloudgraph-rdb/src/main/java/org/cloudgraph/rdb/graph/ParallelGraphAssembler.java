@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudgraph.common.CloudGraphConstants;
+import org.cloudgraph.common.concurrent.ConfigProps;
 import org.cloudgraph.common.concurrent.GraphMetricVisitor;
 import org.cloudgraph.common.concurrent.SubgraphTask;
 import org.cloudgraph.common.concurrent.Traversal;
@@ -84,6 +85,7 @@ public class ParallelGraphAssembler extends DefaultAssembler
 
     private static Log log = LogFactory.getLog(ParallelGraphAssembler.class);
     private ThreadPoolExecutor executorService;	
+    private ConfigProps config;
 	
     /**
  	 * Constructor.
@@ -103,19 +105,25 @@ public class ParallelGraphAssembler extends DefaultAssembler
      * @param con
      */
 	public ParallelGraphAssembler(PlasmaType rootType, SelectionCollector collector,
-			Timestamp snapshotDate, int minPoolSize, int maxPoolSize, Connection con) {
+			Timestamp snapshotDate, ConfigProps config, Connection con) {
 		super(rootType, collector, 
 			new RDBStatementFactory(), new RDBStatementExecutor(con),
 			new ConcurrentHashMap<Integer, PlasmaDataObject>(),
 			snapshotDate);		 
-		this.executorService = new ThreadPoolExecutor(minPoolSize, maxPoolSize,
+		this.executorService = new ThreadPoolExecutor(
+				config.getMinThreadPoolSize(), config.getMaxThreadPoolSize(),
 	            0L, TimeUnit.MILLISECONDS,
 	            new LinkedBlockingQueue<Runnable>(),
 	            new ThreadPoolExecutor.CallerRunsPolicy());
+		this.config = config;
 	}
 	
 	public ThreadPoolExecutor getExecutorService() {
 		return executorService;
+	}
+	
+	public ConfigProps getConfig() {
+		return config;
 	}
 
 	@Override

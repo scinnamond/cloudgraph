@@ -48,6 +48,7 @@ import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.query.expr.ExprPrinter;
 import org.cloudgraph.recognizer.GraphRecognizerContext;
 import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
+import org.cloudgraph.common.concurrent.ConfigProps;
 import org.cloudgraph.config.CloudGraphConfig;
 import org.cloudgraph.config.CloudGraphConfigProp;
 import org.cloudgraph.config.ConfigurationProperty;
@@ -601,19 +602,21 @@ public class GraphQuery
     	QueryFetchType fetchType = CloudGraphConfigProp.getQueryFetchType(query);
         switch (fetchType) {
         case PARALLEL:
-       	    int minPool = CloudGraphConfigProp.getQueryPoolMin(query);;
-       	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);;           	    
+       	    int minPool = CloudGraphConfigProp.getQueryPoolMin(query);
+       	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);           	    
        	    if (minPool > maxPool)
        	    	minPool = maxPool;
+       	    int threadMaxDepth = CloudGraphConfigProp.getQueryThreadMaxDepth(query);
+       	    ConfigProps config = new ConfigProps(minPool, maxPool, threadMaxDepth);
        	    if (selection.hasPredicates()) { 
         	    graphAssembler = new ParallelGraphSliceAssembler(type,
             		selection, graphReader, snapshotDate,
-            		minPool, maxPool);
+            		config);
        	    }
        	    else {
         	    graphAssembler = new ParallelGraphAssembler(type,
                 		selection, graphReader, snapshotDate,
-                		minPool, maxPool);
+                		config);
        	    }
             break;
         case SERIAL:

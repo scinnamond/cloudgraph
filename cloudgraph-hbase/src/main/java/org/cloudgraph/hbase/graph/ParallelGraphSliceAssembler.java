@@ -28,6 +28,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.hbase.client.Result;
+import org.cloudgraph.common.concurrent.ConfigProps;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
 import org.cloudgraph.recognizer.GraphRecognizerSyntaxTreeAssembler;
@@ -99,6 +100,7 @@ public class ParallelGraphSliceAssembler extends DistributedAssembler {
 	 * Thread pool shared by all tasks created by this assembler.  
 	 */
     private ThreadPoolExecutor executorService;	
+    private ConfigProps config;
 
 	/**
 	 * Constructor.
@@ -119,13 +121,15 @@ public class ParallelGraphSliceAssembler extends DistributedAssembler {
 	 */
 	public ParallelGraphSliceAssembler(PlasmaType rootType, Selection selection,
 			DistributedReader distributedReader, Timestamp snapshotDate,
-			int minPoolSize, int maxPoolSize) {
+			ConfigProps config) {
 		super(rootType, selection, distributedReader, snapshotDate);
 		
-		this.executorService = new ThreadPoolExecutor(minPoolSize, maxPoolSize,
+		this.executorService = new ThreadPoolExecutor(
+				config.getMinThreadPoolSize(), config.getMaxThreadPoolSize(),
 	            0L, TimeUnit.MILLISECONDS,
 	            new LinkedBlockingQueue<Runnable>(),
 	            new ThreadPoolExecutor.CallerRunsPolicy());
+		this.config = config;
 	}
 
 	/**
@@ -139,7 +143,8 @@ public class ParallelGraphSliceAssembler extends DistributedAssembler {
 
 		ParallelSliceSubgraphTask task = new ParallelSliceSubgraphTask(target,
 				this.selection, this.snapshotDate, this.distributedReader,
-				source, sourceProperty, rowReader, level, 0, this.executorService);
+				source, sourceProperty, rowReader, level, 0, this.executorService,
+				this.config);
 		task.assemble(); // in current thread. 
 	}
 }

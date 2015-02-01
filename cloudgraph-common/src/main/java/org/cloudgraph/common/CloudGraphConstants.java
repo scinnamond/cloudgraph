@@ -36,6 +36,13 @@ public class CloudGraphConstants {
 	 */
     public static final String GRAPH_ASSEMBLY_TIME = "GraphAssemblyTime";
 
+	/**
+	 * An SDO instance property representing the total time
+	 * in milliseconds taken for round trips to the underlying data store(s)
+	 * while assembling a data graph. 
+	 */
+    public static final String GRAPH_FETCH_TIME = "GraphFetchTime";
+
     /**
 	 * An SDO instance property representing the number
 	 * of graph nodes contained by a data graph. 

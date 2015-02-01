@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.concurrent.ConfigProps;
 import org.cloudgraph.config.CloudGraphConfigProp;
 import org.cloudgraph.config.QueryFetchType;
 import org.cloudgraph.rdb.filter.RDBFilterAssembler;
@@ -121,10 +122,12 @@ public class GraphQuery extends JDBCSupport
        	    int maxPool = CloudGraphConfigProp.getQueryPoolMax(query);;
        	    if (minPool > maxPool)
        	    	minPool = maxPool;
+       	    int threadMaxDepth = CloudGraphConfigProp.getQueryThreadMaxDepth(query);
+       	    ConfigProps config = new ConfigProps(minPool, maxPool, threadMaxDepth);
        	 
        	    assembler = new ParallelGraphAssembler(type,
             		collector, snapshotDate,
-            		minPool, maxPool, con);
+            		config, con);
            break;
         case SERIAL:
         default:

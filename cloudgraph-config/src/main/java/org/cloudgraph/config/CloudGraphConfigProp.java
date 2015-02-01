@@ -35,21 +35,21 @@ public class CloudGraphConfigProp {
 	public static int getQueryPoolMin(Query query)
 	{
    	    int minPool = findIntValue(query,
-   	   	   	    ConfigurationProperty.CLOUDGRAPH___QUERY___THREAD___DEPTH___MAX.value(), 10);
+   	   	   	    ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MIN.value(), 10);
 		return minPool;
 	}
 	
 	public static int getQueryPoolMax(Query query)
 	{
    	    int maxPool = findIntValue(query,
-   	   	    ConfigurationProperty.CLOUDGRAPH___QUERY___THREAD___DEPTH___MAX.value(), 10);
+   	   	    ConfigurationProperty.CLOUDGRAPH___QUERY___THREADPOOL___SIZE___MAX.value(), 10);
 		return maxPool;
 	}
 
 	public static int getQueryThreadMaxDepth(Query query)
 	{
    	    int depthMax = findIntValue(query,
-   	    	ConfigurationProperty.CLOUDGRAPH___QUERY___THREAD___DEPTH___MAX.value(), 7);
+   	    	ConfigurationProperty.CLOUDGRAPH___QUERY___THREAD___DEPTH___MAX.value(), 3);
 		return depthMax;
 	}
 	

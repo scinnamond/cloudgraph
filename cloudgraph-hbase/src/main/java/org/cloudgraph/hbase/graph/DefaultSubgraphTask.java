@@ -35,6 +35,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.common.concurrent.ConfigProps;
 import org.cloudgraph.common.concurrent.SubgraphTask;
 import org.cloudgraph.hbase.io.DistributedReader;
 import org.cloudgraph.hbase.io.RowReader;
@@ -71,7 +72,8 @@ abstract class DefaultSubgraphTask extends DistributedAssembler implements Subgr
 	 */
 	protected static Map<String, Object> fetchLocks = new ConcurrentHashMap<String, Object>();
 	protected final CountDownLatch shutdownLatch = new CountDownLatch(1);
-	protected ThreadPoolExecutor executorService;		
+	protected ThreadPoolExecutor executorService;	
+	protected ConfigProps config;
 	protected List<Traversal> traversals = new ArrayList<Traversal>();
     
 	/**
@@ -96,7 +98,8 @@ abstract class DefaultSubgraphTask extends DistributedAssembler implements Subgr
 			PlasmaProperty sourceProperty,
 			RowReader rowReader,
 			int level, int sequence,
-			ThreadPoolExecutor executorService) {
+			ThreadPoolExecutor executorService,
+			ConfigProps config) {
 		super((PlasmaType)subroot.getType(), selection, distributedReader, snapshotDate); 
 		this.subroot = subroot;
 		this.selection = selection;
@@ -107,7 +110,8 @@ abstract class DefaultSubgraphTask extends DistributedAssembler implements Subgr
 		this.rowReader = rowReader;
 		this.level = level;
 		this.sequence = sequence;
-		this.executorService = executorService;
+		this.executorService = executorService; 
+		this.config = config;
 	}
 
 	/**
@@ -183,7 +187,8 @@ abstract class DefaultSubgraphTask extends DistributedAssembler implements Subgr
 			PlasmaProperty sourceProperty,
 			RowReader rowReader,
 			int level, int sequence,
-			ThreadPoolExecutor executorService);
+			ThreadPoolExecutor executorService,
+			ConfigProps config);
     
 	@Override
 	protected abstract void assemble(PlasmaDataObject target, PlasmaDataObject source,
@@ -195,7 +200,7 @@ abstract class DefaultSubgraphTask extends DistributedAssembler implements Subgr
 	 * remainder of traversals being executed within the current thread.  
 	 * @throws IOException
 	 */
-	protected void traverse() throws IOException
+	protected void traverse(int level) throws IOException
 	{
 		List<Traversal> sync = new ArrayList<Traversal>();
 		List<Traversal> async = new ArrayList<Traversal>();
@@ -207,11 +212,16 @@ abstract class DefaultSubgraphTask extends DistributedAssembler implements Subgr
 		this.traversals.clear();
 		
 		// create concurrent tasks based on pool availability
-		int available = numThreadsAvailable();
-		if (available > async.size())
-			available = async.size();
-		List<SubgraphTask> concurrentTasks = new ArrayList<SubgraphTask>();
+		int available = 0;
+		if (level <= this.config.getMaxThreadDepth()) {
+			available = numThreadsAvailable();
+		    if (available > async.size())
+			    available = async.size();
+		}
+		List<SubgraphTask> concurrentTasks = null;
 		for (int i = 0; i < available; i++) {
+			if (concurrentTasks == null)
+				concurrentTasks = new ArrayList<SubgraphTask>();
 			Traversal trav = async.get(i);
 			SubgraphTask task = newTask(trav.getSubroot(),
 					this.selection,
@@ -219,7 +229,8 @@ abstract class DefaultSubgraphTask extends DistributedAssembler implements Subgr
 					this.distributedReader,
 					trav.getSource(), trav.getSourceProperty(), trav.getRowReader(),
 					trav.getLevel(), concurrentTasks.size(),
-					this.executorService);
+					this.executorService,
+					this.config);
 			concurrentTasks.add(task);
 		}
 		// add remainder 
@@ -229,10 +240,12 @@ abstract class DefaultSubgraphTask extends DistributedAssembler implements Subgr
 		}
 		
 		// start any asynchronous tasks
-		for (SubgraphTask task : concurrentTasks)
-			task.start();
-		for (SubgraphTask task : concurrentTasks)
-			task.join();
+		if (concurrentTasks != null) {
+			for (SubgraphTask task : concurrentTasks)
+				task.start();
+			for (SubgraphTask task : concurrentTasks)
+				task.join();
+		}
 		
 		// continue with sync tasks/traversals in this/current thread
 		for (Traversal trav : sync) {

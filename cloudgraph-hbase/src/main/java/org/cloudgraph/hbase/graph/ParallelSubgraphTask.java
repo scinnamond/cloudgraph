@@ -31,6 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.cloudgraph.common.concurrent.ConfigProps;
 import org.cloudgraph.common.concurrent.SubgraphTask;
 import org.cloudgraph.config.TableConfig;
 import org.cloudgraph.hbase.io.DistributedReader;
@@ -88,9 +89,10 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 			PlasmaProperty sourceProperty,
 			RowReader rowReader,
 			int level, int sequence,
-			ThreadPoolExecutor executorService) {
+			ThreadPoolExecutor executorService,
+			ConfigProps config) {
 		super(subroot,selection,snapshotDate,distributedReader,source,sourceProperty,rowReader,
-				level,sequence, executorService);
+				level,sequence, executorService, config);
 	}
 	
     /**
@@ -112,9 +114,9 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 			Selection selection, Timestamp snapshotDate,
 			DistributedReader distributedReader, PlasmaDataObject source,
 			PlasmaProperty sourceProperty, RowReader rowReader, int level,
-			int sequence, ThreadPoolExecutor executorService) {
+			int sequence, ThreadPoolExecutor executorService, ConfigProps config) {
 		return new ParallelSubgraphTask(subroot,selection,snapshotDate,distributedReader,source,sourceProperty,rowReader,
-				level,sequence, executorService);
+				level,sequence, executorService, config);
 	}
 
 	@Override
@@ -178,7 +180,7 @@ class ParallelSubgraphTask extends DefaultSubgraphTask implements SubgraphTask {
 			}
 		}		
 		
-		traverse();		
+		traverse(level);		
 	}
 	
 	protected void assembleEdges(PlasmaDataObject target, PlasmaProperty prop, 
