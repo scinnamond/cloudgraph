@@ -46,6 +46,7 @@ import org.cloudgraph.rdb.filter.RDBOrderingAssembler;
 import org.cloudgraph.rdb.graph.GraphAssembler;
 import org.cloudgraph.rdb.graph.ParallelGraphAssembler;
 import org.cloudgraph.store.lang.LangStoreGraphAssembler;
+import org.cloudgraph.store.lang.StatementUtil;
 import org.cloudgraph.store.service.AliasMap;
 import org.plasma.config.DataAccessProviderName;
 import org.plasma.config.PlasmaConfig;
@@ -76,7 +77,7 @@ import commonj.sdo.Property;
 import commonj.sdo.Type;
 
 
-public class GraphQuery extends JDBCSupport 
+public class GraphQuery   
     implements QueryDispatcher
 {
     private static Log log = LogFactory.getLog(GraphQuery.class);
@@ -88,12 +89,14 @@ public class GraphQuery extends JDBCSupport
     private static final String PAGE_ALIAS = "TX";
     
     private Connection con;
+    private StatementUtil statementUtil;
 
     @SuppressWarnings("unused")
 	private GraphQuery() {}
     public GraphQuery(Connection con)
     {
     	this.con = con;
+    	this.statementUtil = new StatementUtil();
     }
 
     public PlasmaDataGraph[] find(Query query, Timestamp snapshotDate)
@@ -316,7 +319,7 @@ public class GraphQuery extends JDBCSupport
     		String alias = aliasMap.getAlias(aliasType); 
     		if (count > 0)
     			sqlQuery.append(", ");
-    		sqlQuery.append(getQualifiedPhysicalName(aliasType));
+    		sqlQuery.append(this.statementUtil.getQualifiedPhysicalName(aliasType));
     		sqlQuery.append(" ");
     		sqlQuery.append(alias);
     		count++;
@@ -457,7 +460,7 @@ public class GraphQuery extends JDBCSupport
     		String alias = aliasMap.getAlias(aliasType); 
     		if (count > 0)
     			sqlQuery.append(", ");
-    		sqlQuery.append(getQualifiedPhysicalName(aliasType));
+    		sqlQuery.append(this.statementUtil.getQualifiedPhysicalName(aliasType));
     		sqlQuery.append(" ");
     		sqlQuery.append(alias);
     		count++;
@@ -606,7 +609,7 @@ public class GraphQuery extends JDBCSupport
             		PlasmaProperty prop = (PlasmaProperty)type.getProperty(columnName);
             		PlasmaProperty valueProp = prop;
             		while (!valueProp.getType().isDataType()) {
-            			valueProp = this.getOppositePriKeyProperty(valueProp);
+            			valueProp = this.statementUtil.getOppositePriKeyProperty(valueProp);
             		}
             		
             		Object value = converter.fromJDBCDataType(rs, 

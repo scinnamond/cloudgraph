@@ -50,7 +50,7 @@ import commonj.sdo.Property;
 /**
 * A concurrent task which processes a portion of a data graph or sub-graph while leveraging
 * shared resources, such as the data graph being assembled and the thread pool, through the
-* shared parent <@link ParallelGraphAssembler>. 
+* shared parent {@link ParallelGraphAssembler}. 
 *  
 * @see ParallelGraphAssembler
 * @see LangStoreGraphAssembler
@@ -58,8 +58,7 @@ import commonj.sdo.Property;
 * @author Scott Cinnamond
 * @since 0.6.2
 */
-//package protection
-class ParallelSubgraphTask extends AssemblerSupport implements SubgraphTask {
+public class ParallelSubgraphTask extends AssemblerSupport implements SubgraphTask {
     private static Log log = LogFactory.getLog(ParallelSubgraphTask.class);
 	protected PlasmaType subrootType;
 	protected PlasmaDataObject source;

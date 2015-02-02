@@ -36,6 +36,10 @@ import java.util.UUID;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.cloudgraph.rdb.filter.RDBStatementExecutor;
+import org.cloudgraph.rdb.filter.RDBStatementFactory;
+import org.cloudgraph.store.lang.StatementExecutor;
+import org.cloudgraph.store.lang.StatementFactory;
 import org.cloudgraph.store.service.CreatedCommitComparator;
 import org.cloudgraph.store.service.DeletedCommitComparator;
 import org.cloudgraph.store.service.GraphServiceException;
@@ -68,21 +72,20 @@ import org.plasma.sdo.profile.ConcurrentDataFlavor;
 import org.plasma.sdo.profile.KeyType;
 
 import sorts.InsertionSort;
-
 import commonj.sdo.ChangeSummary.Setting;
 import commonj.sdo.DataGraph;
 import commonj.sdo.DataObject;
 import commonj.sdo.Property;
 import commonj.sdo.Type;
 
-public class GraphDispatcher extends JDBCSupport
+public class GraphDispatcher  
     implements DataGraphDispatcher {
     private static Log log = LogFactory.getLog(GraphDispatcher.class);
-    private Connection con;
     private SnapshotMap snapshotMap;
     private SequenceGenerator sequenceGenerator;
     private String username;
-    private RDBDataConverter converter = RDBDataConverter.INSTANCE;
+    private StatementFactory statementFactory;
+    private StatementExecutor statementExecutor;
     
     @SuppressWarnings("unused")
     private GraphDispatcher() {}
@@ -91,7 +94,8 @@ public class GraphDispatcher extends JDBCSupport
             String username, Connection con) {
         this.snapshotMap = snapshotMap;
         this.username = username;
-        this.con = con;        
+        this.statementFactory = new RDBStatementFactory();
+        this.statementExecutor = new RDBStatementExecutor(con);
     }
     
     public void close()
@@ -305,7 +309,7 @@ public class GraphDispatcher extends JDBCSupport
                 DataObject priKeyDataObject = dataObject;
        		    // traverse to the datatype pk property for this reference
                 while (!priKeyValueProperty.getType().isDataType()) {
-                	priKeyValueProperty = this.getOppositePriKeyProperty(priKeyValueProperty);
+                	priKeyValueProperty = this.statementFactory.getOppositePriKeyProperty(priKeyValueProperty);
                 	priKeyDataObject = (DataObject)pk;
                 	pk = priKeyDataObject.get(priKeyValueProperty.getName());
                     if (pk == null)
@@ -403,12 +407,12 @@ public class GraphDispatcher extends JDBCSupport
             }
         }       
         
-        StringBuilder insert = createInsert(type, entity);
+        StringBuilder insert = this.statementFactory.createInsert(type, entity);
         if (log.isDebugEnabled()) {
             log.debug("inserting " + dataObject.getType().getName()); 
         }
         if (!this.hasSequenceGenerator()) {
-	        List<PropertyPair> keys = executeInsertWithGeneratedKeys(type, insert, entity, con);
+	        List<PropertyPair> keys = this.statementExecutor.executeInsertWithGeneratedKeys(type, insert, entity);
 	        
 	        for (Property pkp : pkList) {
 	            PlasmaProperty targetPriKeyProperty = (PlasmaProperty)pkp;
@@ -423,7 +427,7 @@ public class GraphDispatcher extends JDBCSupport
 	        }
         }
         else {
-        	executeInsert(type, insert, entity, con);        
+        	this.statementExecutor.executeInsert(type, insert, entity);        
         }
 
     }
@@ -502,9 +506,9 @@ public class GraphDispatcher extends JDBCSupport
                 log.debug("could not find optimistic concurrency timestamp property for type, "
                     + type.getURI() + "#" + type.getName());  
               
-
-        StringBuilder select = createSelectForUpdate(type, pkPairs, 5);
-        Map<String, PropertyPair> entity = fetchRowMap(type, select, con);
+        List<Object> params = new ArrayList<Object>();
+        StringBuilder select = this.statementFactory.createSelectConcurrent(type, pkPairs, 5, params);
+        Map<String, PropertyPair> entity = this.statementExecutor.fetchRowMap(type, select);
         if (entity.size() == 0)
         	throw new GraphServiceException("could not lock record of type, " + type.toString());
         
@@ -553,12 +557,12 @@ public class GraphDispatcher extends JDBCSupport
             }
         }    
         
-        if (hasUpdatableProperties(entity)) {
-	        StringBuilder update = createUpdate(type, entity);
+        if (this.statementFactory.hasUpdatableProperties(entity)) {
+	        StringBuilder update = this.statementFactory.createUpdate(type, entity);
 	        if (log.isDebugEnabled()) {
 	            log.debug("updating " + dataObject.getType().getName()); 
 	        }
-	        execute(type, update, entity, con);
+	        this.statementExecutor.execute(type, update, entity);
         }
     }
  
@@ -590,7 +594,7 @@ public class GraphDispatcher extends JDBCSupport
                 		+ pkProperty.toString());  
             }
             while (!priKeyValueProperty.getType().isDataType()) {
-            	priKeyValueProperty = this.getOppositePriKeyProperty(priKeyValueProperty);
+            	priKeyValueProperty = this.statementFactory.getOppositePriKeyProperty(priKeyValueProperty);
             	priKeyDataObject = (DataObject)pk;
             	pk = priKeyDataObject.get(priKeyValueProperty.getName());
                 if (pk == null) { // check the change summary - delete removes references
@@ -615,8 +619,9 @@ public class GraphDispatcher extends JDBCSupport
             throw new RequiredPropertyException("property '" + CoreConstants.PROPERTY_NAME_SNAPSHOT_TIMESTAMP                
                + "' is required to update entity '" + type.getName() + "'"); 
         
-        StringBuilder select = createSelectForUpdate(type, pkPairs, 5);
-        Map<String, PropertyPair> entity = fetchRowMap(type, select, con);
+        List<Object> params = new ArrayList<Object>();
+        StringBuilder select = this.statementFactory.createSelectConcurrent(type, pkPairs, 5, params);
+        Map<String, PropertyPair> entity = this.statementExecutor.fetchRowMap(type, select);
         
         PlasmaProperty lockingUserProperty = (PlasmaProperty)type.findProperty(ConcurrencyType.pessimistic, 
             	ConcurrentDataFlavor.user);
@@ -662,11 +667,11 @@ public class GraphDispatcher extends JDBCSupport
         for (PropertyPair pair : pkPairs)
         	entity.put(pair.getProp().getName(), pair);
         
-        StringBuilder delete = createDelete(type, entity);
+        StringBuilder delete = this.statementFactory.createDelete(type, entity);
         if (log.isDebugEnabled()) {
             log.debug("deleting " + dataObject.getType().getName()); 
         }
-        execute(type, delete, entity, con);
+        this.statementExecutor.execute(type, delete, entity);
     }
 
     /**
@@ -932,7 +937,7 @@ public class GraphDispatcher extends JDBCSupport
             valueProperty = (PlasmaProperty)pkList.get(0);  
             while (!valueProperty.getType().isDataType()) {
             	resultDataObject = (CoreDataObject)resultDataObject.get(valueProperty.getName());
-            	valueProperty = this.getOppositePriKeyProperty(valueProperty);
+            	valueProperty = this.statementFactory.getOppositePriKeyProperty(valueProperty);
             }
             
             pk = resultDataObject.get(valueProperty.getName());   
@@ -981,7 +986,7 @@ public class GraphDispatcher extends JDBCSupport
     
     private Property findCachedProperty(PlasmaType type, Property instanceProp) {
     	List<Object> result = type.search(instanceProp);
-        if (result != null && result.size() >0) {
+        if (result != null && result.size() > 0) {
         	if (result.size() > 1)
         		log.warn("expected single value for instance property '"
         				+ instanceProp.getName() + "' withing type '"
