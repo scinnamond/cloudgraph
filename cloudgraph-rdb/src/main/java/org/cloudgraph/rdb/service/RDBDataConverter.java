@@ -50,7 +50,7 @@ public class RDBDataConverter {
 	private static Log log = LogFactory.getFactory().getInstance(
 			RDBDataConverter.class);
 
-	static public RDBDataConverter INSTANCE = initializeInstance();
+	static public volatile RDBDataConverter INSTANCE = initializeInstance();
 	private Map<Integer, String> sqlTypeMap = new HashMap<Integer, String>();
 
 	private RDBDataConverter() {
