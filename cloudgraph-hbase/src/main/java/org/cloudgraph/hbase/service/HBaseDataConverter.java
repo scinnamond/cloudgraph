@@ -45,7 +45,7 @@ public class HBaseDataConverter {
 	private static Log log = LogFactory.getFactory().getInstance(
 			HBaseDataConverter.class);
 
-	static public HBaseDataConverter INSTANCE = initializeInstance();
+	static public volatile HBaseDataConverter INSTANCE = initializeInstance();
 
 	private HBaseDataConverter() {
 	}
