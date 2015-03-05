@@ -25,7 +25,7 @@ public class CassandraConnectionManager {
 	/** the maximum simultaneous requests per connection */
 	public static final String CONNECTION_CONCURRENCY = "org.plasma.sdo.access.provider.cassandra.ConnectionConcurrency";
 
-    private static CassandraConnectionManager instance;
+    private static volatile CassandraConnectionManager instance;
     private Cluster cluster;
 
 	private CassandraConnectionManager() {		
