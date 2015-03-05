@@ -43,7 +43,7 @@ import org.plasma.config.PlasmaConfig;
  */
 public class CloudGraphContext {
 	private static final Log log = LogFactory.getLog(CloudGraphContext.class);
-    private static CloudGraphContext instance;
+    private static volatile CloudGraphContext instance;
 	private Configuration config;
 	
 	private CloudGraphContext() {		
