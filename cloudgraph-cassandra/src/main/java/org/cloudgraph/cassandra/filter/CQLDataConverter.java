@@ -43,7 +43,7 @@ public class CQLDataConverter {
 	private static Log log = LogFactory.getFactory().getInstance(
 			CQLDataConverter.class);
 
-	static public CQLDataConverter INSTANCE = initializeInstance();
+	static public volatile CQLDataConverter INSTANCE = initializeInstance();
 	private Map<Integer, String> cqlTypeMap = new HashMap<Integer, String>();
 
 	private CQLDataConverter() {
