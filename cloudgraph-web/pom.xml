@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.cloudgraph</groupId>
         <artifactId>cloudgraph</artifactId>
-        <version>0.6.2</version>
+        <version>0.6.3</version>
     </parent>
 	<groupId>org.cloudgraph</groupId>
 	<artifactId>cloudgraph-web</artifactId>
 	<packaging>war</packaging>
-	<version>0.6.2</version>
+	<version>0.6.3</version>
 	<name>CloudGraph Web</name>
     <description>CloudGraph(tm) is a suite of Service Data Object (SDO) 2.1 services designed for relational and big-table style "cloud" databases, such as HBase and others.</description>
     <url>http://cloudgraph.org</url>
@@ -36,12 +36,12 @@
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-config</artifactId>
-            <version>0.6.2</version>
+            <version>0.6.3</version>
         </dependency>
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-rdb</artifactId>
-            <version>0.6.2</version>
+            <version>0.6.3</version>
             <exclusions>
             	<exclusion>
             		<artifactId>jaxb-api</artifactId>
@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.cloudgraph</groupId>
             <artifactId>cloudgraph-hbase</artifactId>
-            <version>0.6.2</version>
+            <version>0.6.3</version>
         </dependency>
 
         <dependency>
@@ -83,7 +83,7 @@
         <dependency>
             <groupId>commons-fileupload</groupId>
             <artifactId>commons-fileupload</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
         </dependency>
 	    <dependency>
 	        <groupId>org.jdom</groupId>
@@ -110,7 +110,7 @@
         <dependency>
             <groupId>org.terrameta</groupId>
             <artifactId>plasma-sdo</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
             <exclusions>
             	<exclusion>
             		<artifactId>jdom</artifactId>
@@ -153,13 +153,13 @@
         <dependency>
             <groupId>org.terrameta</groupId>
             <artifactId>plasma-sdo-jdbc</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
         </dependency>
         <!-- 
         <dependency>
             <groupId>org.terrameta</groupId>
             <artifactId>plasma-sdo-jpa</artifactId>
-            <version>1.2.2</version>
+            <version>1.2.3</version>
         </dependency>
         -->
         
@@ -224,7 +224,7 @@
         <dependency>
         	<groupId>org.terrameta</groupId>
         	<artifactId>plasma-maven-plugin</artifactId>
-        	<version>1.2.2</version>
+        	<version>1.2.3</version>
         	<scope>provided</scope>
         	<exclusions>
         		<exclusion>
@@ -351,7 +351,7 @@
             <plugin>
                 <groupId>org.terrameta</groupId>
                 <artifactId>plasma-maven-plugin</artifactId>
-                <version>1.2.2</version>
+                <version>1.2.3</version>
                 <executions>
                       
                     <execution>

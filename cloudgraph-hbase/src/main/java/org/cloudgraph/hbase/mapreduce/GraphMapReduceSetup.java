@@ -80,6 +80,7 @@ import org.cloudgraph.hbase.scan.PartialRowKeyScanAssembler;
 import org.cloudgraph.hbase.scan.ScanCollector;
 import org.cloudgraph.hbase.scan.ScanRecognizerSyntaxTreeAssembler;
 import org.cloudgraph.hbase.util.FilterUtil;
+import org.cloudgraph.job.JobSetup;
 import org.cloudgraph.query.expr.Expr;
 import org.cloudgraph.query.expr.ExprPrinter;
 import org.cloudgraph.state.SimpleStateMarshallingContext;
@@ -103,7 +104,7 @@ import commonj.sdo.Type;
  * extensions.
  */
 @SuppressWarnings("unchecked")
-public class GraphMapReduceSetup {
+public class GraphMapReduceSetup extends JobSetup {
 	static Log LOG = LogFactory.getLog(GraphMapReduceSetup.class);
 
 	/**
@@ -885,20 +886,6 @@ public class GraphMapReduceSetup {
 					collectRowKeyProperties(collector, (PlasmaType) nextType);
 			}
 		}
-	}
-
-	private static PlasmaType getRootType(Query query) {
-		From from = query.getModel().getFromClause();
-		if (from.getEntity() == null)
-			throw new IllegalArgumentException(
-					"given query has no root type and/or URI");
-		if (from.getEntity().getName() == null
-				|| from.getEntity().getNamespaceURI() == null)
-			throw new IllegalArgumentException(
-					"given query has no root type and/or URI");
-		PlasmaType type = (PlasmaType) PlasmaTypeHelper.INSTANCE.getType(from
-				.getEntity().getNamespaceURI(), from.getEntity().getName());
-		return type;
 	}
 
 	private static Query unmarshal(File queryFile) {

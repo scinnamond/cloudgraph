@@ -51,9 +51,12 @@ public class GraphServiceDelegate implements GraphService {
 	public void commit(DataGraph graph,
 			JobContext jobContext) throws IOException {
 
+		String jobName = this.getClass().getSimpleName();
+		if (jobContext != null)
+			jobName = jobContext.getJobName();
         SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
 		MutationCollector collector = new MutationCollector(this.context,
-				snapshotMap, jobContext.getJobName());
+				snapshotMap, jobName);
 
 		Map<TableWriter, List<Row>> mutations = new HashMap<TableWriter, List<Row>>();
 		try {
@@ -77,7 +80,7 @@ public class GraphServiceDelegate implements GraphService {
         List<DataObject> changedObjects = graph.getChangeSummary().getChangedDataObjects();
         for (DataObject dataObject : changedObjects)
             if (!graph.getChangeSummary().isDeleted(dataObject))
-                ((PlasmaNode)dataObject).getDataObject().reset(snapshotMap, jobContext.getJobName());
+                ((PlasmaNode)dataObject).getDataObject().reset(snapshotMap, jobName);
         graph.getChangeSummary().endLogging();
         graph.getChangeSummary().beginLogging();		
 	}
@@ -93,13 +96,16 @@ public class GraphServiceDelegate implements GraphService {
 	}
 
 	@Override
-	public void commit(DataGraph[] graphs, JobContext context)
+	public void commit(DataGraph[] graphs, JobContext jobContext)
 			throws IOException {
+		String jobName = this.getClass().getSimpleName();
+		if (jobContext != null)
+			jobName = jobContext.getJobName();
 		Map<TableWriter, List<Row>> mutations = new HashMap<TableWriter, List<Row>>();
 		for (DataGraph graph : graphs) {
 	        SnapshotMap snapshotMap = new SnapshotMap(new Timestamp((new Date()).getTime()));
 			MutationCollector collector = new MutationCollector(this.context,
-					snapshotMap, context.getJobName());
+					snapshotMap, jobName);
 	
 			try {
 				mutations = collector.collectChanges(graph);
@@ -109,7 +115,7 @@ public class GraphServiceDelegate implements GraphService {
 	        List<DataObject> changedObjects = graph.getChangeSummary().getChangedDataObjects();
 	        for (DataObject dataObject : changedObjects)
 	            if (!graph.getChangeSummary().isDeleted(dataObject))
-	                ((PlasmaNode)dataObject).getDataObject().reset(snapshotMap, context.getJobName());
+	                ((PlasmaNode)dataObject).getDataObject().reset(snapshotMap, jobName);
 	        graph.getChangeSummary().endLogging();
 	        graph.getChangeSummary().beginLogging();	
 		}

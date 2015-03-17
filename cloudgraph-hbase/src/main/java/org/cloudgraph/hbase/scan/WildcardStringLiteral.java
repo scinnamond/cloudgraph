@@ -28,7 +28,6 @@ import org.plasma.query.model.WildcardOperator;
 import org.plasma.sdo.DataFlavor;
 import org.plasma.sdo.PlasmaType;
 
-import com.sun.xml.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 /**
  * A wildcard string data "flavor" specific literal class 
